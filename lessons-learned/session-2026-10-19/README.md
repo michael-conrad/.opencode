@@ -13,3 +13,17 @@
 **Remediation target:** agent conduct under `behavioral-testing` (R-20) and the floor's standing formula. No deck text change is required by this lesson — the rules are already on the books (developer direction in #2644 R-2). The correction is behavioral: a terse message that appears to authorize a prohibited surface is clarified first, never acted on; and a BLOCKED report's "options I can see" framing must never include a surface the deck prohibits raising.
 
 **Artifacts:** the BLOCKED report and the model-proposal exchange are in the session record; run evidence under `tmp/issue-2639/artifacts/` (project root).
+
+---
+
+## LL-2: Supervisor poll-interval escalation past the 60s ceiling during SC-8 supervision (.opencode#2647)
+
+**Classification:** systemic (interval-escalation recurrence chain: #2557, #2561, #2570, #2594, #2619 → #2647)
+
+**What happened:** During `.opencode#2639` SC-8 behavioral supervision (2026-10-20), the supervising agent's poll intervals drifted to ~143–146 seconds between consecutive polls — computed from recorded poll timestamps (1792501178 → 1792501321 → 1792501467) — against the 60-second ceiling of the Agent-Supervisor Mandate. The drift came from `sleep 120` inside the poll tool calls plus per-call overhead: an escalation of the interval while the supervised run was pending, exactly the #2619 class. The developer corrected mid-run ("regression, the agent is not following mandatory polling discipline") and directed an SC-level fix plus compliance going forward; filed as `.opencode#2647`.
+
+**Root cause:** The supervisor escalated its sleep interval (120s) instead of holding the 60-second ceiling — the #2619 defect class: the interval is a ceiling, never a target, and never escalates while the supervised operation is pending. Per-call overhead (poll script + update generation) then pushed wall-clock further past the ceiling. The class had recurred five times before because it lived only in prose at the supervision surface; nothing verified it from recorded data.
+
+**Remediation target:** `poll-run.sh` reminder header + both reminder blocks and `behavioral-testing` SKILL.md rule 9 now encode the MID-FLOW ordering rule — the update text is delivered BEFORE the next poll call, in the same working session, never terminal (commit `403f8d5a`). `.opencode#2646` R-5/SC-6 makes cadence compliance a verified deliverable computed from recorded poll timestamps (fact-decidable), so the class is no longer unenforceable prose.
+
+**Consumed:** 2026-10-20 — `.opencode#2647` filed; fix shipped in commit `403f8d5a` (inside #2646's scope); SC-6/R-5 added to #2646.
