@@ -1,10 +1,13 @@
 #!/bin/bash
 # poll-run.sh — supervision poll for an active behavioral run (card §9).
 # Reads the active run's session DB (SQLite export), prints a digest of what
-# the run agent is doing, and ENDS WITH THE REMINDER BLOCK: the orchestrator's
-# NEXT TURN MUST BE a text-only in-chat update (semantic analysis of this
-# poll's evidence) before any further tool call (#2561: silent 30-minute
-# blocking runs are a supervision defect).
+# the run agent is doing, and ENDS WITH THE REMINDER BLOCK: the orchestrator
+# MUST deliver a text-only in-chat update (semantic analysis of this poll's
+# evidence) before the next poll call, then CONTINUE POLLING IMMEDIATELY in
+# the same working flow — the update is mid-flow, never a stopping point
+# (#2561: silent 30-minute blocking runs are a supervision defect; observed
+# 2026-10-20, #2647 family: "the next turn" wording read as turn-terminal and
+# the supervisor stopped twice).
 #
 # Usage: poll-run.sh <path-to-session.yaml> [poll_number]
 #   The DB path is the active run's test-home session export — pin it to the
@@ -49,14 +52,19 @@ PYEOF
 cat <<'REMINDER' >&2
 
 === ORCHESTRATOR REMINDER (card §9, .opencode#2561; #2570) ===
-This poll's evidence now requires YOUR semantic analysis — the next turn
-MUST be a text-only in-chat update with NO tool call, stating:
+This poll's evidence now requires YOUR semantic analysis. Deliver it NOW as
+an in-chat text update (plain text, no tool call attached to the analysis),
+stating:
   1. what the run agent is doing right now (from its actual words/work),
   2. what it intends next,
   3. whether that serves the scenario's declared goal condition,
   4. which hard-abort signals (tests-v2 AGENTS.md §14) have fired, if any.
-Deliver the update in chat text. Only after that update may polling continue.
-Chaining another tool call before the update turn is the supervision defect.
+The update is MID-FLOW, never terminal: after delivering it, immediately
+issue the next poll cycle (sleep 60 + poll-run.sh) in the same working
+session. Do NOT end the turn, do NOT yield to the operator, do NOT wait for
+input — stopping after the update is itself the supervision defect this
+reminder exists to prevent. Ordering rule stands: the update text comes
+before the next poll call — never chain a tool call before delivering it.
 This reminder is emitted on stderr as well as stdout so it survives output
 filtering — filtering or truncating poll output is itself a supervision
 defect; never pipe poll output through grep/head/tail.
@@ -66,14 +74,19 @@ REMINDER
 cat <<'REMINDER'
 
 === ORCHESTRATOR REMINDER (card §9, .opencode#2561; #2570) ===
-This poll's evidence now requires YOUR semantic analysis — the next turn
-MUST be a text-only in-chat update with NO tool call, stating:
+This poll's evidence now requires YOUR semantic analysis. Deliver it NOW as
+an in-chat text update (plain text, no tool call attached to the analysis),
+stating:
   1. what the run agent is doing right now (from its actual words/work),
   2. what it intends next,
   3. whether that serves the scenario's declared goal condition,
   4. which hard-abort signals (tests-v2 AGENTS.md §14) have fired, if any.
-Deliver the update in chat text. Only after that update may polling continue.
-Chaining another tool call before the update turn is the supervision defect.
+The update is MID-FLOW, never terminal: after delivering it, immediately
+issue the next poll cycle (sleep 60 + poll-run.sh) in the same working
+session. Do NOT end the turn, do NOT yield to the operator, do NOT wait for
+input — stopping after the update is itself the supervision defect this
+reminder exists to prevent. Ordering rule stands: the update text comes
+before the next poll call — never chain a tool call before delivering it.
 This reminder is emitted on stderr as well as stdout so it survives output
 filtering — filtering or truncating poll output is itself a supervision
 defect; never pipe poll output through grep/head/tail.
