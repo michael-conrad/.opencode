@@ -2,12 +2,12 @@
 name: implement
 description: "Load when executing an approved plan or making any change during the implementation work cycle — before starting work and before every mid-cycle change. Loads the implementation-workflow reference first (pre-implementation checklist, RED/GREEN chain, post-implementation gates). Run tests and show real output as evidence; use the project's connectors, libraries, and test frameworks from the floor inventory — bespoke reimplementation of what a library provides is a defect. Also load when implementation effort balloons into deep verification of a consumed framework's internals, verification tests of what the build system already guarantees, or methodology-only narration."
 license: MIT
-provenance: AI-authored, .opencode#2490
+provenance: AI-authored, .opencode#2490; short-path inline default, .opencode#2645
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention; #2550 SC-fidelity mandate; #2557 language/tool call out; #2551 consumables effort bound, fabricated-tests offender classes, narration-to-deliverable bound; test-quality + reverse drift, .opencode#2601 -->
+<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention; #2550 SC-fidelity mandate; #2557 language/tool call out; #2551 consumables effort bound, fabricated-tests offender classes, narration-to-deliverable bound; test-quality + reverse drift, .opencode#2601; short-path inline default, .opencode#2645 -->
 
 # implement — executing the work
 
@@ -72,6 +72,10 @@ provenance: AI-authored, .opencode#2490
 9. **Sub-agents are judgment, not ritual.** Dispatch one when a scoped task
    genuinely benefits; work inline when that is simply better. Dispatched work
    gets a clean-room prompt and a result back (YAML) — no chain theater.
+   **Short-path inline default.** For short-path work — developer-specified
+   small changes with no success-criteria machinery — the default is working
+   inline in the agent's own context; a sub-agent dispatch for short-path
+   work requires a scoped reason recorded in the work state.
 10. **SC fidelity.** Implementation satisfies each criterion as written — no
     weakening, skipping, deferring, or reinterpreting a criterion to make it
     passable. Fidelity runs in both directions: the implementation adds no
