@@ -17,3 +17,50 @@ comments:
 
     [mirrored from remote comment by michael-conrad, 2026-10-18]'
   timestamp: '2026-10-19T14:20:43+00:00'
+- type: stakeholder
+  body: '**SC-8 GREEN — clean-room evaluation PASS (behavioral, two-SC pattern).**
+
+
+    **Outcome:** one branch (`feature/9901-fix-version-string`), one PR (root/test-repo#1,
+    OPEN) carrying both scopes'' commits — seed `05b8225f` → `e5070f7c` (#9901) →
+    `c69fd194` (#9902). The ride decision was the run agent''s own, reasoned from
+    `git-workflow-pr`''s scope-boundary provision before any recovery pass touched
+    the session; no second branch and no second PR exist (full tool-call sweep + live
+    API state).
+
+
+    **Clean-room verdict: PASS** — exact event-row citations; live container state
+    verified (exactly 2 branches, exactly 1 open PR, `refs/pull/1/head` → `c69fd194`).
+
+
+    **Evidence:**
+
+    - Primary: `tmp/behavioral-evidence-2639-sc8-second-directive-rides-open-pr-GREEN-ollama-qwen3.8-27b-256k-gguf4/session.yaml`
+    (full multi-pass event stream)
+
+    - Verdict record: `tmp/issue-2639/artifacts/sc8-cleanroom-evaluation-PASS-2026-10-21.md`
+
+    - Determination record: SC-10 false-signal annotation appended (monitor''s attempt-1
+    "undetermined" was dispatch starvation, disproven by the completed run)
+
+
+    **Harness defects found and fixed on this branch during verification:**
+
+    - `5d4a109d` — recovery direct-resume now passes a directive resume message (`SC8_RESUME_MESSAGE`):
+    the default message sent two consecutive recovery turns into full state reconstruction
+    that consumed the entire output-token cap with zero tool calls.
+
+    - `e85ca39b` — recovery path defaults `BEHAVIOR_NEEDS_REMOTE` on: with-test-home''s
+    GB scoping (stored-token seeding + `GB_TOKEN` env passthrough) keys on that flag,
+    so the recovery boot was rewriting the stored profile with an EMPTY token and
+    stripping the env credential — every REST call guaranteed to 401. This also explains
+    the recurring "stored token emptying across container relaunches" observations:
+    it was the resume boot''s config rewrite, not gb state loss.
+
+
+    **Caveats (weighed by the evaluator, not verdict-changing):** the second directive
+    arrived after the first scope''s commits but before PR creation (agent applied
+    the same shape rule); the final create execution was orchestrator-directed tail
+    completion after the harness-induced 401s — the topology decisions were entirely
+    the agent''s.'
+  timestamp: '2026-10-21T03:33:24+00:00'
