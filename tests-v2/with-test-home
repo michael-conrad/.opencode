@@ -170,16 +170,30 @@ __sc8_determination_gate() {
     local home="$1"
     local det="" cand="" tup=""
     local dir="" domain=""
-    while IFS= read -r -d '' cand; do
-        dir="$(dirname "$cand")"
-        # The record targets this resume when any file in its evidence tree
-        # (the record's directory, up to depth 2) names the home path.
-        if find "$dir" -maxdepth 2 -type f -print0 2>/dev/null \
-            | xargs -0 -r grep -qsF "$home"; then
-            det="$cand"
-            domain="$dir"
-        fi
-    done < <(find "$TMP_DIR" -mindepth 2 -type f -name 'determination.yaml' -print0 2>/dev/null || true)
+    # Scan roots: the project tmp tree (host tier — evidence dirs live under
+    # it) plus, when the launcher provides it, the run's own evidence dir.
+    # The Docker tier stages TMP_DIR at the docker-staging root, where no
+    # determination record exists, while the evidence dir is mount-visible
+    # at the same absolute path inside the container (.opencode#2646
+    # docker-resume fix — observed 2026-10-20: the SC-8 cap-resume FATAL'd
+    # scanning only the staging tree).
+    local -a scan_roots=("$TMP_DIR")
+    [ -n "${BEHAVIOR_DETERMINATION_SCAN_DIR:-}" ] && scan_roots+=("$BEHAVIOR_DETERMINATION_SCAN_DIR")
+    local root mindepth
+    for root in "${scan_roots[@]}"; do
+        mindepth=2
+        [ "$root" = "$TMP_DIR" ] || mindepth=1
+        while IFS= read -r -d '' cand; do
+            dir="$(dirname "$cand")"
+            # The record targets this resume when any file in its evidence tree
+            # (the record's directory, up to depth 2) names the home path.
+            if find "$dir" -maxdepth 2 -type f -print0 2>/dev/null \
+                | xargs -0 -r grep -qsF "$home"; then
+                det="$cand"
+                domain="$dir"
+            fi
+        done < <(find "$root" -mindepth "$mindepth" -type f -name 'determination.yaml' -print0 2>/dev/null || true)
+    done
     if [ -n "$det" ]; then
         local classification=""
         classification=$(grep -E '^  classification: ' "$det" 2>/dev/null | head -1 | sed 's/^  classification: //' || true)
@@ -199,7 +213,7 @@ __sc8_determination_gate() {
             esac
         fi
     fi
-    echo "FATAL: resume failed — no non-undetermined determination exists for test home '$home': ${det:+determination record '${det}' carries an undetermined classification with no valid orchestrator decision; required decision (continue-new-dispatch, or terminate-with-root-cause with root cause) is missing locally}${det:-determination.yaml not found in any scenario evidence dir for this resume/re-run target (evidence tree scanned: $TMP_DIR)} — resume/re-run (--resume-home / re-run --continue) requires a recorded non-undetermined determination or a valid orchestrator decision (.opencode#2456 SC-8 determination gate); no inference dispatched" >&2
+    echo "FATAL: resume failed — no non-undetermined determination exists for test home '$home': ${det:+determination record '${det}' carries an undetermined classification with no valid orchestrator decision; required decision (continue-new-dispatch, or terminate-with-root-cause with root cause) is missing locally}${det:-determination.yaml not found in any scenario evidence dir for this resume/re-run target (evidence trees scanned: ${scan_roots[*]})} — resume/re-run (--resume-home / re-run --continue) requires a recorded non-undetermined determination or a valid orchestrator decision (.opencode#2456 SC-8 determination gate); no inference dispatched" >&2
     exit 1
 }
 
@@ -543,6 +557,12 @@ PYRESUME
     fi
     __sc8_determination_gate "$TEST_HOME"
     KEEP_TEST_HOME=1
+    # Keep the §2 stderr contract on the resume path too — the post-run
+    # export and scenario turn-2 discovery locate the session DB by grepping
+    # TEST_HOME= from the run's stderr; the fresh path emits it in do_setup,
+    # the resume path skipped do_setup and silently dropped the marker
+    # (.opencode#2646 docker-resume fix, observed 2026-10-20).
+    echo "TEST_HOME=$TEST_HOME" >&2
 elif [ "${BEHAVIOR_SHARED_HOME:-0}" = "1" ]; then
     TEST_HOME="$TMP_DIR/test-home-shared"
     KEEP_TEST_HOME=1
@@ -560,10 +580,14 @@ if [ -n "${RESUME_HOME:-}" ]; then
         echo "HARNESS_FAILURE: resume failed — test project directory missing at $TEST_PROJECT (test home: $TEST_HOME)" >&2
         exit 1
     fi
-    if [ ! -x "$TEST_HOME/bin/opencode" ]; then
+    if [ ! -x "$TEST_HOME/bin/opencode" ] && [ "${TEST_ENV:-}" != "docker" ]; then
         echo "FATAL: resume failed — opencode binary missing at $TEST_HOME/bin/opencode (test home: $TEST_HOME)" >&2
         exit 1
     fi
+    # Docker tier (.opencode#2646): docker-tier homes are bare by contract —
+    # the image's baked /usr/local/bin/opencode is the instrument, so the
+    # host-home binary check does not apply; PATH resolution finds the image
+    # binary inside the container.
 elif [ -n "${TEST_WORKDIR:-}" ] && [ -d "$TEST_WORKDIR" ]; then
     if [ "${BEHAVIOR_SHARED_HOME:-0}" = "1" ] && [ -d "$TEST_HOME/project" ]; then
         # Shared home already has a project (earlier invocation) — build on it.
@@ -630,6 +654,7 @@ export SHELL="$SHELL"
 export LOGNAME="${LOGNAME:-}"
 export LANG="${LANG:-C.UTF-8}"
 export TERM="${TERM:-xterm}"
+export OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX="${OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX:-4000}"
 export BEHAVIOR_NEEDS_MULTI_SUBMODULES="${BEHAVIOR_NEEDS_MULTI_SUBMODULES:-}"
 export BEHAVIOR_NEEDS_REMOTE="${BEHAVIOR_NEEDS_REMOTE:-}"
 export BEHAVIOR_SET_BARE_REMOTE="${BEHAVIOR_SET_BARE_REMOTE:-}"
@@ -706,6 +731,7 @@ env -i -C "$TEST_PROJECT" \
     LOGNAME="opencode-test-user" \
     LANG="${LANG:-C.UTF-8}" \
     TERM="${TERM:-xterm}" \
+    OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX="${OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX:-4000}" \
     BEHAVIOR_NEEDS_MULTI_SUBMODULES="${BEHAVIOR_NEEDS_MULTI_SUBMODULES:-}" \
     BEHAVIOR_NEEDS_REMOTE="${BEHAVIOR_NEEDS_REMOTE:-}" \
     BEHAVIOR_SET_BARE_REMOTE="${BEHAVIOR_SET_BARE_REMOTE:-}" \

@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2550; criteria-depth restoration, .opencode#2601; spin-bounded loop, .opencode#2606 -->
+<!-- Provenance: AI-authored, .opencode#2550; criteria-depth restoration, .opencode#2601; spin-bounded loop, .opencode#2606; state-decidability class, .opencode#2646 -->
 
 # Validation Standards
 
@@ -63,6 +63,22 @@ A criterion is defective when it exhibits any of the following:
    tracking content outside the footer allowlist.
 7. **Trivially-true restatement.** The criterion restates existing behavior
    or a tautology, so it can never fail and verifies nothing.
+8. **State-undecidable criterion.** The criterion's verdict cannot be decided
+   from the current state of the deliverable and its evidence — for example a
+   trigger on an append-only record of historical events with no rule mapping
+   the record to an implemented-or-not answer. A criterion must be decidable:
+   the evidence either shows the requirement in force and holding, or it does
+   not. Where the requirement is conduct, the record's post-remediation
+   continuation is the compliance evidence: a violation window whose
+   cause-level fix has landed in the deliverable, whose record discloses the
+   window, and whose subsequent supervised cycles demonstrate the requirement
+   holding resolves the criterion as implemented — the disclosed history is
+   the remediation record, never a permanent FAIL and never a developer gate.
+   A violation recurring after the cause-fix without remediation resolves not
+   implemented, and the remediate loop continues. The anti-rationalization
+   intent such criteria carry is preserved by full disclosure and by the
+   post-fix continuation evidence — never by permanence, never by injecting
+   the developer into verdict resolution (merge remains the human gate).
 
 ## Analysis families
 

@@ -83,14 +83,22 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    (finding CLIs, reverse-engineering APIs, deriving auth shapes,
    discovering store layout) is a harness/scenario defect to fix at the
    fixture/image layer — never model behavior, never prompt-tolerated.
-9. **Supervise every run — 60-second poll cycle, update turn follows the poll's reminder.**
-   Launch the run in background. **The supervision cycle is two turns, strictly
-   alternating: (1) a tool call — `sleep 60`, then `.opencode/tests-v2/poll-run.sh
-   <pinned-session-db> <poll#>` — whose output ENDS WITH THE REMINDER to
-   deliver the analysis in chat (the poll script prints it); (2) the very next
-   message is the text-only update — the analysis and NO tool call.** The reminder block in the poll
-   output is the trigger; never chain another tool call before delivering the
-   update. **The 60-second cycle is absolute — no longer sleeps (240s/300s+)
+ 9. **Supervise every run — 60-second poll cycle, update follows the poll's reminder mid-flow.**
+    Launch the run in background. **The supervision cycle is ONE continuous
+    loop, never a pair of alternating turns: (1) a tool call — `sleep 60`, then
+    `.opencode/tests-v2/poll-run.sh
+    <pinned-session-db> <poll#>` — whose output ENDS WITH THE REMINDER to
+    deliver the analysis in chat (the poll script prints it); (2) immediately
+    after, the analysis is delivered as an in-chat text update — plain text,
+    NO tool call attached to the analysis — and then the loop CONTINUES with
+    the next poll call in the same working flow.** The update is mid-flow,
+    never a stopping point: ending the turn after the update — yielding to the
+    operator mid-run, waiting for a nudge — is itself the supervision defect
+    (observed 2026-10-20, #2647 family: the "two turns" wording read as
+    turn-terminal and the supervisor stopped twice; the developer had to
+    prompt "why did you stop?" both times). The reminder block in the poll
+    output is the trigger; never chain another tool call before delivering the
+    update. **The 60-second cycle is absolute — no longer sleeps (240s/300s+)
    between polls, ever (observed defect, #2570). Never pipe, grep, head, tail,
    or otherwise filter or truncate the poll output — the trailing reminder is
    the update trigger, and filtering it out silently suppresses the update

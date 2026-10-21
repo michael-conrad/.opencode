@@ -416,6 +416,43 @@ Both smoke tests MUST pass before the test home is considered ready:
 - `opencode models` must return at least one `ollama/` model
 - `opencode run "hello world"` must produce non-empty output without errors
 
+### Bounded Per-Turn Generation — `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX`
+
+The harness sets `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` (default 4000) at
+every environment surface it controls (the `with-test-home` `env -i`
+allowlist and its `set-env.sh` debug export, both as a `${...:-4000}` env
+default overridable only by a deliberate probe; the Docker-tier
+`docker_env` passthrough and the §14 classifier-home seeder as literal
+4000). What it bounds: the output-token budget of each assistant
+generation — opencode feeds the flag into `maxOutputTokens` per generation
+call (verified on both runtime binaries: host `.tools` 1.18.3 and the
+Docker image's 1.19.0). Why: unbounded single-turn generation was the
+run-fatal mechanism in the #2639 SC-7 attempts — degenerate reasoning
+blocks of 4,140–6,030 tokens over 8.5–19 minutes with no tool-call flush
+killed six runs; 4,000 sits at the boundary of the observed healthy-turn
+range (1,000–4,100) and below the smallest degenerate turn. What happens
+on a hit: the turn ends with a `length` finish and terminates cleanly
+(verified empirically: a capped smoke run recorded `finish: "length"`,
+`output: 60`, CLI exited without error). **In an agentic run a cap hit
+ends the session**: truncation mid-reasoning issues no tool call, so
+opencode's loop treats the turn as the agent's final answer and exits
+(observed: attempt 7, `finish: length`, `output: 4000`, `exiting loop`
+one second after the request returned, run exit 0 with the goal unreached).
+The composition that keeps the run alive is the resume-on-cap-hit step in
+`behavior_run()` (`.opencode#2646` R-4): for monitored runs, a session
+whose last assistant message carries `finish: length` is resumed via the
+§10.7 machinery (`with-test-home --resume-home <home> opencode run
+--continue` — host tier; the docker tier resumes via a second container
+run with the same `--resume-home` form against the staged home), bounded
+by a per-attempt resume ceiling; unmonitored runs are out of the resume
+path and export their evidence at the capped exit. Supervision
+relationship: a cap hit presents as normal turn cadence to the §14 monitor
+and the agent supervisor — it is NEVER an abort signal; §17's excessive
+run-time cause analysis still applies to the run aggregate, and a scenario
+whose legitimate turns routinely hit the cap is re-scoped at the spec
+(value raises are a one-line change to the four surfaces), never by model
+substitution (R-20).
+
 ### Concurrency Lock — `flock`
 
 The harness uses `flock` (file lock) for mutual exclusion. A lock file at `tmp/.behavior-run.lock` is acquired via `flock -x -w 30` before the model run.
