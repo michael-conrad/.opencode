@@ -175,8 +175,12 @@ a request for a spec came to be read as a request that already had one.
   path is unsure — its frontmatter's "Also load when unsure which stage
   applies: halt with an open-ended clarification request rather than guess"
   and its closing line "Unsure which path fits? Halt with an open-ended
-  clarification request" — are read as applying to ambiguity in the request
-  about what to build, not to the classification itself.
+  clarification request" — are read as applying to a request that does not say
+  what to build at all, where the agent halts with one open-ended
+  clarification request. A request that says what to build but leaves a
+  material choice open about it fails the criterion above and takes the full
+  path; the halt rule does not reach it, and the criterion-failure rule
+  governs.
 - **R-4** — Every change records its path and its scope before implementation
   begins. A full-path change's spec artifact carries the scope. A short-path
   change carries it in a scope statement, which the agent writes into the work
@@ -222,8 +226,10 @@ a request for a spec came to be read as a request that already had one.
   The carve-out's **no-halt clause** — never halt for direction the
   instruction already carries — does not reach a directed edit whose content
   leaves a material open choice: the agent asks one open-ended question about
-  that choice rather than choosing it. Neither clause reaches a request that
-  names a stage.
+  that choice rather than choosing it. The deck's gate is the deck-governance
+  card rather than the spec and plan stages, so that question is the stage's
+  output in the deck case, and R-3's precedence does not govern it. Neither
+  clause reaches a request that names a stage.
 - **R-9** — The behavioral scenarios are brought in line with the rules:
   `2584-sc5-short-path-single-file` is retired; and
   `2584-sc4-directed-card-edit-no-archaeology` keeps its anti-archaeology
@@ -418,12 +424,15 @@ the invalidation policy are the agent's to decide — and its completion is not
 decidable from the request's own statement, because "cached" is not a state
 the file can be read to confirm. The scope statement is not that artifact:
 R-11 makes it a stage artifact only for a one-file change whose completion
-the request has decided, and this request is neither.
+the request has decided, and this request is neither. R-3's precedence
+governs: this request takes the full path, and the work card's halt rule does
+not reach it, because the request says what to build.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
   `session.yaml` confirms that the run's first edit to an implementation file
   comes after a full-path spec artifact appears in the run — a spec carrying
-  success criteria, not the work record's scope statement.
+  success criteria, not the work record's scope statement — and that the run
+  does not halt in place of that artifact.
 
 ### SC-8 (behavioral) — the short path is taken in collapsed form, without ceremony
 
