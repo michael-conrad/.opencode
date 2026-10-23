@@ -1,1 +1,12 @@
-comments: []
+comments:
+- type: internal
+  body: 'Behavioral evidence so far: SC-6 RED and SC-7 RED confirmed FAIL from primary
+    evidence (the pre-change deck''s defect in the agent''s own words); SC-6 GREEN
+    shows the new deck routes to the named stage in two polls with the approval gate
+    identified, but the spec artifact is not produced. R-18 cause analysis in the
+    issue''s evidence.md: (1) the spec-stage artifact exceeds the harness''s 4,000-token
+    per-turn budget, so SC-6/SC-7/SC-9 are not measurable as instrumented and need
+    a spec re-scope; (2) the fixture''s repo state trips the branch card''s rebase
+    rule, fixable at the fixture layer. Suite green: 20/20 content verification, reference-integrity
+    PASS.'
+  timestamp: '2026-10-23T20:20:54+00:00'
