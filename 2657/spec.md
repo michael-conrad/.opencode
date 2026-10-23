@@ -172,27 +172,27 @@ a request for a spec came to be read as a request that already had one.
   about what to build, not to the classification itself.
 - **R-4** — Every change records its path and its scope before implementation
   begins. A full-path change's spec artifact carries the scope. A short-path
-  change carries it in a scope statement: a file the agent writes in the
-  working tree before it edits anything, carrying the path taken, the R-3
-  criteria that selected it, what changes, what "done" is checked against,
-  what is out of scope, the order of the work, and any reason a card requires
-  recorded for a departure from a default. The developer's work order is the
-  authorization for the implementation that scope describes: `floor.md`'s
-  authorization vocabulary sends an utterance it does not list to default
-  agent judgment, and the work card's boundary rule halts for authorization
-  only on genuine ambiguity. The agent therefore records the scope and does
-  not ask the developer to approve it again. A developer who wants to approve
-  the scope before implementation asks for that stage, and R-1 routes the
-  request to the full path.
+  change carries it in a scope statement, which the agent writes into the work
+  record (R-10) before it edits anything. The scope statement carries: the
+  path taken, the R-3 criteria that selected it, what changes, what "done" is
+  checked against, what is out of scope, the order of the work, and any
+  reason a card requires recorded for a departure from a default. The
+  developer's work order is the authorization for the implementation that scope
+  describes: `floor.md`'s authorization vocabulary sends an utterance it does
+  not list to default agent judgment, and the work card's boundary rule halts
+  for authorization only on genuine ambiguity. The agent therefore records the
+  scope and does not ask the developer to approve it again. A developer who
+  wants to approve the scope before implementation asks for that stage, and
+  R-1 routes the request to the full path.
 - **R-5** — The short path ends when the work outgrows it. If, after the
   short path is taken, the work acquires a second file, a second concern, a
   derived success criterion, a product decision the developer did not state,
   or a surface the request did not name, the agent extends the scope
-  statement with the expanded scope, re-applies R-3's criteria, and takes the
-  full path from the earliest missing stage — producing that stage's
-  artifact — before it makes any further implementation edit. The agent never
-  completes a change as a short path when the change no longer satisfies
-  R-3.
+  statement in the work record with the expanded scope, re-applies R-3's
+  criteria, and takes the full path from the earliest missing stage —
+  producing that stage's artifact — before it makes any further
+  implementation edit. The agent never completes a change as a short path
+  when the change no longer satisfies R-3.
 - **R-6** — The anti-ceremony rule `.opencode#2584` established stays and
   binds effort only: the agent performs no evidence hunt, archaeology, or card
   load that the developer's instruction already satisfied, and the agent does
@@ -207,12 +207,16 @@ a request for a spec came to be read as a request that already had one.
   runs that stage; a directive that names a scope supplies the scope for the
   stage that scope belongs to.
 - **R-8** — The `skill-creator` developer-instruction carve-out is bounded,
-  not removed. A developer-directed deck edit carries its own authorization and
-  the admission gate's proposal-time evidence hunt does not re-run for it. The
-  carve-out does not reach a directed edit whose content leaves a material
-  open choice — the agent asks one open-ended question about that choice
-  rather than choosing it — and it does not reach a request that names a
-  stage.
+  not removed. The carve-out has two clauses, and the bound falls on one of
+  them. The carve-out's **evidence-hunt exemption** — the admission gate's
+  proposal-time evidence hunt does not re-run — applies to every
+  developer-directed deck edit, whether or not a material open choice is
+  present, because the developer's instruction is the edit's own evidence.
+  The carve-out's **no-halt clause** — never halt for direction the
+  instruction already carries — does not reach a directed edit whose content
+  leaves a material open choice: the agent asks one open-ended question about
+  that choice rather than choosing it. Neither clause reaches a request that
+  names a stage.
 - **R-9** — The behavioral scenarios are brought in line with the rules:
   `2584-sc5-short-path-single-file` is retired; and
   `2584-sc4-directed-card-edit-no-archaeology` keeps its anti-archaeology
@@ -224,22 +228,26 @@ a request for a spec came to be read as a request that already had one.
 - **R-10** — "Short path" resolves to exactly one definition, in
   `skills/work/SKILL.md`; the cards that use the term point to that
   definition. The deck's records are named, and each card's reference names
-  the record it means. Two surfaces are distinct. The **scope statement** is
-  the file R-4 describes: the agent writes it in the working tree before the
-  first edit, extends it when the work outgrows the path, reads it back by
-  path, and names its path in the PR body's Provenance section; it is not
-  part of the branch's commits, because the commit card stages named files
-  only; and it is a work-state artifact, which the cleanup card removes. The
-  **work state** is the provenance record — branch, base tip, and the issue
-  where one exists — and it lives in the branch's commit metadata so PR
-  preparation can verify the chain. The scope statement is where a card that
-  requires a reason recorded records it.
-- **R-11** — The scope statement is the short path's spec artifact. Its
-  contents discharge the two stages the short path collapses: "what changes"
-  is the spec stage's subject, "what 'done' is checked against" is the
-  verification instrument both stages require, and "the order of the work" is
-  the plan stage's ordering. For a one-file change the scope statement
-  therefore discharges the spec stage and the plan stage together.
+  the record it means. There is one record: the **work record**, a single file
+  in the working tree, at a path the work card's convention names. It carries
+  two things. The **provenance** the branch card records — the verified
+  trunk tip, the branch, the base tip, and the issue where one exists — which
+  the branch card writes at its trunk-freshness step, before any modification
+  and before the branch exists, and extends at its provenance step. The
+  **scope statement** R-4 describes, which the work card writes before the
+  first edit. The work record is a work-state artifact, which the cleanup
+  card removes; it is not part of the branch's commits, because the commit
+  card stages named files only. Every "work record" and "work state" reference
+  in `skills/work/SKILL.md`, `skills/git-workflow-branch/SKILL.md`,
+  `skills/implement/SKILL.md`, and `skills/git-workflow-cleanup/SKILL.md`
+  names the work record, and the work record's two parts cover what each
+  reference asks it to hold.
+- **R-11** — The scope statement in the work record is the short path's spec
+  artifact. Its contents discharge the two stages the short path collapses:
+  "what changes" is the spec stage's subject, "what 'done' is checked
+  against" is the verification instrument both stages require, and "the order
+  of the work" is the plan stage's ordering. For a one-file change the scope
+  statement therefore discharges the spec stage and the plan stage together.
   `skills/work/SKILL.md` states this, and its boundary rule is qualified
   accordingly: the clause that missing upstream artifacts trigger the
   pipeline applies to a change on the full path, and a short-path change is
@@ -249,12 +257,12 @@ a request for a spec came to be read as a request that already had one.
 - **R-12** — The verification and PR-readiness gates read the short path's
   artifact. `skills/verify/SKILL.md` rule 1 reads the scope statement as the
   short path's primary artifact alongside the diff and the executed test
-  output, and the verify dispatch names the scope statement's path so the
+  output, and the verify dispatch names the work record's path so the
   fresh-context reviewer reaches it. In `skills/git-workflow-pr/SKILL.md`,
   rule 1's assigned scope and its SCs are the scope statement's scope and
   its check, rule 2(a) takes the scope statement as the assignment, rule
   2(c) takes the scope statement as the verification target, and rule 4's
-  Provenance section takes the scope statement's path as the spec path it
+  Provenance section takes the work record's path as the spec path it
   already requires. Where a short-path change carries an issue, that issue is
   the tracker record; the spec artifact remains the scope statement.
 
@@ -334,11 +342,13 @@ signal" appear nowhere in the deck.
 
 ### SC-3 (structural) — the carve-out is bounded
 
-`skills/skill-creator/SKILL.md` states the bound in R-8: the carve-out does
-not reach a directed edit whose content leaves a material open choice, and it
-does not reach a request that names a stage.
+`skills/skill-creator/SKILL.md` states the bound in R-8: the carve-out's
+evidence-hunt exemption applies to every developer-directed deck edit, the
+carve-out's no-halt clause does not reach a directed edit whose content
+leaves a material open choice, and neither clause reaches a request that
+names a stage.
 
-- **Verify:** read the card; both clauses present.
+- **Verify:** read the card; all three clauses present.
 
 ### SC-4 (structural) — one definition, and every record reference resolves
 
@@ -347,27 +357,27 @@ cards that use the term — `skills/work/SKILL.md`, `skills/plan/SKILL.md`, and
 `skills/implement/SKILL.md` — point to it. Every "work record" and "work
 state" reference in `skills/work/SKILL.md`,
 `skills/git-workflow-branch/SKILL.md`, `skills/implement/SKILL.md`, and
-`skills/git-workflow-cleanup/SKILL.md` names which of the two records in R-10
-it means, and the record it names is one whose contents in R-10 can hold what
-that reference asks it to hold. `skills/git-workflow-branch/SKILL.md` states
-that the work state lives in the branch's commit metadata, and
+`skills/git-workflow-cleanup/SKILL.md` names the work record, and the part of
+the work record it names covers what that reference asks it to hold.
+`skills/git-workflow-branch/SKILL.md` states that the provenance is written
+to the work record at its trunk-freshness step, and
 `skills/git-workflow-cleanup/SKILL.md` states that the work-state artifacts
-are the working-tree scratch files the agent created, the scope statement
-among them.
+are the working-tree scratch files the agent created, the work record among
+them.
 
-- **Verify:** read the five cards; each reference names a record, the
-  record's contents cover the reference's requirement, and each card that
-  owns a record states that record's surface.
+- **Verify:** read the five cards; each reference names the work record, the
+  part it names covers the reference's requirement, and each card that owns
+  the record states where and when the agent writes it.
 
 ### SC-5 (structural) — the verification and PR-readiness gates read the scope statement
 
 `skills/verify/SKILL.md` rule 1 reads the scope statement as the short path's
-primary artifact, and its dispatch names the scope statement's path. In
+primary artifact, and its dispatch names the work record's path. In
 `skills/git-workflow-pr/SKILL.md`, rule 1's assigned scope and its SCs are the
 scope statement's scope and its check, rule 2(a) takes the scope statement as
 the assignment, rule 2(c) takes the scope statement as the verification
-target, and rule 4's Provenance section takes the scope statement's path as
-the spec path.
+target, and rule 4's Provenance section takes the work record's path as the
+spec path.
 
 - **Verify:** read both cards; each clause present.
 
@@ -394,20 +404,24 @@ before a stage artifact appears in the run.
   `session.yaml` confirms that the run's first edit to an implementation file
   comes after a stage artifact appears in the run.
 
-### SC-8 (behavioral) — the short path is taken in collapsed form
+### SC-8 (behavioral) — the short path is taken in collapsed form, without ceremony
 
-The short path's artifacts are the only artifacts. An agent given a
+The short path's artifacts are the only artifacts, and the work is not
+decorated with work the request has already settled. An agent given a
 developer-specified, single-file wording change states the path and the scope,
 as R-4 specifies them, before editing, then edits the file. The run contains
 no spec document, no plan document, no spec-validation or plan-validation
-dispatch, and no halt for direction. The verify card's fresh-context check is
-not among the absent artifacts: the short route requires it.
+dispatch, and no halt for direction. The run contains no evidence hunt, no
+archaeology — no unrelated issue, store, or remote read — and no card load
+that the request has already satisfied. The verify card's fresh-context check
+is not among the absent artifacts: the short route requires it.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
   `session.yaml` confirms that the scope statement precedes the edit, that it
   carries R-4's contents, and that the run contains no spec document, no plan
-  document, no spec-validation or plan-validation dispatch, and no halt for
-  direction.
+  document, no spec-validation or plan-validation dispatch, no halt for
+  direction, no evidence hunt, no archaeology, and no card load the request
+  had already satisfied.
 
 ### SC-9 (behavioral) — the short path ends when the work outgrows it
 
@@ -503,15 +517,15 @@ characterization is recorded (R-4) so that it is falsifiable at review rather
 than self-certified, and when the work outgrows it the short path ends (R-5).
 
 The scope statement is what makes the short path a path the deck's own rules
-allow. It is a file in the working tree, so the fresh-context reviewer reaches
-it by path (R-12); it carries the scope, the check, and the order, so it
-discharges the spec stage and the plan stage together (R-11); and it is
-named in the PR body's Provenance section, the one section the PR body
-already reserves for a spec path. The work card's boundary rule stops
-routing short-path changes into the full pipeline for want of a spec
-artifact, and the verify card and the three PR-readiness gates read the
-scope statement where they previously read a spec that the short path never
-produced.
+allow. It is written into the work record — one file, with a named path and a
+stated write time for each part — so the fresh-context reviewer reaches it by
+path (R-12); it carries the scope, the check, and the order, so it discharges
+the spec stage and the plan stage together (R-11); and the work record's path
+is named in the PR body's Provenance section, the one section the PR body
+already reserves for a spec path. The work card's boundary rule stops routing
+short-path changes into the full pipeline for want of a spec artifact, and the
+verify card and the three PR-readiness gates read the scope statement where
+they previously read a spec that the short path never produced.
 
 The implement card holds the second, looser definition of "short path" —
 "developer-specified small changes with no success-criteria machinery" — and
@@ -519,10 +533,10 @@ that definition is what `.opencode#2645` carried in without re-examining it.
 The plan card holds no definition at all: one of its two uses of the term
 points at `work`, the other names the term without resolving it, and both are
 re-pointed at the one definition along with the implement card's. The records
-the deck names but never defines are given their two surfaces (R-10), so the
-branch card's provenance record, the cleanup card's scratch files, the
-implement card's recorded dispatch reason, and the scope statement stop
-competing for one undefined name.
+the deck names but never defines are given one surface (R-10) — the work
+record — so the branch card's provenance, the implement card's recorded
+dispatch reason, and the scope statement stop competing for one undefined
+name, and the cleanup card's scratch files acquire a named set.
 
 The scenarios move with the rules. The scenario that asserts the escape's
 behavior is retired; the one that asserts the carve-out's anti-archaeology
