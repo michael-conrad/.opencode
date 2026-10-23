@@ -41,19 +41,24 @@ manually and rejects it.
 
 ### Problem 2 — the short path is self-certified, so complicated work rides it
 
-The work card states the short path's predicate twice, and neither form
-supplies the criterion that matters. Its bullet form is "*Short path*:
-single-file fix, typo, config tweak — the developer's request itself is the
-spec; it is verified at PR review"; its paragraph form generalizes it to
-"single-file, developer-specified changes". The single-file bound is
-checkable, and this spec keeps it. What neither form supplies is a criterion
-that separates single-file work the request has decided from single-file work
-it has not: a change that carries acceptance criteria, needs a product
-decision the developer did not state, or leaves a material choice open is
-still one file, and "developer-specified" is satisfied by the developer having
-mentioned the change. An agent that characterizes such a change as simple
-skips the spec requirement the developer holds, and the deck's own text
-supplies the rationale for the skip.
+The work card states the short path's predicate three times, and none of the
+three supplies the criterion that matters. Its frontmatter description says
+"trivial fixes take the short path, multi-part features take the full path".
+Its bullet form is "*Short path*: single-file fix, typo, config tweak — the
+developer's request itself is the spec; it is verified at PR review". Its
+paragraph form generalizes it to "single-file, developer-specified changes".
+The frontmatter is the routing surface the platform reads, so its form
+carries the most weight; it is also the loosest, because "trivial" is the
+agent's characterization and "multi-part" is not the question a complicated
+single-file change turns on. The single-file bound is checkable, and this
+spec keeps it. What none of the three supplies is a criterion that separates
+single-file work the request has decided from single-file work it has not: a
+change that carries acceptance criteria, needs a product decision the
+developer did not state, or leaves a material choice open is still one file,
+and "developer-specified" is satisfied by the developer having mentioned the
+change. An agent that characterizes such a change as simple skips the spec
+requirement the developer holds, and the deck's own text supplies the
+rationale for the skip.
 
 ### Problem 3 — the escape is unrecorded, and one of the deck's own tests enforces it
 
@@ -117,8 +122,9 @@ a request for a spec came to be read as a request that already had one.
   the card's wording makes the request read as evidence against the full path.
 - **RC-2** — The short path's predicate bounds the file count but supplies no
   criterion separating work the request has decided from work it has not, and
-  its paragraph form states the predicate in terms of the developer's having
-  mentioned the change, so it is self-certifying.
+  its loosest statement — the frontmatter's "trivial fixes take the short
+  path" — states the predicate in terms of the agent's characterization, so it
+  is self-certifying.
 - **RC-3** — "Excess ceremony" names no observable criterion, and it is aimed
   at stages rather than effort, so it operates as an unappealable veto over
   the pipeline and hands the agent a rationale for skipping a requested stage.
@@ -241,7 +247,10 @@ a request for a spec came to be read as a request that already had one.
   in `skills/work/SKILL.md`, `skills/git-workflow-branch/SKILL.md`,
   `skills/implement/SKILL.md`, and `skills/git-workflow-cleanup/SKILL.md`
   names the work record, and the work record's two parts cover what each
-  reference asks it to hold.
+  reference asks it to hold. The PR body's Provenance section carries the
+  scope statement's **content** on the short path, not the work record's
+  path: the work record is transient, and a path to a file the cleanup card
+  deletes would leave the merged PR's provenance pointing at nothing.
 - **R-11** — The scope statement in the work record is the short path's spec
   artifact. Its contents discharge the two stages the short path collapses:
   "what changes" is the spec stage's subject, "what 'done' is checked
@@ -262,7 +271,7 @@ a request for a spec came to be read as a request that already had one.
   rule 1's assigned scope and its SCs are the scope statement's scope and
   its check, rule 2(a) takes the scope statement as the assignment, rule
   2(c) takes the scope statement as the verification target, and rule 4's
-  Provenance section takes the work record's path as the spec path it
+  Provenance section carries the scope statement's content as the spec it
   already requires. Where a short-path change carries an issue, that issue is
   the tracker record; the spec artifact remains the scope statement.
 
@@ -308,8 +317,11 @@ self-certified, and R-5 re-examines it when the work outgrows it.
 `git-workflow-cleanup` cards; `tests-v2/behaviors/`. The amendments to
 `verify`, `git-workflow-pr`, `git-workflow-branch`, and `git-workflow-cleanup`
 are clause-level clarifications that name the artifact the card already
-requires. No change reaches `guidelines/`, `agents/`, `prompts/`,
-`opencode.jsonc`, the `tests-v2` harness, or the retired `attic/` deck.
+requires. The PR body's fixed section list is preserved: the Provenance
+section's contents widen on the short path to carry the scope statement's
+content, and no section is added. No change reaches `guidelines/`, `agents/`,
+`prompts/`, `opencode.jsonc`, the `tests-v2` harness, or the retired `attic/`
+deck.
 
 ## Success criteria
 
@@ -329,12 +341,12 @@ change's need by agent judgment, never a size threshold, survives.
 
 `skills/work/SKILL.md` states R-1 through R-7, R-10, and R-11, and its
 frontmatter description names the stage-request trigger so the platform routes
-a stage-naming request to the card. Its two statements of the short path's
-predicate — the bullet list and the paragraph — state R-3's criteria and
-agree with each other. Its two uncertainty rules — the frontmatter's and the
-closing line's — are qualified per R-3. The phrases "a developer's direct
-request is the spec" and "Excess ceremony on a direct order is a defect
-signal" appear nowhere in the deck.
+a stage-naming request to the card. Its three statements of the short path's
+predicate — the frontmatter's, the bullet list's, and the paragraph's —
+state R-3's criteria and agree with each other. Its two uncertainty rules —
+the frontmatter's and the closing line's — are qualified per R-3. The phrases
+"a developer's direct request is the spec" and "Excess ceremony on a direct
+order is a defect signal" appear nowhere in the deck.
 
 - **Verify:** read the card; each element present. A deck-wide search of
   `skills/`, `guidelines/`, and `floor.md` returns no occurrence of either
@@ -376,8 +388,8 @@ primary artifact, and its dispatch names the work record's path. In
 `skills/git-workflow-pr/SKILL.md`, rule 1's assigned scope and its SCs are the
 scope statement's scope and its check, rule 2(a) takes the scope statement as
 the assignment, rule 2(c) takes the scope statement as the verification
-target, and rule 4's Provenance section takes the work record's path as the
-spec path.
+target, and rule 4's Provenance section carries the scope statement's content
+as the spec it already requires.
 
 - **Verify:** read both cards; each clause present.
 
@@ -527,12 +539,12 @@ The scope statement is what makes the short path a path the deck's own rules
 allow. It is written into the work record — one file, with a named path and a
 stated write time for each part — so the fresh-context reviewer reaches it by
 path (R-12); it carries the scope, the check, and the order, so it discharges
-the spec stage and the plan stage together (R-11); and the work record's path
-is named in the PR body's Provenance section, the one section the PR body
-already reserves for a spec path. The work card's boundary rule stops routing
-short-path changes into the full pipeline for want of a spec artifact, and the
-verify card and the three PR-readiness gates read the scope statement where
-they previously read a spec that the short path never produced.
+the spec stage and the plan stage together (R-11); and the PR body's
+Provenance section carries the scope statement's content, the one section the
+PR body already reserves for a spec. The work card's boundary rule stops
+routing short-path changes into the full pipeline for want of a spec artifact,
+and the verify card and the three PR-readiness gates read the scope statement
+where they previously read a spec that the short path never produced.
 
 The implement card holds the second, looser definition of "short path" —
 "developer-specified small changes with no success-criteria machinery" — and
@@ -573,9 +585,13 @@ a verification target that the short path does not produce. *Keep the scope
 statement in the session and the PR body only, with no file:* rejected,
 because the fresh-context reviewer reads primary artifacts directly and needs
 a path to read, and because the PR body's fixed contract has no section for
-the scope statement's content. The chosen approach rewrites the routing text,
-adds the criterion set and the record, and states which artifact discharges
-which stage, so that each of the four defects has its own remedy.
+the scope statement's content. *Keep the work record as a transient file and
+cite its path in the PR body's Provenance section:* rejected, because the
+cleanup card deletes the file at merge and the record is uncommitted, so the
+merged PR's provenance would name a path that resolves to nothing. The chosen
+approach rewrites the routing text, adds the criterion set and the record, and
+states which artifact discharges which stage, so that each of the four defects
+has its own remedy.
 
 ---
 *Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
