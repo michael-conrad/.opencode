@@ -41,16 +41,19 @@ manually and rejects it.
 
 ### Problem 2 — the short path is self-certified, so complicated work rides it
 
-The work card states the short path's predicate twice, in two forms that
-state no criteria. Its paragraph form is "single-file, developer-specified";
-its bullet form is "*Short path*: single-file fix, typo, config tweak — the
-developer's request itself is the spec; it is verified at PR review." Every
-term in both forms is satisfied by the fact that the developer mentioned the
-work. No criterion in either form separates a one-line wording change from a
-change that carries acceptance criteria, needs a product decision the
-developer did not state, or leaves a material choice open. An agent that
-characterizes a complicated change as simple skips the spec requirement the
-developer holds, and the deck's own text supplies the rationale for the skip.
+The work card states the short path's predicate twice, and neither form
+supplies the criterion that matters. Its bullet form is "*Short path*:
+single-file fix, typo, config tweak — the developer's request itself is the
+spec; it is verified at PR review"; its paragraph form generalizes it to
+"single-file, developer-specified changes". The single-file bound is
+checkable, and this spec keeps it. What neither form supplies is a criterion
+that separates single-file work the request has decided from single-file work
+it has not: a change that carries acceptance criteria, needs a product
+decision the developer did not state, or leaves a material choice open is
+still one file, and "developer-specified" is satisfied by the developer having
+mentioned the change. An agent that characterizes such a change as simple
+skips the spec requirement the developer holds, and the deck's own text
+supplies the rationale for the skip.
 
 ### Problem 3 — the escape is unrecorded, and one of the deck's own tests enforces it
 
@@ -112,8 +115,10 @@ a request for a spec came to be read as a request that already had one.
 - **RC-1** — Path selection takes one input: the agent's characterization of
   the change's size. A developer's stated stage request is not an input, and
   the card's wording makes the request read as evidence against the full path.
-- **RC-2** — The short path's predicate is a characterization with no criteria
-  behind it, stated in two forms that do not agree, so it is self-certifying.
+- **RC-2** — The short path's predicate bounds the file count but supplies no
+  criterion separating work the request has decided from work it has not, and
+  its paragraph form states the predicate in terms of the developer's having
+  mentioned the change, so it is self-certifying.
 - **RC-3** — "Excess ceremony" names no observable criterion, and it is aimed
   at stages rather than effort, so it operates as an unappealable veto over
   the pipeline and hands the agent a rationale for skipping a requested stage.
@@ -152,10 +157,14 @@ a request for a spec came to be read as a request that already had one.
   authentication or authorization check, dependency, or deployment surface;
   the change touches no surface the developer did not name. A criterion that
   fails sends the change to the full path, and so does uncertainty about
-  whether a criterion holds. A change to the agent deck is judged by the
-  deck-governance card's admission gate, not by this criterion set: that gate
-  is where a deck change is judged, and this set governs which pipeline the
-  change takes. The two rules in the work card that state what to do when the
+  whether a criterion holds. The criteria apply to a change to the agent
+  deck as they do to any other change, and a deck change carries the
+  deck-governance card's admission gate in addition, which is where the
+  deck's content standards are judged; R-8 bounds that gate for a
+  developer-directed edit. A developer-directed deck edit that satisfies these
+  criteria takes the short path, so the work card's path selection does not
+  turn a directed card edit into the full path's filed-issue-and-dispatches
+  machinery. The two rules in the work card that state what to do when the
   path is unsure — its frontmatter's "Also load when unsure which stage
   applies: halt with an open-ended clarification request rather than guess"
   and its closing line "Unsure which path fits? Halt with an open-ended
@@ -207,10 +216,10 @@ a request for a spec came to be read as a request that already had one.
 - **R-9** — The behavioral scenarios are brought in line with the rules:
   `2584-sc5-short-path-single-file` is retired; and
   `2584-sc4-directed-card-edit-no-archaeology` keeps its anti-archaeology
-  criterion and gains two beside it — that a fully specified directed edit
-  completes without admission archaeology and without halting for direction,
-  and that it does so without the full path's machinery: no issue filed, no
-  spec document, and no validation dispatch. Scenarios are added covering
+  criterion — a fully specified directed edit completes without admission
+  archaeology and without halting for direction — and gains one beside it:
+  the edit completes without the full path's machinery, with no issue filed,
+  no spec document, and no validation dispatch. Scenarios are added covering
   R-1, R-3, R-4, R-5, R-6, and R-8.
 - **R-10** — "Short path" resolves to exactly one definition, in
   `skills/work/SKILL.md`; the cards that use the term point to that
@@ -271,6 +280,16 @@ second file produces a spec document. That is a cost this spec accepts: the
 developer reported complicated work riding the short path, and the single-file
 bound is the deck's own existing line between the two paths.
 
+**Risk — an agent-proposed deck change now takes the full path.** R-3's
+criterion that the request leave no material choice open about what to build
+fails for a deck change the agent proposes itself, because the agent supplies
+the product decisions. A developer-directed deck edit still takes the short
+path, which is the shape `.opencode#2584` and the retained `2584-sc4` address.
+The change is a cost this spec accepts: the deck's own history of
+ungoverned edits is why the deck-governance card exists, and an agent
+proposing a rule the developer did not ask for is work the developer holds
+the right to see a spec of.
+
 **Risk — the criteria are intent-decidable.** R-3's criteria are judgment
 calls, so an agent can still mischaracterize a complicated change. R-4's
 recorded scope makes the characterization falsifiable at review rather than
@@ -300,9 +319,9 @@ change's need by agent judgment, never a size threshold, survives.
 
 ### SC-2 (structural) — the work card carries the rules and loses the escape
 
-`skills/work/SKILL.md` states R-1 through R-7 and R-11, and its frontmatter
-description names the stage-request trigger so the platform routes a
-stage-naming request to the card. Its two statements of the short path's
+`skills/work/SKILL.md` states R-1 through R-7, R-10, and R-11, and its
+frontmatter description names the stage-request trigger so the platform routes
+a stage-naming request to the card. Its two statements of the short path's
 predicate — the bullet list and the paragraph — state R-3's criteria and
 agree with each other. Its two uncertainty rules — the frontmatter's and the
 closing line's — are qualified per R-3. The phrases "a developer's direct
@@ -330,10 +349,15 @@ state" reference in `skills/work/SKILL.md`,
 `skills/git-workflow-branch/SKILL.md`, `skills/implement/SKILL.md`, and
 `skills/git-workflow-cleanup/SKILL.md` names which of the two records in R-10
 it means, and the record it names is one whose contents in R-10 can hold what
-that reference asks it to hold.
+that reference asks it to hold. `skills/git-workflow-branch/SKILL.md` states
+that the work state lives in the branch's commit metadata, and
+`skills/git-workflow-cleanup/SKILL.md` states that the work-state artifacts
+are the working-tree scratch files the agent created, the scope statement
+among them.
 
-- **Verify:** read the five cards; each reference names a record, and the
-  record's contents cover the reference's requirement.
+- **Verify:** read the five cards; each reference names a record, the
+  record's contents cover the reference's requirement, and each card that
+  owns a record states that record's surface.
 
 ### SC-5 (structural) — the verification and PR-readiness gates read the scope statement
 
@@ -373,16 +397,17 @@ before a stage artifact appears in the run.
 ### SC-8 (behavioral) — the short path is taken in collapsed form
 
 The short path's artifacts are the only artifacts. An agent given a
-developer-specified, single-file wording change states the path and the scope
-before editing, then edits the file. The run contains no spec document, no
-plan document, no spec-validation or plan-validation dispatch, and no halt for
-direction. The verify card's fresh-context check is not among the absent
-artifacts: the short route requires it.
+developer-specified, single-file wording change states the path and the scope,
+as R-4 specifies them, before editing, then edits the file. The run contains
+no spec document, no plan document, no spec-validation or plan-validation
+dispatch, and no halt for direction. The verify card's fresh-context check is
+not among the absent artifacts: the short route requires it.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
-  `session.yaml` confirms that the scope statement precedes the edit, and
-  that the run contains no spec document, no plan document, no spec-validation
-  or plan-validation dispatch, and no halt for direction.
+  `session.yaml` confirms that the scope statement precedes the edit, that it
+  carries R-4's contents, and that the run contains no spec document, no plan
+  document, no spec-validation or plan-validation dispatch, and no halt for
+  direction.
 
 ### SC-9 (behavioral) — the short path ends when the work outgrows it
 
@@ -410,8 +435,8 @@ it. The run contains no admission-gate evidence hunt.
 
 `2584-sc5-short-path-single-file.sh` is absent from `tests-v2/behaviors/`.
 `2584-sc4-directed-card-edit-no-archaeology.sh` states the anti-archaeology
-criterion together with the R-8 bound and the no-full-path-machinery
-criterion. Five new scenarios exist, one for each of SC-6 through SC-10.
+criterion and the no-full-path-machinery criterion. Five new scenarios exist,
+one for each of SC-6 through SC-10.
 
 - **Verify:** read `tests-v2/behaviors/`; each named file is present or absent
   as stated, and each new scenario's header states its criterion.
@@ -440,9 +465,11 @@ criterion. Five new scenarios exist, one for each of SC-6 through SC-10.
 - The developer's authority to direct or waive a stage. A terminal-stage
   approval from the vocabulary in `floor.md` still carries an item through
   every phase it names, and the developer may still direct any stage.
-- The `implement` card's dispatch-cost default from `.opencode#2645`. That
-  default concerns sub-agent dispatch, not pipeline stages; only its use of
-  "short path" re-resolves under R-10.
+- The `implement` card's dispatch-cost default from `.opencode#2645` — the
+  default that short-path work runs inline rather than in a sub-agent. That
+  default is unchanged in substance. Two things on that card change: the term
+  "short path" re-resolves under R-10, and the rule's "recorded in the work
+  state" names the record R-10 defines.
 - Mechanized ceremony detection, token budgets, and scripted path selection.
   Path selection is intent-decidable; judgment decides, mechanisms verify
   facts only.
