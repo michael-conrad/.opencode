@@ -398,11 +398,15 @@ harness can find.
 
 An agent given a one-line request that changes behavior, reads an environment
 variable, and touches a safety surface does not modify an implementation file
-before a stage artifact appears in the run.
+before the full path's spec stage has produced its artifact. The scope
+statement is not that artifact: R-11 makes it a stage artifact only for a
+one-file change whose completion the request has decided, and this request is
+neither.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
   `session.yaml` confirms that the run's first edit to an implementation file
-  comes after a stage artifact appears in the run.
+  comes after a full-path spec artifact appears in the run — a spec carrying
+  success criteria, not the work record's scope statement.
 
 ### SC-8 (behavioral) — the short path is taken in collapsed form, without ceremony
 
@@ -476,9 +480,12 @@ one for each of SC-6 through SC-10.
 - The `skill-creator` admission gate's content standards — frontmatter,
   predicate classification, root-agnostic discipline. R-8 changes only what
   the carve-out reaches, not what the gate requires of written content.
-- The developer's authority to direct or waive a stage. A terminal-stage
-  approval from the vocabulary in `floor.md` still carries an item through
-  every phase it names, and the developer may still direct any stage.
+- The developer's authority to direct a stage and to carry approvals forward.
+  A terminal-stage approval from the vocabulary in `floor.md` still carries an
+  item through every phase it names, and the developer may still direct any
+  stage. The developer's own approvals and directions are unaffected; what
+  this spec removes is the agent-side mechanism by which the short-path
+  default dropped a stage on the developer's own request.
 - The `implement` card's dispatch-cost default from `.opencode#2645` — the
   default that short-path work runs inline rather than in a sub-agent. That
   default is unchanged in substance. Two things on that card change: the term
