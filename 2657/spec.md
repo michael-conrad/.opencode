@@ -17,8 +17,9 @@ without re-examining what the term had come to mean.
 ## Problem
 
 Two failure modes share one text in the deck's change router, a third leaves
-the escape unrecorded and under test, and a fourth means the deck has no
-coherent short path to restore.
+the escape unrecorded and under test, a fourth means the deck has no
+coherent short path to restore, and a fifth is in the measurement rather than
+in the deck.
 
 ### Problem 1 — a stated stage request is read as excess ceremony
 
@@ -115,16 +116,28 @@ where that artifact is written, or how the fresh-context reviewer reaches it,
 and the agent fills those gaps by whichever reading favours it — which is how
 a request for a spec came to be read as a request that already had one.
 
-A fourth defect is in the measurement, not in the deck. The behavioural
-scenarios that would show this fix's effect cannot complete a run. The
-harness resumes a run whose turn ended at the per-turn output cap with the
-anchorless message "Continue the task from where you left off.", so the model
-re-derives the session's history from a long context, spends the whole
-per-turn budget re-deriving, and issues no tool call. The resume makes no
-progress, the run exhausts the cap-resume ceiling, and the stage's artifact —
-the thing each behavioural criterion asks about — is never produced. R-13
-makes the resume carry the recorded tail, so the resumed turn continues the
-recorded work instead of restarting it.
+### Problem 5 — the measurement cannot complete a run
+
+The behavioural scenarios that would show this fix's effect cannot complete a
+run. The harness resumes a run whose turn ended at the per-turn output cap
+with the anchorless message "Continue the task from where you left off.", so
+the model re-derives the session's history from a long context, spends the
+whole per-turn budget re-deriving, and issues no tool call. The resume makes
+no progress, the run exhausts the cap-resume ceiling, and the stage's
+artifact — the thing each behavioural criterion asks about — is never
+produced. The run-level fix `.opencode#2639` applied to its own scenario's
+bespoke recovery path; the generic path every scenario takes still sends the
+anchorless form. R-13 makes the resume carry the recorded tail, so the
+resumed turn continues the recorded work instead of restarting it.
+
+Two further defects at the scenario layer keep a run from being judged or
+from recovering: a scenario that declares no goal condition leaves the
+monitor's classifier with no direction anchor, so it returns "undetermined"
+and the determination gate blocks the resume path; and a fixture that leaves
+the test project's `main` ahead of its remote tip trips the branch card's
+rebase rule, whose rebase would discard the fixture's own seed content, so
+the run agent spends its run resolving the conflict instead of doing the
+task. R-9 and SC-11 carry both.
 
 ## Root causes
 
@@ -149,6 +162,13 @@ recorded work instead of restarting it.
   verify card's reviewer, and the three PR-readiness gates each read the
   short path differently, and the agent resolves the disagreement in its own
   favor.
+- **RC-7** — The harness's cap-hit resume sends a message with no state
+  anchor, and the scenarios declare no goal condition for the monitor's
+  classifier to judge the run against, so a run that hits the per-turn output
+  cap cannot be judged, cannot resume, and cannot produce the artifact its
+  criterion asks about. The fixtures' own repository state — `main` ahead of
+  the remote tip — adds a second way for the run to spend its time on
+  something the task never required.
 
 ## Requirements
 
@@ -409,7 +429,8 @@ paragraph each refer to those criteria rather than stating a predicate of
 their own, so the three cannot disagree. Its two uncertainty rules — the
 frontmatter's and the closing line's — are qualified per R-3. The phrases
 "a developer's direct request is the spec" and "Excess ceremony on a direct
-order is a defect signal" appear nowhere in the deck.
+order is a defect signal" appear nowhere in the deck's live surfaces — the
+cards under `skills/`, the guidelines under `guidelines/`, and `floor.md`.
 
 - **Verify:** read the card; each element present. A deck-wide search of
   `skills/`, `guidelines/`, and `floor.md` returns no occurrence of either
@@ -609,7 +630,7 @@ cap so the probe hits it deterministically — is untouched.
 | SC-1 | Floor carries the stage invariant and the stage-request rule | structural | read `floor.md` |
 | SC-2 | Work card carries R-1..R-7, R-10, and R-11; the criteria are stated once in rule 1's body and the card's three forms refer to them; both uncertainty rules qualified; removed phrases absent deck-wide | structural | read the card; deck-wide search |
 | SC-3 | `skill-creator` carve-out bounded: the evidence-hunt exemption reaches every directed edit, the no-halt clause stops at a material open choice, neither reaches a stage request | structural | read the card |
-| SC-4 | One "short path" definition; every record reference names the work record; each card that owns the record states where and when it is written | structural | read the five cards |
+| SC-4 | One "short path" definition; the two routing cards point at it and the two consuming cards name its artifact; every record reference names the work record; each card that owns the record states where and when it is written | structural | read the seven cards |
 | SC-5 | The verify and PR-readiness gates read the scope statement | structural | read both cards |
 | SC-6 | A stated stage request produces the stage, no implementation | behavioral | run → clean-room read of `session.yaml` |
 | SC-7 | A complicated change does not ride the short path | behavioral | run → clean-room read of `session.yaml` |
@@ -748,7 +769,7 @@ path in the PR body's Provenance section:* rejected, because the cleanup card
 deletes the file at merge and the record is uncommitted, so the merged PR's
 provenance would name a path that resolves to nothing. The chosen approach
 rewrites the routing text, adds the criterion set and the record, and states
-which artifact discharges which stage, so that each of the four defects has
+which artifact discharges which stage, so that each of the five defects has
 its own remedy.
 
 ---
