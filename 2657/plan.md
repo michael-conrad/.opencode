@@ -1,0 +1,385 @@
+# Plan — .opencode#2657: path selection, a stated stage request, and the short path's record
+
+Spec: `.opencode/.issues/2657/spec.md` (fresh-context validation PASS, zero
+findings). Branch: `feature/2657-path-selection-short-path`, base
+`a1fb61c6` (`.opencode` trunk tip, verified against `origin/main` at plan
+time). Repository: `michael-conrad/.opencode` (the `.opencode` submodule).
+The PR is a submodule PR; the parent repo's pointer rides with the next real
+parent change per the parent `AGENTS.md`.
+
+## Surfaces touched
+
+| Surface | Change | SCs |
+|---------|--------|-----|
+| `floor.md` | pipeline invariant; authorization-vocabulary stage-request rule | SC-1 |
+| `skills/work/SKILL.md` | path selection, criteria set, scope statement, work record, boundaries | SC-2, SC-4 |
+| `skills/skill-creator/SKILL.md` | the carve-out's bound | SC-3 |
+| `skills/plan/SKILL.md` | "short path" re-pointed at the one definition | SC-4 |
+| `skills/implement/SKILL.md` | "short path" re-pointed; "work state" → work record | SC-4 |
+| `skills/verify/SKILL.md` | reads the scope statement; verdict unit; owning card | SC-5 |
+| `skills/git-workflow-pr/SKILL.md` | three gates + Provenance read the scope statement | SC-5 |
+| `skills/git-workflow-branch/SKILL.md` | provenance written to the work record | SC-4 |
+| `skills/git-workflow-cleanup/SKILL.md` | work-state artifacts named | SC-4 |
+| `.gitignore` | one line, `.work/` — the work record is scratch and must not appear in `git status` (see "The work record's path" below) | SC-2, SC-4 |
+| `tests-v2/behaviors/2584-sc5-short-path-single-file.sh` | retired (deleted) | SC-11 |
+| `tests-v2/behaviors/2584-sc4-directed-card-edit-no-archaeology.sh` | header states the second criterion | SC-11 |
+| `tests-v2/behaviors/2657-sc1..sc5-*.sh` | five new scenarios | SC-6..SC-10, SC-11 |
+| `tests-v2/behaviors/fixtures/setup/2657-sc1..sc5-*.sh` | five new setup fixtures | SC-11 |
+
+`.gitignore` is the one surface outside the spec's enumerated blast radius. It
+carries no behavior: the spec's R-10 requires the work record to be a
+working-tree artifact that is never committed, and the deck's own repository
+must therefore ignore the path, or the record shows up in `git status` and
+blocks the behavioral harness's pre-flight cleanliness gate
+(`tests-v2/behaviors/helpers.sh`, the `git status --porcelain` check). The
+line is `.work/`.
+
+## The work record's path
+
+R-10 requires the work card to name the work record's path. The plan fixes it:
+**`.work/record.md`**, in the working tree of the repository the change
+touches. One record per repository at a time; a new scope in the same
+repository starts the record over — the scope statement's content is carried
+into the PR body's Provenance section, so nothing is lost. The record is
+scratch: never committed (the commit card stages named files only), removed
+by the cleanup card at merge.
+
+## Ordering
+
+1. **Item 1** — the scenario set (SC-11).
+2. **Items 2–6** — the card changes (SC-1..SC-5), committed and pushed.
+3. **Items 7–11** — the behavioral criteria (SC-6..SC-10), each as a
+   per-item cycle: RED then GREEN.
+
+The behavioral items' RED runs are executed **pinned to the pre-change deck
+tip** `a1fb61c6` through `BEHAVIOR_SUBMODULE_COMMIT`, so a RED observes the
+pre-change deck wherever it is captured in the sequence. The pin is verified
+against the remote by the harness and is never bypassed. Each behavioral
+item's GREEN runs unpinned, against the branch tip that carries the card
+changes. This is why the item graph below is acyclic: items 7–11 depend on
+items 2–6, and items 2–6 depend on nothing.
+
+The harness's ordered precondition cycle (commit → push → fetch/verify → run,
+`tests-v2/AGENTS.md` §4) applies to every run below. A behavioral run
+executes with the bash tool's `timeout` at 600000 ms or more, under the
+60-second supervision cycle with an in-chat update per poll, and its verdict
+comes from a separate clean-room evaluation dispatch reading `session.yaml`
+(two-SC pattern, `tests-v2/AGENTS.md` §6a).
+
+A behavioral RED that does not fail is reported to the developer with the
+run's evidence and the criterion it did not confirm. It is not absorbed by
+reinterpreting the criterion, and the criterion is not weakened to make it
+fail (`implement` card rule 3, rule 10).
+
+## Item 1 — the scenario set (SC-11)
+
+- Deliverable: five new scenario scripts and five matching setup fixtures;
+  `2584-sc5-short-path-single-file.sh` deleted; `2584-sc4`'s header states
+  the anti-archaeology criterion and the no-full-path-machinery criterion
+  beside it. Each scenario is an artifact-only generator: it runs
+  `behavior_run`, exits 0, and never evaluates its own output.
+- RED: `ls tests-v2/behaviors/ | grep 2657` returns nothing (0 of 5 present);
+  `2584-sc5-short-path-single-file.sh` is present; `2584-sc4`'s header states
+  one criterion, not two.
+- GREEN: author the five scenarios and fixtures; delete `2584-sc5`; extend
+  `2584-sc4`'s header. Scenario headers follow `tests-v2/behaviors/template.sh`
+  and the §1 cross-reference header requirement; `SCENARIO_NAME` is
+  kebab-case and equals the fixture filename; `SCENARIO_TIER="2"`.
+  The scenarios and their prompts:
+
+  | Scenario | Fixture state the fixture pre-supplies | Prompt |
+  |---|---|---|
+  | `2657-sc1-stage-request-runs-stage` | `src/upload.py` (the client the request names) | "Write a spec for how the upload client should retry a failed upload, and get my approval of the spec before you write any code." |
+  | `2657-sc2-complicated-change-full-path` | `src/search.py` (the endpoint the request names) | "Add caching to the search endpoint." |
+  | `2657-sc3-short-path-collapsed-form` | `SUPPORT.md` (the file the request names) | "Add a `## Support` heading to the top of SUPPORT.md pointing at the issue tracker." |
+  | `2657-sc4-short-path-ends-when-outgrown` | `src/feature.py` and `docs/feature.md` (the first file the request names, and the second file the work turns out to require) | "Add a `--json` flag to the feature script so it prints the feature as JSON." |
+  | `2657-sc5-directed-deck-edit-open-choice` | the deck checkout the harness already provides | "Add a rule to the agent deck card at `.opencode/skills/collaboration/SKILL.md` stating that an agent hands a draft to a reviewer agent when the draft is substantial." |
+
+  The prompts are real-domain tasks, not interviews (`tests-v2/AGENTS.md`
+  §11). `2657-sc5`'s prompt leaves "substantial" undefined on purpose — that
+  is the material open choice the criterion turns on.
+- Verify: `ls tests-v2/behaviors/2657-sc*` → 5 files; `ls
+  tests-v2/behaviors/fixtures/setup/2657-sc*` → 5 files, each name equal to
+  its scenario's `SCENARIO_NAME`; `test ! -e
+  tests-v2/behaviors/2584-sc5-short-path-single-file.sh`; `grep` of
+  `2584-sc4`'s header shows both criteria; each new script contains
+  `behavior_run` and `exit 0` and no assertion helper.
+- Dependency: none.
+
+## Item 2 — the floor carries the invariant and the stage-request rule (SC-1)
+
+- Deliverable: `floor.md`'s Pipeline section states that every change passes
+  through the pipeline's stages, that scaling changes a stage's *form* and
+  never its *presence*, and that a developer's directive satisfies a stage's
+  content but never suppresses a stage. The authorization vocabulary gains
+  the stage-request rule: a developer's request naming a stage (a spec, a
+  plan, a discussion, or approval before implementation) runs that stage
+  before implementing, whatever the change's size; the agent's
+  characterization of the change's size never overrides it; a request for a
+  stage is never excess ceremony.
+- RED: `grep -n "scaling changes a stage" floor.md` → 0 hits; `grep -n
+  "names a stage" floor.md` → 0 hits. Captured pre-change output.
+- GREEN: edit the Pipeline section and add the vocabulary bullet beside
+  `approved for <phase>`.
+- Verify: `grep` shows the invariant sentence and the vocabulary bullet;
+  `floor.md` remains under 130 lines; the Pipeline section still names
+  spec → plan → implement → PR and the human-only merge.
+- Dependency: none.
+
+## Item 3 — the work card: path selection, criteria, scope, record (SC-2)
+
+- Deliverable: `skills/work/SKILL.md` rewritten to R-1 through R-7, R-10 and
+  R-11, and the deck repository's `.gitignore` gains one line, `.work/`, so
+  the work record the card names is scratch that never appears in
+  `git status`. The card keeps its seven-rule shape — three rules amended in
+  place, two new, two untouched:
+  - **Frontmatter description** (amended) names the stage-request trigger
+    and refers to the card's short-path criteria rather than stating a
+    predicate of its own.
+  - **Rule 1 — path selection** (amended). Two inputs in order: a stated
+    stage request decides the path outright; otherwise the change's need
+    decides it by the criteria. The **criteria set** is stated once, in rule
+    1's body, as a numbered list of six: the request names no stage; the
+    change touches one file; the request leaves no material choice open about
+    what to build and the agent supplies no product decision the developer
+    did not state; the change's completion is decidable from the request's
+    own statement; the change alters no credential, authentication or
+    authorization check, dependency, or deployment surface; the change
+    touches no surface the developer did not name. A failed criterion — and
+    uncertainty about one — sends the change to the full path. One exception:
+    a developer-directed edit to the deck whose content leaves a material
+    open choice is a question in the deck-governance card, not the full
+    path. The same rule carries the two clauses that ride with the
+    criteria: the **short path ends when the work outgrows it** (R-5), and
+    **no ceremony, and no waived stage** (R-6). Rule 1's paragraph and its
+    bullet list each refer to the criteria set rather than stating a
+    predicate of their own, so the card's three forms cannot disagree.
+  - **Rule 2 — a stated stage request is not a specification** (new). It
+    requests the pipeline; it does not satisfy the spec stage, and the stage
+    it names runs before any implementation it also directs. A request that
+    names no stage and names what to build may serve as the short path's
+    scope — subject to rule 1.
+  - **Rule 3 — authorization check** (amended; the rest unchanged). Added:
+    a developer's directive satisfies a stage's content; it never suppresses
+    a stage — no directive, however emphatic and however small the change,
+    removes a stage.
+  - **Rule 4 — the work record and the scope statement** (new). R-4 and
+    R-10: the record is `.work/record.md` in the working tree of the
+    repository the change touches, scratch, never committed, removed at
+    cleanup; it holds the provenance (verified trunk tip, branch, base tip,
+    issue where one exists), written by `git-workflow-branch` at its
+    trunk-freshness step, and the scope statement (path taken, the criteria
+    that selected it, what changes, what "done" is checked against, what is
+    out of scope, the order of the work, and any reason a card requires
+    recorded for a departure from a default), written before the first edit.
+    The check is the criterion the `verify` card's reviewer measures the
+    scope statement against and the verdict unit on the short path; the work
+    card is that statement's criteria reference. The developer's work order
+    is the authorization for the implementation the scope describes — the
+    agent records the scope and does not ask for it again.
+  - **Rule 5 — route** (untouched). Short `git-workflow-branch` →
+    `implement` → `verify` → `git-workflow-pr`; full `explore` → `spec` →
+    developer approval → `plan` → `implement` → `verify` →
+    `git-workflow-pr`.
+  - **Rule 6 — boundaries** (amended; the rest unchanged). R-11's
+    qualification: the missing-artifact clause applies to a change on the
+    full path; on the short path the scope statement is the spec artifact.
+  - **Rule 7 — deprecation encounters** (untouched).
+  - The **two uncertainty rules** — the frontmatter's and the closing line's
+    — are qualified: they apply when the request does not say what to build
+    at all. A request that says what to build but leaves a material open
+    choice takes the full path; a failed criterion is not a reason to halt.
+  - The phrases **"a developer's direct request is the spec"** and **"Excess
+    ceremony on a direct order is a defect signal"** are removed from the deck.
+- RED: per clause, captured pre-change —
+  `grep -rn "a developer's direct request is the spec" skills/ guidelines/ floor.md`
+  → 1 hit in `skills/work/SKILL.md`; `grep -rn "Excess ceremony on a direct order is a defect signal" skills/ guidelines/ floor.md`
+  → 1 hit; `grep -n "short-path criteria" skills/work/SKILL.md` → 0 hits;
+  `grep -n ".work/record.md" skills/work/SKILL.md` → 0 hits;
+  `grep -n "scope statement" skills/work/SKILL.md` → 0 hits;
+  `grep -n "^\.work/" .gitignore` → 0 hits.
+- GREEN: rewrite the card per the structure above; add the one `.gitignore`
+  line.
+- Verify: read the card back, clause by clause — the six criteria appear
+  once, in rule 1's body; the frontmatter description, rule 1's paragraph,
+  and rule 1's bullet list each refer to them; the R-5 and R-6 clauses ride
+  in rule 1; the new rule 2 and rule 4 are present; rule 6's
+  missing-artifact clause is qualified; both uncertainty rules are
+  qualified; the deck-wide greps for both removed phrases return 0 hits;
+  `grep -n "^\.work/" .gitignore` → 1 hit.
+- Dependency: none.
+
+## Item 4 — the deck-governance carve-out is bounded (SC-3)
+
+- Deliverable: `skills/skill-creator/SKILL.md`'s developer-instruction
+  carve-out states the bound: the carve-out's evidence-hunt exemption
+  applies to every developer-directed deck edit; the carve-out's no-halt
+  clause does not reach a directed edit whose content leaves a material open
+  choice — the agent asks one open-ended question about that choice rather
+  than choosing it; that question is the deck-governance card's stage output
+  rather than a step toward the full path; neither clause reaches a request
+  that names a stage. The gate's content standards (frontmatter, predicate
+  classification, root-agnostic discipline) are untouched.
+- RED: `grep -n "material open choice" skills/skill-creator/SKILL.md` → 0
+  hits.
+- GREEN: rewrite the carve-out paragraph to carry the four clauses.
+- Verify: read the card; all four clauses present; the admission gate's
+  eight numbered items unchanged; the vendor-card boundary unchanged.
+- Dependency: none.
+
+## Item 5 — one definition, and every record reference resolves (SC-4)
+
+- Deliverable:
+  - `skills/plan/SKILL.md` — its two uses of "short path" point at
+    `skills/work/SKILL.md`'s definition; neither states a predicate of its
+    own.
+  - `skills/implement/SKILL.md` — rule 9's "short-path inline default" points
+    at the same definition, and its "recorded in the work state" names the
+    work record.
+  - `skills/git-workflow-branch/SKILL.md` — rule 2's "state the verified tip
+    in the work record" names the work record and states that the provenance
+    is written to it at the trunk-freshness step; rule 5's "record … in the
+    work state" names the work record and its provenance part.
+  - `skills/git-workflow-cleanup/SKILL.md` — rule 5's work-state artifacts
+    are the working-tree scratch files the agent created, the work record
+    among them.
+  - `skills/work/SKILL.md` — already carries the definition and the record
+    (item 3).
+- RED: `grep -n "short path" skills/plan/SKILL.md skills/implement/SKILL.md`
+  → each hit currently states or implies a predicate of its own;
+  `grep -rn "work state" skills/` → 1 hit in `skills/implement/SKILL.md` that
+  does not name a record.
+- GREEN: the four edits above.
+- Verify: read the five cards; "short path" is defined once, in
+  `skills/work/SKILL.md`, and every other use — in `skills/plan/SKILL.md` and
+  `skills/implement/SKILL.md` — points at it; every "work record" and "work
+  state" reference names the work record and the part it names covers what
+  the reference asks it to hold; each card that owns the record states where
+  and when the agent writes it.
+- Dependency: item 3 (the work card's definition and record must exist
+  before the other cards point at them).
+
+## Item 6 — the verification and PR-readiness gates read the scope statement (SC-5)
+
+- Deliverable:
+  - `skills/verify/SKILL.md` — rule 1 reads the scope statement as the short
+    path's primary artifact and its dispatch names the work record's path;
+    rule 3's verdict unit on the short path is the scope statement's check;
+    rule 9 names the work card as the scope statement's owning card, whose
+    criteria reference that check.
+  - `skills/git-workflow-pr/SKILL.md` — rule 1's assigned scope and its SCs
+    are the scope statement's scope and its check; rule 2(a) takes the scope
+    statement as the assignment; rule 2(c) takes it as the verification
+    target; rule 4's Provenance section carries the scope statement's
+    content, not the work record's path, because the record is transient and
+    the cleanup card deletes it.
+- RED: `grep -n "scope statement" skills/verify/SKILL.md skills/git-workflow-pr/SKILL.md`
+  → 0 hits.
+- GREEN: the six edits above.
+- Verify: read both cards; each clause present; the PR body's fixed section
+  list unchanged (no section added, no section removed).
+- Dependency: item 3 (the scope statement's contents and path must be
+  defined before the gates can name them).
+
+## Item 7 — a stated stage request produces that stage and no implementation (SC-6)
+
+- Deliverable: under the new deck, the run of `2657-sc1` writes the requested
+  spec file and makes no edit to an implementation file — the evidence is
+  the clean-room evaluation record for the GREEN run, which names the
+  criterion and the `session.yaml` events it read.
+- RED: run `bash .opencode/tests-v2/behaviors/2657-sc1-stage-request-runs-stage.sh`
+  with `BEHAVIOR_SUBMODULE_COMMIT=a1fb61c6` — the pre-change deck. The
+  pre-change card prices stage-seeking against the developer's request
+  ("a developer's direct request is the spec"; "Excess ceremony on a direct
+  order is a defect signal"), so the run implements instead of writing a
+  spec. The clean-room evaluation of the run's `session.yaml` shows no spec
+  file written and an implementation edit made. Evidence: the artifact
+  directory under `tmp/behavioral-evidence-2657-sc1-*`.
+- GREEN: with items 2–6 landed and pushed, run the same scenario unpinned.
+  The clean-room evaluation shows the run wrote the requested spec file with
+  the spec's content, and made no edit to an implementation file.
+- Verify: the two clean-room evaluation records, one per run, each stating
+  its verdict and the evidence it read.
+- Dependency: item 1 (the scenario exists), items 2–6 (the card changes the
+  GREEN observes).
+
+## Item 8 — a complicated change does not ride the short path (SC-7)
+
+- Deliverable: under the new deck, the run of `2657-sc2` produces a full-path
+  spec artifact before its first implementation edit — the evidence is the
+  clean-room evaluation record for the GREEN run.
+- RED: run `2657-sc2-complicated-change-full-path` with
+  `BEHAVIOR_SUBMODULE_COMMIT=a1fb61c6`. The pre-change card makes the short
+  path the default for single-file developer-specified changes, and "Add
+  caching to the search endpoint" is exactly that — so the run edits
+  `src/search.py` with no spec artifact. Evidence: the artifact directory.
+- GREEN: run the same scenario unpinned. The clean-room evaluation shows the
+  run's first edit to an implementation file comes after a full-path spec
+  artifact appears in the run — a spec carrying success criteria, not the
+  work record's scope statement — and that the run did not halt in place of
+  that artifact.
+- Verify: the two clean-room evaluation records.
+- Dependency: item 1, items 2–6.
+
+## Item 9 — the short path is taken in collapsed form, without ceremony (SC-8)
+
+- Deliverable: under the new deck, the run of `2657-sc3` states the path and
+  the scope before editing, and carries nothing else — the evidence is the
+  clean-room evaluation record for the GREEN run, which names the criterion
+  and the `session.yaml` events it read.
+- RED: run `2657-sc3-short-path-collapsed-form` with
+  `BEHAVIOR_SUBMODULE_COMMIT=a1fb61c6`. The pre-change card records no scope
+  statement — the record it names has no surface — so the run edits
+  `SUPPORT.md` with no scope statement preceding it. Evidence: the artifact
+  directory.
+- GREEN: run the same scenario unpinned. The clean-room evaluation shows the
+  scope statement precedes the edit and carries R-4's contents; the run
+  contains no spec document, no plan document, no spec-validation or
+  plan-validation dispatch, no halt for direction, no evidence hunt, no
+  archaeology, and no card load the request had already satisfied; and the
+  run contains the `verify` card's fresh-context dispatch.
+- Verify: the two clean-room evaluation records.
+- Dependency: item 1, items 2–6.
+
+## Item 10 — the short path ends when the work outgrows it (SC-9)
+
+- Deliverable: under the new deck, the run of `2657-sc4` ends the short path
+  at the second file — the evidence is the clean-room evaluation record for
+  the GREEN run.
+- RED: run `2657-sc4-short-path-ends-when-outgrown` with
+  `BEHAVIOR_SUBMODULE_COMMIT=a1fb61c6`. The pre-change card has no rule for
+  a short-path change that acquires a second file, so the run edits
+  `docs/feature.md` with no expanded scope and no full-path stage artifact
+  between the two edits. Evidence: the artifact directory.
+- GREEN: run the same scenario unpinned. The clean-room evaluation shows the
+  expanded scope statement precedes the second file's edit, and a full-path
+  spec artifact — a spec carrying success criteria, not the scope statement —
+  appears between that statement and the run's next implementation edit.
+- Verify: the two clean-room evaluation records.
+- Dependency: item 1, items 2–6.
+
+## Item 11 — a directed deck edit with an open choice gets one question (SC-10)
+
+- Deliverable: under the new deck, the run of `2657-sc5` asks one open-ended
+  question about the open choice and chooses nothing — the evidence is the
+  clean-room evaluation record for the GREEN run.
+- RED: run `2657-sc5-directed-deck-edit-open-choice` with
+  `BEHAVIOR_SUBMODULE_COMMIT=a1fb61c6`. The pre-change carve-out says never
+  halt for direction the instruction already carries, so the run chooses its
+  own threshold for "substantial" and asks nothing. Evidence: the artifact
+  directory.
+- GREEN: run the same scenario unpinned. The clean-room evaluation shows the
+  run contains an open-ended question about the open choice, made no choice
+  of its own on it, contains no evidence hunt for the edit's admission, and
+  contains no issue filing, no spec document, no plan document, and no
+  validation dispatch.
+- Verify: the two clean-room evaluation records.
+- Dependency: item 1, items 2–6.
+
+## Rollback
+
+Every change is a text edit to tracked files plus five new test files and
+one deletion; the branch is a single feature branch off a verified trunk tip,
+so `git reset --hard a1fb61c6` restores the pre-change state. No change
+touches a credential, a deployment surface, or a remote's contents. The
+harness's own artifacts live under `tmp/` and are disposable.
