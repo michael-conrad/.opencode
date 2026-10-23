@@ -1,10 +1,10 @@
-title: '[SPEC] Closing-keyword mechanics — GitBucket platform fact, cross-repo form
-  rule, merge-vs-close verification'
+title: '[SPEC] Closing-keyword contract — form-selection rule, platform class, and
+  merge-vs-close distinction'
 status: open
 labels:
 - needs-approval
 - spec
 body: ''
 created_at: '2026-10-23T14:41:33+00:00'
-updated_at: '2026-10-23T14:46:19+00:00'
+updated_at: '2026-10-23T20:55:41+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2658
