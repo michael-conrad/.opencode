@@ -187,7 +187,12 @@ a request for a spec came to be read as a request that already had one.
   record (R-10) before it edits anything. The scope statement carries: the
   path taken, the R-3 criteria that selected it, what changes, what "done" is
   checked against, what is out of scope, the order of the work, and any
-  reason a card requires recorded for a departure from a default. The
+  reason a card requires recorded for a departure from a default. The check
+  that "done" is verified against is the criterion the verify card's
+  fresh-context reviewer measures the scope statement against, and it is the
+  verdict unit on the short path; the work card declares it as that card's
+  criteria reference for the scope statement, per the verify card's
+  criteria-set-ownership rule. The
   developer's work order is the authorization for the implementation that scope
   describes: `floor.md`'s authorization vocabulary sends an utterance it does
   not list to default agent judgment, and the work card's boundary rule halts
@@ -271,16 +276,20 @@ a request for a spec came to be read as a request that already had one.
   short route remains `git-workflow-branch` → `implement` → `verify` →
   `git-workflow-pr`.
 - **R-12** — The verification and PR-readiness gates read the short path's
-  artifact. `skills/verify/SKILL.md` rule 1 reads the scope statement as the
-  short path's primary artifact alongside the diff and the executed test
-  output, and the verify dispatch names the work record's path so the
-  fresh-context reviewer reaches it. In `skills/git-workflow-pr/SKILL.md`,
-  rule 1's assigned scope and its SCs are the scope statement's scope and
-  its check, rule 2(a) takes the scope statement as the assignment, rule
-  2(c) takes the scope statement as the verification target, and rule 4's
-  Provenance section carries the scope statement's content as the spec it
-  already requires. Where a short-path change carries an issue, that issue is
-  the tracker record; the spec artifact remains the scope statement.
+  artifact, and they measure it against a declared bar. `skills/verify/SKILL.md`
+  rule 1 reads the scope statement as the short path's primary artifact
+  alongside the diff and the executed test output, and the verify dispatch
+  names the work record's path so the fresh-context reviewer reaches it; rule
+  3's verdict unit on the short path is the scope statement's check; and rule
+  9's owning card for the scope statement is the work card, which declares
+  that check as the scope statement's criteria reference. In
+  `skills/git-workflow-pr/SKILL.md`, rule 1's assigned scope and its SCs are
+  the scope statement's scope and its check, rule 2(a) takes the scope
+  statement as the assignment, rule 2(c) takes the scope statement as the
+  verification target, and rule 4's Provenance section carries the scope
+  statement's content as the spec it already requires. Where a short-path
+  change carries an issue, that issue is the tracker record; the spec
+  artifact remains the scope statement.
 
 ## Impact
 
@@ -324,7 +333,8 @@ self-certified, and R-5 re-examines it when the work outgrows it.
 `git-workflow-cleanup` cards; `tests-v2/behaviors/`. The amendments to
 `verify`, `git-workflow-pr`, `git-workflow-branch`, and `git-workflow-cleanup`
 are clause-level clarifications that name the artifact the card already
-requires. The PR body's fixed section list is preserved: the Provenance
+requires and, for the verify card, the verdict unit and owning card the
+short path uses. The PR body's fixed section list is preserved: the Provenance
 section's contents widen on the short path to carry the scope statement's
 content, and no section is added. No change reaches `guidelines/`, `agents/`,
 `prompts/`, `opencode.jsonc`, the `tests-v2` harness, or the retired `attic/`
@@ -392,7 +402,10 @@ them.
 ### SC-5 (structural) — the verification and PR-readiness gates read the scope statement
 
 `skills/verify/SKILL.md` rule 1 reads the scope statement as the short path's
-primary artifact, and its dispatch names the work record's path. In
+primary artifact, and its dispatch names the work record's path; rule 3's
+verdict unit on the short path is the scope statement's check; and rule 9's
+owning card for the scope statement is the work card, which declares that
+check as the scope statement's criteria reference. In
 `skills/git-workflow-pr/SKILL.md`, rule 1's assigned scope and its SCs are the
 scope statement's scope and its check, rule 2(a) takes the scope statement as
 the assignment, rule 2(c) takes the scope statement as the verification
@@ -457,8 +470,8 @@ is not among the absent artifacts: the short route requires it.
 ### SC-9 (behavioral) — the short path ends when the work outgrows it
 
 An agent whose short-path change acquires a second file states the expanded
-scope before it edits that second file, and produces the full path's earliest
-missing stage's artifact before it makes any further implementation edit.
+scope, and produces the full path's earliest missing stage's artifact, before
+it edits that second file.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
   `session.yaml` confirms that the expanded scope statement precedes the
