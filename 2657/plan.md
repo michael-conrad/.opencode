@@ -89,15 +89,18 @@ fail (`implement` card rule 3, rule 10).
 
   | Scenario | Fixture state the fixture pre-supplies | Prompt |
   |---|---|---|
-  | `2657-sc1-stage-request-runs-stage` | `src/upload.py` (the client the request names) | "Write a spec for how the upload client should retry a failed upload, and get my approval of the spec before you write any code." |
+  | `2657-sc1-stage-request-runs-stage` | `src/upload.py` (the client the request names) and `docs/architecture.md` (so the `docs/` directory the spec file goes in exists) | "Write a spec for how the upload client should retry a failed upload, put it in `docs/upload-retry-spec.md`, and get my approval of it before you write any code." |
   | `2657-sc2-complicated-change-full-path` | `src/search.py` (the endpoint the request names) | "Add caching to the search endpoint." |
   | `2657-sc3-short-path-collapsed-form` | `SUPPORT.md` (the file the request names) | "Add a `## Support` heading to the top of SUPPORT.md pointing at the issue tracker." |
   | `2657-sc4-short-path-ends-when-outgrown` | `src/feature.py` and `docs/feature.md` (the first file the request names, and the second file the work turns out to require) | "Add a `--json` flag to the feature script so it prints the feature as JSON." |
-  | `2657-sc5-directed-deck-edit-open-choice` | the deck checkout the harness already provides | "Add a rule to the agent deck card at `.opencode/skills/collaboration/SKILL.md` stating that an agent hands a draft to a reviewer agent when the draft is substantial." |
+  | `2657-sc5-directed-deck-edit-open-choice` | the deck checkout the harness already provides — the target card `skills/spec/SKILL.md` is in it | "Add a rule to the agent deck card at `.opencode/skills/spec/SKILL.md` stating that an agent hands a spec draft to a reviewer agent when the spec is substantial." |
 
   The prompts are real-domain tasks, not interviews (`tests-v2/AGENTS.md`
-  §11). `2657-sc5`'s prompt leaves "substantial" undefined on purpose — that
-  is the material open choice the criterion turns on.
+  §11). `2657-sc1`'s prompt names the spec file's path, so the stage's
+  artifact is a file the harness can find and the evaluation can name.
+  `2657-sc5`'s prompt leaves "substantial" undefined on purpose — that is the
+  material open choice the criterion turns on, and the target card is one
+  that exists in the deck.
 - Verify: `ls tests-v2/behaviors/2657-sc*` → 5 files; `ls
   tests-v2/behaviors/fixtures/setup/2657-sc*` → 5 files, each name equal to
   its scenario's `SCENARIO_NAME`; `test ! -e
@@ -111,19 +114,24 @@ fail (`implement` card rule 3, rule 10).
 - Deliverable: `floor.md`'s Pipeline section states that every change passes
   through the pipeline's stages, that scaling changes a stage's *form* and
   never its *presence*, and that a developer's directive satisfies a stage's
-  content but never suppresses a stage. The authorization vocabulary gains
-  the stage-request rule: a developer's request naming a stage (a spec, a
-  plan, a discussion, or approval before implementation) runs that stage
-  before implementing, whatever the change's size; the agent's
-  characterization of the change's size never overrides it; a request for a
-  stage is never excess ceremony.
+  content but never suppresses a stage. The Pipeline section's existing
+  statement that the path is scaled to the change's need by agent judgment,
+  never a size threshold, **survives** unchanged. The authorization
+  vocabulary gains the stage-request rule: a developer's request naming a
+  stage (a spec, a plan, a discussion, or approval before implementation)
+  runs that stage before implementing, whatever the change's size; the
+  agent's characterization of the change's size never overrides it; a
+  request for a stage is never excess ceremony.
 - RED: `grep -n "scaling changes a stage" floor.md` → 0 hits; `grep -n
   "names a stage" floor.md` → 0 hits. Captured pre-change output.
 - GREEN: edit the Pipeline section and add the vocabulary bullet beside
-  `approved for <phase>`.
+  `approved for <phase>`. The Pipeline edit is an addition to the section,
+  not a rewrite of it — the size-threshold sentence stays as it is.
 - Verify: `grep` shows the invariant sentence and the vocabulary bullet;
-  `floor.md` remains under 130 lines; the Pipeline section still names
-  spec → plan → implement → PR and the human-only merge.
+  `grep -n "never a size threshold" floor.md` → 1 hit, the pre-existing
+  sentence, unchanged in wording; `floor.md` remains under 130 lines; the
+  Pipeline section still names spec → plan → implement → PR and the
+  human-only merge.
 - Dependency: none.
 
 ## Item 3 — the work card: path selection, criteria, scope, record (SC-2)
@@ -193,8 +201,10 @@ fail (`implement` card rule 3, rule 10).
     ceremony on a direct order is a defect signal"** are removed from the deck.
 - RED: per clause, captured pre-change —
   `grep -rn "a developer's direct request is the spec" skills/ guidelines/ floor.md`
-  → 1 hit in `skills/work/SKILL.md`; `grep -rn "Excess ceremony on a direct order is a defect signal" skills/ guidelines/ floor.md`
-  → 1 hit; `grep -n "short-path criteria" skills/work/SKILL.md` → 0 hits;
+  → 1 hit in `skills/work/SKILL.md`; `grep -rn "Excess ceremony on a direct order" skills/ guidelines/ floor.md`
+  → 1 hit in `skills/work/SKILL.md` (the phrase is line-wrapped after "a
+  direct order", so the grep fragment stops there);
+  `grep -n "short-path criteria" skills/work/SKILL.md` → 0 hits;
   `grep -n ".work/record.md" skills/work/SKILL.md` → 0 hits;
   `grep -n "scope statement" skills/work/SKILL.md` → 0 hits;
   `grep -n "^\.work/" .gitignore` → 0 hits.
@@ -205,8 +215,9 @@ fail (`implement` card rule 3, rule 10).
   and rule 1's bullet list each refer to them; the R-5 and R-6 clauses ride
   in rule 1; the new rule 2 and rule 4 are present; rule 6's
   missing-artifact clause is qualified; both uncertainty rules are
-  qualified; the deck-wide greps for both removed phrases return 0 hits;
-  `grep -n "^\.work/" .gitignore` → 1 hit.
+  qualified; `grep -rn "a developer's direct request is the spec" skills/ guidelines/ floor.md`
+  → 0 hits; `grep -rn "Excess ceremony on a direct order" skills/ guidelines/ floor.md`
+  → 0 hits; `grep -n "^\.work/" .gitignore` → 1 hit.
 - Dependency: none.
 
 ## Item 4 — the deck-governance carve-out is bounded (SC-3)
@@ -245,17 +256,20 @@ fail (`implement` card rule 3, rule 10).
     among them.
   - `skills/work/SKILL.md` — already carries the definition and the record
     (item 3).
-- RED: `grep -n "short path" skills/plan/SKILL.md skills/implement/SKILL.md`
-  → each hit currently states or implies a predicate of its own;
-  `grep -rn "work state" skills/` → 1 hit in `skills/implement/SKILL.md` that
-  does not name a record.
+- RED: `grep -in "short-path" skills/plan/SKILL.md skills/implement/SKILL.md`
+  → 6 hits — `plan` rules 7 and 8 (2), `implement` rule 9 (2), and
+  `implement`'s two provenance annotations naming `.opencode#2645` (2);
+  `grep -rn "work state" skills/` → 2 hits — `skills/git-workflow-branch/SKILL.md`
+  rule 5 and `skills/implement/SKILL.md` rule 9 — neither naming a record.
 - GREEN: the four edits above.
 - Verify: read the five cards; "short path" is defined once, in
-  `skills/work/SKILL.md`, and every other use — in `skills/plan/SKILL.md` and
-  `skills/implement/SKILL.md` — points at it; every "work record" and "work
-  state" reference names the work record and the part it names covers what
-  the reference asks it to hold; each card that owns the record states where
-  and when the agent writes it.
+  `skills/work/SKILL.md`, and every rule-body use — in `skills/plan/SKILL.md`
+  and `skills/implement/SKILL.md` — points at that definition (the two
+  `implement` provenance annotations naming `.opencode#2645` are historical
+  citations of the change that introduced the rule, not uses of the term);
+  every "work record" and "work state" reference names the work record and
+  the part it names covers what the reference asks it to hold; each card that
+  owns the record states where and when the agent writes it.
 - Dependency: item 3 (the work card's definition and record must exist
   before the other cards point at them).
 
@@ -291,13 +305,15 @@ fail (`implement` card rule 3, rule 10).
   with `BEHAVIOR_SUBMODULE_COMMIT=a1fb61c6` — the pre-change deck. The
   pre-change card prices stage-seeking against the developer's request
   ("a developer's direct request is the spec"; "Excess ceremony on a direct
-  order is a defect signal"), so the run implements instead of writing a
-  spec. The clean-room evaluation of the run's `session.yaml` shows no spec
-  file written and an implementation edit made. Evidence: the artifact
-  directory under `tmp/behavioral-evidence-2657-sc1-*`.
+  order is a defect signal"), so the run implements instead of writing
+  `docs/upload-retry-spec.md`. The clean-room evaluation of the run's
+  `session.yaml` shows the file was not written and an implementation edit
+  was made. Evidence: the artifact directory under
+  `tmp/behavioral-evidence-2657-sc1-*`.
 - GREEN: with items 2–6 landed and pushed, run the same scenario unpinned.
-  The clean-room evaluation shows the run wrote the requested spec file with
-  the spec's content, and made no edit to an implementation file.
+  The clean-room evaluation shows the run wrote `docs/upload-retry-spec.md`
+  with the spec's content, and made no edit to `src/upload.py` or any other
+  implementation file.
 - Verify: the two clean-room evaluation records, one per run, each stating
   its verdict and the evidence it read.
 - Dependency: item 1 (the scenario exists), items 2–6 (the card changes the
