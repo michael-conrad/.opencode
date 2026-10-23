@@ -314,9 +314,13 @@ recorded work instead of restarting it.
   where you left off." — gives the model no state anchor, so it re-derives
   the session's history from a long context, spends the whole per-turn budget
   re-deriving, and issues no tool call; the resume makes no progress and the
-  run exhausts the cap-resume ceiling with no artifact. The per-turn output
-  cap is unchanged: the observed degenerate-turn band is where these turns
-  sit, so raising the cap would re-open the failure the cap exists to
+  run exhausts the cap-resume ceiling with no artifact. Both the helpers'
+  resume path and the Docker resume launcher's own default carry that
+  message, so a caller that passes no message — as a scenario's direct-resume
+  path may do — does not reintroduce the anchorless form. The per-turn output
+  cap's default is unchanged, and the probe scenario that lowers the cap
+  deliberately is untouched: the observed degenerate-turn band is where these
+  turns sit, so raising the cap would re-open the failure the cap exists to
   prevent.
 
 ## Impact
@@ -362,7 +366,8 @@ self-certified, and R-5 re-examines it when the work outgrows it.
 **Blast radius.** `floor.md`; the `work`, `plan`, `implement`,
 `skill-creator`, `verify`, `git-workflow-pr`, `git-workflow-branch`, and
 `git-workflow-cleanup` cards; `tests-v2/behaviors/`; and the cap-hit resume
-path in `tests-v2/behaviors/helpers.sh`. The amendments to
+path in `tests-v2/behaviors/helpers.sh` together with the Docker resume
+launcher in `tests-v2/docker/docker-harness.sh`. The amendments to
 `verify`, `git-workflow-pr`, `git-workflow-branch`, and `git-workflow-cleanup`
 are clause-level clarifications that name the artifact the card already
 requires and, for the verify card, the verdict unit and owning card the
@@ -557,14 +562,21 @@ per-turn cap can resume.
 The harness's cap-hit resume composes its resume message from the run's own
 session database: the agent's last recorded reasoning, and the recorded
 in-flight tool call when there is one. The message is not the anchorless
-"Continue the task from where you left off." The per-turn output cap is
-unchanged at 4,000 on every surface that sets it.
+"Continue the task from where you left off." The per-turn output cap's
+default is unchanged at 4,000 on every surface that sets it, and the
+deliberate probe override in `2646-sc-cap-resume-probe.sh` — which lowers the
+cap so the probe hits it deterministically — is untouched.
 
-- **Verify:** read `tests-v2/behaviors/helpers.sh`; the cap-hit resume path
-  calls the tail-message composer and passes its message to both the Docker
-  and the host resume path; every surface that sets
-  `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` still carries the 4,000 literal,
-  and the anchorless message appears in the resume path nowhere.
+- **Verify:** read `tests-v2/behaviors/helpers.sh` and
+  `tests-v2/docker/docker-harness.sh`; the cap-hit resume path calls the
+  tail-message composer and passes its message to both the Docker and the host
+  resume path, and the Docker resume launcher's own default is tail-derived
+  rather than anchorless, so a caller that passes no message does not
+  reintroduce the anchorless form; the anchorless message appears in
+  executable code in neither file; every surface that sets
+  `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` with the default still carries the
+  4,000 literal, and `2646-sc-cap-resume-probe.sh` still carries its own
+  deliberate override.
 
 ## Success-criteria table
 
@@ -604,8 +616,9 @@ unchanged at 4,000 on every surface that sets it.
   facts only.
 - The retired `attic/` deck; the `tests-v2` harness's isolation contract, its
   default model, its change-control rules, and its per-turn output cap;
-  `guidelines/`, `agents/`, `prompts/`, and `opencode.jsonc`. R-13 reaches one
-  harness behaviour — the message the cap-hit resume sends — and nothing else
+  `guidelines/`, `agents/`, `prompts/`, and `opencode.jsonc`. R-13 reaches two
+  harness behaviours — the message the cap-hit resume sends, in the helpers'
+  resume path and in the Docker resume launcher's default — and nothing else
   in the harness.
 
 ## Approach
@@ -675,14 +688,18 @@ artifact. That is the failure the cap-resume step was written to prevent, and
 the run-level fix `.opencode#2639` applied to its own scenario's bespoke
 recovery path generalizes here: the resume message states the agent's recorded
 last thinking and names the recorded next action, composed from the run's own
-session database. R-13 carries it and SC-12 holds it. Two further repairs sit
-at the scenario layer: the fixture's seed state no longer leaves `main` ahead of
-the remote tip, and each scenario declares the goal condition the monitor's
-classifier judges the run against — without one, the classifier returns
-"undetermined", the determination gate blocks the resume path, and a capped run
-cannot recover. The per-turn cap itself is unchanged: the observed
-degenerate-turn band is where these turns sit, so raising it would re-open the
-failure the cap prevents.
+session database. R-13 carries it and SC-12 holds it. The Docker resume
+launcher's own default is tail-derived for the same reason: a caller that
+passes no message — as the `#2639` direct-resume path does when it sets no
+directive — would otherwise reintroduce the anchorless form. Two further
+repairs sit at the scenario layer: the fixture's seed state no longer leaves
+`main` ahead of the remote tip, and each scenario declares the goal condition
+the monitor's classifier judges the run against — without one, the classifier
+returns "undetermined", the determination gate blocks the resume path, and a
+capped run cannot recover. The per-turn cap's default is unchanged, and the
+probe scenario that lowers the cap deliberately is untouched: the
+observed degenerate-turn band is where these turns sit, so raising the cap
+would re-open the failure the cap prevents.
 
 **Alternatives considered.** *Delete the short path entirely* and send every
 change through spec, plan, implement, and PR: rejected, because it makes the
