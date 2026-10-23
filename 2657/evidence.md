@@ -54,39 +54,62 @@ drafting the spec's success criteria, and the harness's cap-resume ceiling
 
 ## R-18 cause analysis (tests-v2/AGENTS.md §17)
 
-Two causes, both in the scenario/fixture and harness layer — neither in the
+Three causes, all in the scenario/fixture and harness layer — none in the
 deck change under test.
 
-1. **The spec-stage artifact exceeds the harness's per-turn output budget.**
+1. **The per-turn output budget is smaller than the work the model does.**
    `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` is 4,000 on every surface
    (`with-test-home`'s `env -i` allowlist and `set-env.sh` export, the
-   `docker_env` passthrough, and the classifier-home seeder). The spec card
-   requires a complete specification, and the model composes it in one turn:
-   the reasoning counter stays flat while the turn's token count climbs, so
-   the bulk is the specification *text*, not deliberation. Each capped turn is
-   resumed by re-generating the same message, so a composition that cannot
-   fit in one turn cannot complete — the run exhausts the resume ceiling with
-   no artifact. The harness names this condition and its remedy:
-   *"a scenario whose legitimate turns routinely hit the cap is re-scoped at
-   the spec (value raises are a one-line change to the four surfaces), never
-   by model substitution (R-20)."* Raising the cap instead re-opens the
-   unbounded-turn failure `#2646` set the 4,000 default to prevent.
-   *Fix:* re-scope the scenarios that require a spec artifact so the artifact
-   is brief enough to fit the budget — a spec-card revision, validated
-   afresh, not an implementor-side change to an approved criterion.
+   `docker_env` passthrough, and the classifier-home seeder). On this deck the
+   model's *first* turn routinely exceeds it: in the 2657-sc3 RED the agent
+   burned six generations (~24 minutes) deliberating a two-line heading
+   addition and never reached the edit; in the 2657-sc1 GREEN it composed a
+   complete specification, hit the cap three times, and ended with the final
+   message truncated at 4,000 output tokens mid-sentence. The reasoning
+   counter stays flat while the turn's token count climbs, so the bulk is
+   text, not deliberation. Each capped turn is resumed by re-generating the
+   same message, so a composition that cannot fit in one turn cannot
+   complete. The harness names this condition and its remedy: *"a scenario
+   whose legitimate turns routinely hit the cap is re-scoped at the spec (value
+   raises are a one-line change to the four surfaces), never by model
+   substitution (R-20)."* Raising the cap instead re-opens the unbounded-turn
+   failure `#2646` set the 4,000 default to prevent.
+   *Fix:* re-scope the scenarios so the criteria judge what the model
+   actually does in the run it gets — the route it announces and the cards it
+   loads — rather than artifacts it never writes. A spec-card revision,
+   validated afresh, not an implementor-side change to an approved criterion.
 
 2. **The fixture's repository state trips the branch card's rebase rule.**
    The harness's own `behavior_run` commits `init` onto the test project's
    `main`, and the per-scenario fixture commits the seed content on top, so
    `main` sits ahead of `origin/main`. The branch card's rule 2 says to
-   "sync and rebase if the trunk moved", and a rebase would discard the
-   fixture's seed content. The agent resolves that conflict by reasoning
-   about it for ten-plus minutes — in the SC-8 RED, `git merge-base main
-   origin/main; git log --oneline -8 main` was its last action for seven
-   consecutive polls. This is R-18's "fixture state" cause class, and it is
-   this scenario's own fixture design.
-   *Fix:* make the fixture's seed state not present as a local divergence
-   from the remote tip, so the branch card's rebase path never fires.
+   "sync and rebase if the trunk moved", and a rebase onto the remote tip
+   would discard the fixture's seed content. The agent resolves that conflict
+   by reasoning about it for ten-plus minutes — in the first 2657-sc3 RED,
+   `git merge-base main origin/main; git log --oneline -8 main` was its last
+   action for seven consecutive polls. This is R-18's "fixture state" cause
+   class.
+   *Fix applied:* the fixture now moves `main` back to the remote tip and
+   leaves the seed content staged, so the content is present and the
+   divergence is not. Verified: `main` and `origin/main` are the same commit
+   (0 ahead, 0 behind) and the agent reached the branch card in ten minutes
+   instead of twenty-two, without the merge-base detour.
+
+3. **A scenario with no declared goal condition cannot be judged, and
+   cannot recover.** The §14 monitor's classifier is anchored on the
+   scenario's `goal_condition`; with none declared it returns `undetermined`,
+   the SC-8 determination gate then refuses the resume path, and a run that
+   hits the cap dies where it stands. Observed in the first 2657-sc3 RED:
+   three `FATAL: resume failed - no non-undetermined determination exists`
+   lines, the monitor halting with `classification: undetermined`, and the
+   orchestrator decision recorded as `terminate-with-root-cause` for
+   "orphaned/left-running run processes" — a diagnosis that named the
+   harness's own state, not the run's behaviour.
+   *Fix applied:* each scenario now declares `BEHAVIOR_EXPECTED_ARTIFACT`,
+   `BEHAVIOR_EXPECTED_ARTIFACT_GREP`, and `BEHAVIOR_GOAL_ACTIONS`. Verified
+   on the post-fix 2657-sc3 RED: the monitor emitted no `undetermined`
+   classification, no `FATAL: resume failed` line appeared, and the run was
+   not halted by the monitor.
 
 ## Consequence for the criteria
 
@@ -97,11 +120,24 @@ deck change under test.
   fail for artifact reasons rather than for the routing reasons the criterion
   is about, which is a second, independent argument for re-scoping it.
 - SC-8 and SC-10 require no spec artifact, so they are measurable as
-  instrumented once cause 2 is fixed.
-- The deck change itself is not implicated in either cause: in the SC-6 GREEN
-  the new deck routed to the named stage in two polls with the developer's
-  approval gate explicitly identified, where the pre-change deck spent the
-  whole run on archaeology and a nonexistent-skill hunt.
+  instrumented once causes 2 and 3 are fixed — and with them fixed the
+  monitor can conclude a run as soon as the criterion's decisive fact
+  appears, rather than waiting out the model's deliberation.
+- The deck change itself is not implicated in any of the three causes. In the
+  SC-6 GREEN the new deck routed to the named stage in two polls with the
+  developer's approval gate explicitly identified, where the pre-change deck
+  spent the whole run on archaeology and a hunt for a skill that does not
+  exist in the deck. In the SC-8 RED the pre-change deck's own words are the
+  defect: *"Direct single-file change with the request as spec — short
+  path."*
+- One cost of the change is worth recording: `skills/work/SKILL.md` grew
+  from 53 to 127 lines, and the card's text is in the agent's context on
+  every run, so the deck's first-turn latency rises with it. The
+  `skill-creator` card's own standard is "bodies stay lean; details go one
+  level deep in `references/`". Moving the criteria set and the scope
+  statement's detail into a `references/` file — with the card pointing at
+  them — would cut that, at the cost of a spec revision, since SC-2 requires
+  the criteria to be stated in rule 1's body.
 
 ## Suite-wide result
 
