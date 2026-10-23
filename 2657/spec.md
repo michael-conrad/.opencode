@@ -115,6 +115,17 @@ where that artifact is written, or how the fresh-context reviewer reaches it,
 and the agent fills those gaps by whichever reading favours it — which is how
 a request for a spec came to be read as a request that already had one.
 
+A fourth defect is in the measurement, not in the deck. The behavioural
+scenarios that would show this fix's effect cannot complete a run. The
+harness resumes a run whose turn ended at the per-turn output cap with the
+anchorless message "Continue the task from where you left off.", so the model
+re-derives the session's history from a long context, spends the whole
+per-turn budget re-deriving, and issues no tool call. The resume makes no
+progress, the run exhausts the cap-resume ceiling, and the stage's artifact —
+the thing each behavioural criterion asks about — is never produced. R-13
+makes the resume carry the recorded tail, so the resumed turn continues the
+recorded work instead of restarting it.
+
 ## Root causes
 
 - **RC-1** — Path selection takes one input: the agent's characterization of
@@ -295,6 +306,18 @@ a request for a spec came to be read as a request that already had one.
   statement's content as the spec it already requires. Where a short-path
   change carries an issue, that issue is the tracker record; the spec
   artifact remains the scope statement.
+- **R-13** — The harness's cap-hit resume anchors the model on the recorded
+  tail. When a run's turn ends at the per-turn output cap, the harness resumes
+  the session with a directive message composed from the run's own session
+  database: the agent's last recorded reasoning, and the recorded in-flight
+  tool call when there is one. The anchorless form — "Continue the task from
+  where you left off." — gives the model no state anchor, so it re-derives
+  the session's history from a long context, spends the whole per-turn budget
+  re-deriving, and issues no tool call; the resume makes no progress and the
+  run exhausts the cap-resume ceiling with no artifact. The per-turn output
+  cap is unchanged: the observed degenerate-turn band is where these turns
+  sit, so raising the cap would re-open the failure the cap exists to
+  prevent.
 
 ## Impact
 
@@ -338,15 +361,17 @@ self-certified, and R-5 re-examines it when the work outgrows it.
 
 **Blast radius.** `floor.md`; the `work`, `plan`, `implement`,
 `skill-creator`, `verify`, `git-workflow-pr`, `git-workflow-branch`, and
-`git-workflow-cleanup` cards; `tests-v2/behaviors/`. The amendments to
+`git-workflow-cleanup` cards; `tests-v2/behaviors/`; and the cap-hit resume
+path in `tests-v2/behaviors/helpers.sh`. The amendments to
 `verify`, `git-workflow-pr`, `git-workflow-branch`, and `git-workflow-cleanup`
 are clause-level clarifications that name the artifact the card already
 requires and, for the verify card, the verdict unit and owning card the
 short path uses. The PR body's fixed section list is preserved: the Provenance
 section's contents widen on the short path to carry the scope statement's
 content, and no section is added. No change reaches `guidelines/`, `agents/`,
-`prompts/`, `opencode.jsonc`, the `tests-v2` harness, or the retired `attic/`
-deck.
+`prompts/`, `opencode.jsonc`, the `tests-v2` harness's isolation contract, its
+default model, its change-control rules, or its per-turn output cap, and
+nothing reaches the retired `attic/` deck.
 
 ## Success criteria
 
@@ -512,11 +537,34 @@ it. The run contains no admission-gate evidence hunt.
 `2584-sc4-directed-card-edit-no-archaeology.sh` states the anti-archaeology
 criterion and the no-full-path-machinery criterion. Five new scenarios exist,
 one for each of SC-6 through SC-10, and each carries the setup fixture that
-pre-supplies the repository state its task needs.
+pre-supplies the repository state its task needs: the fixture leaves the seed
+content present without leaving the test project's `main` ahead of its remote
+tip, so the branch card's rebase rule does not fire on a divergence the
+fixture itself created. Each scenario declares its goal condition — the goal
+artifact, the content pattern that completes it, and the goal actions — so the
+monitor's classifier judges the run against an anchor, and a run that hits the
+per-turn cap can resume.
 
 - **Verify:** read `tests-v2/behaviors/`; each named file is present or absent
-  as stated, each new scenario's header states its criterion, and each new
-  scenario has its fixture under `tests-v2/behaviors/fixtures/setup/`.
+  as stated, each new scenario's header states its criterion, each new
+  scenario has its fixture under `tests-v2/behaviors/fixtures/setup/`, each
+  fixture leaves the test project's `main` equal to its remote tip, and each
+  scenario declares `BEHAVIOR_EXPECTED_ARTIFACT`,
+  `BEHAVIOR_EXPECTED_ARTIFACT_GREP`, and `BEHAVIOR_GOAL_ACTIONS`.
+
+### SC-12 (structural) — the cap-hit resume is anchored on the recorded tail
+
+The harness's cap-hit resume composes its resume message from the run's own
+session database: the agent's last recorded reasoning, and the recorded
+in-flight tool call when there is one. The message is not the anchorless
+"Continue the task from where you left off." The per-turn output cap is
+unchanged at 4,000 on every surface that sets it.
+
+- **Verify:** read `tests-v2/behaviors/helpers.sh`; the cap-hit resume path
+  calls the tail-message composer and passes its message to both the Docker
+  and the host resume path; every surface that sets
+  `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` still carries the 4,000 literal,
+  and the anchorless message appears in the resume path nowhere.
 
 ## Success-criteria table
 
@@ -533,6 +581,7 @@ pre-supplies the repository state its task needs.
 | SC-9 | The short path ends when the work outgrows it | behavioral | run → clean-room read of `session.yaml` |
 | SC-10 | A directed deck edit with an open choice gets one question | behavioral | run → clean-room read of `session.yaml` |
 | SC-11 | Scenario set aligned | structural | read `tests-v2/behaviors/` |
+| SC-12 | The cap-hit resume is anchored on the recorded tail; the per-turn cap is unchanged | structural | read `tests-v2/behaviors/helpers.sh` |
 
 ## Out of scope
 
@@ -553,9 +602,11 @@ pre-supplies the repository state its task needs.
 - Mechanized ceremony detection, token budgets, and scripted path selection.
   Path selection is intent-decidable; judgment decides, mechanisms verify
   facts only.
-- The retired `attic/` deck; the `tests-v2` harness, its isolation contract,
-  its default model, and its change-control rules; `guidelines/`, `agents/`,
-  `prompts/`, and `opencode.jsonc`.
+- The retired `attic/` deck; the `tests-v2` harness's isolation contract, its
+  default model, its change-control rules, and its per-turn output cap;
+  `guidelines/`, `agents/`, `prompts/`, and `opencode.jsonc`. R-13 reaches one
+  harness behaviour — the message the cap-hit resume sends — and nothing else
+  in the harness.
 
 ## Approach
 
@@ -614,6 +665,24 @@ the escape by removing the short path altogether. Retiring
 `2584-sc5-short-path-single-file.sh` deletes a tracked file from the deck; the
 file's content and its removal both remain in the deck's git history, and the
 scenario's criterion is preserved in SC-8 rather than discarded with it.
+
+The behavioural evidence pipeline carries one repair of its own. The harness's
+cap-hit resume sent the anchorless "Continue the task from where you left
+off.", so a run that hit the per-turn output cap re-derived its own history on
+every resume, spent the budget re-deriving, and issued no tool call — the
+resume made no progress and the run died at the cap-resume ceiling with no
+artifact. That is the failure the cap-resume step was written to prevent, and
+the run-level fix `.opencode#2639` applied to its own scenario's bespoke
+recovery path generalizes here: the resume message states the agent's recorded
+last thinking and names the recorded next action, composed from the run's own
+session database. R-13 carries it and SC-12 holds it. Two further repairs sit
+at the scenario layer: the fixture's seed state no longer leaves `main` ahead of
+the remote tip, and each scenario declares the goal condition the monitor's
+classifier judges the run against — without one, the classifier returns
+"undetermined", the determination gate blocks the resume path, and a capped run
+cannot recover. The per-turn cap itself is unchanged: the observed
+degenerate-turn band is where these turns sit, so raising it would re-open the
+failure the cap prevents.
 
 **Alternatives considered.** *Delete the short path entirely* and send every
 change through spec, plan, implement, and PR: rejected, because it makes the
