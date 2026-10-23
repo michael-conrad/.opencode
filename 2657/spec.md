@@ -16,7 +16,8 @@ without re-examining what the term had come to mean.
 
 ## Problem
 
-Two failure modes share one text in the deck's change router.
+Two failure modes share one text in the deck's change router, and a third
+leaves the escape unrecorded and under test.
 
 ### Problem 1 — a stated stage request is read as excess ceremony
 
@@ -49,12 +50,14 @@ supplies the rationale for the skip.
 
 ### Problem 3 — the escape is unrecorded, and the deck's own tests enforce it
 
-Three cards reference a "work record" or "work state" — `skills/work/SKILL.md`
-rule 1, `skills/git-workflow-branch/SKILL.md` rules 2 and 5, and
-`skills/implement/SKILL.md` rule 9 — and no card defines the surface they
-name, so the condition the short path attaches to its escape is unverifiable
-and a short-path classification leaves no trace. Two behavioral scenarios
-assert the short path's behavior as correct:
+Four cards reference a "work record" or "work state" — `skills/work/SKILL.md`
+rule 1, `skills/git-workflow-branch/SKILL.md` rules 2 and 5,
+`skills/implement/SKILL.md` rule 9, and `skills/git-workflow-cleanup/SKILL.md`
+rule 5 — and the only gloss the deck offers is git-workflow-cleanup's
+parenthetical "work files, scratch state". No card names a surface the agent
+can write to, so the condition the short path attaches to its escape is
+unverifiable and a short-path classification leaves no trace. Two behavioral
+scenarios assert the short path's behavior as correct:
 `tests-v2/behaviors/2584-sc5-short-path-single-file.sh` asserts that a
 developer-specified change takes the short path with "no full-pipeline
 machinery beyond it", and `2584-sc4-directed-card-edit-no-archaeology.sh`
@@ -74,8 +77,9 @@ for the escape.
 - **RC-3** — "Excess ceremony" names no observable criterion, and it is aimed
   at stages rather than effort, so it operates as an unappealable veto over
   the pipeline and hands the agent a rationale for skipping a requested stage.
-- **RC-4** — The escape's condition names a record that no card defines, so
-  the classification is unverifiable and leaves no trace.
+- **RC-4** — The escape's condition names a record that no card names as a
+  surface the agent can write to, so the classification is unverifiable and
+  leaves no trace.
 - **RC-5** — Two behavioral scenarios assert the escape's behavior, so the
   escape carries test protection.
 
@@ -85,11 +89,14 @@ for the escape.
   plan, a discussion, or approval before implementation — the agent runs that
   stage before implementing. The agent's characterization of the change's size
   does not override the request, and the developer's request for a stage is
-  never evidence of excess ceremony.
+  never evidence of excess ceremony. The rule lives in `floor.md`, which every
+  session loads, and `skills/work/SKILL.md`'s frontmatter description names
+  the stage-request trigger so the platform routes a stage-naming request to
+  that card.
 - **R-2** — A request for a stage is not a specification. It requests the
   pipeline; it does not satisfy the spec stage and it never authorizes
-  implementation. Only a request that states what to build and how "done" is
-  checked may serve as the short path's scope.
+  implementation. A request that names what to build, and leaves no material
+  choice open about it, may serve as the short path's scope.
 - **R-3** — The short path is available only when every one of these criteria
   holds: the developer's request names no stage; the change touches one file;
   the change alters no behavior, dependency, configuration, credential, or
@@ -99,11 +106,15 @@ for the escape.
   governance surface. A criterion that fails, or that the agent is uncertain
   about, sends the change to the full path.
 - **R-4** — Every change records its path and its scope before implementation
-  begins. For a short-path change the agent states, in the working session
-  before editing a file, the path taken, the R-3 criteria that selected it,
-  and the scope — what changes, what "done" is checked against, and what is
-  out of scope. The developer's directive is the human approval of that scope,
-  so the agent does not ask the developer to approve it again. The path and
+  begins. A full-path change's spec artifact carries the scope. A short-path
+  change carries it in a scope statement: the agent states, in the working
+  session before editing a file, the path taken, the R-3 criteria that
+  selected it, and the scope — what changes, what "done" is checked against,
+  and what is out of scope. The developer's work order is the authorization
+  for the implementation that scope describes, per the authorization vocabulary
+  in `floor.md`, so the agent does not ask the developer to approve the scope
+  again. A developer who wants to approve the scope before implementation asks
+  for that stage, and R-1 routes the request to the full path. The path and
   the scope appear in the PR body.
 - **R-5** — The short path ends when the work outgrows it. If, after the
   short path is taken, the work acquires a second file, a second concern, a
@@ -132,17 +143,22 @@ for the escape.
   `2584-sc5-short-path-single-file` is retired, and
   `2584-sc4-directed-card-edit-no-archaeology` states the anti-archaeology
   property it was written for with the stage-skipping framing removed.
-  Scenarios are added covering R-1, R-3, R-5, and R-6.
+  Scenarios are added covering R-1, R-3, R-4, R-5, and R-6.
 - **R-10** — "Short path" resolves to exactly one definition, in
   `skills/work/SKILL.md`; the other cards that use the term point to that
   definition. Each card that references a "work record" or "work state" names
-  the surface it means, and no card references a record that does not exist.
+  the surface it means — `skills/work/SKILL.md`,
+  `skills/git-workflow-branch/SKILL.md`, `skills/implement/SKILL.md`, and
+  `skills/git-workflow-cleanup/SKILL.md` — and no card references a record
+  that does not exist.
 
 ## Impact
 
 **Consumers.** Every session that changes a file. `skills/work/SKILL.md` is the
 router the platform matches before any file modification, and its frontmatter
-description is the routing surface the platform reads.
+description is the routing surface the platform reads — the dispatch table was
+retired in `.opencode#2617`, leaving card descriptions as the sole routing
+surface.
 
 **Risk — the narrow path pushes trivial work into the full path.** The
 ceremony complaint that `.opencode#2584` raised was real: the behavioral runs
@@ -157,10 +173,10 @@ calls, so an agent can still mischaracterize a complicated change. R-4's
 recorded scope makes the characterization falsifiable at review rather than
 self-certified, and R-5 re-examines it when the work outgrows it.
 
-**Blast radius.** `floor.md`; the `work`, `plan`, `implement`, and
-`skill-creator` cards; `tests-v2/behaviors/`. No change reaches `guidelines/`,
-`agents/`, `prompts/`, `opencode.jsonc`, the `tests-v2` harness, or the
-retired `attic/` deck.
+**Blast radius.** `floor.md`; the `work`, `plan`, `implement`,
+`skill-creator`, `git-workflow-branch`, and `git-workflow-cleanup` cards;
+`tests-v2/behaviors/`. No change reaches `guidelines/`, `agents/`, `prompts/`,
+`opencode.jsonc`, the `tests-v2` harness, or the retired `attic/` deck.
 
 ## Success criteria
 
@@ -171,7 +187,8 @@ scaling changes a stage's form and never its presence, and that a developer's
 directive satisfies a stage's content but never suppresses a stage. Its
 authorization vocabulary carries the stage-request rule: a request naming a
 stage runs that stage, and the agent's characterization of the change's size
-does not override it.
+does not override it. Its existing statement that the path is scaled to the
+change's need by agent judgment, never a size threshold, survives.
 
 - **Verify:** read `floor.md`; each statement present.
 
@@ -200,42 +217,46 @@ does not reach a request that names a stage.
 "Short path" is defined in exactly one place, `skills/work/SKILL.md`, and the
 cards that use the term point to it. Every "work record" and "work state"
 reference in `skills/work/SKILL.md`, `skills/git-workflow-branch/SKILL.md`,
-and `skills/implement/SKILL.md` names the surface it means.
+`skills/implement/SKILL.md`, and `skills/git-workflow-cleanup/SKILL.md` names
+the surface it means.
 
-- **Verify:** read the four cards; each reference resolves.
+- **Verify:** read the five cards; each reference resolves.
 
 ### SC-5 (behavioral) — a stated stage request produces that stage and no implementation
 
 An agent given a developer request that names a stage produces that stage's
-work and does not implement the change. The request in the scenario names a
-spec and asks for the developer's approval of it before any code.
+work and does not implement the change. The scenario's request names a spec,
+asks for the developer's approval of the spec before any code, and asks for
+the spec to be written to a file, so the stage's artifact is a file the
+harness can find.
 
-- **Verify:** two-SC pattern per `tests-v2/AGENTS.md` — behavioral run with
-  the card-edit fixture; clean-room evaluation of `session.yaml` confirms the
-  stage's artifact exists, that no implementation file was modified, and that
-  the agent did not halt for direction before producing the stage's work.
+- **Verify:** two-SC pattern per `tests-v2/AGENTS.md` — behavioral run;
+  clean-room evaluation of `session.yaml` confirms that the run wrote the
+  requested spec file with the spec's content, and that the run contains no
+  edit to an implementation file.
 
 ### SC-6 (behavioral) — a complicated change does not ride the short path
 
 An agent given a one-line request that changes behavior, reads an environment
-variable, and touches a safety surface does not implement it directly. The
-agent takes the full path or asks one open-ended question before any
-implementation.
+variable, and touches a safety surface does not modify an implementation file
+before it has produced a stage artifact or asked one open-ended question.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
-  `session.yaml` confirms that no implementation edit preceded a stage's
-  artifact or an open-ended question.
+  `session.yaml` confirms that the run's first edit to an implementation file
+  comes after a stage artifact or an open-ended question.
 
-### SC-7 (behavioral) — a trivial change completes in one pass with the scope stated
+### SC-7 (behavioral) — the short path is taken in collapsed form
 
-An agent given a developer-specified, single-file wording change states the
-path and the scope before editing, then completes the change in one pass. The
-agent produces no spec document, no plan document, and no fresh-context
-validation dispatch, and does not halt for direction.
+The short path's artifacts are the only artifacts. An agent given a
+developer-specified, single-file wording change states the path and the scope
+before editing, then edits the file. The run contains no spec document, no
+plan document, no fresh-context validation dispatch, and no halt for
+direction.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
-  `session.yaml` confirms the scope statement precedes the edit and that no
-  full-path artifact or dispatch occurred.
+  `session.yaml` confirms that the scope statement precedes the edit, and
+  that the run contains no spec document, no plan document, no fresh-context
+  validation dispatch, and no halt for direction.
 
 ### SC-8 (behavioral) — scope expansion is stated before the second edit
 
@@ -263,10 +284,10 @@ scenarios exist, one for each of SC-5 through SC-8.
 | SC-1 | Floor carries the stage invariant and the stage-request rule | structural | read `floor.md` |
 | SC-2 | Work card carries R-1..R-6; removed phrases absent deck-wide | structural | read the card; deck-wide search |
 | SC-3 | `skill-creator` carve-out bounded | structural | read the card |
-| SC-4 | One "short path" definition; record references resolve | structural | read the four cards |
+| SC-4 | One "short path" definition; record references resolve | structural | read the five cards |
 | SC-5 | A stated stage request produces the stage, no implementation | behavioral | run → clean-room read of `session.yaml` |
 | SC-6 | A complicated change does not ride the short path | behavioral | run → clean-room read of `session.yaml` |
-| SC-7 | A trivial change completes in one pass with the scope stated | behavioral | run → clean-room read of `session.yaml` |
+| SC-7 | The short path is taken in collapsed form | behavioral | run → clean-room read of `session.yaml` |
 | SC-8 | Scope expansion stated before the second edit | behavioral | run → clean-room read of `session.yaml` |
 | SC-9 | Scenario set aligned | structural | read `tests-v2/behaviors/` |
 
@@ -320,6 +341,23 @@ The scenarios move with the rules. The two that assert the escape's behavior
 are retired or re-scoped, and four replace them — one per behavioral
 criterion, including SC-7, which holds the anti-ceremony win in place so that
 a later agent cannot "fix" the escape by removing the short path altogether.
+Retiring `2584-sc5-short-path-single-file.sh` deletes a tracked file from the
+deck; the file's content and its removal both remain in the deck's git
+history, and the scenario's criterion is preserved in SC-7 rather than
+discarded with it.
+
+**Alternatives considered.** *Delete the short path entirely* and send every
+change through spec, plan, implement, and PR: rejected, because it makes the
+ceremony complaint in `.opencode#2584` worse, and it removes the cheap path
+that SC-7 depends on. *Keep the short path as written and bound it with a
+recorded classification alone*: rejected, because the classification would
+still be the agent's own characterization of the change, which is the failure
+the developer reported. *Route a stage-naming request to the stage card
+without touching the short path's text*: rejected as insufficient, because the
+work card's "a developer's direct request is the spec" and "excess ceremony"
+wording would survive to misread the next request. The chosen approach
+rewrites the routing text, adds the criterion set, and adds the record, so
+that each of the three defects has its own remedy.
 
 ---
 *Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
