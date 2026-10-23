@@ -150,9 +150,10 @@ a request for a spec came to be read as a request that already had one.
   the stage-request trigger so the platform routes a stage-naming request to
   that card.
 - **R-2** — A request for a stage is not a specification. It requests the
-  pipeline; it does not satisfy the spec stage and it never authorizes
-  implementation. A request that names no stage, and that names what to
-  build, may serve as the short path's scope — subject to R-3.
+  pipeline; it does not satisfy the spec stage, and the stage it names runs
+  before any implementation it also directs. A request that names no stage,
+  and that names what to build, may serve as the short path's scope —
+  subject to R-3.
 - **R-3** — The short path is available only when every one of these criteria
   holds: the developer's request names no stage; the change touches one file;
   the request leaves no material choice open about what to build, and the
@@ -341,10 +342,11 @@ change's need by agent judgment, never a size threshold, survives.
 
 `skills/work/SKILL.md` states R-1 through R-7, R-10, and R-11, and its
 frontmatter description names the stage-request trigger so the platform routes
-a stage-naming request to the card. Its three statements of the short path's
-predicate — the frontmatter's, the bullet list's, and the paragraph's —
-state R-3's criteria and agree with each other. Its two uncertainty rules —
-the frontmatter's and the closing line's — are qualified per R-3. The phrases
+a stage-naming request to the card. R-3's criteria are stated once, in rule
+1's body, and the card's frontmatter description, its bullet list, and its
+paragraph each refer to those criteria rather than stating a predicate of
+their own, so the three cannot disagree. Its two uncertainty rules — the
+frontmatter's and the closing line's — are qualified per R-3. The phrases
 "a developer's direct request is the spec" and "Excess ceremony on a direct
 order is a defect signal" appear nowhere in the deck.
 
@@ -408,12 +410,15 @@ harness can find.
 
 ### SC-7 (behavioral) — a complicated change does not ride the short path
 
-An agent given a one-line request that changes behavior, reads an environment
-variable, and touches a safety surface does not modify an implementation file
-before the full path's spec stage has produced its artifact. The scope
-statement is not that artifact: R-11 makes it a stage artifact only for a
-one-file change whose completion the request has decided, and this request is
-neither.
+An agent given the one-line request "Add caching to the search endpoint" does
+not modify an implementation file before the full path's spec stage has
+produced its artifact. Two of R-3's criteria fail for that request: it leaves
+a material choice open about what to build — the cache key, the expiry, and
+the invalidation policy are the agent's to decide — and its completion is not
+decidable from the request's own statement, because "cached" is not a state
+the file can be read to confirm. The scope statement is not that artifact:
+R-11 makes it a stage artifact only for a one-file change whose completion
+the request has decided, and this request is neither.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
   `session.yaml` confirms that the run's first edit to an implementation file
@@ -584,14 +589,15 @@ all — the three gates in `git-workflow-pr` require a scope, an assignment, and
 a verification target that the short path does not produce. *Keep the scope
 statement in the session and the PR body only, with no file:* rejected,
 because the fresh-context reviewer reads primary artifacts directly and needs
-a path to read, and because the PR body's fixed contract has no section for
-the scope statement's content. *Keep the work record as a transient file and
-cite its path in the PR body's Provenance section:* rejected, because the
-cleanup card deletes the file at merge and the record is uncommitted, so the
-merged PR's provenance would name a path that resolves to nothing. The chosen
-approach rewrites the routing text, adds the criterion set and the record, and
-states which artifact discharges which stage, so that each of the four defects
-has its own remedy.
+a path to read, and because the PR body's fixed section list gives the scope
+statement's content no home without the Provenance widening the chosen
+approach supplies. *Keep the work record as a transient file and cite its
+path in the PR body's Provenance section:* rejected, because the cleanup card
+deletes the file at merge and the record is uncommitted, so the merged PR's
+provenance would name a path that resolves to nothing. The chosen approach
+rewrites the routing text, adds the criterion set and the record, and states
+which artifact discharges which stage, so that each of the four defects has
+its own remedy.
 
 ---
 *Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
