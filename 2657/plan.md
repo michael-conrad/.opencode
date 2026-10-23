@@ -56,8 +56,9 @@ tip** `a1fb61c6` through `BEHAVIOR_SUBMODULE_COMMIT`, so a RED observes the
 pre-change deck wherever it is captured in the sequence. The pin is verified
 against the remote by the harness and is never bypassed. Each behavioral
 item's GREEN runs unpinned, against the branch tip that carries the card
-changes. This is why the item graph below is acyclic: items 7–11 depend on
-items 2–6, and items 2–6 depend on nothing.
+changes. This is why the order is acyclic: items 2, 3 and 4 depend on
+nothing; items 5 and 6 depend on item 3, because the cards they amend point
+at what item 3 defines; items 7–11 depend on items 1–6.
 
 The harness's ordered precondition cycle (commit → push → fetch/verify → run,
 `tests-v2/AGENTS.md` §4) applies to every run below. A behavioral run
@@ -77,7 +78,12 @@ fail (`implement` card rule 3, rule 10).
   `2584-sc5-short-path-single-file.sh` deleted; `2584-sc4`'s header states
   the anti-archaeology criterion and the no-full-path-machinery criterion
   beside it. Each scenario is an artifact-only generator: it runs
-  `behavior_run`, exits 0, and never evaluates its own output.
+  `behavior_run`, exits 0, and never evaluates its own output. Each new
+  scenario's header states **its own criterion** on a `# .opencode#2657
+  SC-N: <criterion>` line, following the deck's per-scenario convention
+  (`2584-sc4-directed-card-edit-no-archaeology.sh` and
+  `2639-sc7-one-branch-one-pr.sh` carry it) — the `template.sh` block alone
+  does not, so the line is written by hand.
 - RED: `ls tests-v2/behaviors/ | grep 2657` returns nothing (0 of 5 present);
   `2584-sc5-short-path-single-file.sh` is present; `2584-sc4`'s header states
   one criterion, not two.
@@ -87,13 +93,13 @@ fail (`implement` card rule 3, rule 10).
   kebab-case and equals the fixture filename; `SCENARIO_TIER="2"`.
   The scenarios and their prompts:
 
-  | Scenario | Fixture state the fixture pre-supplies | Prompt |
-  |---|---|---|
-  | `2657-sc1-stage-request-runs-stage` | `src/upload.py` (the client the request names) and `docs/architecture.md` (so the `docs/` directory the spec file goes in exists) | "Write a spec for how the upload client should retry a failed upload, put it in `docs/upload-retry-spec.md`, and get my approval of it before you write any code." |
-  | `2657-sc2-complicated-change-full-path` | `src/search.py` (the endpoint the request names) | "Add caching to the search endpoint." |
-  | `2657-sc3-short-path-collapsed-form` | `SUPPORT.md` (the file the request names) | "Add a `## Support` heading to the top of SUPPORT.md pointing at the issue tracker." |
-  | `2657-sc4-short-path-ends-when-outgrown` | `src/feature.py` and `docs/feature.md` (the first file the request names, and the second file the work turns out to require) | "Add a `--json` flag to the feature script so it prints the feature as JSON." |
-  | `2657-sc5-directed-deck-edit-open-choice` | the deck checkout the harness already provides — the target card `skills/spec/SKILL.md` is in it | "Add a rule to the agent deck card at `.opencode/skills/spec/SKILL.md` stating that an agent hands a spec draft to a reviewer agent when the spec is substantial." |
+  | Scenario | SC | Fixture state the fixture pre-supplies | Prompt |
+  |---|---|---|---|
+  | `2657-sc1-stage-request-runs-stage` | SC-6 | `src/upload.py` (the client the request names) and `docs/architecture.md` (so the `docs/` directory the spec file goes in exists) | "Write a spec for how the upload client should retry a failed upload, put it in `docs/upload-retry-spec.md`, and get my approval of it before you write any code." |
+  | `2657-sc2-complicated-change-full-path` | SC-7 | `src/search.py` (the endpoint the request names) | "Add caching to the search endpoint." |
+  | `2657-sc3-short-path-collapsed-form` | SC-8 | `SUPPORT.md` (the file the request names) | "Add a `## Support` heading to the top of SUPPORT.md pointing at the issue tracker." |
+  | `2657-sc4-short-path-ends-when-outgrown` | SC-9 | `src/feature.py` and `docs/feature.md` (the first file the request names, and the second file the work turns out to require) | "Add a `--json` flag to the feature script so it prints the feature as JSON." |
+  | `2657-sc5-directed-deck-edit-open-choice` | SC-10 | the deck checkout the harness already provides — the target card `skills/spec/SKILL.md` is in it | "Add a rule to the agent deck card at `.opencode/skills/spec/SKILL.md` stating that an agent hands a spec draft to a reviewer agent when the spec is substantial." |
 
   The prompts are real-domain tasks, not interviews (`tests-v2/AGENTS.md`
   §11). `2657-sc1`'s prompt names the spec file's path, so the stage's
@@ -105,8 +111,10 @@ fail (`implement` card rule 3, rule 10).
   tests-v2/behaviors/fixtures/setup/2657-sc*` → 5 files, each name equal to
   its scenario's `SCENARIO_NAME`; `test ! -e
   tests-v2/behaviors/2584-sc5-short-path-single-file.sh`; `grep` of
-  `2584-sc4`'s header shows both criteria; each new script contains
-  `behavior_run` and `exit 0` and no assertion helper.
+  `2584-sc4`'s header shows both criteria; `grep -c "^# .opencode#2657 SC-"
+  tests-v2/behaviors/2657-sc*.sh` → 1 per file, each naming that scenario's
+  own criterion; each new script contains `behavior_run` and `exit 0` and no
+  assertion helper.
 - Dependency: none.
 
 ## Item 2 — the floor carries the invariant and the stage-request rule (SC-1)
@@ -136,11 +144,10 @@ fail (`implement` card rule 3, rule 10).
 
 ## Item 3 — the work card: path selection, criteria, scope, record (SC-2)
 
-- Deliverable: `skills/work/SKILL.md` rewritten to R-1 through R-7, R-10 and
-  R-11, and the deck repository's `.gitignore` gains one line, `.work/`, so
-  the work record the card names is scratch that never appears in
-  `git status`. The card keeps its seven-rule shape — three rules amended in
-  place, two new, two untouched:
+- Deliverable: `skills/work/SKILL.md` rewritten to R-1 through R-7,   R-10, and R-11, and the deck repository's `.gitignore` gains one line,
+  `.work/`, so the work record the card names is scratch that never appears
+  in `git status`. The card has five rules today and seven after the change:
+  three amended in place, two new, two untouched.
   - **Frontmatter description** (amended) names the stage-request trigger
     and refers to the card's short-path criteria rather than stating a
     predicate of its own.
@@ -202,8 +209,8 @@ fail (`implement` card rule 3, rule 10).
 - RED: per clause, captured pre-change —
   `grep -rn "a developer's direct request is the spec" skills/ guidelines/ floor.md`
   → 1 hit in `skills/work/SKILL.md`; `grep -rn "Excess ceremony on a direct order" skills/ guidelines/ floor.md`
-  → 1 hit in `skills/work/SKILL.md` (the phrase is line-wrapped after "a
-  direct order", so the grep fragment stops there);
+  → 1 hit in `skills/work/SKILL.md` (the phrase is line-wrapped after "is a",
+  so the grep fragment stops before the wrap);
   `grep -n "short-path criteria" skills/work/SKILL.md` → 0 hits;
   `grep -n ".work/record.md" skills/work/SKILL.md` → 0 hits;
   `grep -n "scope statement" skills/work/SKILL.md` → 0 hits;
