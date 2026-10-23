@@ -439,10 +439,11 @@ is not among the absent artifacts: the short route requires it.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
   `session.yaml` confirms that the scope statement precedes the edit, that it
-  carries R-4's contents, and that the run contains no spec document, no plan
+  carries R-4's contents, that the run contains no spec document, no plan
   document, no spec-validation or plan-validation dispatch, no halt for
   direction, no evidence hunt, no archaeology, and no card load the request
-  had already satisfied.
+  had already satisfied, and that the run contains the verify card's
+  fresh-context dispatch.
 
 ### SC-9 (behavioral) — the short path ends when the work outgrows it
 
@@ -452,8 +453,9 @@ missing stage's artifact before it makes any further implementation edit.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
   `session.yaml` confirms that the expanded scope statement precedes the
-  second file's edit, and that a full-path stage artifact appears between
-  that statement and the run's next implementation edit.
+  second file's edit, and that a full-path spec artifact appears between that
+  statement and the run's next implementation edit — a spec carrying success
+  criteria, not the work record's scope statement.
 
 ### SC-10 (behavioral) — a directed deck edit with an open choice gets one question
 
@@ -481,13 +483,13 @@ one for each of SC-6 through SC-10.
 | ID | Criterion | Class | Instrument |
 |----|-----------|-------|------------|
 | SC-1 | Floor carries the stage invariant and the stage-request rule | structural | read `floor.md` |
-| SC-2 | Work card carries R-1..R-7 and R-11; both predicate forms state the criteria; both uncertainty rules qualified; removed phrases absent deck-wide | structural | read the card; deck-wide search |
-| SC-3 | `skill-creator` carve-out bounded | structural | read the card |
-| SC-4 | One "short path" definition; record references resolve to a record that can hold them | structural | read the five cards |
+| SC-2 | Work card carries R-1..R-7, R-10, and R-11; the criteria are stated once in rule 1's body and the card's three forms refer to them; both uncertainty rules qualified; removed phrases absent deck-wide | structural | read the card; deck-wide search |
+| SC-3 | `skill-creator` carve-out bounded: the evidence-hunt exemption reaches every directed edit, the no-halt clause stops at a material open choice, neither reaches a stage request | structural | read the card |
+| SC-4 | One "short path" definition; every record reference names the work record; each card that owns the record states where and when it is written | structural | read the five cards |
 | SC-5 | The verify and PR-readiness gates read the scope statement | structural | read both cards |
 | SC-6 | A stated stage request produces the stage, no implementation | behavioral | run → clean-room read of `session.yaml` |
 | SC-7 | A complicated change does not ride the short path | behavioral | run → clean-room read of `session.yaml` |
-| SC-8 | The short path is taken in collapsed form | behavioral | run → clean-room read of `session.yaml` |
+| SC-8 | The short path is taken in collapsed form, without ceremony, and the verify dispatch is present | behavioral | run → clean-room read of `session.yaml` |
 | SC-9 | The short path ends when the work outgrows it | behavioral | run → clean-room read of `session.yaml` |
 | SC-10 | A directed deck edit with an open choice gets one question | behavioral | run → clean-room read of `session.yaml` |
 | SC-11 | Scenario set aligned | structural | read `tests-v2/behaviors/` |
