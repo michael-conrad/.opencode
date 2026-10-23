@@ -260,10 +260,14 @@ recorded work instead of restarting it.
   needs, per the pre-supplied environment mandate in `tests-v2/AGENTS.md`
   §3a, so that no run has to discover the environment before it can act.
 - **R-10** — "Short path" resolves to exactly one definition, in
-  `skills/work/SKILL.md`; the cards that use the term point to that
-  definition. The deck's records are named, and each card's reference names
-  the record it means. There is one record: the **work record**, a single file
-  in the working tree, at a path the work card's convention names. It carries
+  `skills/work/SKILL.md`. The cards that *route* on the term —
+  `skills/plan/SKILL.md` and `skills/implement/SKILL.md` — point at that
+  definition; the cards that *consume* it — `skills/verify/SKILL.md` and
+  `skills/git-workflow-pr/SKILL.md`, whose rules R-12 places on the short
+  path — name the short path's artifact rather than the term's definition.
+  The deck's records are named, and each card's reference names the record
+  it means. There is one record: the **work record**, a single file in the
+  working tree, at a path the work card's convention names. It carries
   two things. The **provenance** the branch card records — the verified
   trunk tip, the branch, the base tip, and the issue where one exists — which
   the branch card writes at its trunk-freshness step, before any modification
@@ -271,14 +275,17 @@ recorded work instead of restarting it.
   **scope statement** R-4 describes, which the work card writes before the
   first edit. The work record is a work-state artifact, which the cleanup
   card removes; it is not part of the branch's commits, because the commit
-  card stages named files only. Every "work record" and "work state" reference
-  in `skills/work/SKILL.md`, `skills/git-workflow-branch/SKILL.md`,
-  `skills/implement/SKILL.md`, and `skills/git-workflow-cleanup/SKILL.md`
-  names the work record, and the work record's two parts cover what each
-  reference asks it to hold. The PR body's Provenance section carries the
-  scope statement's **content** on the short path, not the work record's
-  path: the work record is transient, and a path to a file the cleanup card
-  deletes would leave the merged PR's provenance pointing at nothing.
+  card stages named files only. Every "work record" and "work state"
+  reference in `skills/work/SKILL.md`,
+  `skills/git-workflow-branch/SKILL.md`, `skills/implement/SKILL.md`,
+  `skills/git-workflow-cleanup/SKILL.md`, `skills/verify/SKILL.md`, and
+  `skills/git-workflow-pr/SKILL.md` — in each card's body and in its
+  frontmatter description — names the work record, and the work record's two
+  parts cover what that reference asks it to hold. The PR body's Provenance
+  section carries the scope statement's **content** on the short path, not the
+  work record's path: the work record is transient, and a path to a file the
+  cleanup card deletes would leave the merged PR's provenance pointing at
+  nothing.
 - **R-11** — The scope statement in the work record is the short path's spec
   artifact. Its contents discharge the two stages the short path collapses:
   "what changes" is the spec stage's subject, "what 'done' is checked
@@ -421,22 +428,29 @@ reaches a request that names a stage.
 
 ### SC-4 (structural) — one definition, and every record reference resolves
 
-"Short path" is defined in exactly one place, `skills/work/SKILL.md`, and the
-cards that use the term — `skills/work/SKILL.md`, `skills/plan/SKILL.md`, and
-`skills/implement/SKILL.md` — point to it. Every "work record" and "work
-state" reference in `skills/work/SKILL.md`,
-`skills/git-workflow-branch/SKILL.md`, `skills/implement/SKILL.md`, and
-`skills/git-workflow-cleanup/SKILL.md` names the work record, and the part of
-the work record it names covers what that reference asks it to hold.
+"Short path" is defined in exactly one place, `skills/work/SKILL.md`. The two
+cards that route on the term — `skills/plan/SKILL.md` and
+`skills/implement/SKILL.md` — point at that definition. The two cards that
+consume it — `skills/verify/SKILL.md` and `skills/git-workflow-pr/SKILL.md` —
+name the short path's artifact, as R-12 requires. Every "work record" and
+"work state" reference in `skills/work/SKILL.md`,
+`skills/git-workflow-branch/SKILL.md`, `skills/implement/SKILL.md`,
+`skills/git-workflow-cleanup/SKILL.md`, `skills/verify/SKILL.md`, and
+`skills/git-workflow-pr/SKILL.md` — in each card's body and in its
+frontmatter description — names the work record, and the part of the work
+record it names covers what that reference asks it to hold.
 `skills/git-workflow-branch/SKILL.md` states that the provenance is written
 to the work record at its trunk-freshness step, and
 `skills/git-workflow-cleanup/SKILL.md` states that the work-state artifacts
 are the working-tree scratch files the agent created, the work record among
 them.
 
-- **Verify:** read the five cards; each reference names the work record, the
-  part it names covers the reference's requirement, and each card that owns
-  the record states where and when the agent writes it.
+- **Verify:** read the seven cards the criterion names; each "work record" and
+  "work state" reference, in each card's body and frontmatter description,
+  names the work record, the part it names covers the reference's
+  requirement, each card that owns the record states where and when the agent
+  writes it, the two routing cards point at the work card's definition, and
+  the two consuming cards name the short path's artifact.
 
 ### SC-5 (structural) — the verification and PR-readiness gates read the scope statement
 
@@ -517,11 +531,21 @@ An agent whose short-path change acquires a second file states the expanded
 scope, and produces the full path's earliest missing stage's artifact, before
 it edits that second file.
 
+The scenario induces the acquisition rather than assuming it. The request
+names one file — the feature script — and the fixture makes that file
+delegate its argument parsing to a sibling module, so a flag added to the
+script cannot be completed in the script alone: the parser that must accept
+the flag lives in the other file, and the run has to reach that file to
+implement the request. Both files are pre-supplied, so the second file's
+presence is never an environment discovery. The criterion is void if the run
+never acquires a second file, so the evaluation checks that it did.
+
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
-  `session.yaml` confirms that the expanded scope statement precedes the
-  second file's edit, and that a full-path spec artifact appears between that
-  statement and the run's next implementation edit — a spec carrying success
-  criteria, not the work record's scope statement.
+  `session.yaml` confirms that the run reached the second file, that the
+  expanded scope statement precedes the second file's edit, and that a
+  full-path spec artifact appears between that statement and the run's next
+  implementation edit — a spec carrying success criteria, not the work
+  record's scope statement.
 
 ### SC-10 (behavioral) — a directed deck edit with an open choice gets one question
 
@@ -593,7 +617,7 @@ cap so the probe hits it deterministically — is untouched.
 | SC-9 | The short path ends when the work outgrows it | behavioral | run → clean-room read of `session.yaml` |
 | SC-10 | A directed deck edit with an open choice gets one question | behavioral | run → clean-room read of `session.yaml` |
 | SC-11 | Scenario set aligned | structural | read `tests-v2/behaviors/` |
-| SC-12 | The cap-hit resume is anchored on the recorded tail; the per-turn cap is unchanged | structural | read `tests-v2/behaviors/helpers.sh` |
+| SC-12 | The cap-hit resume is anchored on the recorded tail; the per-turn cap's default is unchanged and the probe's deliberate override is untouched | structural | read `tests-v2/behaviors/helpers.sh` and `tests-v2/docker/docker-harness.sh` |
 
 ## Out of scope
 
