@@ -180,7 +180,9 @@ a request for a spec came to be read as a request that already had one.
   clarification request. A request that says what to build but leaves a
   material choice open about it fails the criterion above and takes the full
   path; the halt rule does not reach it, and the criterion-failure rule
-  governs.
+  governs. One case is excepted: a developer-directed deck edit whose content
+  leaves a material open choice is R-8's case — the agent asks one open-ended
+  question in the deck-governance card, and does not take the full path.
 - **R-4** — Every change records its path and its scope before implementation
   begins. A full-path change's spec artifact carries the scope. A short-path
   change carries it in a scope statement, which the agent writes into the work
@@ -233,8 +235,8 @@ a request for a spec came to be read as a request that already had one.
   leaves a material open choice: the agent asks one open-ended question about
   that choice rather than choosing it. The deck's gate is the deck-governance
   card rather than the spec and plan stages, so that question is the stage's
-  output in the deck case, and R-3's precedence does not govern it. Neither
-  clause reaches a request that names a stage.
+  output in the deck case — the change does not take the full path, and R-3
+  states the exception. Neither clause reaches a request that names a stage.
 - **R-9** — The behavioral scenarios are brought in line with the rules:
   `2584-sc5-short-path-single-file` is retired; and
   `2584-sc4-directed-card-edit-no-archaeology` keeps its anti-archaeology
@@ -242,7 +244,10 @@ a request for a spec came to be read as a request that already had one.
   archaeology and without halting for direction — and gains one beside it:
   the edit completes without the full path's machinery, with no issue filed,
   no spec document, and no validation dispatch. Scenarios are added covering
-  R-1, R-3, R-4, R-5, R-6, and R-8.
+  R-1, R-3, R-4, R-5, R-6, and R-8. Each added scenario carries the
+  per-scenario setup fixture that pre-supplies the repository state its task
+  needs, per the pre-supplied environment mandate in `tests-v2/AGENTS.md`
+  §3a, so that no run has to discover the environment before it can act.
 - **R-10** — "Short path" resolves to exactly one definition, in
   `skills/work/SKILL.md`; the cards that use the term point to that
   definition. The deck's records are named, and each card's reference names
@@ -317,11 +322,14 @@ bound is the deck's own existing line between the two paths.
 criterion that the request leave no material choice open about what to build
 fails for a deck change the agent proposes itself, because the agent supplies
 the product decisions. A developer-directed deck edit still takes the short
-path, which is the shape `.opencode#2584` and the retained `2584-sc4` address.
-The change is a cost this spec accepts: the deck's own history of
-ungoverned edits is why the deck-governance card exists, and an agent
-proposing a rule the developer did not ask for is work the developer holds
-the right to see a spec of.
+path, which is the shape `.opencode#2584` and the retained `2584-sc4` address;
+where that edit's content leaves a material open choice, the
+deck-governance card's one question stands in for the short path's scope
+statement, and the scope statement follows the developer's answer. The change
+is a cost this spec accepts: the deck's own history of ungoverned edits is
+why the deck-governance card exists, and an agent proposing a rule the
+developer did not ask for is work the developer holds the right to see a spec
+of.
 
 **Risk — the criteria are intent-decidable.** R-3's criteria are judgment
 calls, so an agent can still mischaracterize a complicated change. R-4's
@@ -375,10 +383,11 @@ order is a defect signal" appear nowhere in the deck.
 `skills/skill-creator/SKILL.md` states the bound in R-8: the carve-out's
 evidence-hunt exemption applies to every developer-directed deck edit, the
 carve-out's no-halt clause does not reach a directed edit whose content
-leaves a material open choice, and neither clause reaches a request that
-names a stage.
+leaves a material open choice, that question is the deck-governance card's
+stage output rather than a step toward the full path, and neither clause
+reaches a request that names a stage.
 
-- **Verify:** read the card; all three clauses present.
+- **Verify:** read the card; all four clauses present.
 
 ### SC-4 (structural) — one definition, and every record reference resolves
 
@@ -431,7 +440,9 @@ harness can find.
 
 An agent given the one-line request "Add caching to the search endpoint" does
 not modify an implementation file before the full path's spec stage has
-produced its artifact. Two of R-3's criteria fail for that request: it leaves
+produced its artifact. The scenario's setup fixture creates the endpoint file
+the request names, so the run has an implementation file to edit and needs no
+environment discovery. Two of R-3's criteria fail for that request: it leaves
 a material choice open about what to build — the cache key, the expiry, and
 the invalidation policy are the agent's to decide — and its completion is not
 decidable from the request's own statement, because "cached" is not a state
@@ -450,14 +461,17 @@ not reach it, because the request says what to build.
 ### SC-8 (behavioral) — the short path is taken in collapsed form, without ceremony
 
 The short path's artifacts are the only artifacts, and the work is not
-decorated with work the request has already settled. An agent given a
-developer-specified, single-file wording change states the path and the scope,
-as R-4 specifies them, before editing, then edits the file. The run contains
-no spec document, no plan document, no spec-validation or plan-validation
-dispatch, and no halt for direction. The run contains no evidence hunt, no
-archaeology — no unrelated issue, store, or remote read — and no card load
-that the request has already satisfied. The verify card's fresh-context check
-is not among the absent artifacts: the short route requires it.
+decorated with work the request has already settled. An agent given the
+developer-specified, single-file request "Add a `## Support` heading to the
+top of SUPPORT.md pointing at the issue tracker" states the path and the
+scope, as R-4 specifies them, before editing, then edits the file. The
+scenario's setup fixture creates `SUPPORT.md`, so the run has a file to edit
+and needs no environment discovery. The run contains no spec document, no
+plan document, no spec-validation or plan-validation dispatch, and no halt for
+direction. The run contains no evidence hunt, no archaeology — no unrelated
+issue, store, or remote read — and no card load that the request has already
+satisfied. The verify card's fresh-context check is not among the absent
+artifacts: the short route requires it.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
   `session.yaml` confirms that the scope statement precedes the edit, that it
@@ -487,18 +501,22 @@ it. The run contains no admission-gate evidence hunt.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
   `session.yaml` confirms that the run contains an open-ended question about
-  the open choice, that the run made no choice of its own on it, and that the
-  run contains no evidence hunt for the edit's admission.
+  the open choice, that the run made no choice of its own on it, that the run
+  contains no evidence hunt for the edit's admission, and that the run
+  contains no issue filing, no spec document, no plan document, and no
+  validation dispatch.
 
 ### SC-11 (structural) — the scenario set is aligned
 
 `2584-sc5-short-path-single-file.sh` is absent from `tests-v2/behaviors/`.
 `2584-sc4-directed-card-edit-no-archaeology.sh` states the anti-archaeology
 criterion and the no-full-path-machinery criterion. Five new scenarios exist,
-one for each of SC-6 through SC-10.
+one for each of SC-6 through SC-10, and each carries the setup fixture that
+pre-supplies the repository state its task needs.
 
 - **Verify:** read `tests-v2/behaviors/`; each named file is present or absent
-  as stated, and each new scenario's header states its criterion.
+  as stated, each new scenario's header states its criterion, and each new
+  scenario has its fixture under `tests-v2/behaviors/fixtures/setup/`.
 
 ## Success-criteria table
 
