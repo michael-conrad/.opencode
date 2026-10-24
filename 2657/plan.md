@@ -20,35 +20,41 @@ parent change per the parent `AGENTS.md`.
 | `skills/git-workflow-pr/SKILL.md` | three gates + Provenance read the scope statement | SC-5 |
 | `skills/git-workflow-branch/SKILL.md` | provenance written to the work record | SC-4 |
 | `skills/git-workflow-cleanup/SKILL.md` | work-state artifacts named | SC-4 |
-| `.gitignore` | one line, `.work/` — the work record is scratch and must not appear in `git status` (see "The work record's path" below) | SC-2, SC-4 |
+| `tests-v2/behaviors/helpers.sh` | the cap-hit resume composes its message from the run's recorded tail | SC-12 |
+| `tests-v2/docker/docker-harness.sh` | the Docker resume launcher's own default is tail-derived, not anchorless | SC-12 |
 | `tests-v2/behaviors/2584-sc5-short-path-single-file.sh` | retired (deleted) | SC-11 |
 | `tests-v2/behaviors/2584-sc4-directed-card-edit-no-archaeology.sh` | header states the second criterion | SC-11 |
 | `tests-v2/behaviors/2657-sc1..sc5-*.sh` | five new scenarios | SC-6..SC-10, SC-11 |
 | `tests-v2/behaviors/fixtures/setup/2657-sc1..sc5-*.sh` | five new setup fixtures | SC-11 |
 
-`.gitignore` is the one surface outside the spec's enumerated blast radius. It
-carries no behavior: the spec's R-10 requires the work record to be a
-working-tree artifact that is never committed, and the deck's own repository
-must therefore ignore the path, or the record shows up in `git status` and
-blocks the behavioral harness's pre-flight cleanliness gate
-(`tests-v2/behaviors/helpers.sh`, the `git status --porcelain` check). The
-line is `.work/`.
+`The two harness files are inside the spec's enumerated blast radius (R-13,
+SC-12). They change no isolation rule, no default model, and no per-turn
+output cap: the cap's default stays 4,000 on every surface that sets it, and
+the probe scenario that lowers it deliberately is untouched.
 
 ## The work record's path
 
 R-10 requires the work card to name the work record's path. The plan fixes it:
-**`.work/record.md`**, in the working tree of the repository the change
-touches. One record per repository at a time; a new scope in the same
-repository starts the record over — the scope statement's content is carried
-into the PR body's Provenance section, so nothing is lost. The record is
-scratch: never committed (the commit card stages named files only), removed
+the path **`git rev-parse --git-path work-record.md` reports**, inside the
+repository's own git directory. That path is not a working-tree path, so the
+record never appears in the repository's status and needs no ignore-rule
+entry, and establishing it touches nothing in the tracked tree — which
+matters, because an ignore-rule entry would itself be a tracked-file change
+that the short path's own criteria (one file; no surface the developer did
+not name) could not hold. One record per repository at a time; a new scope in
+the same repository starts the record over — the scope statement's content is
+carried into the PR body's Provenance section, so nothing is lost. The record
+is scratch: never committed (the commit card stages named files only), removed
 by the cleanup card at merge.
 
 ## Ordering
 
 1. **Item 1** — the scenario set (SC-11).
-2. **Items 2–6** — the card changes (SC-1..SC-5), committed and pushed.
-3. **Items 7–11** — the behavioral criteria (SC-6..SC-10), each as a
+2. **Item 12** — the harness repair (SC-12), committed and pushed: the
+   behavioral runs below depend on it, because a run that hits the per-turn
+   output cap can only finish if the resume carries the recorded tail.
+3. **Items 2–6** — the card changes (SC-1..SC-5), committed and pushed.
+4. **Items 7–11** — the behavioral criteria (SC-6..SC-10), each as a
    per-item cycle: RED then GREEN.
 
 The behavioral items' RED runs are executed **pinned to the pre-change deck
@@ -58,7 +64,8 @@ against the remote by the harness and is never bypassed. Each behavioral
 item's GREEN runs unpinned, against the branch tip that carries the card
 changes. This is why the order is acyclic: items 2, 3 and 4 depend on
 nothing; items 5 and 6 depend on item 3, because the cards they amend point
-at what item 3 defines; items 7–11 depend on items 1–6.
+at what item 3 defines; item 12 depends on nothing; items 7–11 depend on
+items 1–6 and 12.
 
 The harness's ordered precondition cycle (commit → push → fetch/verify → run,
 `tests-v2/AGENTS.md` §4) applies to every run below. A behavioral run
@@ -83,7 +90,22 @@ fail (`implement` card rule 3, rule 10).
   SC-N: <criterion>` line, following the deck's per-scenario convention
   (`2584-sc4-directed-card-edit-no-archaeology.sh` and
   `2639-sc7-one-branch-one-pr.sh` carry it) — the `template.sh` block alone
-  does not, so the line is written by hand.
+  does not, so the line is written by hand. Every scenario the change
+  touches — the five new ones and `2584-sc4` — declares a **goal condition**
+  (`BEHAVIOR_EXPECTED_ARTIFACT`, `BEHAVIOR_EXPECTED_ARTIFACT_GREP`,
+  `BEHAVIOR_GOAL_ACTIONS`), because a scenario with no goal condition leaves
+  the monitor's classifier with no direction anchor: it returns
+  "undetermined", the SC-8 determination gate blocks the resume path, and a
+  capped run cannot be judged or recover. SC-10's scenario declares goal
+  actions alone and names no artifact, because its criterion turns on a
+  question in the transcript and naming the edited card would declare as the
+  goal the very edit the criterion forbids. Each fixture **settles the
+  trunk**: the harness commits `init` onto the test project's `main` and the
+  fixture commits the seed content on top, so `main` sits ahead of
+  `origin/main`; the fixture moves `main` back to the remote tip and leaves
+  the seed content staged, so the content is present and the divergence is
+  not — the branch card's trunk-tip verification is then unambiguous instead
+  of costing the run ten minutes of `git merge-base`.
 - RED: `ls tests-v2/behaviors/ | grep 2657` returns nothing (0 of 5 present);
   `2584-sc5-short-path-single-file.sh` is present; `2584-sc4`'s header states
   one criterion, not two.
@@ -114,7 +136,10 @@ fail (`implement` card rule 3, rule 10).
   `2584-sc4`'s header shows both criteria; `grep -c "^# .opencode#2657 SC-"
   tests-v2/behaviors/2657-sc*.sh` → 1 per file, each naming that scenario's
   own criterion; each new script contains `behavior_run` and `exit 0` and no
-  assertion helper.
+  assertion helper; each of the six scenarios the change touches declares
+  `BEHAVIOR_GOAL_ACTIONS`, and each declares
+  `BEHAVIOR_EXPECTED_ARTIFACT` except SC-10's; each fixture's trunk-settling
+  step is present.
 - Dependency: none.
 
 ## Item 2 — the floor carries the invariant and the stage-request rule (SC-1)
@@ -398,6 +423,35 @@ fail (`implement` card rule 3, rule 10).
   validation dispatch.
 - Verify: the two clean-room evaluation records.
 - Dependency: item 1, items 2–6.
+
+## Item 12 — the cap-hit resume carries the recorded tail (SC-12)
+
+- Deliverable: `tests-v2/behaviors/helpers.sh` composes the cap-hit resume's
+  message from the run's own session database — the agent's last recorded
+  reasoning, and the recorded in-flight tool call when there is one — and
+  passes it to both the Docker and the host resume path.
+  `tests-v2/docker/docker-harness.sh`'s `__docker_launch_resume` default
+  becomes the same tail-derived message, so a caller that passes none does
+  not reintroduce the anchorless form. The per-turn output cap's default
+  stays 4,000 on every surface that sets it, and
+  `2646-sc-cap-resume-probe.sh` keeps its deliberate 150 override.
+- RED: `grep -n "Continue the task from where you left off" tests-v2/behaviors/helpers.sh tests-v2/docker/docker-harness.sh`
+  → the anchorless literal is the resume message in `helpers.sh`'s host path
+  and the default in `docker-harness.sh`; and the observed run: the
+  2657-sc1 GREEN's final assistant message ended `reason: "length"` at
+  exactly 4,000 output tokens with a reasoning part and no tool call, and
+  the three resumed turns each re-derived the session's history instead of
+  continuing it (the preserved run in
+  `tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-256k-gguf4/`
+  and this issue's `evidence.md`).
+- GREEN: add the tail-message composer and wire it into both resume paths.
+- Verify: `grep -n "Continue the task from where you left off"` over both
+  files returns only comments; the composer runs against a real session
+  database and returns a message naming the recorded next action;
+  `grep -c "OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=.*4000"` over the cap
+  surfaces is unchanged, and the probe scenario still carries its own
+  override.
+- Dependency: none.
 
 ## Rollback
 
