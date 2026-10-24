@@ -131,17 +131,22 @@ body: '## Problem
 
 
   - **R-1** — The `correspondence` card SHALL name the channel set: the stakeholder
-  channels (an issue comment, a pull-request comment, a wiki page, a release note,
-  correspondence, and a pull-request body, whose form the `git-workflow-pr` card owns)
-  and the working surfaces (chat, the local issue store, the artifacts under an issue''s
-  folder); SHALL state that the card owns the channel decision while the card owning
-  a surface owns that surface''s form; and SHALL state that the issue tracker''s labels
-  and closure state are the `issues` card''s surfaces, outside this rule''s scope.
+  channels (an issue comment, an issue body, a pull-request comment, a pull-request
+  body, a wiki page, a release note, and correspondence — the issue body''s form owned
+  by the `issues` card and the remote-body-format reference, the pull-request body''s
+  by the `git-workflow-pr` card) and the working surfaces (chat, the local issue store,
+  the artifacts under an issue''s folder); SHALL state that the card owns the channel
+  decision while the card owning a surface owns that surface''s form; SHALL state
+  that the issue tracker''s labels and closure state are the `issues` card''s surfaces,
+  outside this rule''s scope; and SHALL state that the local issue store is a working
+  surface whose comment entries record their kind — `internal` for working content,
+  `stakeholder` for the record of a notice — so the store''s type field is a record
+  of the entry''s kind, not a publication channel.
 
-  - **R-2** — The `correspondence` skill description SHALL name each of the six stakeholder
-  channels enumerated in R-1 and chat, and SHALL state the decision the card owns;
-  so that the card is loaded at the moment the agent chooses between a working surface
-  and a stakeholder surface.
+  - **R-2** — The `correspondence` skill description SHALL name each of the seven
+  stakeholder channels enumerated in R-1 and chat, and SHALL state the decision the
+  card owns; so that the card is loaded at the moment the agent chooses between a
+  working surface and a stakeholder surface.
 
   - **R-3** — The rule SHALL state the positive remote class with a falsifier: a stakeholder
   notice is content whose reader must take a specific action before the work can continue
@@ -154,7 +159,10 @@ body: '## Problem
   and the named set SHALL include every observed failure class: escalation reports,
   clarification requests, the agent''s reasoning and analysis output, chat and session-transcript
   excerpts, and pipeline state — together with progress narration and audit and verification
-  verdicts.
+  verdicts. The prohibition governs the content the agent chooses to publish; content
+  a surface''s owning card mandates there — the pull-request body''s required `##
+  Evidence` section, which carries the fresh-context verify verdict, and the verdict
+  the `verify` card records in the PR description — is outside the prohibition.
 
   - **R-5** — The rule SHALL state that the default under uncertainty is the working
   surface, and SHALL state the asymmetry that decides the tie: a stakeholder notice
@@ -190,18 +198,23 @@ body: '## Problem
 
   - **R-11** — The rule SHALL state that a pull-request comment follows the same gate
   as an issue comment, and that a pull-request body is a merge artifact whose form
-  the `git-workflow-pr` card owns and which carries a notice by construction.
+  the `git-workflow-pr` card owns and which carries a notice by construction — including
+  the verify verdict its required `## Evidence` section carries, which the rule''s
+  prohibition does not reach.
 
   - **R-12** — The `correspondence` card''s §1 audience-separation sentence SHALL
   be superseded by the rule, so that the card states the audience-separation principle
   once — with the channel set, the classes, and the terms bound — and the live deck''s
   separation is extended to every stakeholder surface rather than narrowed to comments.
 
-  - **R-13** — The `issues` card''s one non-canonical cross-reference SHALL convert
-  to the canonical `Read [Text](path)` form, per the skill-creator card''s forwards-only
-  rule ("existing content converts when touched"), with its bracketed text naming
-  a heading in the target file so the deck''s `reference-integrity` tool resolves
-  it.
+  - **R-13** — Each non-canonical cross-reference in the amended `issues` card SHALL
+  convert to the canonical `Read [Text](path)` form, per the skill-creator card''s
+  forwards-only rule ("existing content converts when touched"), with its bracketed
+  text naming a heading in the target file so the deck''s `reference-integrity` tool
+  resolves it: the card''s markdown link to the remote-body-format reference, whose
+  text becomes "the remote body format", and the card''s bare pointer to its detail
+  cards under `references/`, which becomes links naming "the local-issues CLI reference"
+  and "the local-issues sync and worktree mechanics".
 
   - **R-14** — Each amended card''s full normative prose SHALL be returned under the
   ainglish writing discipline, per that discipline''s whole-card-on-touch rule, whose
@@ -219,17 +232,18 @@ body: '## Problem
 
   |----|-----------|-------|------------|
 
-  | SC-1 | The `correspondence` card names the six stakeholder channels and the three
-  working surfaces, states that the card owns the channel decision while the card
-  owning a surface owns that surface''s form, and states that the tracker''s labels
-  and closure state are the `issues` card''s surfaces outside the rule''s scope |
-  structural | Read `skills/correspondence/SKILL.md`; assert each channel and working
-  surface named, the jurisdiction clause present, and the labels-and-closure carve-out
-  present |
+  | SC-1 | The `correspondence` card names the seven stakeholder channels and the
+  three working surfaces, states that the card owns the channel decision while the
+  card owning a surface owns that surface''s form, states that the tracker''s labels
+  and closure state are the `issues` card''s surfaces outside the rule''s scope, and
+  states that the local issue store''s comment types record an entry''s kind rather
+  than publish | structural | Read `skills/correspondence/SKILL.md`; assert each channel
+  and working surface named, the jurisdiction clause present, the labels-and-closure
+  carve-out present, and the store-type clause present |
 
-  | SC-2 | The `correspondence` skill description names each of the six stakeholder
+  | SC-2 | The `correspondence` skill description names each of the seven stakeholder
   channels enumerated in R-1 and chat, and states the decision the card owns | structural
-  | Read the frontmatter description; assert each of the seven surfaces named and
+  | Read the frontmatter description; assert each of the eight surfaces named and
   the decision stated |
 
   | SC-3 | The rule states the positive remote class with a falsifier — a stakeholder
@@ -242,10 +256,12 @@ body: '## Problem
   | SC-4 | The rule names as content that never reaches a stakeholder surface: escalation
   reports, clarification requests, the agent''s reasoning and analysis output, chat
   and session-transcript excerpts, pipeline state, progress narration, and audit and
-  verification verdicts | structural | Read the rule text; assert each of the seven
-  named, and that the prohibition is scoped to stakeholder surfaces — with the tracker''s
-  labels and closure state carved out by R-1''s clause — rather than to the tracker
-  as a whole |
+  verification verdicts — and states that the prohibition governs the content the
+  agent chooses to publish, with content a surface''s owning card mandates there outside
+  it | structural | Read the rule text; assert each of the seven named, that the prohibition
+  is scoped to the agent''s choice on stakeholder surfaces — with the tracker''s labels
+  and closure state carved out by R-1''s clause — rather than to the tracker as a
+  whole, and that the mandated-content exemption is present |
 
   | SC-5 | The rule states that the default under uncertainty is the working surface
   and states the asymmetry that decides the tie | structural | Read the rule text;
@@ -288,9 +304,11 @@ body: '## Problem
 
   | SC-11 | The rule states that a pull-request comment follows the same gate as an
   issue comment, and that a pull-request body is a merge artifact whose form the `git-workflow-pr`
-  card owns and which carries a notice by construction | structural | Read the rule
-  text and `skills/git-workflow-pr/SKILL.md` §4; assert both clauses and that §4''s
-  rule is unchanged |
+  card owns and which carries a notice by construction — including the verify verdict
+  its required `## Evidence` section carries | structural | Read the rule text, `skills/git-workflow-pr/SKILL.md`
+  §4, and `skills/verify/SKILL.md` §3; assert both clauses, that §4''s rule is unchanged,
+  and that the rule does not forbid the verify verdict in the PR body or description
+  |
 
   | SC-12 | The `correspondence` card states the audience-separation principle once:
   its §1 sentence is superseded by the rule, and no second statement of the principle
@@ -298,13 +316,14 @@ body: '## Problem
   assert §1''s sentence is gone, the rule''s statement present, and that the terms
   "internal" and "finding" are bound within the rule |
 
-  | SC-13 | The `issues` card''s one non-canonical cross-reference reads in the canonical
-  `Read [Text](path)` form, and the card retains no markdown link to another deck
-  file that lacks the canonical form | structural | Read `skills/issues/SKILL.md`;
-  assert the canonical form on the cross-reference, that its bracketed text names
-  a heading in the target file, and that no further non-canonical link to a deck file
-  remains; run `.opencode/tools/reference-integrity` over the deck and confirm it
-  reports no broken link |
+  | SC-13 | Each non-canonical cross-reference in the amended `issues` card reads
+  in the canonical `Read [Text](path)` form — its markdown link to the remote-body-format
+  reference and its bare pointer to the detail cards under `references/` — and the
+  card retains no further non-canonical cross-reference to deck content | structural
+  | Read `skills/issues/SKILL.md`; assert the canonical form on both, that each bracketed
+  text names a heading in its target, and that no further non-canonical reference
+  to deck content remains in the card; run `.opencode/tools/reference-integrity` over
+  the deck and confirm it reports no broken link |
 
   | SC-14 | Each amended card''s full normative prose, and the guideline''s amended
   passage, conforms to the ainglish writing discipline''s five ambiguity families
@@ -402,5 +421,5 @@ body: '## Problem
 
   '
 created_at: '2026-10-24T03:19:45+00:00'
-updated_at: '2026-10-24T06:49:57+00:00'
+updated_at: '2026-10-24T07:08:42+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2662
