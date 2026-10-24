@@ -149,6 +149,21 @@ runs:
   count_trigger_note: 'The trigger fired four runs'' worth of times across this artifact''s two loops.
     The record is the count trigger''s own measured case: a mandate to examine that produces recorded
     outcomes and a falsifiable ledger, never a verdict.'
+- run: 5
+  date: '2026-10-24'
+  trigger: 'The count trigger: the developer''s directive (''fix the specs based on your analysis'') brought
+    in new deck-wide content — the artifacts'' single-sourcing discipline (R-9), the general cure for
+    the loop engine two loops measured — as revision 21.'
+  rounds_at_run: 0 at recording; the addition enters under this run's findings
+  findings_at_run: 0
+  revisions: '21'
+  outcome: sound
+  finding: 'The addition lands on the owner surfaces the scope table names (the spec card''s self-containment
+    clause and the plan card''s artifact-discipline rule), is mapped by SC-11 in the criteria''s mapping
+    form, and is grounded in both loops'' measured round ledgers — the findings concentrated wherever
+    a fact was stated more than once. Nothing else moves: the trigger''s mandate is this run, and the
+    revise-and-revalidate loop resumes under it for SC-11''s check.'
+  loop_state: The addition is recorded; the loop resumes under run 5's findings for SC-11's validation.
 totals:
   spec_validation_dispatches: 10 pre-recompose (9 with findings) + 2 empty/interrupted + 10 post-recompose
     (8 with findings, one PASS)
