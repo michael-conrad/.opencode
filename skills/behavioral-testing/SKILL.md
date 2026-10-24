@@ -184,7 +184,8 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    test-home environment (a command-line check misses env-only carriers —
    observed orphan), kill them, and verify zero before proceeding. Orchestrated
    SC-verification runs launch with `BEHAVIOR_SEMANTIC_MONITOR=1` so
-   determination records exist — unmonitored runs cannot resume through the
+   determination records exist — a run whose record carries no valid
+   orchestrator decision cannot resume through the
    §10.7 path (SC-8 determination gate).**
    **Cadence and gap claims are computed, never estimated:** record the nested
    run's launch time and every poll time, and derive any cadence or gap

@@ -166,6 +166,19 @@ do_clean_all() {
 # a FATAL-class message naming the missing determination — no inference is
 # dispatched. A valid record permits the resume pass-through. Plain scenario
 # invocations (fresh runs) never call this gate — it is inert there.
+#
+# The cap-hit resume is the one case the gate must not block: a run whose
+# last assistant turn ended at the per-turn output cap is exactly the case
+# the cap-resume path exists to continue, and the determination record for
+# that attempt cannot exist yet — it is written when the attempt ends, which
+# is after the resume it would have permitted. Blocking there made every
+# cap-hit resume impossible (observed 2026-10-23: three consecutive
+# "FATAL: resume failed — no non-undetermined determination exists", no
+# inference dispatched, the cap-resume ceiling then exhausted with the run's
+# artifact never produced). The gate therefore permits the resume when the
+# target home's own session record shows the last assistant turn ended with
+# finish=length. The cap-resume ceiling bounds that cycle, so permitting it
+# cannot produce an unbounded loop.
 __sc8_determination_gate() {
     local home="$1"
     local det="" cand="" tup=""
@@ -178,7 +191,18 @@ __sc8_determination_gate() {
     # docker-resume fix — observed 2026-10-20: the SC-8 cap-resume FATAL'd
     # scanning only the staging tree).
     local -a scan_roots=("$TMP_DIR")
-    [ -n "${BEHAVIOR_DETERMINATION_SCAN_DIR:-}" ] && scan_roots+=("$BEHAVIOR_DETERMINATION_SCAN_DIR")
+    # BEHAVIOR_DETERMINATION_SCAN_DIR is a colon-separated list of roots: the
+    # run's own evidence dir AND the run's artifact directory, which is where
+    # the determination record is written (.opencode#2657 — the gate scanned
+    # only the staging root and the behaviour-test dir, so it never saw the
+    # record and refused every cap-hit resume with "determination.yaml not
+    # found in any scenario evidence dir").
+    local scan_dir
+    if [ -n "${BEHAVIOR_DETERMINATION_SCAN_DIR:-}" ]; then
+        while IFS= read -r scan_dir; do
+            [ -n "$scan_dir" ] && scan_roots+=("$scan_dir")
+        done < <(printf '%s' "$BEHAVIOR_DETERMINATION_SCAN_DIR" | tr ':' '\n')
+    fi
     local root mindepth
     for root in "${scan_roots[@]}"; do
         mindepth=2

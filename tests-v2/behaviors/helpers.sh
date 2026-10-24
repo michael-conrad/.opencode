@@ -1610,8 +1610,85 @@ for (data,) in c.fetchall():
 PYEOF2
 }
 
+# Compose a directive resume message from the recorded tail of a session.
+#
+# The default resume message ("Continue the task from where you left off.")
+# gives the model no state anchor: under the per-turn output cap it
+# re-derives the session's history from a long context, spends the whole
+# budget re-deriving, and issues no tool call — so the resume makes no
+# progress and the run exhausts the cap-resume ceiling with no artifact
+# (lessons-learned/session-2026-10-20 LL-3, first observed on the #2639
+# scenario's bespoke recovery path; this is the generic path every scenario
+# takes). A message that states the recorded narrative and names the recorded
+# next action gives the model the anchor, and the next turn executes it.
+__recorded_tail_message() {
+    local db="$1"
+    python3 - "$db" <<'PYEOF3'
+import json, sqlite3, sys
+db = sys.argv[1]
+rows = []
+try:
+    conn = sqlite3.connect(db)
+    rows = conn.execute(
+        "SELECT data FROM event WHERE type='message.part.updated.1' ORDER BY id DESC LIMIT 400"
+    ).fetchall()
+except Exception:
+    rows = []
+texts, reasons, tool = [], [], None
+for (data,) in rows:
+    try:
+        j = json.loads(data or "{}")
+    except Exception:
+        continue
+    p = j.get("part") or j.get("properties") or {}
+    if not isinstance(p, dict):
+        continue
+    t = p.get("type", "")
+    if t == "text" and str(p.get("text", "")).strip():
+        texts.append(str(p["text"]).strip())
+    elif "reasoning" in t and str(p.get("text", "")).strip():
+        reasons.append(str(p["text"]).strip())
+    elif t == "tool" and tool is None:
+        st = p.get("state") or {}
+        if st.get("status") in ("running", "pending", "error"):
+            tool = (p.get("tool", "?"), json.dumps(st.get("input") or {}, sort_keys=True)[:400])
+texts.reverse()
+reasons.reverse()
+# The narrative anchor is the agent's own last thinking — it is where the
+# turn was cut off, and it is the assistant's state, not the developer's
+# prompt. The developer's prompt is a text part too, and the last text part
+# in the window is not reliably the agent's.
+narrative = reasons[-1] if reasons else ""
+if not narrative:
+    for t in texts:
+        if len(t) > 60:
+            narrative = t
+            break
+if not narrative and texts:
+    narrative = texts[-1]
+narrative = (narrative or "(no recorded text)")[-1200:]
+if tool:
+    msg = (
+        "Your previous turn was cut off by the per-turn output cap. You had just recorded: "
+        + narrative
+        + " Your next action was the `"
+        + tool[0]
+        + "` call with input: "
+        + tool[1]
+        + " Issue that call now and continue the task; do not re-plan or re-derive it."
+    )
+else:
+    msg = (
+        "Your previous turn was cut off by the per-turn output cap. You had just recorded: "
+        + narrative
+        + " Continue the task from exactly that point; do not re-plan or re-derive it."
+    )
+print(" ".join(msg.split()))
+PYEOF3
+}
+
 __resume_on_cap_hit() {
-    local tier="$1" scenario_name="$2" attempt="$3" output_file="$4" err_file="$5" model="$6"
+    local tier="$1" scenario_name="$2" attempt="$3" output_file="$4" err_file="$5" model="$6" artifact_dir="$7"
     [ "${BEHAVIOR_SEMANTIC_MONITOR:-0}" = "1" ] || return 0
 
     local ceiling="${BEHAVIOR_CAP_RESUME_CEILING:-3}"
@@ -1636,18 +1713,29 @@ __resume_on_cap_hit() {
     echo "  [harness] cap hit (finish=length) — resuming session (resume $((used+1))/$ceiling, .opencode#2646 R-4)" >&2
     echo $((used+1)) > "$counter_file"
 
+    # The resume message anchors the model on the recorded tail. The default
+    # ("Continue the task from where you left off.") gives it no state anchor:
+    # under the per-turn output cap it re-derives the session's history from a
+    # long context, spends the whole budget re-deriving, and issues no tool
+    # call — so the resume makes no progress and the run exhausts the ceiling
+    # with no artifact (lessons-learned/session-2026-10-20 LL-3). A message
+    # that states the recorded narrative and names the recorded next action
+    # gives the model the anchor, and the next turn executes it.
+    local resume_message
+    resume_message=$(__recorded_tail_message "$test_home/.local/share/opencode/opencode.db")
+
     if [ "$tier" = "2" ]; then
         local run_target
-        run_target=$(__docker_launch_resume "$scenario_name" "$test_home" "$model" "$output_file" "$err_file") || return 1
+        run_target=$(__docker_launch_resume "$scenario_name" "$test_home" "$model" "$output_file" "$err_file" "$resume_message" "$artifact_dir") || return 1
         __wait_run_target "$run_target" >/dev/null 2>&1 || true
         docker rm -f "${run_target#container:}" >/dev/null 2>&1 || true
     else
         TEST_WORKDIR="$test_home/project" \
-        bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --resume-home "$test_home" "${OPENCODE_CMD[@]}" run --continue "Continue the task from where you left off." --model "$model" --log-level INFO --print-logs \
+        bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --resume-home "$test_home" "${OPENCODE_CMD[@]}" run --continue "$resume_message" --model "$model" --log-level INFO --print-logs \
             >> "$output_file" 2>> "$err_file" || true
     fi
     # Recurse: the resumed run may itself hit the cap; the ceiling bounds the cycle.
-    __resume_on_cap_hit "$tier" "$scenario_name" "$attempt" "$output_file" "$err_file" "$model"
+    __resume_on_cap_hit "$tier" "$scenario_name" "$attempt" "$output_file" "$err_file" "$model" "$artifact_dir"
 }
 
 behavior_run() {
@@ -2164,7 +2252,7 @@ MANIFESTEOF
         # resume whose home has no non-undetermined determination (observed:
         # all three attempt-7-probe resumes FATAL'd "determination.yaml not
         # found" when the resume ran before the record was written).
-        __resume_on_cap_hit "$tier" "$scenario_name" "$attempt" "$output_file" "$err_file" "$model" || true
+        __resume_on_cap_hit "$tier" "$scenario_name" "$attempt" "$output_file" "$err_file" "$model" "$artifact_dir" || true
         if [ -f "$(dirname "$output_file")/cap-resume-count-${attempt}" ]; then
             # A resume ran: refresh the artifacts so the exported session.yaml
             # covers the full exchange (original + resumed runs share the
