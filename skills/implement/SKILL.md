@@ -72,10 +72,10 @@ provenance: AI-authored, .opencode#2490; short-path inline default, .opencode#26
 9. **Sub-agents are judgment, not ritual.** Dispatch one when a scoped task
    genuinely benefits; work inline when that is simply better. Dispatched work
    gets a clean-room prompt and a result back (YAML) — no chain theater.
-   **Short-path inline default.** For short-path work — developer-specified
-   small changes with no success-criteria machinery — the default is working
-   inline in the agent's own context; a sub-agent dispatch for short-path
-   work requires a scoped reason recorded in the work state.
+   **Short-path inline default.** For a change on the short path — the path
+   [the change gate](../work/SKILL.md) defines — the default is working
+   inline in the agent's own context; a sub-agent dispatch for that work
+   requires a scoped reason recorded in the work record.
 10. **SC fidelity.** Implementation satisfies each criterion as written — no
     weakening, skipping, deferring, or reinterpreting a criterion to make it
     passable. Fidelity runs in both directions: the implementation adds no

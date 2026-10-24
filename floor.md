@@ -47,6 +47,7 @@ are handled by the tools above — never search for tokens or passwords.
 Positive whitelist — what the developer's utterances mean:
 
 - `approved for <phase>[: refs]` / `#N approved for <phase>` → authorization carries the item through **all pipeline phases up to and including the named phase**; intermediate stage authorizations are implied, not separately required; missing upstream artifacts start the pipeline at the earliest missing stage (`work` card).
+- A request that names a stage — a spec, a plan, a discussion, or approval before implementation — runs that stage before implementing, whatever the change's size: the agent's characterization of the change's size never overrides it, and a request for a stage is never excess ceremony.
 - `approved for pr` authorizes the PR boundary — PRs are for completed and fully tested work; opening a knowingly partial PR requires explicit special authorization (procedure in `git-workflow-pr`).
 - `approved for implementation` / `approved for spec` / `approved for plan` / `approved for stacked implementation: refs` → the named scope (same up-to-and-including rule applies)
 - `approved` (bare, mid-discussion) → authorizes the item just discussed; clarify if it implies implementation
@@ -96,10 +97,13 @@ authorization is exactly its dispatch prompt:
 
 ## Pipeline
 
-Changes go through spec → plan → implement → PR, scaled to the change's need —
-which path applies is agent judgment, never a size threshold. Programming
-standards load with implementation (routed reference). Human-only merge: PRs
-are merged by the developer, never by the agent.
+Every change passes through the pipeline's stages; scaling changes a stage's
+form, never its presence. Changes go through spec → plan → implement → PR,
+scaled to the change's need — which path applies is agent judgment,
+never a size threshold. A developer's directive satisfies a stage's content; it
+never suppresses a stage. Programming standards load with implementation (routed
+reference). Human-only merge: PRs are merged by the developer, never by the
+agent.
 
 ## Deck governance
 

@@ -44,9 +44,17 @@ the session — carries its own observed-failure evidence and authorization; the
 gate governs agent-proposed deck content, not instruction execution. The gate's
 standards still bind the *content* of what is written (frontmatter, predicate
 classification, root-agnostic discipline hold), but the proposal-time evidence
-hunt does not re-run at instruction-execution time: never perform archaeology
-to manufacture evidence for an edit the developer just directed, and never
-halt for direction the instruction already carries.
+hunt does not re-run at instruction-execution time: the agent never performs
+archaeology to manufacture evidence for an edit the developer just directed,
+whether or not that edit's content leaves a material open choice.
+
+The no-halt clause is bounded. When a directed edit's content leaves a
+material open choice, the agent asks one open-ended question about that
+choice instead of choosing it. That question is this card's stage output: the
+deck-governance card is the gate for a deck edit, so the question is not a
+step toward the full path. Neither clause of the carve-out reaches a request
+that names a stage — the `work` card's stage rule governs such a request
+instead, and the named stage runs before the edit.
 
 ## Card standards
 
