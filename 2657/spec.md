@@ -389,6 +389,20 @@ why the deck-governance card exists, and an agent proposing a rule the
 developer did not ask for is work the developer holds the right to see a spec
 of.
 
+**Risk — the behavioural criteria may not be measurable in this harness.**
+Three of the five behavioural criteria (SC-6, SC-7, SC-9) turn on a
+full-path spec artifact appearing in the run, and the model's first turn on
+this deck routinely exceeds the harness's per-turn output budget, so the
+artifact's production is not guaranteed. R-13 is the remedy: the anchorless
+cap-hit resume made every capped turn re-derive the session's history and
+issue no tool call, so a run that hit the cap could not finish its artifact;
+the tail-anchored resume lets the resumed turn continue the recorded work.
+This risk is disclosed rather than assumed away because the criteria are
+judged from the run that actually happens. If the re-runs show the artifact
+still not produced, these three criteria must be re-scoped at this spec — the
+scenario's artifact made small enough for the budget — and this spec revised
+and re-validated, before the criteria can be judged.
+
 **Risk — the criteria are intent-decidable.** R-3's criteria are judgment
 calls, so an agent can still mischaracterize a complicated change. R-4's
 recorded scope makes the characterization falsifiable at review rather than
@@ -467,8 +481,7 @@ record it names covers what that reference asks it to hold.
 `skills/git-workflow-branch/SKILL.md` states that the provenance is written
 to the work record at its trunk-freshness step, and
 `skills/git-workflow-cleanup/SKILL.md` states that the work-state artifacts
-are the working-tree scratch files the agent created, the work record among
-them.
+are the scratch files the agent created, the work record among them.
 
 - **Verify:** read the seven cards the criterion names; each "work record" and
   "work state" reference, in each card's body and frontmatter description,
@@ -596,17 +609,22 @@ one for each of SC-6 through SC-10, and each carries the setup fixture that
 pre-supplies the repository state its task needs: the fixture leaves the seed
 content present without leaving the test project's `main` ahead of its remote
 tip, so the branch card's rebase rule does not fire on a divergence the
-fixture itself created. Each scenario declares its goal condition — the goal
-artifact, the content pattern that completes it, and the goal actions — so the
-monitor's classifier judges the run against an anchor, and a run that hits the
-per-turn cap can resume.
+fixture itself created. Each scenario declares a goal condition, so the
+monitor's classifier judges the run against an anchor and a run that hits the
+per-turn cap can resume: the goal artifact and the content pattern that
+completes it, where the criterion turns on an artifact, and the goal actions
+every scenario declares. SC-10's criterion turns on a question in the
+transcript rather than on a file, so its scenario declares goal actions alone
+and names no artifact — naming one would declare as the goal the very edit
+the criterion forbids.
 
 - **Verify:** read `tests-v2/behaviors/`; each named file is present or absent
   as stated, each new scenario's header states its criterion, each new
   scenario has its fixture under `tests-v2/behaviors/fixtures/setup/`, each
   fixture leaves the test project's `main` equal to its remote tip, and each
-  scenario declares `BEHAVIOR_EXPECTED_ARTIFACT`,
-  `BEHAVIOR_EXPECTED_ARTIFACT_GREP`, and `BEHAVIOR_GOAL_ACTIONS`.
+  scenario declares `BEHAVIOR_GOAL_ACTIONS` plus, where its criterion turns
+  on an artifact, `BEHAVIOR_EXPECTED_ARTIFACT` and
+  `BEHAVIOR_EXPECTED_ARTIFACT_GREP`.
 
 ### SC-12 (structural) — the cap-hit resume is anchored on the recorded tail
 
