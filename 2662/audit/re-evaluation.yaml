@@ -1,142 +1,133 @@
 kind: re-evaluation
 artifact: .opencode/.issues/2662/spec.md
 date: '2026-10-23'
-trigger: >-
-  More than four revisions to address defects. The artifact went through five
-  fresh-context validation rounds (23 findings) before the developer's rule of
-  2026-10-23 made the re-evaluation mandatory; the deck's sibling spec
-  .opencode#2660 (awaiting approval) owns the re-evaluation protocol this
-  record follows.
-
+trigger: More than four revisions to address defects. The artifact went through five fresh-context validation
+  rounds (23 findings) before the developer's rule of 2026-10-23 made the re-evaluation mandatory; the
+  deck's sibling spec .opencode#2660 (awaiting approval) owns the re-evaluation protocol this record follows.
 factors:
   repo_boundaries:
     finding: clean
-    detail: >-
-      The deliverable lives entirely in one repository — the deck
-      (michael-conrad/.opencode) — and touches one concern: where
-      agent-generated content is published. No boundary crossing, no
-      cross-repo coordination, no dependency on another team's tracker.
+    detail: 'The deliverable lives entirely in one repository — the deck (michael-conrad/.opencode) —
+      and touches one concern: where agent-generated content is published. No boundary crossing, no cross-repo
+      coordination, no dependency on another team''s tracker.'
   separation_of_concerns:
     finding: two concerns bundled, not separable into independent parts
-    detail: >-
-      The artifact bundled (a) the rule — what may be published on a
-      stakeholder surface, the internal default, and the routes — with
-      (b) a coverage obligation: that every escalation, clarification
-      request, report, and consultation producer in the live deck states
-      the route at its own site. (b) is what the review loop kept
-      re-opening, and (b) alone is not a deliverable an implementer can
-      complete: its scope is "every producer in a live deck", an
-      unbounded and moving target.
+    detail: 'The artifact bundled (a) the rule — what may be published on a stakeholder surface, the internal
+      default, and the routes — with (b) a coverage obligation: that every escalation, clarification request,
+      report, and consultation producer in the live deck states the route at its own site. (b) is what
+      the review loop kept re-opening, and (b) alone is not a deliverable an implementer can complete:
+      its scope is "every producer in a live deck", an unbounded and moving target.'
   atomic_work_units:
     finding: requirements atomic; implementation unit over-extended
-    detail: >-
-      R-1..R-16 and SC-1..SC-17 were individually atomic and binary
-      verifiable. The implementation unit was not: because a substantive
-      write to a card obligates that card's whole normative prose to be
-      returned under the ainglish discipline, the deliverable's cost and
-      review surface scaled with the number of cards it touched — six
-      cards' full prose, three reference files, and a guideline in one
-      change.
+    detail: 'R-1..R-16 and SC-1..SC-17 were individually atomic and binary verifiable. The implementation
+      unit was not: because a substantive write to a card obligates that card''s whole normative prose
+      to be returned under the ainglish discipline, the deliverable''s cost and review surface scaled
+      with the number of cards it touched — six cards'' full prose, three reference files, and a guideline
+      in one change.'
   fatness:
     finding: fat in extent, not in structure
-    detail: >-
-      The artifact was not fat by bundling separable requirements; it was
-      fat by reach. The coverage obligation pulled in six cards, and each
-      card brought its whole-prose conversion and its own cross-reference
-      conversion with it. The review surface grew with it, and the loop's
-      findings grew with the review surface.
+    detail: The artifact was not fat by bundling separable requirements; it was fat by reach. The coverage
+      obligation pulled in six cards, and each card brought its whole-prose conversion and its own cross-reference
+      conversion with it. The review surface grew with it, and the loop's findings grew with the review
+      surface.
   intent_wording_and_reachability:
     finding: the original intent was reachable; the artifact's approach was not
-    detail: >-
-      The intent — keep the agent's working content off the remote tracker
-      and route developer-directed content to the developer in chat — is
-      clear and reachable through one rule in one card. What did not
-      converge was the artifact's approach to demonstrating coverage of
-      every producer in the deck: each round of revision surfaced another
-      producer, another tracker-comment instruction, or another
-      cross-reference the artifact had mis-stated.
-
+    detail: 'The intent — keep the agent''s working content off the remote tracker and route developer-directed
+      content to the developer in chat — is clear and reachable through one rule in one card. What did
+      not converge was the artifact''s approach to demonstrating coverage of every producer in the deck:
+      each round of revision surfaced another producer, another tracker-comment instruction, or another
+      cross-reference the artifact had mis-stated.'
 evidence:
   rounds:
-    - round: 1
-      findings: 8
-      subject: >-
-        the artifact's diagnosis of the live gate (a weak positive clause,
-        not a closed ban-list), the state-home claim, the account of the
-        rewrite loss, an orphan scope element, a bundled requirement, two
-        instruments, and the ainglish whole-card-on-touch obligation.
-    - round: 2
-      findings: 4
-      subject: >-
-        the producer enumeration (two verbatim copies of the escalation
-        rule and five further producers), a criterion no deliverable could
-        satisfy, a prohibition written against the tracker that
-        conflicted with the retained label clause, and a scope element no
-        requirement or criterion covered.
-    - round: 3
-      findings: 8
-      subject: >-
-        the git-workflow-pr surface, the file count, a revision-history
-        block in the body, the criteria sets' scope statement, the second
-        live tracker-comment instruction, the escalation rule's copy
-        relationship, the touch-triggered cross-reference conversion, and
-        the overlap between the positive class and the internal class.
-    - round: 4
-      findings: 3
-      subject: >-
-        the completeness of the producer inventory, the scope conflict in
-        the tracker-comment prohibition, and the second deprecation append
-        site.
-    - round: 5
-      findings: 0
-      subject: >-
-        the dispatch returned no verdict; the round was re-run after the
-        re-evaluation, against the recomposed artifact.
-  observation: >-
-    Every finding in all four completed rounds fell in the coverage half —
-    the description of the deck's producers, its tracker-comment
-    instructions, and its cross-references. No finding in any round fell
-    on the rule half: the classification, the falsifier, the default, the
-    routes, the no-read-back rule, and the wording of the rule itself
-    were never faulted.
-
+  - round: 1
+    findings: 8
+    subject: the artifact's diagnosis of the live gate (a weak positive clause, not a closed ban-list),
+      the state-home claim, the account of the rewrite loss, an orphan scope element, a bundled requirement,
+      two instruments, and the ainglish whole-card-on-touch obligation.
+  - round: 2
+    findings: 4
+    subject: the producer enumeration, a criterion no deliverable could satisfy, a prohibition written
+      against the tracker that conflicted with the retained label clause, and a scope element no requirement
+      or criterion covered.
+  - round: 3
+    findings: 8
+    subject: the git-workflow-pr surface, the file count, a revision-history block in the body, the criteria
+      sets' scope statement, the second live tracker-comment instruction, the escalation rule's copy relationship,
+      the touch-triggered cross-reference conversion, and the overlap between the positive class and the
+      internal class.
+  - round: 4
+    findings: 3
+    subject: the completeness of the producer inventory, the scope conflict in the tracker-comment prohibition,
+      and the second deprecation append site.
+  - round: 5
+    findings: 0
+    subject: the dispatch returned no verdict; the round was re-run.
+  - round: 6
+    findings: 3
+    subject: the 'finding' term colliding with the correspondence card's section 1, the pull-request surfaces
+      carried by no requirement, and the floor's whole-card claim unsupported by the cited rule.
+  - round: 7
+    findings: 2
+    subject: the conversion's preservation clause unverified, and the label clause's attribution unsupported.
+  - round: 8
+    findings: 3
+    subject: three mis-sourced deck claims, two of them against cards a concurrent session had rewritten
+      mid-artifact.
+  - round: 9
+    findings: 1
+    subject: the link requirements' incompatibility with the reference-integrity tool's heading-matching
+      rule.
+  - round: 10
+    findings: 4
+    subject: the rule contradicting the pull-request body's mandated verify verdict, the remote issue
+      body's unclassified place, a second non-canonical cross-reference, and the local store's comment-type
+      field left unclassified.
+  - round: 11
+    findings: 2
+    subject: the description's second statement of the audience-separation principle, and the scope table's
+      cross-reference count.
+  - round: 12
+    findings: 2
+    subject: the cross-reference set's exhaustiveness, and the Approach Chosen contradicting the spec's
+      own form-ownership decision.
+  - round: 13
+    findings: 0
+    subject: clean PASS — zero findings, no caveats.
+  observation: 'The finding class changed with the recomposition. Rounds 1-5 fell in the coverage half
+    - the description of the deck''s producers, its tracker-comment instructions, and its cross-references
+    - and none fell on the rule half: the classification, the falsifier, the default, the routes, the
+    no-read-back rule, and the wording of the rule itself were never faulted in those rounds. Rounds 6-13
+    fell in the deliverable''s own substance - a term collision, decisions carried by no requirement,
+    the rule contradicting two live cards'' mandates, a surface the rule did not classify, and the link
+    tool''s mechanics. The coverage half stopped reopening, which is the recomposition''s effect.'
+  totals:
+    dispatches: 13
+    rounds_returning_findings: 12
+    findings: 40
+    final_verdict: PASS (round 13, zero findings)
 outcome: recompose
 recomposition:
-  retained: >-
-    The rule. The correspondence card carries the channel set, the
-    stakeholder-notice class with its falsifier, the internal class naming
-    the observed failure classes, the default under uncertainty with its
-    asymmetry, the route per class, the class-coverage statement for
-    developer-directed content, the no-read-back rule, and PR-comment
-    parity. The issues card's comment gate defers to it, with the
-    caller-side discipline restored and its router summary corrected. The
-    deprecation protocol's two encounter-evidence appends are rerouted to
-    the ticket's store record, because they are live instructions to
-    publish working content on the tracker.
-  moved_out: >-
-    The per-producer route clauses at the deck's escalation,
-    clarification, report, and consultation sites. They are a real
-    improvement, and the deck's rule should reach them — but the artifact
-    could not state them without also asserting a complete inventory of a
-    live deck's producers, and that assertion is what the loop kept
-    falsifying. The concern is recorded here as a follow-on; the rule's
-    class-coverage statement and its widened router carry the route in the
-    meantime.
-  reduced: >-
-    The deliverable's reach: from six cards, three reference files, and a
-    guideline to two cards and one guideline — a diff whose review
-    surface is the rule and the two contradiction fixes, and whose
-    verification is the rule's own text rather than a restatement of the
-    deck.
-  authorization: >-
-    The artifact is at the spec stage; no implementation or PR
-    authorization exists, so the recomposition voids nothing. The
-    developer's approval of the recomposed spec is the gate.
-
-residual_risk: >-
-  A rogue agent that consults no card is not reached by the rule in any
-  card — that limit is the developer's explicit direction (no scripting,
-  and the reported agent would work around an interlock). The narrowed
-  deliverable also leaves the route unstated at the deck's producer
-  sites; the rule's class-coverage statement and the widened router are
-  what carry it.
+  retained: The rule. The correspondence card carries the channel set, the stakeholder-notice class with
+    its falsifier, the internal class naming the observed failure classes, the default under uncertainty
+    with its asymmetry, the route per class, the class-coverage statement for developer-directed content,
+    the no-read-back rule, and PR-comment parity. The issues card's comment gate defers to it, with the
+    caller-side discipline restored and its router summary corrected. The deprecation protocol's two encounter-evidence
+    appends are rerouted to the ticket's store record, because they are live instructions to publish working
+    content on the tracker.
+  moved_out: The per-producer route clauses at the deck's escalation, clarification, report, and consultation
+    sites. They are a real improvement, and the deck's rule should reach them — but the artifact could
+    not state them without also asserting a complete inventory of a live deck's producers, and that assertion
+    is what the loop kept falsifying. The concern is recorded here as a follow-on; the rule's class-coverage
+    statement and its widened router carry the route in the meantime.
+  reduced: 'The deliverable''s reach: from six cards, three reference files, and a guideline to two cards
+    and one guideline — a diff whose review surface is the rule and the two contradiction fixes, and whose
+    verification is the rule''s own text rather than a restatement of the deck.'
+  authorization: The artifact is at the spec stage; no implementation or PR authorization exists, so the
+    recomposition voids nothing. The developer's approval of the recomposed spec is the gate.
+residual_risk: A rogue agent that consults no card is not reached by the rule in any card — that limit
+  is the developer's explicit direction (no scripting, and the reported agent would work around an interlock).
+  The narrowed deliverable also leaves the route unstated at the deck's producer sites; the rule's class-coverage
+  statement and the widened router are what carry it.
+outcome_detail: The recomposition was performed in the spirit of the sibling `.opencode#2661` protocol
+  (the umbrella records the split) - that protocol is unimplemented and awaits the developer's approval,
+  so the split is recorded here rather than performed per it.

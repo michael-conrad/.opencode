@@ -51,8 +51,9 @@ body: '## Problem
   - `skills/plan/references/plan-validation-standards.md` §Verdict contract + §Loop
   — the same in plan voice, including the missing observation-is-a-finding line.
 
-  - `skills/verify/SKILL.md` §4 — the same judgment, outcomes, and recording in the
-  review loop''s dispatch voice.
+  - `skills/verify/SKILL.md` §3 and §4 — the same judgment, outcomes, and recording
+  in the review loop''s dispatch voice, with §3''s recording rule reconciled against
+  the per-issue validation record.
 
   - `skills/implement/references/implementation-workflow.md` verify-pass row — the
   purpose gloss aligned with the `verify` card''s review loop.
@@ -81,7 +82,10 @@ body: '## Problem
   and stable across rounds; (4) a **validation record** — every completed validation
   cycle appends one entry to the owning issue''s record at `.issues/{N}/audit/validation.yaml`
   (YAML), one section per artifact (spec, plan, implementation), never inside the
-  artifact bodies.
+  artifact bodies; the record carries each adjudicated defect class with its classification,
+  which is what makes the stability requirement checkable, and the `verify` card''s
+  §3 recording rule is reconciled with it (the deliverable''s verdict is still recorded
+  once, in chat or the PR description).
 
 
   ## Requirements
@@ -103,25 +107,38 @@ body: '## Problem
   - **R-3** — The re-evaluation SHALL resolve to one of three outcomes, each recorded,
   from which the loop resumes or redirects: Sound, Recompose, or Intent-unreachable.
   A re-evaluation is one of the higher-level fixing attempts the existing escalation
-  rule counts.
+  rule counts. The recomposition protocol the Recompose outcome performs the split
+  by is specified in the sibling `.opencode#2661` and is not yet carried by the deck:
+  while it is unimplemented, the Recompose outcome records its grounds and the loop
+  escalates to the developer for the split, which the existing escalation rule already
+  carries.
 
   - **R-4** — The re-evaluation''s outcome and its grounds SHALL be recorded in the
   owning issue''s validation record — never in the artifact''s body.
 
-  - **R-5** — Every completed validation cycle SHALL append one entry to the owning
-  issue''s validation record (YAML) at `.issues/{N}/audit/validation.yaml`: one record
-  file per issue, one top-level section per artifact under validation, each entry
-  carrying the round''s verdict, every finding with its defect class, and the remediation
-  performed or the outcome reached, including the terminal cycle. The record lives
-  beside the artifact and never inside the spec or plan body; a cycle whose artifact
-  belongs to no issue in a store (the `work` card''s short-path scope statement) records
-  per the `verify` card''s own recording rule and appends no store record.
+  - **R-5** — The `verify` card''s §3 recording rule and the per-issue validation
+  record are reconciled by the change: the deliverable''s verdict is recorded once,
+  in chat or the PR description, and the validation record is the loop''s history
+  — one appended file per issue, never a second copy of the verdict and never an artifact
+  chain. Every completed validation cycle SHALL append one entry to the owning issue''s
+  validation record (YAML) at `.issues/{N}/audit/validation.yaml`: one record file
+  per issue, one top-level section per artifact under validation, each entry carrying
+  the round''s outcome, every defect class the round adjudicated with its classification
+  (a finding or a preference) and, for a finding, its remediation performed or the
+  outcome reached, including the terminal cycle. The classification a round records
+  is not an observation — it is the classification the round made — and recording
+  it is what makes the stability requirement checkable. The record lives beside the
+  artifact and never inside the spec or plan body; a cycle whose artifact belongs
+  to no issue in a store (the `work` card''s short-path scope statement) records per
+  the `verify` card''s own recording rule and appends no store record. A cycle''s
+  judgment cites the record.
 
   - **R-6** — Both criteria sources'' verdict contracts SHALL state the finding/preference
   boundary as class-determined: a factual defect is a finding regardless of effect;
   a preference is never a finding; no third category exists. The same defect class
-  SHALL be classified the same way in every round. The churn rule''s verbatim form
-  is unchanged.
+  SHALL be classified the same way in every round, and the validation record''s per-round
+  classification of each adjudicated class is what makes that checkable. The churn
+  rule''s verbatim form is unchanged.
 
   - **R-7** — The findings-are-fixed requirement and criteria invariance SHALL stand
   unchanged, and SHALL never be satisfied by a round count.
@@ -139,21 +156,28 @@ body: '## Problem
   |----|-----------|-------|------------|
 
   | SC-1 | Each of the three loop locations states the non-convergence judgment beside
-  the spin judgment, and states the count trigger as a mandate to examine — more than
+  the spin judgment, states the count trigger as a mandate to examine — more than
   four revisions to address findings — with the count never deciding the verdict,
-  substituted for the examination, or bound to a round limit | structural | Read the
-  three locations; assert each carries the judgment and the count trigger; assert
-  the count appears only as a mandate to examine and never as a verdict, a substitute
-  for the examination, or a cap on rounds |
+  substituted for the examination, or bound to a round limit, and states that the
+  per-cycle judgment cites the validation record | structural | Read the three locations;
+  assert each carries the judgment and the count trigger; assert the count appears
+  only as a mandate to examine and never as a verdict, a substitute for the examination,
+  or a cap on rounds; assert each states that the cycle''s judgment cites the record,
+  and that a cycle whose artifact belongs to no issue in a store appends no store
+  record and records per the verify card''s own rule |
 
   | SC-2 | The re-evaluation names the minimum factor set and states it as exemplary
   and open | structural | Read the canonical statement; assert each factor named and
   the openness clause |
 
-  | SC-3 | The three outcomes are stated with their behaviors and a re-evaluation
-  counts as a higher-level fixing attempt in the escalation rule | structural | Read
-  the three loop locations; assert outcomes'' behaviors and the escalation composition
-  |
+  | SC-3 | The three outcomes are stated with their behaviors — Sound records findings
+  and resumes unchanged, Recompose performs the split per the recomposition protocol,
+  Intent-unreachable rewrites the intent and continues — a re-evaluation counts as
+  a higher-level fixing attempt in the escalation rule, and the Recompose outcome
+  states the behavior while the recomposition protocol is unimplemented (grounds recorded,
+  escalation to the developer) | structural | Read the three loop locations; assert
+  outcomes'' behaviors, the escalation composition, and the stated behavior while
+  the protocol is absent |
 
   | SC-4 | The record convention is stated canonically exactly once — `.issues/{N}/audit/validation.yaml`,
   per-round entries, one section per artifact, outside artifact bodies, marked `(YAML)`
@@ -219,5 +243,5 @@ body: '## Problem
 
   Artifacts for agents: `.opencode/.issues/2660/`.'
 created_at: '2026-10-23T20:53:36+00:00'
-updated_at: '2026-10-24T06:34:41+00:00'
+updated_at: '2026-10-24T08:05:59+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2660
