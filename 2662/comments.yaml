@@ -1,23 +1,23 @@
 comments:
 - type: internal
   body: 'Validation and re-evaluation record (2026-10-23/24). Thirteen fresh-context validation dispatches:
-    twelve returned findings, the last returned a clean PASS; 40 findings in total, each remediated in
-    place. Round-by-round findings: (1) 8 - the diagnosis of the live gate, the state-home claim, the
-    rewrite account, an orphan scope element, a bundled requirement, two instruments, the ainglish obligation.
-    (2) 4 - producer enumeration, an unsatisfiable criterion, a tracker-wide prohibition conflicting with
-    the retained label clause, an uncovered scope element. (3) 8 - the git-workflow-pr surface, the file
-    count, a revision-history block in the body, the criteria sets'' scope, the second tracker-comment
-    instruction, the escalation rule''s copy relationship, the touch-triggered cross-reference conversion,
-    the positive-class/internal-class overlap. (4) 3 - the inventory''s completeness, the prohibition''s
-    scope conflict, the second deprecation append site. (5) no verdict returned; the round was re-run.
-    (6) 3 - the ''finding'' term colliding with the correspondence card''s section 1, the pull-request
-    surfaces carried by no requirement, the floor''s whole-card claim unsupported by the cited rule. (7)
-    2 - the conversion''s preservation clause unverified, the label clause''s attribution unsupported.
-    (8) 3 - three mis-sourced deck claims, two against cards a concurrent session rewrote mid-artifact.
-    (9) 1 - the link requirements against the reference-integrity tool''s heading-matching rule. (10)
-    4 - the rule contradicting the pull-request body''s mandated verify verdict, the remote issue body''s
-    unclassified place, a second non-canonical cross-reference, the local store''s comment-type field.
-    (11) 2 - the description''s second statement of the principle, the scope table''s cross-reference
+    eleven returned findings, one returned no verdict and was re-run, the last a clean PASS; 40 findings
+    in total, each remediated in place. Round-by-round findings: (1) 8 - the diagnosis of the live gate,
+    the state-home claim, the rewrite account, an orphan scope element, a bundled requirement, two instruments,
+    the ainglish obligation. (2) 4 - producer enumeration, an unsatisfiable criterion, a tracker-wide
+    prohibition conflicting with the retained label clause, an uncovered scope element. (3) 8 - the git-workflow-pr
+    surface, the file count, a revision-history block in the body, the criteria sets'' scope, the second
+    tracker-comment instruction, the escalation rule''s copy relationship, the touch-triggered cross-reference
+    conversion, the positive-class/internal-class overlap. (4) 3 - the inventory''s completeness, the
+    prohibition''s scope conflict, the second deprecation append site. (5) no verdict returned; the round
+    was re-run. (6) 3 - the ''finding'' term colliding with the correspondence card''s section 1, the
+    pull-request surfaces carried by no requirement, the floor''s whole-card claim unsupported by the
+    cited rule. (7) 2 - the conversion''s preservation clause unverified, the label clause''s attribution
+    unsupported. (8) 3 - three mis-sourced deck claims, two against cards a concurrent session rewrote
+    mid-artifact. (9) 1 - the link requirements against the reference-integrity tool''s heading-matching
+    rule. (10) 4 - the rule contradicting the pull-request body''s mandated verify verdict, the remote
+    issue body''s unclassified place, a second non-canonical cross-reference, the local store''s comment-type
+    field. (11) 2 - the description''s second statement of the principle, the scope table''s cross-reference
     count. (12) 2 - the cross-reference set''s exhaustiveness, the Approach Chosen contradicting the form-ownership
     decision. (13) 0 - clean PASS, no caveats. The finding class changed with the recomposition: rounds
     1-5 fell in the coverage half, rounds 6-13 in the deliverable''s own substance. The re-evaluation
