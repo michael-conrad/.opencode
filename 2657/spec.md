@@ -578,7 +578,8 @@ contains that word, so a pattern on it is satisfied before the run starts.
   scenario has its fixture under `tests-v2/behaviors/fixtures/setup/`, each
   fixture leaves the test project's `main` equal to its remote tip, and each
   scenario the change touches — the five new ones and `2584-sc4` — declares
-  `BEHAVIOR_GOAL_ACTIONS`; the four whose criterion's artifact has a known
+  `BEHAVIOR_GOAL_ACTIONS`; the extended `2584-sc4` header names the criterion
+  that judges its second criterion; the four whose criterion's artifact has a known
   path — SC-6, SC-8, SC-9, and `2584-sc4` — declare
   `BEHAVIOR_EXPECTED_ARTIFACT` and `BEHAVIOR_EXPECTED_ARTIFACT_GREP`, and
   SC-7's and SC-10's declare both empty; each declared content pattern is
