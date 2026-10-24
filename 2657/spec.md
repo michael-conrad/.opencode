@@ -448,7 +448,7 @@ self-certified, and R-5 re-examines it when the work outgrows it.
 path in `tests-v2/behaviors/helpers.sh` together with the Docker resume
 launcher in `tests-v2/docker/docker-harness.sh`, the determination gate
 in `tests-v2/with-test-home`, and the three surfaces that state the gate's
-behaviour — `tests-v2/AGENTS.md` §10.7 and §17 and
+behaviour — `tests-v2/AGENTS.md` §10.7 and §14 and
 `skills/behavioral-testing/SKILL.md` rule 9. The amendments to
 `verify`, `git-workflow-pr`, `git-workflow-branch`, and `git-workflow-cleanup`
 are clause-level clarifications that name the artifact the card already
@@ -677,7 +677,7 @@ cap so the probe hits it deterministically — is untouched.
 
 - **Verify:** read `tests-v2/behaviors/helpers.sh`,
   `tests-v2/docker/docker-harness.sh`, `tests-v2/with-test-home`,
-  `tests-v2/AGENTS.md` §10.7 and §17, and `skills/behavioral-testing/SKILL.md`
+  `tests-v2/AGENTS.md` §10.7 and §14, and `skills/behavioral-testing/SKILL.md`
   rule 9; the cap-hit resume path calls the tail-message composer and passes
   its message to both the Docker and the host resume path, and the Docker
   resume launcher's own default is tail-derived rather than anchorless, so a
@@ -706,7 +706,7 @@ cap so the probe hits it deterministically — is untouched.
 | SC-9 | The short path ends when the work outgrows it | behavioral | run → clean-room read of `session.yaml` |
 | SC-10 | A directed deck edit with an open choice gets one question | behavioral | run → clean-room read of `session.yaml` |
 | SC-11 | Scenario set aligned | structural | read `tests-v2/behaviors/` |
-| SC-12 | The cap-hit resume is anchored on the recorded tail; the per-turn cap's default is unchanged and the probe's deliberate override is untouched | structural | read `tests-v2/behaviors/helpers.sh` and `tests-v2/docker/docker-harness.sh` |
+| SC-12 | The cap-hit resume is anchored on the recorded tail; the determination gate scans the artifact directory where the record is written; the per-turn cap's default is unchanged and the probe's deliberate override is untouched | structural | read `tests-v2/behaviors/helpers.sh`, `tests-v2/docker/docker-harness.sh`, `tests-v2/with-test-home`, `tests-v2/AGENTS.md` §10.7 and §14, and `skills/behavioral-testing/SKILL.md` rule 9 |
 
 ## Out of scope
 
