@@ -50,3 +50,46 @@ runs:
   loop_state: 'In-place revision is stopped. The round-9 finding (the requirement and the criteria disagreeing
     about which verdict contracts carry the bar) is evidence for the grounds, left unfixed in place on
     purpose: the recompose outcome supersedes further piecemeal revision.'
+- run: 3
+  date: '2026-10-24'
+  trigger: 'The count trigger fired again within the recomposed artifact: six revisions to address findings
+    after the single-sourcing recomposition (revisions 11 through 16).'
+  rounds_at_run: 6
+  findings_at_run: 10
+  outcome: sound
+  finding: 'Single-sourcing holds: the rules (R-1 through R-8) have been stable since the recomposition;
+    every finding after it was evidence-section drift - history facts such as dispatch splits, commit
+    timing, and the 2658 duplicate-subject enumeration - and the last of these is groundless and refuted
+    below. The artifact''s shape no longer produces the defect class it was recomposed for.'
+  false_finding_disposition:
+    evidence: '`git -C .opencode/.issues log --format=%s -- 2658/spec.md | grep ''validation round'' |
+      sort | uniq -c`: round 3 x2, round 2 x2, rounds 1, 4, 5, 6, 7, 8, 9, 10 x1 each; total non-automated
+      commits 15. The spec''s statement matches the store''s history verbatim.'
+    round_ledger:
+    - dispatch: 1
+      findings: 2
+      subject: SC-1 attributed R-5's citation clause to R-1; SC-5 checked a verify section 3 PASS bar
+        no requirement ordered.
+    - dispatch: 2
+      findings: 3
+      subject: the citation-rule attribution kept in SC-1's criterion text; the churn clauses orphaned
+        in SC-1 and SC-6; the verify section 4 state-decidability paragraph preserved by nothing.
+    - dispatch: 3
+      findings: 1
+      subject: a self-contradictory timing claim about the sibling loop's concurrent rewrite.
+    - dispatch: 4
+      findings: 1
+      subject: the remediation claim's scope contradiction with the record's own disposition.
+    - dispatch: 5
+      findings: 1
+      subject: Field 3's carrier map disagreeing with the scope table, the requirements, and the criteria
+        about where the bar lives.
+    - dispatch: 6
+      findings: 1
+      subject: a claimed mis-statement of the 2658 duplicate-commit enumeration - refuted, see the disposition.
+    verdict: refuted - the artifact's measured-history statement is correct as written; the finding is
+      the reviewer's factual error, not an artifact defect, and stays recorded here rather than becoming
+      an edit
+  loop_state: 'Converging, not spinning: the deliverable''s rules have not changed since the recomposition,
+    and the findings are single-finding evidence-section flickers, one of them groundless. In-place revision
+    of the rules is over; the audit record is the loop''s history.'
