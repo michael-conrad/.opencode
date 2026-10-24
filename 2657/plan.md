@@ -22,6 +22,8 @@ parent change per the parent `AGENTS.md`.
 | `skills/git-workflow-cleanup/SKILL.md` | work-state artifacts named | SC-4 |
 | `tests-v2/behaviors/helpers.sh` | the cap-hit resume composes its message from the run's recorded tail | SC-12 |
 | `tests-v2/docker/docker-harness.sh` | the Docker resume launcher's own default is tail-derived, not anchorless | SC-12 |
+| `tests-v2/with-test-home` | the determination gate scans the run's artifact directory, where the record is written | SC-12 |
+| `tests-v2/AGENTS.md` §10.7 and §14, `skills/behavioral-testing/SKILL.md` rule 9 | the surfaces that state the gate's behaviour | SC-12 |
 | `tests-v2/behaviors/2584-sc5-short-path-single-file.sh` | retired (deleted) | SC-11 |
 | `tests-v2/behaviors/2584-sc4-directed-card-edit-no-archaeology.sh` | header states the second criterion | SC-11 |
 | `tests-v2/behaviors/2657-sc1..sc5-*.sh` | five new scenarios | SC-6..SC-10, SC-11 |
@@ -191,7 +193,10 @@ spec card owns it.
     predicate of its own.
   - **Rule 1 — path selection** (amended). Two inputs in order: a stated
     stage request decides the path outright; otherwise the change's need
-    decides it by the criteria. The **criteria set** is stated once, in rule
+    decides it by the criteria. The criteria are assessed before
+    implementation begins, on the developer's request and the agent's own
+    understanding of the change it describes; what the work turns out to need
+    is the short path's end, below. The **criteria set** is stated once, in rule
     1's body, as a numbered list of six: the request names no stage; the
     change touches one file; the request leaves no material choice open about
     what to build and the agent supplies no product decision the developer
@@ -474,7 +479,16 @@ spec card owns it.
   passes it to both the Docker and the host resume path.
   `tests-v2/docker/docker-harness.sh`'s `__docker_launch_resume` default
   becomes the same tail-derived message, so a caller that passes none does
-  not reintroduce the anchorless form. The per-turn output cap's default
+  not reintroduce the anchorless form. The determination gate in
+  `tests-v2/with-test-home` finds the record the harness writes: its scan
+  roots include the run's artifact directory, which the launcher names in
+  `BEHAVIOR_DETERMINATION_SCAN_DIR` — the Docker tier's `TMP_DIR` is the
+  staging root and does not contain it, so the gate never saw the record and
+  refused every cap-hit resume with "determination.yaml not found in any
+  scenario evidence dir". The three surfaces that state the gate's behaviour
+  — `tests-v2/AGENTS.md` §10.7 and §14 and
+  `skills/behavioral-testing/SKILL.md` rule 9 — are updated with it. The
+  per-turn output cap's default
   stays 4,000 on every surface that sets it, and
   `2646-sc-cap-resume-probe.sh` keeps its deliberate 150 override.
 - RED: `grep -n "Continue the task from where you left off" tests-v2/behaviors/helpers.sh tests-v2/docker/docker-harness.sh`
@@ -498,10 +512,15 @@ spec card owns it.
 - GREEN: add the tail-message composer and wire it into both resume paths.
 - Verify: `grep -n "Continue the task from where you left off"` over both
   files returns only comments; the composer runs against a real session
-  database and returns a message naming the recorded next action;
+  database and returns a message naming the recorded next action; the gate's
+  scan of the run's artifact directory finds the determination record and
+  matches it to the run's home — replayed against the preserved
+  `tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-256k-gguf4-1/`
+  run, whose record carries a valid decision the gate accepts;
   `grep -c "OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=.*4000"` over the cap
   surfaces is unchanged, and the probe scenario still carries its own
-  override.
+  override; the three documentation surfaces state the gate's scan coverage
+  and the decision it accepts.
 - Dependency: none.
 
 ## Rollback
