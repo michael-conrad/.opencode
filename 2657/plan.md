@@ -299,7 +299,7 @@ spec card owns it.
 - GREEN: rewrite the card per the structure above.
 - Verify: read the card back, clause by clause — the six criteria appear
   once, in rule 1's body; the frontmatter description, rule 1's paragraph,
-  and rule 1's bullet list each refer to them; the R-5 and R-6 clauses ride
+  and rule 1's bullet list each refer to them; the R-5 and R-7 clauses ride
   in rule 1; the new rule 2 and rule 4 are present; rule 6's
   missing-artifact clause is qualified; both uncertainty rules are
   qualified; `grep -rn "a developer's direct request is the spec" skills/ guidelines/ floor.md`
@@ -457,7 +457,7 @@ spec card owns it.
   the second (`…-gguf4-1`), and the quoted announcement is in the third
   (`…-gguf4-2`), which has no evaluation of its own.
 - GREEN: run the same scenario unpinned. The clean-room evaluation shows the
-  scope statement precedes the edit and carries R-4's contents; the run
+  scope statement precedes the edit and carries R-3's contents; the run
   contains no spec document, no plan document, no spec-validation or
   plan-validation dispatch, no halt for direction, no evidence hunt, no
   archaeology, and no card load the request had already satisfied; and the
