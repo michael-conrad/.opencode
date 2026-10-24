@@ -241,7 +241,7 @@ spec card owns it.
     a developer-directed edit to the deck whose content leaves a material
     open choice is a question in the deck-governance card, not the full
     path. The same rule carries the two clauses that ride with the
-    criteria: the **short path ends when the work outgrows it** (R-4), and
+    criteria: the **short path ends when the work outgrows it** (R-5), and
     **no ceremony, and no waived stage** (R-7). Rule 1's paragraph and its
     bullet list each refer to the criteria set rather than stating a
     predicate of their own, so the card's three forms cannot disagree.
