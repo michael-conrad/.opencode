@@ -79,16 +79,19 @@ deck change under test.
    loads — rather than artifacts it never writes. A spec-card revision,
    validated afresh, not an implementor-side change to an approved criterion.
 
-2. **The fixture's repository state trips the branch card's rebase rule.**
-   The harness's own `behavior_run` commits `init` onto the test project's
-   `main`, and the per-scenario fixture commits the seed content on top, so
-   `main` sits ahead of `origin/main`. The branch card's rule 2 says to
-   "sync and rebase if the trunk moved", and a rebase onto the remote tip
-   would discard the fixture's seed content. The agent resolves that conflict
-   by reasoning about it for ten-plus minutes — in the first 2657-sc3 RED,
-   `git merge-base main origin/main; git log --oneline -8 main` was its last
-   action for seven consecutive polls. This is R-18's "fixture state" cause
-   class.
+2. **The fixture's repository state makes the branch card's trunk-tip
+   verification ambiguous.** The harness's own `behavior_run` commits `init`
+   onto the test project's `main`, and the per-scenario fixture commits the
+   seed content on top, so `main` sits ahead of `origin/main`. The branch
+   card's rule 2 says to verify the trunk tip before branching and to state
+   it in the work record, and with the local branch ahead of the remote tip
+   the agent cannot tell at a glance which tip the branch is cut from. The
+   agent resolves it by reasoning: in the first 2657-sc3 RED, `git
+   merge-base main origin/main; git log --oneline -8 main` was its last
+   action for seven consecutive polls, with no edit. (A rebase does not
+   discard the commits ahead of the remote tip — it replays them — so the
+   cost here is the verification, not a conflict.) This is R-18's "fixture
+   state" cause class.
    *Fix applied:* the fixture now moves `main` back to the remote tip and
    leaves the seed content staged, so the content is present and the
    divergence is not. Verified: `main` and `origin/main` are the same commit
