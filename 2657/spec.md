@@ -579,12 +579,19 @@ contains that word, so a pattern on it is satisfied before the run starts.
   fixture leaves the test project's `main` equal to its remote tip, and each
   scenario the change touches — the five new ones and `2584-sc4` — declares
   `BEHAVIOR_GOAL_ACTIONS`; the extended `2584-sc4` header names the criterion
-  that judges its second criterion; the four whose criterion's artifact has a known
+  that judges its second criterion; each fixture that needs the store
+  bootstraps it so that the store is the shape the local-issues tool
+  recognises — a linked worktree of the `issues-data` branch, its `.git` a
+  file — with the injected fixture issues inside it; the four whose criterion's artifact has a known
   path — SC-6, SC-8, SC-9, and `2584-sc4` — declare
   `BEHAVIOR_EXPECTED_ARTIFACT` and `BEHAVIOR_EXPECTED_ARTIFACT_GREP`, and
   SC-7's and SC-10's declare both empty; each declared content pattern is
   absent from its target before the run and is a pattern the harness's
-  content check can match.
+  content check can match. The store check is executable: drive the fixture's
+  store bootstrap against a project prepared the way the harness prepares it —
+  the fixture issues staged — and read the result: `.issues/.git` is a file,
+  the injected issues are inside the store, and the legacy `open/` and
+  `closed/` directories are gone.
 
 ### SC-12 (behavioral) — the directed card edit completes without the full path's machinery
 
