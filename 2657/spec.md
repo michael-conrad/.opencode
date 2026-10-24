@@ -146,6 +146,13 @@ bespoke recovery path; the generic path every scenario takes still sends the
 anchorless form. R-13 makes the resume carry the recorded tail, so the
 resumed turn continues the recorded work instead of restarting it.
 
+The determination gate that guards a resume is the third measurement
+defect: it refuses a resume unless a determination record exists, and that
+record is written when the attempt ends — after the resume it would have
+permitted. Every cap-hit resume was therefore blocked before any inference
+was dispatched, and the run exhausted the cap-resume ceiling with its
+artifact never produced.
+
 Two further defects at the scenario layer keep a run from being judged or
 from recovering: a scenario that declares no goal condition leaves the
 monitor's classifier with no direction anchor, so it returns "undetermined"
@@ -368,7 +375,12 @@ of doing the task. R-9 and SC-11 carry both.
   cap's default is unchanged, and the probe scenario that lowers the cap
   deliberately is untouched: the observed degenerate-turn band is where these
   turns sit, so raising the cap would re-open the failure the cap exists to
-  prevent.
+  prevent. The determination gate that guards a resume permits the cap-hit
+  resume: the run's own session record shows the last assistant turn ended
+  with `finish: "length"`, which is the condition the cap-resume path exists
+  to continue, and the determination record for that attempt cannot exist yet
+  — it is written when the attempt ends, which is after the resume it would
+  have permitted. The cap-resume ceiling bounds that cycle.
 
 ## Impact
 
@@ -428,7 +440,8 @@ self-certified, and R-5 re-examines it when the work outgrows it.
 `skill-creator`, `verify`, `git-workflow-pr`, `git-workflow-branch`, and
 `git-workflow-cleanup` cards; `tests-v2/behaviors/`; the cap-hit resume
 path in `tests-v2/behaviors/helpers.sh` together with the Docker resume
-launcher in `tests-v2/docker/docker-harness.sh`. The amendments to
+launcher in `tests-v2/docker/docker-harness.sh` and the determination gate
+in `tests-v2/with-test-home`. The amendments to
 `verify`, `git-workflow-pr`, `git-workflow-branch`, and `git-workflow-cleanup`
 are clause-level clarifications that name the artifact the card already
 requires and, for the verify card, the verdict unit and owning card the
@@ -654,16 +667,18 @@ default is unchanged at 4,000 on every surface that sets it, and the
 deliberate probe override in `2646-sc-cap-resume-probe.sh` — which lowers the
 cap so the probe hits it deterministically — is untouched.
 
-- **Verify:** read `tests-v2/behaviors/helpers.sh` and
-  `tests-v2/docker/docker-harness.sh`; the cap-hit resume path calls the
-  tail-message composer and passes its message to both the Docker and the host
-  resume path, and the Docker resume launcher's own default is tail-derived
-  rather than anchorless, so a caller that passes no message does not
-  reintroduce the anchorless form; the anchorless message appears in
-  executable code in neither file; every surface that sets
-  `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` with the default still carries the
-  4,000 literal, and `2646-sc-cap-resume-probe.sh` still carries its own
-  deliberate override.
+- **Verify:** read `tests-v2/behaviors/helpers.sh`,
+  `tests-v2/docker/docker-harness.sh`, and `tests-v2/with-test-home`; the
+  cap-hit resume path calls the tail-message composer and passes its message
+  to both the Docker and the host resume path, and the Docker resume
+  launcher's own default is tail-derived rather than anchorless, so a caller
+  that passes no message does not reintroduce the anchorless form; the
+  anchorless message appears in executable code in neither file; the
+  determination gate permits the resume when the run's own session record
+  shows the last assistant turn ended with `finish: "length"`; every surface
+  that sets `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` with the default still
+  carries the 4,000 literal, and `2646-sc-cap-resume-probe.sh` still carries
+  its own deliberate override.
 
 ## Success-criteria table
 
