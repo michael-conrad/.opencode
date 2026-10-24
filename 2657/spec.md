@@ -121,7 +121,10 @@ The behavioral criteria below are judged from runs, and a run that cannot
 survive its first turn produces no artifact to judge. That capability — the
 harness's cap-hit resume and the determination gate that guards it — is
 `.opencode#2663`'s subject, and this spec states the dependency rather than
-carrying the harness's internals. A criterion here is not judged from a run
+carrying the harness's internals. The two changes travel separately: the
+harness repair is one change of its own, stacked beneath this one, so this
+change reaches no harness file and the behavioral criteria are judged on the
+stacked tree that carries both. A criterion here is not judged from a run
 the harness could not complete; the capability is repaired where it belongs,
 and this spec's own change does not reach the harness.
 
@@ -178,9 +181,13 @@ and this spec's own change does not reach the harness.
   carries the deck-governance card's admission gate in addition, which is
   where the deck's content standards are judged. One case is excepted from
   the criteria: a developer-directed edit to the agent deck whose content
-  leaves a material open choice takes neither path — the agent asks one
-  open-ended question about that choice in the deck-governance card (R-6),
-  and the scope statement follows the developer's answer. The work card's two
+  leaves a material open choice takes the short path rather than the full
+  path — the agent asks one open-ended question about that choice in the
+  deck-governance card (R-6), and the scope statement follows the
+  developer's answer. That question is the deck-governance card's stage
+  output; the scope statement the developer's answer produces is the short
+  path's spec artifact (R-4), and the verify and PR-readiness gates read it
+  as they read any short path's. The work card's two
   uncertainty rules — its frontmatter's and its closing line's — apply to a
   request that does not say what to build at all, where the agent halts with
   one open-ended clarification request; a request that says what to build but
@@ -349,8 +356,9 @@ content, and no section is added. No change reaches `guidelines/`, `agents/`,
 `prompts/`, `opencode.jsonc`, the `tests-v2` harness's isolation contract, its
 default model, its change-control rules, or its per-turn output cap, and
 nothing reaches the retired `attic/` deck. The harness's cap-hit resume and
-the determination gate that guards it are `.opencode#2663`'s subject; this
-spec's change does not reach them.
+the determination gate that guards it are `.opencode#2663`'s subject and
+travel in that change, stacked beneath this one; this change reaches no
+harness file.
 
 ## Success criteria
 
@@ -598,8 +606,9 @@ declare as the goal the very edit the criterion forbids.
   Path selection is intent-decidable; judgment decides, mechanisms verify
   facts only.
 - The harness's cap-hit resume, the determination gate that guards it, and
-  the documentation of that path — `.opencode#2663`'s subject, on which this
-  spec's behavioral criteria depend.
+  the documentation of that path — `.opencode#2663`'s subject, which travels
+  in its own change stacked beneath this one and on which this spec's
+  behavioral criteria depend.
 - The retired `attic/` deck; the `tests-v2` harness's isolation contract, its
   default model, its change-control rules, and its per-turn output cap;
   `guidelines/`, `agents/`, `prompts/`, and `opencode.jsonc`.
