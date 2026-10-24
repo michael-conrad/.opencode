@@ -1,11 +1,18 @@
 # Plan — .opencode#2657: path selection, a stated stage request, and the short path's record
 
 Spec: `.opencode/.issues/2657/spec.md` (fresh-context validation PASS, zero
-findings). Branch: `feature/2657-path-selection-short-path`, base
-`a1fb61c6` (`.opencode` trunk tip, verified against `origin/main` at plan
-time). Repository: `michael-conrad/.opencode` (the `.opencode` submodule).
-The PR is a submodule PR; the parent repo's pointer rides with the next real
-parent change per the parent `AGENTS.md`.
+findings). Branch: `feature/2657-path-selection-short-path`, based on
+`feature/2663-harness-cap-hit-resume` (the `.opencode#2663` change, stacked
+beneath this one), whose base is `a1fb61c6` — the `.opencode` trunk tip,
+verified against `origin/main` at plan time. Repository:
+`michael-conrad/.opencode` (the `.opencode` submodule). The PR is a submodule
+PR; the parent repo's pointer rides with the next real parent change per the
+parent `AGENTS.md`.
+
+The harness change this spec's behavioral criteria depend on is specified by
+`.opencode#2663` and travels in its own change, stacked beneath this one. This
+plan touches no harness file; the behavioral items run against the stacked
+tree, which carries both changes.
 
 ## Surfaces touched
 
@@ -20,19 +27,14 @@ parent change per the parent `AGENTS.md`.
 | `skills/git-workflow-pr/SKILL.md` | three gates + Provenance read the scope statement | SC-5 |
 | `skills/git-workflow-branch/SKILL.md` | provenance written to the work record | SC-4 |
 | `skills/git-workflow-cleanup/SKILL.md` | work-state artifacts named | SC-4 |
-| `tests-v2/behaviors/helpers.sh` | the cap-hit resume composes its message from the run's recorded tail | SC-12 |
-| `tests-v2/docker/docker-harness.sh` | the Docker resume launcher's own default is tail-derived, not anchorless | SC-12 |
-| `tests-v2/with-test-home` | the determination gate scans the run's artifact directory, where the record is written | SC-12 |
-| `tests-v2/AGENTS.md` §10.7 and §14, `skills/behavioral-testing/SKILL.md` rule 9 | the surfaces that state the gate's behaviour | SC-12 |
 | `tests-v2/behaviors/2584-sc5-short-path-single-file.sh` | retired (deleted) | SC-11 |
 | `tests-v2/behaviors/2584-sc4-directed-card-edit-no-archaeology.sh` | header states the second criterion | SC-11 |
 | `tests-v2/behaviors/2657-sc1..sc5-*.sh` | five new scenarios | SC-6..SC-10, SC-11 |
 | `tests-v2/behaviors/fixtures/setup/2657-sc1..sc5-*.sh` | five new setup fixtures | SC-11 |
 
-`The two harness files are inside the spec's enumerated blast radius (R-13,
-SC-12). They change no isolation rule, no default model, and no per-turn
-output cap: the cap's default stays 4,000 on every surface that sets it, and
-the probe scenario that lowers it deliberately is untouched.
+No harness file is in this change: the cap-hit resume, the determination
+gate, and the surfaces that state them belong to `.opencode#2663`'s change,
+stacked beneath this one.
 
 ## The work record's path
 
@@ -52,11 +54,8 @@ by the cleanup card at merge.
 ## Ordering
 
 1. **Item 1** — the scenario set (SC-11).
-2. **Item 12** — the harness repair (SC-12), committed and pushed: the
-   behavioral runs below depend on it, because a run that hits the per-turn
-   output cap can only finish if the resume carries the recorded tail.
-3. **Items 2–6** — the card changes (SC-1..SC-5), committed and pushed.
-4. **Items 7–11** — the behavioral criteria (SC-6..SC-10), each as a
+2. **Items 2–6** — the card changes (SC-1..SC-5), committed and pushed.
+3. **Items 7–12** — the behavioral criteria (SC-6..SC-10, SC-12), each as a
    per-item cycle: RED then GREEN.
 
 The behavioral items' RED runs are executed **pinned to the pre-change deck
@@ -66,8 +65,8 @@ against the remote by the harness and is never bypassed. Each behavioral
 item's GREEN runs unpinned, against the branch tip that carries the card
 changes. This is why the order is acyclic: items 2, 3 and 4 depend on
 nothing; items 5 and 6 depend on item 3, because the cards they amend point
-at what item 3 defines; item 12 depends on nothing; items 7–11 depend on
-items 1–6 and 12.
+at what item 3 defines; items 7–12 depend on items 1–6 and on the stacked
+harness change being complete.
 
 The harness's ordered precondition cycle (commit → push → fetch/verify → run,
 `tests-v2/AGENTS.md` §4) applies to every run below. A behavioral run
@@ -110,7 +109,22 @@ spec card owns it.
   capped run cannot be judged or recover. SC-10's scenario declares goal
   actions alone and names no artifact, because its criterion turns on a
   question in the transcript and naming the edited card would declare as the
-  goal the very edit the criterion forbids. Each fixture **settles the
+  goal the very edit the criterion forbids. Each declared content pattern is
+  **discriminating** — absent from its target before the run, so the anchor
+  is a condition the run can miss, and a pattern the harness's content check
+  can match, so it is one the run can meet: `2584-sc4`'s pattern is the rule
+  number its prompt names (`6.`), not the word that rule carries (`byline`),
+  which the target card already contains; `2657-sc4`'s is `json`, the flag the
+  request names, not `--json`, which the content check would read as an
+  option. The fixtures that need the store **bootstrap it in the shape the
+  local-issues tool recognises** — a linked worktree of the orphan
+  `issues-data` branch whose `.git` is a file, with the injected fixture
+  issues inside it and the legacy `open/` and `closed/` directories dropped.
+  The harness's fixture-issue injection has already created `.issues/` as a
+  staged plain directory, and a linked worktree cannot take over a path the
+  index still tracks, so the content is copied aside and untracked first; the
+  branch and the worktree are created with the same plumbing the tool uses.
+  Each fixture **settles the
   trunk**: the harness commits `init` onto the test project's `main` and the
   fixture commits the seed content on top, so `main` sits ahead of
   `origin/main`; the fixture moves `main` back to the remote tip and leaves
@@ -144,13 +158,19 @@ spec card owns it.
   tests-v2/behaviors/fixtures/setup/2657-sc*` → 5 files, each name equal to
   its scenario's `SCENARIO_NAME`; `test ! -e
   tests-v2/behaviors/2584-sc5-short-path-single-file.sh`; `grep` of
-  `2584-sc4`'s header shows both criteria; `grep -c "^# .opencode#2657 SC-"
+  `2584-sc4`'s header shows both criteria, and the second names the criterion
+  that judges it (SC-12); `grep -c "^# .opencode#2657 SC-"
   tests-v2/behaviors/2657-sc*.sh` → 1 per file, each naming that scenario's
   own criterion; each new script contains `behavior_run` and `exit 0` and no
   assertion helper; each of the six scenarios the change touches declares
   `BEHAVIOR_GOAL_ACTIONS`, and each declares
-  `BEHAVIOR_EXPECTED_ARTIFACT` except SC-10's; each fixture's trunk-settling
-  step is present.
+  `BEHAVIOR_EXPECTED_ARTIFACT` except SC-10's; each declared content pattern
+  is absent from its target before the run (`grep` over the target returns
+  no match); each fixture's trunk-settling step is present; and the store
+  bootstrap is executable — drive it against a project prepared the way the
+  harness prepares it (the fixture issues staged) and read the result:
+  `.issues/.git` is a file, the injected issues are inside the store, and the
+  legacy `open/` and `closed/` directories are gone.
 - Dependency: none.
 
 ## Item 2 — the floor carries the invariant and the stage-request rule (SC-1)
@@ -471,62 +491,40 @@ spec card owns it.
 - Verify: the two clean-room evaluation records.
 - Dependency: item 1, items 2–6.
 
-## Item 12 — the cap-hit resume carries the recorded tail (SC-12)
+## Item 12 — a directed card edit completes without the full path's machinery (SC-12)
 
-- Deliverable: `tests-v2/behaviors/helpers.sh` composes the cap-hit resume's
-  message from the run's own session database — the agent's last recorded
-  reasoning, and the recorded in-flight tool call when there is one — and
-  passes it to both the Docker and the host resume path.
-  `tests-v2/docker/docker-harness.sh`'s `__docker_launch_resume` default
-  becomes the same tail-derived message, so a caller that passes none does
-  not reintroduce the anchorless form. The determination gate in
-  `tests-v2/with-test-home` finds the record the harness writes: its scan
-  roots include the run's artifact directory, which the launcher names in
-  `BEHAVIOR_DETERMINATION_SCAN_DIR` — the Docker tier's `TMP_DIR` is the
-  staging root and does not contain it, so the gate never saw the record and
-  refused every cap-hit resume with "determination.yaml not found in any
-  scenario evidence dir". The three surfaces that state the gate's behaviour
-  — `tests-v2/AGENTS.md` §10.7 and §14 and
-  `skills/behavioral-testing/SKILL.md` rule 9 — are updated with it. The
-  per-turn output cap's default
-  stays 4,000 on every surface that sets it, and
-  `2646-sc-cap-resume-probe.sh` keeps its deliberate 150 override.
-- RED: `grep -n "Continue the task from where you left off" tests-v2/behaviors/helpers.sh tests-v2/docker/docker-harness.sh`
-  → the anchorless literal is the resume message in `helpers.sh`'s host path
-  and the default in `docker-harness.sh`; and the observed effect, which the
-  deck's own correction catalogue records on the `#2639` scenario's recovery
-  path — LL-3 in
-  `.opencode/.issues/lessons-learned/session-2026-10-20/README.md`: the
-  default message "gives the model no state anchor, so it reconstructs from
-  a ~65k-token context every turn" and issues "ZERO tool calls". In this
-  issue's own runs the three resume attempts were blocked before any
-  inference was dispatched — `stderr.log` in
-  `tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-256k-gguf4/`
-  carries three `FATAL: resume failed - no non-undetermined determination
-  exists` lines, and the exported `session.yaml` holds one session and one
-  capped assistant message (seq 160/161, `finish: "length"`, 4,000 output
-  tokens, a reasoning part, no tool call). Those runs show the second
-  failure — the gate that blocks the resume — and the catalogue records the
-  first; R-13 addresses the first, and item 1's goal condition addresses the
-  second.
-- GREEN: add the tail-message composer and wire it into both resume paths.
-- Verify: `grep -n "Continue the task from where you left off"` over both
-  files returns only comments; the composer runs against a real session
-  database and returns a message naming the recorded next action; the gate's
-  scan of the run's artifact directory finds the determination record and
-  matches it to the run's home — replayed against the preserved
-  `tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-256k-gguf4-1/`
-  run, whose record carries a valid decision the gate accepts;
-  `grep -c "OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=.*4000"` over the cap
-  surfaces is unchanged, and the probe scenario still carries its own
-  override; the three documentation surfaces state the gate's scan coverage
-  and the decision it accepts.
-- Dependency: none.
+- Deliverable: under the new deck, the run of `2584-sc4` performs the
+  directed card edit and produces no issue, no spec document, and no
+  validation dispatch — the evidence is the clean-room evaluation record for
+  the run, which names the criterion and the `session.yaml` events it read.
+- RED: the criterion is a preservation — the pre-change deck's short path was
+  the default for a developer-specified single-file edit, so the property
+  holds there and the RED has no failing assertion to record. The RED that
+  does exist is the scenario's own: the file did not exist before this change
+  (item 1's RED), and the scenario's second criterion had no clean-room
+  evaluation to judge it — which is what this item adds.
+- GREEN: run `2584-sc4-directed-card-edit-no-archaeology` against the branch
+  tip that carries the card changes. The clean-room evaluation shows the run
+  edited the card the request names, that it contains no issue filing, no
+  spec document, and no validation dispatch, and that it contains no
+  admission archaeology and no halt for direction — the anti-archaeology
+  criterion the scenario already carried, judged in the same evaluation.
+- Verify: the clean-room evaluation record, naming the criterion and the
+  `session.yaml` events it read.
+- Dependency: items 2–6 (the card changes the GREEN observes).
 
 ## Rollback
 
 Every change is a text edit to tracked files plus five new test files and
-one deletion; the branch is a single feature branch off a verified trunk tip,
-so `git reset --hard a1fb61c6` restores the pre-change state. No change
-touches a credential, a deployment surface, or a remote's contents. The
-harness's own artifacts live under `tmp/` and are disposable.
+one deletion; the branch is a single feature branch off the stacked harness
+branch, whose base is the verified trunk tip `a1fb61c6`, so
+`git reset --hard a1fb61c6` restores the pre-change state. No change touches
+a credential, a deployment surface, or a remote's contents. The harness's own
+artifacts live under `tmp/` and are disposable.
+
+The two changes are separate branches with one commit each, so each is
+reviewed on its own: `feature/2663-harness-cap-hit-resume` (the harness
+repair) and `feature/2657-path-selection-short-path` (this change, stacked on
+it). The pre-split history of this work is preserved in the local branch
+`backup/2657-monolithic`; the tree it holds is identical to the two branches'
+combined tree.
