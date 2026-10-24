@@ -1,117 +1,52 @@
 kind: re-evaluation
 artifact: .opencode/.issues/2660/spec.md
-date: '2026-10-24'
-trigger: >-
-  The spec's own count trigger (R-1, as amended on the developer's 2026-10-23/24
-  restatement): more than four revisions to address defects. Six revisions to
-  address defects have been taken - the count-trigger replacement in the prior
-  session, the count restoration, and the fixes for validation rounds 1, 2, 3,
-  and 4.
-
-factors:
-  repo_boundaries:
-    finding: clean
-    detail: >-
-      One repository (the deck, michael-conrad/.opencode) and one concern - the
-      validation loops' mechanics. The recomposition protocol the Recompose
-      outcome performs the split by is the sibling `.opencode#2661`'s subject and
-      is stated here as a precondition, not a second copy.
-  separation_of_concerns:
-    finding: the concerns are not separable
-    detail: >-
-      The spec carries the stop trigger, the finding/preference bar, and the
-      validation record. The bar makes the loop's per-round judgments comparable
-      across rounds and the record makes them evidence-based; without them the
-      trigger is a judgment with nothing to read, which is the defect the issue
-      names. Splitting the bar or the record from the trigger would break the
-      causal chain the spec's own causal-sufficiency paragraph asserts.
-  atomic_work_units:
-    finding: atomic
-    detail: >-
-      Eight requirements, each one rule; nine criteria, each one verifiable
-      property. The re-evaluation's factor set and the record's entry shape are
-      each stated once, in the canonical location, and the other two loop
-      locations point at them.
-  fatness:
-    finding: not fat
-    detail: >-
-      Four surfaces, eight requirements, nine criteria. The count-trigger
-      amendment added one rule and touched ten locations because the rule's text
-      had to agree with the scope table, the requirements, the criteria, and the
-      evidence - the same words describing the same object in four places, which
-      is a maintenance cost, not a size problem.
-  intent_wording_and_reachability:
-    finding: reachable
-    detail: >-
-      The intent - the validation loops gain a stop trigger that fires on the
-      measured shape, a class-determined finding bar, and an evidence base - is
-      stated plainly and reachable in four surfaces. The count trigger's
-      determinism is the part the developer's restatement asked for, and it
-      decides nothing: the examination's outcome stays the judgment.
-
-evidence:
-  rounds:
-    - round: 1
-      findings: 6
-      subject: >-
-        the instance's figures (a count that no record stated), the record's
-        inability to evidence the stability clause, the citation clause carried
-        by no criterion, the verify card's own recording rule unreconciled, the
-        recomposition protocol's missing referent, and a revision-history
-        pointer in the provenance.
-    - round: 2
-      findings: 3
-      subject: >-
-        the churn clause contradicting the unchanged analysis families, the
-        re-evaluation's grounds having no slot in the record's shape, and a
-        comparison source that does not hold the passages it compares.
-    - round: 3
-      findings: 4
-      subject: >-
-        the spec asserting in two places that a judgment cannot fire on the
-        measured shape while requiring that judgment to fire on it, the
-        instance's characterization contradicting its own record, the recorded
-        defect class having no fixed basis, and the count trigger's boundary
-        never exercised.
-    - round: 4
-      findings: 7
-      subject: >-
-        the 2657 commit count wrong against the store's history, SC-9's
-        assertion point contradicting R-1's threshold, the count's independent
-        mandate never exercised, the finding bucket not covering the criteria
-        sources' enumerated classes, the record's verdict field conflicting with
-        the verify card's "record it once", the verify card's reviewer bar
-        outside the affected surfaces, and the factor set unreachable from two of
-        the three loop locations.
-  totals:
-    dispatches: 4
-    findings: 20
-  observation: >-
-    Every finding was a cross-section desynchronization - the scope table, the
-    requirements, the criteria, and the evidence describing one object in
-    different terms, or a requirement reaching a surface the scope table did
-    not list. The spec's parts were never the fault; the fault was that the
-    spec asserts the same fact in four places and each revision moved one of
-    them.
-
-outcome: sound
-finding: >-
-  Sound on intent, boundaries, decomposition, and fatness - no recomposition.
-  The re-evaluation's actionable finding is the one the rounds keep repeating:
-  every surface the requirements reach is now named in the affected-surfaces
-  table - the verify card's churn rule and verdict contract alongside its FAIL
-  path, the canonical factor set in the plan's and the verify card's loop
-  locations - and the criteria assert the same shapes the requirements define,
-  so that the four descriptions of one object can no longer drift apart.
-recomposition:
-  performed: false
-  reason: >-
-    The spec's parts are not independent parts - the bar and the record are the
-    trigger's evidence base, and the recomposition protocol is the sibling
-    `.opencode#2661`'s subject, stated here as a precondition. There is nothing
-    to split.
-residual_risk: >-
-  The four descriptions of one object remain four descriptions; a future
-  revision must move all of them, and the re-evaluation's finding is the
-  reminder that the scope table, the requirements, the criteria, and the
-  evidence are one surface.
+runs:
+- run: 1
+  date: '2026-10-23'
+  trigger: 'the spec''s own count trigger (R-1 as amended): more than four revisions to address defects
+    — six revisions then taken.'
+  rounds_at_run: 4
+  findings_at_run: 20
+  outcome: sound
+  finding: Sound on intent, boundaries, decomposition, and fatness - no recomposition; the scope-alignment
+    finding carried.
+  falsified: Yes - five further revision rounds followed, every one finding a cross-section desync.
+- run: 2
+  date: '2026-10-24'
+  trigger: 'The prior run''s outcome falsified, and the count trigger''s threshold crossed again: ten
+    revisions to address defects, nine validation rounds, 28 findings.'
+  rounds_at_run: 9
+  findings_at_run: 28
+  outcome: recompose
+  grounds:
+  - Shape, not content, is the defect. Each operative fact of this artifact is stated more than once -
+    the scope table, the requirements, the criteria, the evidence, and the traceability line each describe
+    the loop's surfaces, bar, record, and trigger in their own words - and nine validation rounds in a
+    row found one description out of step with the others. Round 7 found the verify card's bar committed
+    in the scope table and carried by no requirement; round 8 found three such elements; round 9 found
+    the same class again. Each round's fix moved one description; the shape stayed.
+  - The artifact reproduces its own defect class under careful editing. In revision 8, the R-6 extension
+    to the verify card's verdict contract was applied and then lost when the edit pass died between two
+    steps; the follow-up edit moved the criteria and SC-5's instrument without re-checking the requirement,
+    and the next round found precisely that drift - a requirement and its criterion saying different things
+    about the same rule. A shape that produces the shape-defect while being edited by a careful agent
+    is the recomposition case the rule exists for.
+  - 'What it is NOT: the intent is worded clearly and is reachable; the repo boundaries are clean (one
+    repository, one concern - the validation loops'' mechanics); the requirements are individually atomic;
+    and the count trigger the developer''s restatement asked for is carried correctly and decides nothing,
+    exactly as restated.'
+  recommendation: 'The recomposition direction is structural, not a split into sibling specs: re-compose
+    the artifact so each operative fact is stated once in the section that owns it - surfaces in the scope
+    table, rules in the requirements, verification instruments in the criteria, measured history in the
+    evidence - and every other mention points at its owner. The artifact''s intent (one loop family''s
+    stop trigger, bar, and record) is one concern; splitting it into interdependent sibling specs would
+    move the four-descriptions defect into the issue graph, where renumbering and linking make drift harder
+    to see. The alternative, should the developer prefer it: the count trigger (the rule this session
+    restated four times) moves to its own spec with the loop mechanics as umbrella.'
+  authorization: No implementation or PR authorization exists - the artifact is at the spec stage, so
+    the recomposition voids nothing to void. The recomposition protocol (the sibling .opencode#2661) is
+    specified but unimplemented, so per this spec's own R-3 precondition the Recompose outcome records
+    its grounds and escalates to the developer; this record is that escalation.
+  loop_state: 'In-place revision is stopped. The round-9 finding (the requirement and the criteria disagreeing
+    about which verdict contracts carry the bar) is evidence for the grounds, left unfixed in place on
+    purpose: the recompose outcome supersedes further piecemeal revision.'
