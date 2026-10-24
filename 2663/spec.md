@@ -16,7 +16,11 @@ non-undetermined determination exists … determination.yaml not found in any
 scenario evidence dir … no inference dispatched`, whose `determination.yaml`
 carries `classification: undetermined` with a recorded
 `terminate-with-root-cause` decision carrying a root cause, and whose
-`monitor.log` ends `MONITOR-HALTED polls=4`.
+`monitor.log` ends `MONITOR-HALTED polls=4`; and the goal-condition check's
+option-parsing defect — a declared content pattern that begins with `-` is
+read as a grep option (grep exits 2), the run's artifact status is pinned to
+`partial` for the whole run, and the goal condition's completion signal can
+never fire (observed 2026-10-24).
 
 ## Problem
 
@@ -72,8 +76,9 @@ the harness reads that as "the artifact does not carry the pattern", and the
 run's artifact status is pinned to `partial` for its whole life. The
 mechanical completion signal — the artifact present and the goal actions hit —
 can then never fire, and the classifier is handed a goal condition whose
-completion is unreachable. The pattern the SC-9 scenario declares, `--json`,
-is such a pattern.
+completion is unreachable. The harness's contract calls the declared value a
+pattern, and a pattern the check cannot match is a condition the run can never
+meet.
 
 ## Root causes
 
@@ -169,7 +174,7 @@ is such a pattern.
 
 **Consumers.** Every behavioral scenario in `tests-v2/behaviors/` that runs in
 the Docker tier, and every behavioral criterion judged from such a run —
-including the five behavioral criteria of `.opencode#2657`, whose runs depend
+including the six behavioral criteria of `.opencode#2657`, whose runs depend
 on this capability to produce an artifact at all. That work states this
 capability as a dependency rather than absorbing it.
 
@@ -326,7 +331,7 @@ default still carries the 4,000 literal, and
 ## Out of scope
 
 - The per-turn output cap's default and the probe scenario's deliberate
-  override (R-5 preserves them).
+  override (R-6 preserves them).
 - The harness's isolation contract, its default model, and its
   change-control rules.
 - The monitor's classification quality, the undetermined-cycle ceiling and
