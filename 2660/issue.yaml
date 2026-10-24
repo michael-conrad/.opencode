@@ -8,166 +8,179 @@ body: '## Problem
 
 
   The deck''s validation loops — the spec card''s and plan card''s validation cycles
-  and the `verify` card''s review loop — carry a spin judgment keyed on **repetition**
-  ("findings recurring or reshuffling without genuine resolution"), so a loop whose
-  findings are genuinely new each round never triggers it, however many rounds run.
-  A judgment that asks whether the loop is converging cannot see that shape either,
-  when every round is an individually genuine repair: the developer''s 2026-10-23/24
-  restatement names it outright — *"if a spec or plan needs more than 4 revisions
-  to address defects, it needs to be re-evaluated"* — and the count of revisions is
-  the observation that sees it. The count is carried as a mandate to examine, never
-  as a verdict. The measured instance is `.opencode#2658`: ten validation rounds whose
-  remediation subjects name citation counts, exhibit-marker table cells, duplicated
-  paragraphs, interval notation, and claim rescope — ending in a recomposition the
-  developer''s intervention reached and the loop''s own judgment never did, which
-  resolved the remaining findings at once.
+  and the `verify` card''s review loop — stop on one trigger only: recurrence, the
+  spin judgment, *"findings recurring or reshuffling without genuine resolution."*
+  A loop whose findings are genuinely new each round never triggers it, however many
+  rounds run. Three further defects leave the loop''s other failure shapes unbound:
 
 
-  Two further defects compound it. The finding/preference boundary is adjudicated
-  round by round by effect size: in `.opencode#2582`, the same defect class — a stale
-  line-range citation — was finding F2 in round 1 and a disclosed **non-finding**
-  in round 5, inside a clean PASS — against a bar that had abolished the disclosure
-  path in `.opencode` commit `b7ace773` (2026-10-10, "non-finding-note path abolished").
-  The developer''s ruling on the bar: *"minor defects compound into serious flaws"*
-  — no noted-but-unfixed bucket. And nothing makes rounds comparable after the fact:
-  `.opencode#2658` and `.opencode#2657` have no audit verdict records — their rounds
-  survive only as git commit subjects — so the loop''s per-cycle judgment has no evidence
-  base beyond the running agent''s session memory. A residue completes the picture:
-  the `implement` card''s implementation-workflow verify-pass row still describes
-  the review step as bounded to one review — the bound `.opencode#2606` retired from
-  the loop''s other surfaces.
+  - The finding/preference boundary''s determinant is unstated, so each round adjudicated
+  "affecting correctness" by effect size: `.opencode#2582`''s round 1 called the same
+  stale-line-number-citation class a finding, round 5 disclosed it as a non-finding
+  inside a clean PASS — against a bar whose disclosure path had been abolished three
+  days earlier (`.opencode` commit `b7ace773`, 2026-10-10). The developer''s ruling:
+  *"minor defects compound into serious flaws"* — no noted-but-unfixed bucket.
+
+  - No record makes rounds comparable after the fact: `.opencode#2658` and `#2657`
+  hold no audit verdict records — the rounds survive only as commit subjects.
+
+  - `#2606`''s retirement of the one-review bound left one surface unamended: `implementation-workflow.md`''s
+  verify-pass row still carries *"one bounded review."*
+
+
+  The developer''s restated trigger, 2026-10-23 (stated four times this session):
+  *"if a spec or plan needs more than 4 revisions to address defects, it needs to
+  be re-evaluated for proper decomposition and recomposition taking into account things
+  like repo boundaries, separation of concerns, atomic work unit decomposition and
+  recomposition needing re-evaluation, or the spec being too fat and needing to split
+  up into multiple inter-dependent specs among other possible issues… it may also
+  be an indicator that the spec''s intent is poorly worded or not reachable."*
 
 
   ## Scope
 
 
-  Four surfaces in the `.opencode` submodule:
+  Four surfaces in the `.opencode` submodule — the rules'' content lives with their
+  R-numbers, never in this table:
 
 
-  - `skills/spec/references/validation-standards.md` §Verdict contract + §Loop — the
-  class-determined finding bar; the non-convergence judgment, re-evaluation, and outcomes;
-  the canonical validation-record mechanics.
+  - `skills/spec/references/validation-standards.md` §Verdict contract, §Loop — R-1,
+  R-2, R-3, R-4, R-5, R-6: the canonical statement.
 
-  - `skills/plan/references/plan-validation-standards.md` §Verdict contract + §Loop
-  — the same in plan voice, including the missing observation-is-a-finding line; the
-  canonical factor set carried or pointed to.
+  - `skills/plan/references/plan-validation-standards.md` §Verdict contract, §Loop
+  — the plan instance, carrying or pointing at the canonical factor set.
 
-  - `skills/verify/SKILL.md` §2, §3, and §4 — the same judgment, outcomes, and recording
-  in the review loop''s dispatch voice; the canonical factor set carried or pointed
-  to; §3''s verdict contract carrying the same finding/preference boundary and determinant
-  as the criteria sources'' and the same zero-finding bar; §2''s churn rule reading
-  its "correctness" prong as the artifact''s factual accuracy and the completeness
-  of its impact enumeration, with its wording unchanged; and §3''s recording rule
-  reconciled against the per-issue validation record.
+  - `skills/verify/SKILL.md` §2, §3, §4 — the review instance: the record pointer,
+  the §3 verdict contract (the bar, the zero-finding PASS bar, the recording rule
+  reconciled with the record), the churn rule''s prong definition, the canonical factor
+  set.
 
-  - `skills/implement/references/implementation-workflow.md` verify-pass row — the
-  purpose gloss aligned with the `verify` card''s review loop.
+  - `skills/implement/references/implementation-workflow.md` verify-pass row — R-8.
+
+
+  Untouched: the criteria sets'' defect classes and analysis families; the `verify`
+  card''s frontmatter description; the recomposition protocol''s mechanics (the sibling
+  `.opencode#2661`); the `skill-creator` admission gate and every other deck-governance
+  rule; the `#2658`/`#2659` instances; retrospective record construction; `floor.md`
+  (the skill-creator card''s always-loaded-surface discipline governs it).
 
 
   ## Approach
 
 
+  Four rules enter the three loop homes plus one stale gloss retired:
+
+
+  1. **The stop trigger (R-1):** a non-convergence judgment beside the spin judgment,
+  and a fact-decidable count trigger — more than four revisions to address findings
+  — both opening the same structural re-evaluation; the count mandates the examination
+  and never decides its outcome.
+
+  2. **The factor set and outcomes (R-2, R-3):** the named minimum factors, exemplary
+  and open; three recorded outcomes — Sound, Recompose, Intent-unreachable — each
+  resuming or redirecting the loop.
+
+  3. **The finding bar (R-6):** class-determined in all three verdict contracts —
+  a defect the criteria source enumerates is a finding; a preference never is; no
+  third category; the determinant stable across rounds and checkable from the record.
+
+  4. **The validation record (R-4, R-5):** one appended file per issue at `.issues/{N}/audit/validation.yaml`,
+  carrying the round''s findings, the adjudicated classes with their classifications,
+  and a re-evaluation''s outcome and grounds — never a second copy of the verdict.
+
+
+  The stale gloss (R-8): the implementation-workflow verify-pass row stops stating
+  a bound of one review.
+
+
   Judgment stays judgment throughout — no script. The count is a mandate to examine,
-  never a verdict (the discipline that discarded counters as verdicts in `.opencode#2606`,
-  with the developer''s 2026-10-23/24 restatement carried alongside the judgment).
-  Four changes: (1) a **non-convergence judgment** beside the spin judgment — when
-  rounds are incrementally progressing, each remediating its findings yet producing
-  genuinely new ones with no obvious convergence, the revision step stops in-place
-  revision and runs a structural re-evaluation of the artifact — and, alongside it,
-  a **count trigger**: more than four revisions to address findings mandates the same
-  re-evaluation before any further in-place revision, the count deciding nothing and
-  the re-evaluation free to conclude the artifact stands; (2) named minimum re-evaluation
-  factors — repo boundaries, separation of concerns, atomic work-unit decomposition,
-  fatness and the recomposition it may call for, intent wording/reachability — with
-  three recorded outcomes: **Sound** (findings recorded; loop resumes unchanged),
-  **Recompose** (split per the recomposition protocol the `issues` card carries —
-  the sibling `.opencode#2661`), **Intent-unreachable** (intent rewritten; loop continues);
-  (3) the **factual-defect bar** — a factual defect is a finding however small its
-  effect, a preference is never a finding, no third category, classification class-determined
-  and stable across rounds; (4) a **validation record** — every completed validation
-  cycle appends one entry to the owning issue''s record at `.issues/{N}/audit/validation.yaml`
-  (YAML), one section per artifact (spec, plan, implementation), never inside the
-  artifact bodies; the record carries each adjudicated defect class with its classification,
-  which is what makes the stability requirement checkable, and the `verify` card''s
-  §3 recording rule is reconciled with it (the deliverable''s verdict is still recorded
-  once, in chat or the PR description).
+  never a verdict — the discipline that discarded counters as verdicts in `#2606`,
+  with the developer''s restatement carried alongside the judgment.
 
 
   ## Requirements
 
 
-  - **R-1** — Each of the three loop locations SHALL carry, alongside the spin judgment,
-  a non-convergence judgment: incrementally progressing rounds with no obvious convergence
-  stop in-place revision and open a structural re-evaluation. The trigger is a judgment
-  stated as such, never scripted. Alongside it, a count trigger: when the artifact
-  has needed more than four revisions to address findings, the loop SHALL run the
-  structural re-evaluation before any further in-place revision. The count mandates
-  the examination and never decides its outcome — the re-evaluation''s verdict is
-  the judgment, and a re-evaluation may conclude that the artifact stands (Sound).
+  - **R-1 — The stop trigger.** Each of the three loop locations SHALL carry, alongside
+  the spin judgment, a **non-convergence judgment**: when the loop''s rounds are incrementally
+  progressing — each cycle remediating its findings yet producing genuinely new ones,
+  with no obvious convergence — the agent running the loop SHALL stop in-place revision
+  and run a structural re-evaluation of the artifact before any further in-place revision.
+  The trigger is a judgment stated as such, never scripted. Alongside it, a **count
+  trigger**: when the artifact has needed more than four revisions to address findings,
+  the loop SHALL run the structural re-evaluation before any further in-place revision.
+  The count mandates the examination and never decides its outcome — the re-evaluation''s
+  verdict is the judgment, and a re-evaluation may conclude that the artifact stands.
 
-  - **R-2** — The structural re-evaluation SHALL examine, at minimum: repo boundaries,
-  separation of concerns, atomic work-unit decomposition, fatness, and intent wording/reachability.
-  The factors are the minimum — exemplary and open, never a closed checklist.
+  - **R-2 — The factor set.** The structural re-evaluation SHALL examine, at minimum:
+  **repo boundaries**; **separation of concerns**; **atomic work-unit decomposition**;
+  **fatness**; and **intent wording/reachability**. The factors are the minimum the
+  examination covers — exemplary and open, never a closed checklist — and the examination
+  and its verdict are judgment. The plan card''s validation standards and the verify
+  card''s review loop SHALL each carry or point to that canonical factor set, so the
+  minimum is reachable from every loop the rule governs.
 
-  - **R-3** — The re-evaluation SHALL resolve to one of three outcomes, each recorded,
-  from which the loop resumes or redirects: Sound, Recompose, or Intent-unreachable.
-  A re-evaluation is one of the higher-level fixing attempts the existing escalation
-  rule counts. The recomposition protocol the Recompose outcome performs the split
-  by is specified in the sibling `.opencode#2661` and is not yet carried by the deck:
-  while it is unimplemented, the Recompose outcome records its grounds and the loop
-  escalates to the developer for the split, which the existing escalation rule already
-  carries.
+  - **R-3 — The outcomes.** The re-evaluation SHALL resolve to one of three outcomes,
+  each recorded, from which the loop resumes or redirects: (a) **Sound** — the findings
+  are recorded and the loop resumes on the unchanged artifact; (b) **Recompose** —
+  the artifact''s shape is the defect: the split is performed per the recomposition
+  protocol the issues card carries, and in-place revision of the pre-split artifact
+  is superseded; (c) **Intent-unreachable** — the intent statement is rewritten, and
+  the loop continues. A re-evaluation is one of the higher-level fixing attempts the
+  existing escalation rule counts; escalation still fires when convergence remains
+  unreachable after it. The recomposition protocol is specified in the sibling `.opencode#2661`:
+  while it is unimplemented, the Recompose outcome records its grounds and escalates
+  to the developer for the split.
 
-  - **R-4** — The re-evaluation''s outcome and its grounds SHALL be recorded in the
-  owning issue''s validation record — never in the artifact''s body.
+  - **R-4 — Where the outcome goes.** The re-evaluation''s outcome and its grounds
+  SHALL be recorded in the owning issue''s validation record — never in the artifact''s
+  body.
 
-  - **R-5** — The `verify` card''s §3 recording rule and the per-issue validation
-  record are reconciled by the change: the deliverable''s verdict is recorded once,
-  in chat or the PR description, and the validation record is the loop''s history
-  — one appended file per issue, never a second copy of the verdict and never an artifact
-  chain. Every completed validation cycle SHALL append one entry to the owning issue''s
-  validation record (YAML) at `.issues/{N}/audit/validation.yaml`: one record file
-  per issue, one top-level section per artifact under validation, each entry carrying
-  the round''s outcome, every defect class the round adjudicated with its classification
-  (a finding or a preference) and, for a finding, its remediation performed or the
-  outcome reached, including the terminal cycle; and, when a cycle ran the structural
-  re-evaluation, the re-evaluation''s outcome and its grounds — the factors it examined
-  and what it found under each. The recorded class is the criteria source''s enumerated
+  - **R-5 — The validation record.** The verify card''s §3 recording rule and the
+  per-issue validation record are reconciled by this change: the deliverable''s verdict
+  is recorded once, in chat or the PR description, and the validation record is the
+  loop''s history. Every completed validation cycle SHALL append one entry to the
+  owning issue''s validation record (YAML) at `.issues/{N}/audit/validation.yaml`:
+  one record file per issue, one top-level section per artifact under validation (spec,
+  plan, implementation); each entry carrying the round''s findings, every defect class
+  the round adjudicated **with its classification** (a finding or a preference) and,
+  for a finding, its remediation performed or the outcome reached, including the terminal
+  cycle; and, when a cycle ran the structural re-evaluation, the re-evaluation''s
+  outcome and its grounds. The recorded class is the criteria source''s enumerated
   defect class or analysis family wherever one applies, and the recorded factual kinds
-  — a stale citation, a wrong count, a mis-scoped claim — are the entry''s detail,
-  exemplars of the class rather than a closed list; an adjudicated preference records
-  the class or family it was adjudicated under with its classification; the criteria
-  source''s own class or family is the label wherever one applies and the factual
-  kinds are never the label, and the same defect carries the same label in every round,
-  so that two rounds'' entries for one defect compare. The classification a round
-  records is not an observation — it is the classification the round made — and recording
-  it is what makes the stability requirement checkable. The record lives beside the
-  artifact and never inside the spec or plan body; a cycle whose artifact belongs
-  to no issue in a store (the `work` card''s short-path scope statement) records per
-  the `verify` card''s own recording rule and appends no store record. A cycle''s
-  judgment cites the record.
+  are the entry''s detail, exemplars of the class rather than a closed list; an adjudicated
+  preference records the class or family it was adjudicated under with its classification;
+  the same defect carries the same label in every round, so that two rounds'' entries
+  for one defect compare. A round whose entry lists no finding is a zero-finding round.
+  The record lives beside the artifact and never inside the spec or plan body. A cycle
+  whose artifact belongs to no issue in a store records per the verify card''s own
+  recording rule and appends no store record. A cycle''s judgment cites the record.
 
-  - **R-6** — Both criteria sources'' verdict contracts, and the `verify` card''s
-  §3 verdict contract, SHALL state the finding/preference boundary as class-determined:
-  a defect the criteria source enumerates — any of its enumerated defect classes or
-  analysis families, whether or not it misstates fact — is a finding, and within that
-  bucket a factual defect is a finding regardless of effect; a preference is never
-  a finding; no third category exists. The same defect class SHALL be classified the
+  - **R-6 — The finding bar.** Both criteria sources'' verdict contracts, and the
+  verify card''s §3 verdict contract, SHALL state the finding/preference boundary
+  as class-determined: a **defect the criteria source enumerates** — any of its enumerated
+  defect classes or analysis families, whether or not it misstates fact — is a finding,
+  and within that bucket a **factual defect** (a statement that misstates fact) is
+  a finding regardless of how small its effect is; a **preference** — style, phrasing
+  taste, a hypothetical improvement — is never a finding; and no third category exists:
+  a substantive observation is reported as a finding, and nothing is recorded as an
+  observation without being a finding. The same defect class SHALL be classified the
   same way in every round, and the validation record''s per-round classification of
   each adjudicated class is what makes that checkable. The churn rule''s verbatim
-  form is unchanged. Where the audited artifact is a spec or a plan, its "correctness"
+  form is unchanged: where the audited artifact is a spec or a plan, its "correctness"
   prong means the artifact''s factual accuracy and the completeness of its impact
-  enumeration — a defect in either is a factual defect, classified by its class like
-  any other. Where the audited artifact is a code deliverable, the churn rule''s prong
-  keeps its existing meaning: the deliverable''s behavior, and the defects that affect
-  correctness or the stated requirements — the redefinition does not narrow it.
+  enumeration; where it is a code deliverable, the prong keeps its existing meaning
+  — the deliverable''s behavior, and the defects that affect correctness or the stated
+  requirements — the redefinition does not narrow it.
 
-  - **R-7** — The findings-are-fixed requirement and criteria invariance SHALL stand
-  unchanged, and SHALL never be satisfied by a round count.
+  - **R-7 — The bars stand.** The findings-are-fixed requirement — findings are never
+  negotiated away — and criteria invariance SHALL stand unchanged, and SHALL never
+  be satisfied by a round count.
 
-  - **R-8** — The `implement` card''s implementation-workflow reference SHALL describe
-  its verify-pass step consistently with the `verify` card''s review loop, and its
-  purpose gloss SHALL no longer state a bound of one review.
+  - **R-8 — The stale gloss.** The implementation-workflow reference''s verify-pass
+  row SHALL describe its step consistently with the verify card''s review loop — the
+  step reaches a zero-finding verdict under the FAIL path — and SHALL no longer state
+  a bound of one review.
 
 
   ## Success criteria
@@ -177,80 +190,69 @@ body: '## Problem
 
   |----|-----------|-------|------------|
 
-  | SC-1 | Each of the three loop locations states the non-convergence judgment beside
-  the spin judgment, states the count trigger as a mandate to examine — more than
-  four revisions to address findings — with the count never deciding the verdict,
-  substituted for the examination, or bound to a round limit, and states that the
-  per-cycle judgment cites the validation record | structural | Read the three locations;
-  assert each carries the judgment and the count trigger; assert the count appears
-  only as a mandate to examine and never as a verdict, a substitute for the examination,
-  or a cap on rounds; assert each states that the cycle''s judgment cites the record,
-  and that a cycle whose artifact belongs to no issue in a store appends no store
-  record and records per the verify card''s own rule |
+  | SC-1 | R-1''s two triggers and its citation rule are carried complete in all three
+  loop locations, and the code-deliverable reading of the churn rule is untouched
+  wherever it appears | structural | Read the three loop locations; assert every element
+  R-1 names in each, and assert the churn rule''s code-deliverable reading untouched
+  wherever the churn rule appears |
 
-  | SC-2 | The re-evaluation names the minimum factor set — repo boundaries, separation
-  of concerns, atomic work-unit decomposition, fatness, intent wording/reachability
-  — and states it as exemplary and open, and the plan card''s validation standards
-  and the `verify` card''s review loop each carry or point to that set | structural
-  | Read the canonical statement; assert each factor named and the openness clause;
-  read `plan-validation-standards.md` §Loop and `verify/SKILL.md` §4 and assert each
-  carries or points to the canonical factor set |
+  | SC-2 | R-2''s factor set is stated canonically, the exemplary-and-open clause
+  is present, and the plan and verify loop locations carry or point to it | structural
+  | Read `validation-standards.md` §Loop; assert R-2''s elements; read `plan-validation-standards.md`
+  §Loop and `verify/SKILL.md` §4 and assert each carries or points to the canonical
+  factor set |
 
-  | SC-3 | The three outcomes are stated with their behaviors — Sound records findings
-  and resumes unchanged, Recompose performs the split per the recomposition protocol,
-  Intent-unreachable rewrites the intent and continues — a re-evaluation counts as
-  a higher-level fixing attempt in the escalation rule, and the Recompose outcome
-  states the behavior while the recomposition protocol is unimplemented (grounds recorded,
-  escalation to the developer) | structural | Read the three loop locations; assert
-  outcomes'' behaviors, the escalation composition, and the stated behavior while
-  the protocol is absent |
+  | SC-3 | R-3''s three outcomes and behaviors are stated in all three loops, the
+  re-evaluation counts as a higher-level fixing attempt, and the Recompose outcome
+  carries its precondition for the unimplemented protocol | structural | Read the
+  three loop locations; assert R-3''s elements in each |
 
-  | SC-4 | The record convention is stated canonically exactly once — `.issues/{N}/audit/validation.yaml`,
-  per-round entries, one section per artifact, outside artifact bodies, marked `(YAML)`,
-  each entry carrying the round''s findings, the adjudicated classes with their classifications,
-  and the re-evaluation''s outcome and grounds when one ran, and no copy of the verdict
-  — and the other two locations bind to it | structural | Read the three locations;
-  assert path/shape — including the no-verdict-copy clause and the re-evaluation''s
-  outcome and grounds slot — and the bindings |
+  | SC-4 | R-4 and R-5''s record convention is stated canonically exactly once and
+  the other two locations bind to it — the path, the per-round entries, the section-per-artifact
+  shape, the no-verdict-copy clause, the grounds slot | structural | Read the three
+  loop locations; assert the canonical statement carries R-4/R-5''s elements and the
+  other two reference it; assert no rule records rounds inside a spec or plan body
+  |
 
-  | SC-5 | Both criteria sources'' verdict contracts and the `verify` card''s §3 verdict
-  contract state the class-determined finding bar with exactly two categories, no
-  third category, and the same-class-same-classification stability clause | structural
-  | Read the three verdict contracts; assert the dichotomy and stability clause in
-  each |
+  | SC-5 | R-6''s finding bar is stated in all three verdict contracts with exactly
+  two categories, the no-third-category clause, and the stability clause | structural
+  | Read `validation-standards.md`, `plan-validation-standards.md`, and `verify/SKILL.md`
+  §3 verdict contracts; assert R-6''s elements in each, and the verify §3 zero-finding
+  PASS bar |
 
-  | SC-6 | Findings-are-fixed and criteria invariance stand unchanged, and no clause
-  makes a round count satisfy them | structural | Read the three locations and compare
-  against pre-change store history |
+  | SC-6 | R-7''s requirements stand unchanged, and the churn rule''s wording is unchanged
+  in all three loop locations against the pre-change file bodies | structural | Read
+  the three loop locations and their findings-are-fixed and criteria-invariance passages
+  against the deck repository''s pre-change file bodies from its git history; assert
+  the churn rule''s wording unchanged |
 
-  | SC-7 | The implementation-workflow verify-pass row binds to the `verify` card''s
-  zero-finding-verdict FAIL path and states no one-review bound | structural | Read
-  the row; assert the gloss and no single-review cap |
+  | SC-7 | R-8''s verify-pass row binds its step to the FAIL path and states no one-review
+  bound | structural | Read the row; assert R-8''s elements |
 
-  | SC-8 | A record entry''s shape is decidable for later judgment: same-class entries
-  reveal classification consistency; each entry shows the round''s findings, the adjudicated
-  classes with their classifications, the remediation performed or outcome reached,
-  and — when a re-evaluation ran — its outcome and grounds | structural | Read the
-  canonical record mechanics; assert the round''s findings, each adjudicated class
-  with its classification, the remediation or outcome reached, and the re-evaluation''s
-  outcome and grounds slot |
+  | SC-8 | R-5''s record entry shape is decidable for later judgment: same-class entries
+  reveal classification consistency, and each entry alone shows the round''s findings,
+  the adjudicated classes with their classifications, the remediation or outcome reached,
+  and a re-evaluation''s outcome and grounds | structural | Read the canonical record
+  mechanics; assert R-5''s entry-shape elements |
 
-  | SC-9 | An agent running the revised loop on an artifact engineered so each round
-  yields genuinely new shallow findings with no obvious convergence performs the structural
-  re-evaluation instead of continuing unbounded in-place revision, and its outcome
-  and grounds are recorded; and, in a second engineered run whose rounds do not read
-  as non-convergent, the count alone mandates the re-evaluation after the fifth revision
-  and before any sixth in-place revision | behavioral | Tier-1 clean-room behavioral
-  dispatch per the `behavioral-testing` card: dispatch a sub-agent with no prior context
-  to run the revised loop rule against two engineered artifacts — one whose rounds
-  yield genuinely new shallow findings with no obvious convergence, one whose rounds
-  do not — each through at least five revisions; from the recorded dispatch evidence
+  | SC-10 | R-6''s prong definition holds in both directions: the spec/plan prong
+  defined, the code-deliverable reading untouched, the churn rule''s wording unchanged
+  | structural | Read the three loop locations against the pre-change file bodies;
+  assert the spec/plan prong definition, the code-deliverable reading untouched, and
+  the churn rule''s wording unchanged |
+
+  | SC-9 | The loop behaves: the judgment fires on genuinely new shallow findings,
+  the count fires independently of the judgment, and the behavioral test writes nothing
+  into the production record | behavioral | Tier-1 clean-room behavioral dispatch
+  per the `behavioral-testing` card: dispatch a sub-agent with no prior context to
+  run the revised loop rule against two engineered artifacts — one whose rounds yield
+  genuinely new shallow findings with no obvious convergence, one whose rounds do
+  not — each through at least five revisions; from the recorded dispatch evidence
   (prompt and observed output persisted in the owning issue''s artifact area) assert
   the re-evaluation fired in the first run by the judgment, that in the second run
   it fired after the fifth revision on the count alone, and that the dispatch evidence
   record carries the outcome and its grounds; the behavioral test writes no entry
-  in the production validation record — an engineered run''s artifact belongs to no
-  issue in a store, so R-5''s carve-out applies; modeled on `.opencode/.issues/2582/audit/tier1-dispatch-SC15-20261013.yaml`
+  in the production validation record — R-5''s carve-out applies; modeled on `.opencode/.issues/2582/audit/tier1-dispatch-SC15-20261013.yaml`
   |
 
 
@@ -265,21 +267,24 @@ body: '## Problem
 
   - The `skill-creator` admission gate and every other deck-governance rule.
 
-  - The `.opencode#2658` recomposition and `.opencode#2659` store repairs — instances,
-  tracked in their own issues.
+  - The `#2658` recomposition and `#2659` store repairs — instances, tracked in their
+  own issues.
 
   - Retrospective validation-record construction for existing issues.
+
+  - `floor.md`.
 
 
   ## Impact
 
 
-  Consumers: every validation loop the rule governs — spec validation, plan validation,
-  deliverable review — gains a stop trigger for the measured non-convergence shape,
-  an evidence-based per-cycle judgment, and a cross-round-stable finding bar. Risk:
-  a judgment trigger judged too readily — bounded by R-4''s recorded outcome and R-5''s
-  record, which make the judgment auditable after the fact. Blast radius: the four
-  amended deck surfaces'' consumers.
+  Consumers: every validation loop in the family — spec, plan, and deliverable review
+  — gains the stop trigger that fires on the measured shape, a cross-round-stable
+  finding bar, and an evidence base. Risks: the trigger firing too readily — bounded
+  by the recorded outcome and the record, which make the judgment auditable; the record''s
+  entry shape drifting toward a second verdict surface — bounded by R-5''s no-verdict-copy
+  clause and the verify card''s "record it once" reconciled alongside it. Blast radius:
+  the four surfaces above; no tool, harness, hook, or script surface changes.
 
 
   > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2660/
@@ -287,5 +292,5 @@ body: '## Problem
 
   Artifacts for agents: `.opencode/.issues/2660/`.'
 created_at: '2026-10-23T20:53:36+00:00'
-updated_at: '2026-10-24T15:31:54+00:00'
+updated_at: '2026-10-24T15:48:25+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2660
