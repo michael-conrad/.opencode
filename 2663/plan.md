@@ -35,8 +35,10 @@ are preserved (SC-7).
 Item 2 depends on item 1, because the artifact directory the launcher names
 is the value item 1's optional argument carries; item 3 depends on item 2,
 because the surfaces it changes state the gate that item 2 changes; item 4
-depends on nothing. The order is acyclic, and every item is committed and
-pushed before the next begins.
+depends on nothing. The order is acyclic. The commits do not map one-to-one
+onto the items: the work landed in the order above, and corrections to
+earlier items were committed after later work had already landed, so the
+branch carries four commits whose contents span the items.
 
 The gate's own instruments are executable and do not dispatch inference: the
 gate's function is extracted from `tests-v2/with-test-home` and invoked
@@ -122,7 +124,10 @@ case. That is how the RED assertions below are run.
   among the roots the gate looks in.
 - GREEN: the launcher's two-root list; the gate's list parsing.
 - Verify: the extracted gate, driven with `BEHAVIOR_DETERMINATION_SCAN_DIR`
-  naming two roots and the record present in the SECOND of them — the gate
+  naming two roots and no record in either — the gate's `FATAL:` message
+  names the roots it scanned, and both named roots appear in that list, which
+  is what shows no earlier root is dropped either (SC-2); the same gate,
+  driven with the record present in the SECOND of two named roots — the gate
   permits the resume (exit 0, no `FATAL:`), which is what proves the last
   element is scanned rather than merely named in the error message (SC-2);
   the extracted gate, driven with the scan list naming the preserved run's
