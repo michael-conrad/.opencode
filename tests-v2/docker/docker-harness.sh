@@ -452,7 +452,7 @@ __docker_launch_resume() {
     # docker-resume fix; tmp/ is mounted at the same absolute path, so the
     # host-side evidence dir path is valid in-container).
     # Both roots: the run's own evidence dir and the run's artifact directory,
-    # which is where the determination record is written (.opencode#2657 — the
+    # which is where the determination record is written (.opencode#2663 — the
     # gate scanned only these two and never the artifact dir, so it refused
     # every cap-hit resume with "determination.yaml not found").
     local scan_list="$(dirname "$err_file")"
