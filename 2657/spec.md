@@ -176,7 +176,11 @@ and this spec's own change does not reach the harness.
   does uncertainty about whether a criterion holds. The criteria apply to a
   change to the agent deck as they do to any other change, and a deck change
   carries the deck-governance card's admission gate in addition, which is
-  where the deck's content standards are judged. The work card's two
+  where the deck's content standards are judged. One case is excepted from
+  the criteria: a developer-directed edit to the agent deck whose content
+  leaves a material open choice takes neither path — the agent asks one
+  open-ended question about that choice in the deck-governance card (R-6),
+  and the scope statement follows the developer's answer. The work card's two
   uncertainty rules — its frontmatter's and its closing line's — apply to a
   request that does not say what to build at all, where the agent halts with
   one open-ended clarification request; a request that says what to build but
@@ -190,10 +194,12 @@ and this spec's own change does not reach the harness.
   `git rev-parse --git-path work-record.md` reports, which is not a
   working-tree path: the record never appears in the repository's status,
   needs no ignore-rule entry, and is never committed — the cleanup card
-  removes it. It holds two parts: the provenance — the verified trunk tip,
-  the branch, the base tip, and the issue where one exists — which the
-  branch card writes at its trunk-freshness step, and the scope statement,
-  which the agent writes before the first edit. The scope statement carries
+  removes it.   It holds two parts: the provenance — the verified trunk tip, which the
+  branch card writes at its trunk-freshness step before the branch exists,
+  and the branch, the base tip, and the issue where one exists, which the
+  same card records alongside that tip at its provenance step once the branch
+  exists — and the scope statement, which the agent writes before the first
+  edit. The scope statement carries
   the path taken, the criteria that selected it, what changes, what "done" is
   checked against, what is out of scope, the order of the work, and any
   reason a card requires recorded for a departure from a default. The check
@@ -412,7 +418,9 @@ are the scratch files the agent created, the work record among them.
   requirement, the work card — the card that owns the record's convention —
   states where the record lives and that its path is inside the repository's
   own git directory and therefore not a working-tree path, the branch card
-  states where and when it writes the record's provenance part, the two
+  states both write points of the record's provenance part — the verified tip
+  at its trunk-freshness step, the branch, the base tip, and the issue at its
+  provenance step — the two
   routing cards point at the work card's definition, and the two consuming
   cards name the short path's artifact.
 
@@ -537,19 +545,22 @@ tip, so the branch card's rebase rule does not fire on a divergence the
 fixture itself created. Each scenario the change touches — the five new ones
 and the extended `2584-sc4` — declares a goal condition, so the monitor's
 classifier judges the run against an anchor: the goal artifact and the content
-pattern that completes it, where the criterion turns on an artifact, and the
-goal actions every scenario declares. SC-10's criterion turns on a question in
-the transcript rather than on a file, so its scenario declares goal actions
-alone and names no artifact — naming one would declare as the goal the very
-edit the criterion forbids.
+pattern that completes it, where the criterion's artifact has a known path,
+and the goal actions every scenario declares. Two of the six name no
+artifact: SC-7's scenario, because the full-path spec artifact's path depends
+on the issue number the run creates, and SC-10's, because its criterion turns
+on a question in the transcript rather than on a file — naming one would
+declare as the goal the very edit the criterion forbids.
 
 - **Verify:** read `tests-v2/behaviors/`; each named file is present or absent
   as stated, each new scenario's header states its criterion, each new
   scenario has its fixture under `tests-v2/behaviors/fixtures/setup/`, each
   fixture leaves the test project's `main` equal to its remote tip, and each
   scenario the change touches — the five new ones and `2584-sc4` — declares
-  `BEHAVIOR_GOAL_ACTIONS` plus, where its criterion turns on an artifact,
-  `BEHAVIOR_EXPECTED_ARTIFACT` and `BEHAVIOR_EXPECTED_ARTIFACT_GREP`.
+  `BEHAVIOR_GOAL_ACTIONS`; the four whose criterion's artifact has a known
+  path — SC-6, SC-8, SC-9, and `2584-sc4` — declare
+  `BEHAVIOR_EXPECTED_ARTIFACT` and `BEHAVIOR_EXPECTED_ARTIFACT_GREP`, and
+  SC-7's and SC-10's declare both empty.
 
 ## Success-criteria table
 
