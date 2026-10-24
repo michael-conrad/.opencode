@@ -22,7 +22,8 @@ carries `classification: undetermined` with a recorded
 
 A behavioral run in the Docker tier whose turn ends at the harness's per-turn
 output cap cannot be resumed, cannot be judged, and never produces the
-artifact its criterion asks about. The path carries two defects. The refusal
+artifact its criterion asks about. The path carries two defects, and the
+harness's goal-condition check carries a third. The refusal
 is a Docker-tier defect: on the host tier the gate's `TMP_DIR` root is the
 parent repository's `tmp/`, where the artifact directory sits at a depth the
 gate scans, so the host tier's gate finds the record.
@@ -62,6 +63,18 @@ that record. The refusal is the missing root, not the record's content: the
 launcher names the roots the gate scans, and the artifact directory is not
 among them.
 
+### Defect 3 — a goal condition's content pattern is parsed as an option
+
+The goal condition the monitor's classifier judges a run against carries a
+content pattern, and the harness matches it with `grep -q "$pattern"`. A
+pattern that begins with `-` is a grep option, not a pattern: grep exits 2,
+the harness reads that as "the artifact does not carry the pattern", and the
+run's artifact status is pinned to `partial` for its whole life. The
+mechanical completion signal — the artifact present and the goal actions hit —
+can then never fire, and the classifier is handed a goal condition whose
+completion is unreachable. The pattern the SC-9 scenario declares, `--json`,
+is such a pattern.
+
 ## Root causes
 
 - **RC-1** — The generic cap-hit resume path carried the anchorless default
@@ -79,6 +92,10 @@ among them.
   comment, `tests-v2/AGENTS.md`, and `skills/behavioral-testing/SKILL.md` —
   and nothing ties them to the code, so a change to one is not carried to
   the others and each can drift from the rule the code implements.
+- **RC-4** — The goal condition's content pattern is handed to grep without
+  an option terminator, so the pattern is read as an option when it begins
+  with `-`, and the harness's own "the artifact does not carry the pattern"
+  reading is the only outcome it can produce.
 
 ## Requirements
 
@@ -88,7 +105,9 @@ among them.
   path in `tests-v2/behaviors/helpers.sh` and the Docker launcher's own
   default in `tests-v2/docker/docker-harness.sh` — so a caller that passes no
   message does not reintroduce the anchorless form. The anchorless literal
-  survives in comments only.
+  survives in comments only. The artifact-directory argument both resume
+  helpers take is optional: a caller that does not know it — the `#2639`
+  scenario's direct-resume path — keeps the behaviour it had.
 - **R-2** — The Docker tier's gate scans every root the launcher names. The
   gate's scan roots are the runner's `TMP_DIR` plus every root named in
   `BEHAVIOR_DETERMINATION_SCAN_DIR` — a colon-separated list carrying the
@@ -126,13 +145,22 @@ among them.
   `skills/behavioral-testing/SKILL.md` rule 9. Each states the gate's rule as
   the code implements it — a resume is permitted when the record carries a
   non-undetermined classification or a valid recorded decision, and a home
-  carrying neither is refused — and the scan coverage the change gives the
-  gate, the run's artifact directory included. §14 states the unmonitored
-  path truthfully: an unmonitored run writes no determination record and
-  attempts no cap-hit resume, so the §10.7 resumption path hard-blocks for
-  an unmonitored home and the §10.5 full re-run fallback remains its
-  recovery. No surface states a rule the code does not implement.
-- **R-5** — The per-turn output cap's default stays 4,000 on every surface
+  carrying neither is refused. The gate comment and §10.7 state the scan
+  coverage the change gives the gate, the run's artifact directory included
+  and every named root scanned, the last one included. §14 states the
+  unmonitored path truthfully: an unmonitored run writes no determination
+  record and attempts no cap-hit resume, so the §10.7 resumption path
+  hard-blocks for an unmonitored home and the §10.5 full re-run fallback
+  remains its recovery. No surface states a rule the code does not
+  implement.
+- **R-5** — The goal condition's declared content pattern is matched as a
+  pattern. The harness's content check matches it with an option terminator,
+  so a pattern that begins with `-` — a flag name, a path — matches the
+  target's content instead of being read as a grep option. A pattern the
+  check cannot match is never a condition the run can meet, so the run's
+  artifact status is not pinned to `partial` and the goal condition's
+  completion signal can fire.
+- **R-6** — The per-turn output cap's default stays 4,000 on every surface
   that sets it, and `2646-sc-cap-resume-probe.sh` keeps its deliberate 150
   override. The observed degenerate-turn band is where these turns sit, so
   raising the cap would re-open the failure the cap exists to prevent.
@@ -263,7 +291,18 @@ states a rule the code does not implement.
   SC-4; each statement above is present, and no statement in them describes
   an exemption, a rule, a record, or a recovery route the code does not have.
 
-### SC-6 (structural) — the per-turn output cap's default is unchanged
+### SC-6 (structural) — a goal condition's content pattern is matched as a pattern
+
+The harness's goal-condition content check in
+`tests-v2/behaviors/helpers.sh` matches the declared pattern with an option
+terminator, so a pattern that begins with `-` matches the target's content
+rather than being read as a grep option, and the run's artifact status is not
+pinned to `partial` for the whole run.
+
+- **Verify:** drive the check with a pattern that begins with `-` against a
+  file that contains it: the check reports the artifact as present.
+
+### SC-7 (structural) — the per-turn output cap's default is unchanged
 
 Every surface that sets `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` with the
 default still carries the 4,000 literal, and
@@ -280,8 +319,9 @@ default still carries the 4,000 literal, and
 | SC-2 | The gate scans every root the launcher names, the last element included | structural | drive the gate with two named roots; the `FATAL:` message names both |
 | SC-3 | Gate finds the record in the artifact directory and permits the preserved run's record; still fails fast with no record | structural | two replays of the gate against the preserved run |
 | SC-4 | Record written, then the decision when the poll log carries the `MONITOR-HALTED` marker, then the resume; the two checks that can end the block before those steps; the gate's rule is the rule the code implements | structural | read the two harness files |
-| SC-5 | The three files that state the gate state the change's gate: the rule the code implements and the coverage the change gives it | structural | read the three files against SC-2 and SC-4 |
-| SC-6 | Cap default 4,000; the probe's deliberate override untouched | structural | grep the cap surfaces |
+| SC-5 | The three files that state the gate state the change's gate: the rule the code implements, and the coverage where coverage is stated | structural | read the three files against SC-2 and SC-4 |
+| SC-6 | A goal condition's content pattern is matched as a pattern, not as an option | structural | drive the harness's content check with a leading-dash pattern |
+| SC-7 | Cap default 4,000; the probe's deliberate override untouched | structural | grep the cap surfaces |
 
 ## Out of scope
 
@@ -293,7 +333,9 @@ default still carries the 4,000 literal, and
   its place in the post-run block's sequence, and the orchestrator's decision
   semantics. This change makes the existing semantics reachable at the
   cap-hit resume; it does not change them, and it does not add a cap-hit
-  exemption to the gate.
+  exemption to the gate. The goal condition's *content* — what a scenario
+  declares as its goal — is the scenario author's, not the harness's; what
+  this change fixes is the harness's matching of the pattern it declares.
 - The deck's path-selection rules, the scenario set, and the deck cards that
   carry them — `.opencode#2657`'s subject, which states this capability as a
   dependency of its behavioral criteria.
