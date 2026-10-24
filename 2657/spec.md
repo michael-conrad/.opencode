@@ -134,10 +134,10 @@ Two further defects at the scenario layer keep a run from being judged or
 from recovering: a scenario that declares no goal condition leaves the
 monitor's classifier with no direction anchor, so it returns "undetermined"
 and the determination gate blocks the resume path; and a fixture that leaves
-the test project's `main` ahead of its remote tip trips the branch card's
-rebase rule, whose rebase would discard the fixture's own seed content, so
-the run agent spends its run resolving the conflict instead of doing the
-task. R-9 and SC-11 carry both.
+the test project's `main` ahead of its remote tip makes the branch card's
+trunk-tip verification ambiguous — which tip is the base the branch is cut
+from — so the run agent spends its run establishing the relationship instead
+of doing the task. R-9 and SC-11 carry both.
 
 ## Root causes
 
