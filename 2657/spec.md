@@ -214,9 +214,10 @@ of doing the task. R-9 and SC-11 carry both.
   and that names what to build, may serve as the short path's scope —
   subject to R-3.
 - **R-3** — The short path is available only when every one of these criteria
-  holds, and the criteria are assessed on the developer's request as it stands
-  before the agent reads the change's files: the developer's request names no
-  stage; the request touches one file;
+  holds, and the criteria are assessed before implementation begins, on the
+  developer's request and the agent's own understanding of the change it
+  describes: the developer's request names no stage; the change touches one
+  file;
   the request leaves no material choice open about what to build, and the
   agent supplies no product decision the developer did not state; the change's
   completion is decidable from the request's own statement — the file now
@@ -264,8 +265,8 @@ of doing the task. R-9 and SC-11 carry both.
   wants to approve the scope before implementation asks for that stage, and
   R-1 routes the request to the full path.
 - **R-5** — The short path ends when the work outgrows it. R-3's
-  file-count criterion is a statement about the request — the request names
-  one file — and what the work turns out to need is R-5's subject, not R-3's.
+  file-count criterion is assessed before implementation begins, and what the
+  work turns out to need is R-5's subject, not R-3's.
   If, after the
   short path is taken, the work acquires a second file, a second concern, a
   derived success criterion, a product decision the developer did not state,
