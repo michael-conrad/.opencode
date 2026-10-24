@@ -559,11 +559,16 @@ fixture itself created. Each scenario the change touches — the five new ones
 and the extended `2584-sc4` — declares a goal condition, so the monitor's
 classifier judges the run against an anchor: the goal artifact and the content
 pattern that completes it, where the criterion's artifact has a known path,
-and the goal actions every scenario declares. Two of the six name no
-artifact: SC-7's scenario, because the full-path spec artifact's path depends
-on the issue number the run creates, and SC-10's, because its criterion turns
-on a question in the transcript rather than on a file — naming one would
-declare as the goal the very edit the criterion forbids.
+and the goal actions every scenario declares. The content pattern is
+discriminating: it is absent from the target before the run and present
+after it, so the anchor is a condition the run can miss. Two of the six name
+no artifact: SC-7's scenario, because the full-path spec artifact's path
+depends on the issue number the run creates, and SC-10's, because its
+criterion turns on a question in the transcript rather than on a file — naming
+one would declare as the goal the very edit the criterion forbids. The
+extended `2584-sc4` scenario's pattern is the rule number its prompt names
+rather than the word the rule carries: the target card's rule 5 already
+contains that word, so a pattern on it is satisfied before the run starts.
 
 - **Verify:** read `tests-v2/behaviors/`; each named file is present or absent
   as stated, each new scenario's header states its criterion, each new
@@ -573,7 +578,8 @@ declare as the goal the very edit the criterion forbids.
   `BEHAVIOR_GOAL_ACTIONS`; the four whose criterion's artifact has a known
   path — SC-6, SC-8, SC-9, and `2584-sc4` — declare
   `BEHAVIOR_EXPECTED_ARTIFACT` and `BEHAVIOR_EXPECTED_ARTIFACT_GREP`, and
-  SC-7's and SC-10's declare both empty.
+  SC-7's and SC-10's declare both empty; each declared content pattern is
+  absent from its target before the run.
 
 ## Success-criteria table
 
@@ -589,7 +595,7 @@ declare as the goal the very edit the criterion forbids.
 | SC-8 | The short path is taken in collapsed form, without ceremony, and the verify dispatch is present | behavioral | run → clean-room read of `session.yaml` |
 | SC-9 | The short path ends when the work outgrows it: expanded scope, then a full-path spec artifact, then the second file's edit | behavioral | run → clean-room read of `session.yaml` |
 | SC-10 | A directed deck edit with an open choice gets one question | behavioral | run → clean-room read of `session.yaml` |
-| SC-11 | Scenario set aligned | structural | read `tests-v2/behaviors/` |
+| SC-11 | Scenario set aligned; every scenario's goal condition declares a content pattern absent from its target before the run | structural | read `tests-v2/behaviors/` |
 
 ## Out of scope
 

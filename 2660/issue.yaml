@@ -11,11 +11,16 @@ body: '## Problem
   and the `verify` card''s review loop — carry a spin judgment keyed on **repetition**
   ("findings recurring or reshuffling without genuine resolution"), so a loop whose
   findings are genuinely new each round never triggers it, however many rounds run.
-  The measured instance is `.opencode#2658`: ten validation rounds whose remediation
-  subjects name citation counts, exhibit-marker table cells, duplicated paragraphs,
-  interval notation, and claim rescope — ending in a recomposition the developer''s
-  intervention reached and the loop''s own judgment never did, which resolved the
-  remaining findings at once.
+  A judgment that asks whether the loop is converging cannot see that shape either,
+  when every round is an individually genuine repair: the developer''s 2026-10-23/24
+  restatement names it outright — *"if a spec or plan needs more than 4 revisions
+  to address defects, it needs to be re-evaluated"* — and the count of revisions is
+  the observation that sees it. The count is carried as a mandate to examine, never
+  as a verdict. The measured instance is `.opencode#2658`: ten validation rounds whose
+  remediation subjects name citation counts, exhibit-marker table cells, duplicated
+  paragraphs, interval notation, and claim rescope — ending in a recomposition the
+  developer''s intervention reached and the loop''s own judgment never did, which
+  resolved the remaining findings at once.
 
 
   Two further defects compound it. The finding/preference boundary is adjudicated
@@ -56,14 +61,19 @@ body: '## Problem
   ## Approach
 
 
-  Judgment stays judgment throughout — no count, no script (the same discipline that
-  discarded counters in `.opencode#2606`). Four changes: (1) a **non-convergence judgment**
-  beside the spin judgment — when rounds are incrementally progressing, each remediating
-  its findings yet producing genuinely new ones with no obvious convergence, the revision
-  step stops in-place revision and runs a structural re-evaluation; (2) named minimum
-  re-evaluation factors — repo boundaries, separation of concerns, atomic work-unit
-  decomposition, fatness and the recomposition it may call for, intent wording/reachability
-  — with three recorded outcomes: **Sound** (findings recorded; loop resumes unchanged),
+  Judgment stays judgment throughout — no script. The count is a mandate to examine,
+  never a verdict (the discipline that discarded counters as verdicts in `.opencode#2606`,
+  with the developer''s 2026-10-23/24 restatement carried alongside the judgment).
+  Four changes: (1) a **non-convergence judgment** beside the spin judgment — when
+  rounds are incrementally progressing, each remediating its findings yet producing
+  genuinely new ones with no obvious convergence, the revision step stops in-place
+  revision and runs a structural re-evaluation of the artifact — and, alongside it,
+  a **count trigger**: more than four revisions to address findings mandates the same
+  re-evaluation before any further in-place revision, the count deciding nothing and
+  the re-evaluation free to conclude the artifact stands; (2) named minimum re-evaluation
+  factors — repo boundaries, separation of concerns, atomic work-unit decomposition,
+  fatness and the recomposition it may call for, intent wording/reachability — with
+  three recorded outcomes: **Sound** (findings recorded; loop resumes unchanged),
   **Recompose** (split per the recomposition protocol the `issues` card carries —
   the sibling `.opencode#2661`), **Intent-unreachable** (intent rewritten; loop continues);
   (3) the **factual-defect bar** — a factual defect is a finding however small its
@@ -80,7 +90,11 @@ body: '## Problem
   - **R-1** — Each of the three loop locations SHALL carry, alongside the spin judgment,
   a non-convergence judgment: incrementally progressing rounds with no obvious convergence
   stop in-place revision and open a structural re-evaluation. The trigger is a judgment
-  stated as such — never a count of rounds, never scripted.
+  stated as such, never scripted. Alongside it, a count trigger: when the artifact
+  has needed more than four revisions to address findings, the loop SHALL run the
+  structural re-evaluation before any further in-place revision. The count mandates
+  the examination and never decides its outcome — the re-evaluation''s verdict is
+  the judgment, and a re-evaluation may conclude that the artifact stands (Sound).
 
   - **R-2** — The structural re-evaluation SHALL examine, at minimum: repo boundaries,
   separation of concerns, atomic work-unit decomposition, fatness, and intent wording/reachability.
@@ -125,9 +139,12 @@ body: '## Problem
   |----|-----------|-------|------------|
 
   | SC-1 | Each of the three loop locations states the non-convergence judgment beside
-  the spin judgment, and none states a numeric bound on revision or round counts |
-  structural | Read the three locations; assert the trigger present and no numeral
-  bound to revision or round counts |
+  the spin judgment, and states the count trigger as a mandate to examine — more than
+  four revisions to address findings — with the count never deciding the verdict,
+  substituted for the examination, or bound to a round limit | structural | Read the
+  three locations; assert each carries the judgment and the count trigger; assert
+  the count appears only as a mandate to examine and never as a verdict, a substitute
+  for the examination, or a cap on rounds |
 
   | SC-2 | The re-evaluation names the minimum factor set and states it as exemplary
   and open | structural | Read the canonical statement; assert each factor named and
@@ -202,5 +219,5 @@ body: '## Problem
 
   Artifacts for agents: `.opencode/.issues/2660/`.'
 created_at: '2026-10-23T20:53:36+00:00'
-updated_at: '2026-10-24T03:02:23+00:00'
+updated_at: '2026-10-24T06:34:41+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2660

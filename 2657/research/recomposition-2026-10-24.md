@@ -134,7 +134,7 @@ out-of-scope list.
 | New | Old | Content |
 |-----|-----|---------|
 | R-1 | R-1, R-2, R-7 | A stated stage request runs its stage; a request for a stage is not a specification; a directive satisfies a stage's content and never suppresses a stage |
-| R-2 | R-3 | The short path's criteria, stated once, assessed before implementation begins; a failed or uncertain criterion sends the change to the full path |
+| R-2 | R-3 | The short path's criteria, stated once, assessed before implementation begins; a failed or uncertain criterion sends the change to the full path; the developer-directed deck edit with a material open choice is excepted and takes the short path |
 | R-3 | R-4, R-10, R-11 | The work record and the scope statement: one file, two parts, a named path, a write time per part; the scope statement discharges the spec and plan stages |
 | R-4 | R-5 | The short path ends when the work outgrows it |
 | R-5 | R-8 | The deck-governance carve-out is bounded |
@@ -142,6 +142,7 @@ out-of-scope list.
 | R-7 | R-10 (rest) | One definition of "short path"; the routing cards point at it, the consuming cards name the artifact; every record reference names the work record |
 | R-8 | R-12 | The verify and PR-readiness gates read the scope statement |
 | R-9 | R-9 | The scenario set is aligned |
+| R-10 | (R-9's scenario set, split out) | The scenario set is aligned, with each scenario's goal condition discriminating |
 
 R-13 and SC-12 leave P and become M's requirements and criteria. P's
 behavioural criteria keep their substance; SC-9's ordering ambiguity (round
@@ -162,3 +163,45 @@ M is not a documentation exercise; two items are open code work:
 
 Both are stated in M's criteria with an executable instrument, so that the
 correspondence between the spec and the code is checked rather than asserted.
+
+## The threshold, crossed twice
+
+The developer's rule fired on this artifact and on the extracted harness spec
+(`.opencode#2663`), and the second crossing is recorded here because the
+first crossing's remedy is what made the second one visible.
+
+**First crossing — `#2657` at 15 spec revisions and 6 plan revisions.** The
+re-evaluation above is its remedy: the measurement concern became a separate
+spec, the policy spec's requirements were re-cut from twelve to ten, each
+short, and the measurement surface left the policy spec entirely.
+
+**Second crossing — `.opencode#2663` at five revisions.** Its re-evaluation:
+repo boundaries (one repository; the harness's change-control rules and one
+deck card's admission gate are different gates, but the card's single clause
+states the harness's rule and splitting it would strand it from its subject);
+separation of concerns (two defects, one path, five atomic requirements, one
+intent — the harness can complete and judge a capped run); atomicity (each
+requirement is one deliverable with a binary instrument); fatness (the spec
+is 329 lines with six criteria, down from 383 — not fat); intent reachability
+(the criteria are executable, and two of them were executed and pass).
+**Conclusion: no further decomposition.** The revisions were not a structural
+confusion: each was a claim about the code that the code did not support, and
+each was caught by a reviewer executing the criterion's instrument against the
+code rather than reading the spec.
+
+**What the loop produced, and what caught it.** Two of the harness spec's
+revisions were corrections of *the branch's own* first commit: that commit
+narrowed the gate's rule in `skills/behavioral-testing/SKILL.md` to one of
+its two branches, described the unmonitored path as recoverable by a route it
+does not have, and left a comment in `tests-v2/with-test-home` claiming an
+exemption the code does not implement. The performative loop introduced false
+claims into the deck's own documentation, and the fresh-context review caught
+them only because the criteria carry *executable* instruments — a gate
+replayed against a preserved run, a scanned-roots list read out of the gate's
+own error message. A criteria set that could only be checked by reading would
+have passed all of it.
+
+**The durable consequence**, carried into the separate deck item: every
+criterion about behavior needs an instrument that can fail, and every claim a
+spec makes about code must be checked against the code — never against the
+deck's documentation, which is where the drift starts.
