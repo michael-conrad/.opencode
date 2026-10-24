@@ -295,12 +295,12 @@ task. R-9 and SC-11 carry both.
   **scope statement** R-4 describes, which the work card writes before the
   first edit. The work record is a work-state artifact, which the cleanup
   card removes; it is not part of the branch's commits, because the commit
-  card stages named files only; and its path is covered by the repository's
-  ignore rules by construction — the convention names a file inside the
-  repository's own git directory — so the record never appears in the
-  repository's status and never blocks a tool that requires a clean working
-  tree, and establishing that coverage never touches the tracked tree. Every
-  "work record" and "work state" reference in `skills/work/SKILL.md`,
+  card stages named files only; and the convention writes it inside the
+  repository's own git directory, which is not a working-tree path, so the
+  record is absent from the repository's status without any ignore-rule entry,
+  never blocks a tool that requires a clean working tree, and touches nothing
+  in the tracked tree. Every "work record" and "work state" reference in
+  `skills/work/SKILL.md`,
   `skills/git-workflow-branch/SKILL.md`, `skills/implement/SKILL.md`,
   `skills/git-workflow-cleanup/SKILL.md`, `skills/verify/SKILL.md`, and
   `skills/git-workflow-pr/SKILL.md` — in each card's body and in its
@@ -474,9 +474,10 @@ them.
   "work state" reference, in each card's body and frontmatter description,
   names the work record, the part it names covers the reference's
   requirement, each card that owns the record states where and when the agent
-  writes it and that the record's path is covered by the repository's ignore
-  rules by construction, the two routing cards point at the work card's
-  definition, and the two consuming cards name the short path's artifact.
+  writes it and that the record's path is inside the repository's own git
+  directory and therefore not a working-tree path, the two routing cards
+  point at the work card's definition, and the two consuming cards name the
+  short path's artifact.
 
 ### SC-5 (structural) — the verification and PR-readiness gates read the scope statement
 
