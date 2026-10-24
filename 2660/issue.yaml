@@ -145,13 +145,19 @@ body: '## Problem
   A cycle''s judgment cites the record.
 
   - **R-6** — Both criteria sources'' verdict contracts SHALL state the finding/preference
-  boundary as class-determined: a factual defect is a finding regardless of effect;
-  a preference is never a finding; no third category exists. The same defect class
-  SHALL be classified the same way in every round, and the validation record''s per-round
-  classification of each adjudicated class is what makes that checkable. The churn
-  rule''s verbatim form is unchanged; its "correctness" prong is the artifact''s factual
-  accuracy and the completeness of its impact enumeration — a defect in either is
-  a factual defect, classified by its class like any other.
+  boundary as class-determined: a defect the criteria source enumerates — any of its
+  enumerated defect classes or analysis families, whether or not it misstates fact
+  — is a finding, and within that bucket a factual defect is a finding regardless
+  of effect; a preference is never a finding; no third category exists. The same defect
+  class SHALL be classified the same way in every round, and the validation record''s
+  per-round classification of each adjudicated class is what makes that checkable.
+  The churn rule''s verbatim form is unchanged. Where the audited artifact is a spec
+  or a plan, its "correctness" prong means the artifact''s factual accuracy and the
+  completeness of its impact enumeration — a defect in either is a factual defect,
+  classified by its class like any other. Where the audited artifact is a code deliverable,
+  the churn rule''s prong keeps its existing meaning: the deliverable''s behavior,
+  and the defects that affect correctness or the stated requirements — the redefinition
+  does not narrow it.
 
   - **R-7** — The findings-are-fixed requirement and criteria invariance SHALL stand
   unchanged, and SHALL never be satisfied by a round count.
@@ -228,15 +234,19 @@ body: '## Problem
   | SC-9 | An agent running the revised loop on an artifact engineered so each round
   yields genuinely new shallow findings with no obvious convergence performs the structural
   re-evaluation instead of continuing unbounded in-place revision, and its outcome
-  appears in the issue''s validation record — and the run reaches a fifth revision,
-  where the count trigger mandates the re-evaluation independently of the judgment''s
-  firing | behavioral | Tier-1 clean-room behavioral dispatch per the `behavioral-testing`
-  card: dispatch a sub-agent with no prior context to run the revised loop rule against
-  an engineered artifact through at least five revisions, from its recorded dispatch
-  evidence (prompt and observed output persisted in the owning issue''s artifact area)
-  assert the re-evaluation fired at or before the fifth revision — by the judgment
-  where it fires and by the count where it would not — and the record carries the
-  outcome and its grounds; modeled on `.opencode/.issues/2582/audit/tier1-dispatch-SC15-20261013.yaml`
+  and grounds are recorded; and, in a second engineered run whose rounds do not read
+  as non-convergent, the count alone mandates the re-evaluation after the fifth revision
+  and before any sixth in-place revision | behavioral | Tier-1 clean-room behavioral
+  dispatch per the `behavioral-testing` card: dispatch a sub-agent with no prior context
+  to run the revised loop rule against two engineered artifacts — one whose rounds
+  yield genuinely new shallow findings with no obvious convergence, one whose rounds
+  do not — each through at least five revisions; from the recorded dispatch evidence
+  (prompt and observed output persisted in the owning issue''s artifact area) assert
+  the re-evaluation fired in the first run by the judgment, that in the second run
+  it fired after the fifth revision on the count alone, and that the dispatch evidence
+  record carries the outcome and its grounds; the behavioral test writes no entry
+  in the production validation record — an engineered run''s artifact belongs to no
+  issue in a store, so R-5''s carve-out applies; modeled on `.opencode/.issues/2582/audit/tier1-dispatch-SC15-20261013.yaml`
   |
 
 
@@ -273,5 +283,5 @@ body: '## Problem
 
   Artifacts for agents: `.opencode/.issues/2660/`.'
 created_at: '2026-10-23T20:53:36+00:00'
-updated_at: '2026-10-24T08:37:39+00:00'
+updated_at: '2026-10-24T14:40:58+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2660
