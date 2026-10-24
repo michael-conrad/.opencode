@@ -406,7 +406,8 @@ __docker_launch_run() {
 __docker_launch_resume() {
     local scenario_name="$1" home="$2" model="$3" output_file="$4" err_file="$5"
     # The run's artifact directory — where the determination record is written.
-    local artifact_dir="$7"
+    # Optional: a caller that does not know it keeps the scan roots it had.
+    local artifact_dir="${7:-}"
     # Optional resume message: the cap-resume path uses the #2646 R-4 form;
     # the two-SC scenarios pass their turn directive (.opencode#2646 docker-
     # resume fix — observed 2026-10-20: tier-2 turn-2 launches cannot exec

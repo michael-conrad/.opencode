@@ -1258,7 +1258,13 @@ MONPY
                 *) if [ -n "$test_home_dir" ]; then art_path="$test_home_dir/project/$art_path"; else art_path=""; fi ;;
             esac
             if [ -n "$art_path" ] && [ -f "$art_path" ]; then
-                if [ -n "$BEHAVIOR_EXPECTED_ARTIFACT_GREP" ] && ! grep -q "$BEHAVIOR_EXPECTED_ARTIFACT_GREP" "$art_path" 2>/dev/null; then
+                # `--` ends option parsing: a declared pattern that begins with
+                # "-" (a flag name, a path) is a pattern, not an option. Without
+                # it grep exits 2 on such a pattern, the artifact is pinned to
+                # "partial" for the whole run, and the goal condition's
+                # completion signal can never fire (observed 2026-10-24,
+                # .opencode#2657).
+                if [ -n "$BEHAVIOR_EXPECTED_ARTIFACT_GREP" ] && ! grep -q -- "$BEHAVIOR_EXPECTED_ARTIFACT_GREP" "$art_path" 2>/dev/null; then
                     art_status="partial"
                 else
                     art_status="present"
@@ -1688,7 +1694,11 @@ PYEOF3
 }
 
 __resume_on_cap_hit() {
-    local tier="$1" scenario_name="$2" attempt="$3" output_file="$4" err_file="$5" model="$6" artifact_dir="$7"
+    # The artifact directory is optional: a caller that does not know it (the
+    # #2639 scenario's direct-resume path) keeps the behaviour it had — the
+    # gate's scan roots are then the runner's TMP_DIR plus the evidence
+    # directory, which for that caller is the artifact directory itself.
+    local tier="$1" scenario_name="$2" attempt="$3" output_file="$4" err_file="$5" model="$6" artifact_dir="${7:-}"
     [ "${BEHAVIOR_SEMANTIC_MONITOR:-0}" = "1" ] || return 0
 
     local ceiling="${BEHAVIOR_CAP_RESUME_CEILING:-3}"
