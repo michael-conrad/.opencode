@@ -50,11 +50,13 @@ body: '## Problem
   - `skills/correspondence/SKILL.md` — description and body: the channel set, the
   stakeholder-notice class with its falsifier, the internal class naming the observed
   failure classes, the default under uncertainty, the route per class, the class-coverage
-  statement for developer-directed content, the no-read-back rule, PR-comment parity,
-  and the statement that the tracker''s labels and closure state are the `issues`
-  card''s surfaces. The card''s existing format rules (§2 executive-summary format,
-  §5 identity byline) are unchanged and continue to govern a tracker comment; the
-  retired card''s per-comment-type templates are not restored.
+  statement for developer-directed content, the no-read-back rule, the pull-request
+  surfaces, and the statement that the tracker''s labels and closure state are the
+  `issues` card''s surfaces. The card''s §1 audience-separation sentence is superseded
+  by the rule, which states the same principle with the channel set and the classes
+  made explicit; the card''s §2 (executive-summary format) and §5 (identity byline)
+  are unchanged and continue to govern a stakeholder notice; the retired card''s per-comment-type
+  templates are not restored.
 
   - `skills/issues/SKILL.md` §3 and description — §3 defers to the channel rule and
   states the caller-side discipline (gate evaluated before committing to post; posting
@@ -67,10 +69,10 @@ body: '## Problem
   to publish working content on the tracker.
 
 
-  Untouched: `floor.md` (a substantive write triggers the ainglish whole-card-on-touch
-  conversion of the whole floor); the deck''s escalation, clarification, report, and
-  consultation producers — each produces developer-directed content, which the rule
-  routes to chat by class; the per-producer route clauses are a recorded follow-on;
+  Untouched: `floor.md` (the skill-creator card''s always-loaded-surface discipline,
+  and the floor''s own cost discipline); the deck''s escalation, clarification, report,
+  and consultation producers — each produces developer-directed content, which the
+  rule routes to chat by class; the per-producer route clauses are a recorded follow-on;
   the `spec`, `plan`, `research`, `behavioral-testing`, `gh-cli`, and `gb-cli` cards;
   the `git-workflow-pr` card; the `issues` card''s label clause (§2) and ticket-state
   hygiene (§6) — the channel rule''s carve-out keeps the two surfaces consistent;
@@ -80,8 +82,7 @@ body: '## Problem
 
   **Extent:** the edit to each card is larger than the deltas above. Under the ainglish
   discipline''s whole-card-on-touch rule, each amended card''s entire normative prose
-  is returned under the discipline, and the guideline''s normative prose is returned
-  under it on touch (R-12).
+  is returned under the discipline (R-14).
 
 
   ## Approach
@@ -103,7 +104,10 @@ body: '## Problem
   the **class-coverage statement** (developer-directed content — an escalation, a
   clarification request, a report, a consultation — reaches the developer in chat,
   whichever card produces it), and the no-read-back rule (a tracker comment is never
-  an answer, an authorization, or a record the agent reads back). `skills/issues/SKILL.md`
+  an answer, an authorization, or a record the agent reads back). The card''s existing
+  §1 audience-separation sentence is superseded by the rule, so the card states the
+  principle once — with the terms bound — and the live deck''s separation is extended
+  to every stakeholder surface rather than narrowed to comments. `skills/issues/SKILL.md`
   §3 keeps a pointer and the caller-side discipline the retired card carried. The
   deprecation protocol''s two encounter-evidence appends are rerouted to the ticket''s
   store record, because they are live instructions to publish working content on the
@@ -123,30 +127,30 @@ body: '## Problem
 
 
   - **R-1** — The `correspondence` card SHALL name the channel set: the stakeholder
-  channels (an issue comment, a pull-request body, a pull-request comment, a wiki
-  page, a release note, correspondence) and the working surfaces (chat, the local
-  issue store, the artifacts under an issue''s folder); SHALL state that the card
-  owns the channel decision while the card owning a surface owns that surface''s mechanics;
-  and SHALL state that the issue tracker''s labels and closure state are the `issues`
-  card''s surfaces, outside this rule''s scope.
+  channels (an issue comment, a pull-request comment, a wiki page, a release note,
+  correspondence, and a pull-request body, whose form the `git-workflow-pr` card owns)
+  and the working surfaces (chat, the local issue store, the artifacts under an issue''s
+  folder); SHALL state that the card owns the channel decision while the card owning
+  a surface owns that surface''s form; and SHALL state that the issue tracker''s labels
+  and closure state are the `issues` card''s surfaces, outside this rule''s scope.
 
   - **R-2** — The `correspondence` skill description SHALL name each of the six stakeholder
   channels enumerated in R-1 and chat, and SHALL state the decision the card owns;
   so that the card is loaded at the moment the agent chooses between a working surface
   and a stakeholder surface.
 
-  - **R-3** — The rule SHALL state the positive remote class with a falsifier: a remote
-  issue comment is a stakeholder notice — content whose reader must take a specific
-  action before the work can continue; and SHALL name the qualifying kinds (a decision,
-  a scope change, a finding, a status the reader must act on) — those kinds being
-  the ones outside the internal class named in R-4, so that no content is qualified
+  - **R-3** — The rule SHALL state the positive remote class with a falsifier: a stakeholder
+  notice is content whose reader must take a specific action before the work can continue
+  — a decision, a scope change, a finding (a specific, evidenced result the reader
+  must act on), or a status the reader must act on — and SHALL state that those kinds
+  are the ones outside the internal class named in R-4, so that no content is qualified
   by R-3 and forbidden by R-4.
 
-  - **R-4** — The rule SHALL name the content that never reaches a remote issue comment
-  or a pull-request comment, and the named set SHALL include every observed failure
-  class: escalation reports, clarification requests, the agent''s reasoning, chat
-  and session-transcript excerpts, and pipeline state — together with progress narration
-  and audit and verification verdicts.
+  - **R-4** — The rule SHALL name the content that never reaches a stakeholder surface,
+  and the named set SHALL include every observed failure class: escalation reports,
+  clarification requests, the agent''s reasoning and analysis output, chat and session-transcript
+  excerpts, and pipeline state — together with progress narration and audit and verification
+  verdicts.
 
   - **R-5** — The rule SHALL state that the default under uncertainty is the working
   surface, and SHALL state the asymmetry that decides the tie: a stakeholder notice
@@ -178,16 +182,26 @@ body: '## Problem
   ticket''s store record rather than to a tracker comment, so that the deck carries
   no live instruction to publish working content on the tracker.
 
-  - **R-11** — The `issues` card''s one non-canonical cross-reference SHALL convert
+  - **R-11** — The rule SHALL state that a pull-request comment follows the same gate
+  as an issue comment, and that a pull-request body is a merge artifact whose form
+  the `git-workflow-pr` card owns and which carries a notice by construction.
+
+  - **R-12** — The `correspondence` card''s §1 audience-separation sentence SHALL
+  be superseded by the rule, so that the card states the audience-separation principle
+  once — with the channel set, the classes, and the terms bound — and the live deck''s
+  separation is extended to every stakeholder surface rather than narrowed to comments.
+
+  - **R-13** — The `issues` card''s one non-canonical cross-reference SHALL convert
   to the canonical `Read [Text](path)` form, per the skill-creator card''s forwards-only
   rule ("existing content converts when touched").
 
-  - **R-12** — Each amended card''s full normative prose SHALL be returned under the
-  ainglish writing discipline, per that discipline''s whole-card-on-touch rule — the
-  card''s entire normative prose written so the reader cannot misbind it, with the
-  misbindings the conversion surfaces resolved — and the guideline''s normative prose
-  SHALL be returned under the discipline on touch. The conversion SHALL preserve the
-  prose''s substance, changing nothing beyond this spec''s rules.
+  - **R-14** — Each amended card''s full normative prose SHALL be returned under the
+  ainglish writing discipline, per that discipline''s whole-card-on-touch rule, whose
+  trigger names a card — the card''s entire normative prose written so the reader
+  cannot misbind it, with the misbindings the conversion surfaces resolved — and the
+  guideline''s amended passage SHALL be written under the discipline, which governs
+  the normative prose the agent authors. The conversion SHALL preserve the prose''s
+  substance, changing nothing beyond this spec''s rules.
 
 
   ## Success criteria
@@ -199,9 +213,9 @@ body: '## Problem
 
   | SC-1 | The `correspondence` card names the six stakeholder channels and the three
   working surfaces, states that the card owns the channel decision while the card
-  owning a surface owns that surface''s mechanics, and states that the tracker''s
-  labels and closure state are the `issues` card''s surfaces outside the rule''s scope
-  | structural | Read `skills/correspondence/SKILL.md`; assert each channel and working
+  owning a surface owns that surface''s form, and states that the tracker''s labels
+  and closure state are the `issues` card''s surfaces outside the rule''s scope |
+  structural | Read `skills/correspondence/SKILL.md`; assert each channel and working
   surface named, the jurisdiction clause present, and the labels-and-closure carve-out
   present |
 
@@ -210,18 +224,20 @@ body: '## Problem
   | Read the frontmatter description; assert each of the seven surfaces named and
   the decision stated |
 
-  | SC-3 | The rule states the positive remote class with a falsifier — a remote issue
-  comment is a stakeholder notice, content whose reader must take a specific action
-  before the work can continue — names the qualifying kinds, and states that those
-  kinds are the ones outside R-4''s internal class | structural | Read the rule text;
-  assert the predicate, each named kind, and the precedence clause present |
+  | SC-3 | The rule states the positive remote class with a falsifier — a stakeholder
+  notice is content whose reader must take a specific action before the work can continue
+  — names the qualifying kinds including the finding as a specific, evidenced result,
+  and states that those kinds are the ones outside R-4''s internal class | structural
+  | Read the rule text; assert the predicate, each named kind with the finding qualified,
+  and the precedence clause present |
 
-  | SC-4 | The rule names as content that never reaches a remote issue comment or
-  a pull-request comment: escalation reports, clarification requests, the agent''s
-  reasoning, chat and session-transcript excerpts, pipeline state, progress narration,
-  and audit and verification verdicts | structural | Read the rule text; assert each
-  of the seven named, and that the prohibition is scoped to comments rather than to
-  the tracker as a whole |
+  | SC-4 | The rule names as content that never reaches a stakeholder surface: escalation
+  reports, clarification requests, the agent''s reasoning and analysis output, chat
+  and session-transcript excerpts, pipeline state, progress narration, and audit and
+  verification verdicts | structural | Read the rule text; assert each of the seven
+  named, and that the prohibition is scoped to stakeholder surfaces — with the tracker''s
+  labels and closure state carved out by R-1''s clause — rather than to the tracker
+  as a whole |
 
   | SC-5 | The rule states that the default under uncertainty is the working surface
   and states the asymmetry that decides the tie | structural | Read the rule text;
@@ -260,23 +276,35 @@ body: '## Problem
   content as a tracker comment, excluding the `gb-cli` card''s state-mutation comment
   route and command patterns |
 
-  | SC-11 | The `issues` card''s one non-canonical cross-reference reads in the canonical
+  | SC-11 | The rule states that a pull-request comment follows the same gate as an
+  issue comment, and that a pull-request body is a merge artifact whose form the `git-workflow-pr`
+  card owns and which carries a notice by construction | structural | Read the rule
+  text and `skills/git-workflow-pr/SKILL.md` §4; assert both clauses and that §4''s
+  rule is unchanged |
+
+  | SC-12 | The `correspondence` card states the audience-separation principle once:
+  its §1 sentence is superseded by the rule, and no second statement of the principle
+  with an unbound "internal findings" term remains | structural | Read `skills/correspondence/SKILL.md`;
+  assert §1''s sentence is gone, the rule''s statement present, and that the terms
+  "internal" and "finding" are bound within the rule |
+
+  | SC-13 | The `issues` card''s one non-canonical cross-reference reads in the canonical
   `Read [Text](path)` form, and the card retains no markdown link to another deck
   file that lacks the canonical form | structural | Read `skills/issues/SKILL.md`;
   assert the canonical form on the cross-reference, and that no further non-canonical
   link to a deck file remains (the `reference-integrity` tool inspects canonical links
   only, so this check is by reading) |
 
-  | SC-12 | Each amended card''s full normative prose, and the guideline''s normative
-  prose, conforms to the ainglish writing discipline''s five ambiguity families |
-  semantic | A fresh-context reviewer reads each of the two amended cards and the
+  | SC-14 | Each amended card''s full normative prose, and the guideline''s amended
+  passage, conforms to the ainglish writing discipline''s five ambiguity families
+  | semantic | A fresh-context reviewer reads each of the two amended cards and the
   guideline against the discipline''s five families and the whole-card-on-touch rule,
   and returns a zero-finding verdict on ambiguity; a content defect the reviewer notes
   is recorded in `.opencode/.issues/2662/audit/ainglish-conversion.md` and does not
   bear on the verdict |
 
-  | SC-13 | No clause in the amended deck leaves a tracker comment satisfiable by
-  an escalation report, a clarification request, a reasoning trace, a chat excerpt,
+  | SC-15 | No clause in the amended deck leaves a stakeholder notice satisfiable
+  by an escalation report, a clarification request, a reasoning trace, a chat excerpt,
   or a state update — the five observed failure classes | semantic | A fresh-context
   reviewer, given the amended cards, the amended guideline, and the recorded observed-failure
   classes, judges the amended text against that question and returns a zero-finding
@@ -286,8 +314,8 @@ body: '## Problem
   ## Out of scope
 
 
-  - `floor.md` — the whole-card ainglish conversion cost, and the skill-creator card''s
-  always-loaded-surface discipline.
+  - `floor.md` — the skill-creator card''s always-loaded-surface discipline, and the
+  floor''s own cost discipline.
 
   - The `spec` card''s artifact-discipline rules; the CLI cards'' command patterns
   and the platform system comment the `gb-cli` card mandates for GitBucket issue state
@@ -343,8 +371,8 @@ body: '## Problem
   card''s eight items and operating contract, and the `correspondence` card''s five);
   the conversion resolves ambiguity without changing substance, and content defects
   it surfaces are recorded rather than fixed. Blast radius: two cards'' full normative
-  prose and one guideline''s; the `local-issues` tool, the harness, and every script
-  surface are untouched.
+  prose and one guideline''s amended passage; the `local-issues` tool, the harness,
+  and every script surface are untouched.
 
 
   > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2662/
@@ -354,5 +382,5 @@ body: '## Problem
 
   '
 created_at: '2026-10-24T03:19:45+00:00'
-updated_at: '2026-10-24T05:33:13+00:00'
+updated_at: '2026-10-24T05:50:48+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2662
