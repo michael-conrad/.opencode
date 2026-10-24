@@ -55,7 +55,7 @@ runs:
   trigger: 'The count trigger fired again within the recomposed artifact: six revisions to address findings
     after the single-sourcing recomposition (revisions 11 through 16).'
   rounds_at_run: 6
-  findings_at_run: 10
+  findings_at_run: 9
   outcome: sound
   finding: 'Single-sourcing holds: the rules (R-1 through R-8) have been stable since the recomposition;
     every finding after it was evidence-section drift - history facts such as dispatch splits, commit
@@ -93,3 +93,37 @@ runs:
   loop_state: 'Converging, not spinning: the deliverable''s rules have not changed since the recomposition,
     and the findings are single-finding evidence-section flickers, one of them groundless. In-place revision
     of the rules is over; the audit record is the loop''s history.'
+  revisions: 11-16
+  counted_at: before revisions 17-19; extended by the ledger below
+  falsified: 'In part: its loop_state said the rules were stable since the recomposition, but R-6 gained
+    the verify section 3 PASS-bar sentence in revision 11 and R-7 gained its clause home in revision 17
+    — the rules were not stable. The ledger and run 4 carry the corrected account.'
+  extended_ledger:
+  - dispatch: 7
+    findings: 2
+    revisions: '17'
+    subject: R-7's round-count guard had no carried home and no criterion; the escalation paragraphs'
+      exit sentence preserved by nothing.
+  - dispatch: 8
+    findings: 2
+    revisions: '18'
+    subject: the measured-case paragraph stale against the record, and the scope map missing R-7.
+- run: 4
+  date: '2026-10-24'
+  trigger: 'The count trigger again: eight post-recompose revisions (11-18), thirteen findings across
+    eight dispatches, and run 3''s own stability claim falsified.'
+  rounds_at_run: 8
+  findings_at_run: 13
+  revisions: 11-18, plus 19 in the same action as this run
+  outcome: sound
+  finding: 'The residual drift class is the criteria column itself: its criteria enumerated rule *elements*
+    in their own words, so any revision moving an element list left the criterion''s enumeration behind
+    - dispatches 1, 2, 7 and 8''s findings are all that class. The remedy is the artifact''s own single-sourcing
+    rule applied to the criteria table: the criteria are now a pure mapping - each criterion''s testable
+    property is the mapped rule''s presence or a preserved passage''s identity, and the element list is
+    the mapped requirement''s own, read from R-n at check time (revision 19). The class is eliminated
+    by construction rather than by enumeration discipline.'
+  loop_state: 'The recomposed artifact''s structure holds: rules carry rules once (R-1..R-7 plus R-8''s
+    retirement), the criteria defer their element lists to the rules, the scope table maps surfaces, the
+    evidence defers the loop''s history to this record. The count trigger''s mandate is satisfied by this
+    run; the revise-and-revalidate loop resumes under it.'
