@@ -20,10 +20,14 @@ carries `classification: undetermined` with a recorded
 
 ## Problem
 
-A behavioral run whose turn ends at the harness's per-turn output cap cannot
-be resumed, cannot be judged, and never produces the artifact its criterion
-asks about. The path carries three defects. One is repaired; two are open,
-and two surfaces describe the path in terms the code does not have.
+A behavioral run in the Docker tier whose turn ends at the harness's per-turn
+output cap cannot be resumed, cannot be judged, and never produces the
+artifact its criterion asks about. The path carries three defects. One is
+repaired; two are open, and two surfaces describe the path in terms the code
+does not have. The refusal is a Docker-tier defect: on the host tier the
+gate's `TMP_DIR` root is the parent repository's `tmp/`, where the artifact
+directory sits at a depth the gate scans, so the host tier's gate finds the
+record.
 
 ### Defect 1 — the resume gives the model no state anchor (repaired)
 
@@ -37,15 +41,19 @@ anchorless form. The repair composes the resume message from the run's own
 session database — the agent's last recorded reasoning and the recorded
 in-flight tool call — so the resumed turn continues the recorded work.
 
-### Defect 2 — the determination gate never scans the record's directory (open)
+### Defect 2 — the Docker tier's gate never scans the record's directory (open)
 
-The gate that guards a resume scans the Docker tier's staging root and the
-run's behaviour-test directory. The determination record is written to the
-run's artifact directory, which is neither: the Docker tier's `TMP_DIR` is
-the staging root and does not contain it. The gate therefore refused every
-cap-hit resume with `determination.yaml not found in any scenario evidence
-dir` — the message the preserved run's `stderr.log` carries three times,
-naming the two roots it scanned — before any inference was dispatched.
+In the Docker tier the gate that guards a resume scans the tier's staging
+root and the run's behaviour-test directory. The determination record is
+written to the run's artifact directory, which is neither: the tier's
+`TMP_DIR` is the staging root and does not contain it. The gate therefore
+refused every cap-hit resume with `determination.yaml not found in any
+scenario evidence dir` — the message the preserved run's `stderr.log` carries
+three times, naming the two roots it scanned — before any inference was
+dispatched. On the host tier the same gate scans the parent repository's
+`tmp/` root, and the artifact directory sits inside it at a depth the gate
+searches, so the host tier's gate finds the record; the defect is in the
+Docker tier's scan roots, not in the gate's rule.
 
 The repair has two halves, and one of them is in place. The launcher now
 names the run's artifact directory among the roots it passes to the gate, and
@@ -142,14 +150,17 @@ draws the wrong conclusion about when a capped run may resume.
   default in `tests-v2/docker/docker-harness.sh` — so a caller that passes no
   message does not reintroduce the anchorless form. The anchorless literal
   survives in comments only.
-- **R-2** — The gate scans every root the launcher names. The gate's scan
-  roots are the runner's `TMP_DIR` plus every root named in
+- **R-2** — The Docker tier's gate scans every root the launcher names. The
+  gate's scan roots are the runner's `TMP_DIR` plus every root named in
   `BEHAVIOR_DETERMINATION_SCAN_DIR` — a colon-separated list carrying the
   run's evidence directory and the run's artifact directory, which is where
   the harness writes the determination record and, on the monitor's halt-class
   path, the orchestrator decision. No named root is dropped: the list is
   parsed so that every element is scanned, the last one included. The Docker
-  tier's `TMP_DIR` is the staging root and does not contain the record.
+  tier's `TMP_DIR` is the staging root and does not contain the record; the
+  host tier's `TMP_DIR` is the parent repository's `tmp/`, which does
+  contain the artifact directory, and the host tier's gate finds the record
+  without a named root.
 - **R-3** — The record and the decision exist before the resume. The
   monitored post-run block writes the determination record for every
   monitored run that reaches it, appends the orchestrator decision when the
@@ -189,11 +200,11 @@ draws the wrong conclusion about when a capped run may resume.
 
 ## Impact
 
-**Consumers.** Every behavioral scenario in `tests-v2/behaviors/`, and every
-behavioral criterion judged from a run — including the five behavioral
-criteria of `.opencode#2657`, whose runs depend on this capability to produce
-an artifact at all. That work states this capability as a dependency rather
-than absorbing it.
+**Consumers.** Every behavioral scenario in `tests-v2/behaviors/` that runs in
+the Docker tier, and every behavioral criterion judged from such a run —
+including the five behavioral criteria of `.opencode#2657`, whose runs depend
+on this capability to produce an artifact at all. That work states this
+capability as a dependency rather than absorbing it.
 
 **Risk — the gate's rule is untouched; what it sees is not.** The gate stops a
 resume whose home carries no determination it accepts — no record at all, or
@@ -243,7 +254,9 @@ the anchorless literal appears in executable code in neither file.
 
 `tests-v2/with-test-home`'s `__sc8_determination_gate` scans the runner's
 `TMP_DIR` plus every root named in `BEHAVIOR_DETERMINATION_SCAN_DIR`, and
-scans the last element of that list as well as the others.
+scans the last element of that list as well as the others — so the Docker
+tier's gate reaches the run's artifact directory, which the tier's `TMP_DIR`
+staging root does not contain.
 
 - **Verify:** drive the gate with `BEHAVIOR_DETERMINATION_SCAN_DIR` naming
   two roots and no record in either; the gate's `FATAL:` message names the

@@ -75,7 +75,8 @@ body: '## Problem
   rule routes to chat by class; the per-producer route clauses are a recorded follow-on;
   the `spec`, `plan`, `research`, `behavioral-testing`, `gh-cli`, and `gb-cli` cards;
   the `git-workflow-pr` card; the `issues` card''s label clause (§2) and ticket-state
-  hygiene (§6) — the channel rule''s carve-out keeps the two surfaces consistent;
+  hygiene (§6) — the deck''s live position on labels is that clause, this change leaves
+  it in place deliberately, and the rule''s carve-out keeps the two surfaces consistent;
   the criteria sets'' defect classes, verdict contracts, analysis families, and loop
   mechanics; the `local-issues` tool; `tests-v2/`; the `skill-creator` admission gate.
 
@@ -310,6 +311,15 @@ body: '## Problem
   classes, judges the amended text against that question and returns a zero-finding
   verdict, applying the spec card''s validation standards |
 
+  | SC-16 | Each pre-existing normative rule of the two amended cards — the `issues`
+  card''s eight items and its operating-contract clauses, and the `correspondence`
+  card''s five items — survives the conversion with its meaning intact, other than
+  the rules this spec states as changed | semantic | A fresh-context reviewer compares
+  each amended card against its pre-change version in the deck''s history and asserts
+  that every pre-existing rule survives, that none is dropped, weakened, or substantively
+  altered, and that the only differences are the ones this spec''s rules state; the
+  reviewer reports any difference as a finding |
+
 
   ## Out of scope
 
@@ -322,9 +332,9 @@ body: '## Problem
   mutation; the `behavioral-testing` card.
 
   - The `issues` card''s label clause (§2) and its ticket-state hygiene (§6) — the
-  adjacency is recorded in the spec, and the channel rule''s carve-out keeps the two
-  surfaces consistent; the label model itself is a separate question this change does
-  not re-litigate.
+  deck''s live position on labels is that clause; it is left in place deliberately,
+  and the rule''s carve-out keeps the two surfaces consistent; the label model itself
+  is a separate question this change does not re-litigate.
 
   - The criteria sets'' defect classes, verdict contracts, analysis families, and
   loop mechanics.
@@ -382,5 +392,5 @@ body: '## Problem
 
   '
 created_at: '2026-10-24T03:19:45+00:00'
-updated_at: '2026-10-24T05:50:48+00:00'
+updated_at: '2026-10-24T06:06:31+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2662

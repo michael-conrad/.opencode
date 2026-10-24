@@ -123,10 +123,15 @@ harness's cap-hit resume and the determination gate that guards it — is
 `.opencode#2663`'s subject, and this spec states the dependency rather than
 carrying the harness's internals. The two changes travel separately: the
 harness repair is one change of its own, stacked beneath this one, so this
-change reaches no harness file and the behavioral criteria are judged on the
-stacked tree that carries both. A criterion here is not judged from a run
-the harness could not complete; the capability is repaired where it belongs,
-and this spec's own change does not reach the harness.
+change reaches no harness file. The behavioral criteria are judged on the
+stacked tree in which that change is **complete** — the Docker tier's
+determination gate reaching the run's artifact directory, and that path's
+documentation stating it — and not on a tree in which the change has merely
+landed: while the gate still refuses a capped run's resume, no run of this
+spec's own scenarios produces the artifact its criterion reads, and no
+criterion here is judged. A criterion is not judged from a run the harness
+could not complete; the capability is repaired where it belongs, and this
+spec's own change does not reach the harness.
 
 ## Root causes
 
@@ -607,8 +612,8 @@ declare as the goal the very edit the criterion forbids.
   facts only.
 - The harness's cap-hit resume, the determination gate that guards it, and
   the documentation of that path — `.opencode#2663`'s subject, which travels
-  in its own change stacked beneath this one and on which this spec's
-  behavioral criteria depend.
+  in its own change stacked beneath this one. This spec's behavioral criteria
+  depend on that change being complete, not merely landed.
 - The retired `attic/` deck; the `tests-v2` harness's isolation contract, its
   default model, its change-control rules, and its per-turn output cap;
   `guidelines/`, `agents/`, `prompts/`, and `opencode.jsonc`.
