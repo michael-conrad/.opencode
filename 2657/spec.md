@@ -12,7 +12,13 @@ halted manually and any work rejected." Observed failure in the deck text:
 and the developer-instruction carve-out to `skills/work/SKILL.md` and
 `skills/skill-creator/SKILL.md`; `.opencode#2645` (commit `c816c146`,
 2026-10-20) carried the same term into `skills/implement/SKILL.md` rule 9
-without re-examining what the term had come to mean.
+without re-examining what the term had come to mean. Observed failure in the
+measurement: `.opencode/.issues/lessons-learned/session-2026-10-20/README.md`
+LL-3 (the anchorless cap-hit resume, observed on the `#2639` recovery path)
+and this issue's own run records — the preserved
+`tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-256k-gguf4/`
+run and its per-poll supervision log, and the scenario-layer observations
+recorded in this issue's `evidence.md`.
 
 ## Problem
 
@@ -122,7 +128,17 @@ The behavioural scenarios that would show this fix's effect cannot complete a
 run. The harness resumes a run whose turn ended at the per-turn output cap
 with the anchorless message "Continue the task from where you left off.", so
 the model re-derives the session's history from a long context, spends the
-whole per-turn budget re-deriving, and issues no tool call. The resume makes
+whole per-turn budget re-deriving, and issues no tool call. The deck records
+this in its own correction catalogue — `.opencode/.issues/lessons-learned/
+session-2026-10-20/README.md`, LL-3, observed on the `#2639` scenario's
+recovery path: the default resume message "gives the model no state anchor,
+so it reconstructs from a ~65k-token context every turn" and issues "ZERO
+tool calls". The run records are this issue's own: the preserved
+`tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-256k-gguf4/`
+run, whose final assistant message ended `reason: "length"` at exactly 4,000
+output tokens with a reasoning part and no tool call, and the per-poll
+supervision log beside it. The fixture observations are recorded in this
+issue's `evidence.md`. The resume makes
 no progress, the run exhausts the cap-resume ceiling, and the stage's
 artifact — the thing each behavioural criterion asks about — is never
 produced. The run-level fix `.opencode#2639` applied to its own scenario's
@@ -486,11 +502,12 @@ are the scratch files the agent created, the work record among them.
 - **Verify:** read the seven cards the criterion names; each "work record" and
   "work state" reference, in each card's body and frontmatter description,
   names the work record, the part it names covers the reference's
-  requirement, each card that owns the record states where and when the agent
-  writes it and that the record's path is inside the repository's own git
-  directory and therefore not a working-tree path, the two routing cards
-  point at the work card's definition, and the two consuming cards name the
-  short path's artifact.
+  requirement, the work card — the card that owns the record's convention —
+  states where the record lives and that its path is inside the repository's
+  own git directory and therefore not a working-tree path, the branch card
+  states where and when it writes the record's provenance part, the two
+  routing cards point at the work card's definition, and the two consuming
+  cards name the short path's artifact.
 
 ### SC-5 (structural) — the verification and PR-readiness gates read the scope statement
 
@@ -609,11 +626,12 @@ one for each of SC-6 through SC-10, and each carries the setup fixture that
 pre-supplies the repository state its task needs: the fixture leaves the seed
 content present without leaving the test project's `main` ahead of its remote
 tip, so the branch card's rebase rule does not fire on a divergence the
-fixture itself created. Each scenario declares a goal condition, so the
-monitor's classifier judges the run against an anchor and a run that hits the
-per-turn cap can resume: the goal artifact and the content pattern that
-completes it, where the criterion turns on an artifact, and the goal actions
-every scenario declares. SC-10's criterion turns on a question in the
+fixture itself created. Each scenario the change touches — the five new ones
+and the extended `2584-sc4` — declares a goal condition, so the monitor's
+classifier judges the run against an anchor and a run that hits the per-turn
+cap can resume: the goal artifact and the content pattern that completes it,
+where the criterion turns on an artifact, and the goal actions every
+scenario declares. SC-10's criterion turns on a question in the
 transcript rather than on a file, so its scenario declares goal actions alone
 and names no artifact — naming one would declare as the goal the very edit
 the criterion forbids.
@@ -622,9 +640,9 @@ the criterion forbids.
   as stated, each new scenario's header states its criterion, each new
   scenario has its fixture under `tests-v2/behaviors/fixtures/setup/`, each
   fixture leaves the test project's `main` equal to its remote tip, and each
-  scenario declares `BEHAVIOR_GOAL_ACTIONS` plus, where its criterion turns
-  on an artifact, `BEHAVIOR_EXPECTED_ARTIFACT` and
-  `BEHAVIOR_EXPECTED_ARTIFACT_GREP`.
+  scenario the change touches — the five new ones and `2584-sc4` — declares
+  `BEHAVIOR_GOAL_ACTIONS` plus, where its criterion turns on an artifact,
+  `BEHAVIOR_EXPECTED_ARTIFACT` and `BEHAVIOR_EXPECTED_ARTIFACT_GREP`.
 
 ### SC-12 (structural) — the cap-hit resume is anchored on the recorded tail
 
