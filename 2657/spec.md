@@ -303,7 +303,8 @@ spec's own change does not reach the harness.
   criterion — a fully specified directed edit completes without admission
   archaeology and without halting for direction — and gains one beside it:
   the edit completes without the full path's machinery, with no issue filed,
-  no spec document, and no validation dispatch. Scenarios are added covering
+  no spec document, and no validation dispatch. Both of that scenario's
+  criteria are judged by one clean-room evaluation of its run (SC-12). Scenarios are added covering
   R-1, R-2, R-3, R-5, R-7, and R-6. Each added scenario carries the
   per-scenario setup fixture that pre-supplies the repository state its task
   needs, per the pre-supplied environment mandate in `tests-v2/AGENTS.md`
@@ -561,7 +562,9 @@ classifier judges the run against an anchor: the goal artifact and the content
 pattern that completes it, where the criterion's artifact has a known path,
 and the goal actions every scenario declares. The content pattern is
 discriminating: it is absent from the target before the run and present
-after it, so the anchor is a condition the run can miss. Two of the six name
+after it, so the anchor is a condition the run can miss; and it is a pattern
+the harness's content check can match, so the condition is one the run can
+meet. Two of the six name
 no artifact: SC-7's scenario, because the full-path spec artifact's path
 depends on the issue number the run creates, and SC-10's, because its
 criterion turns on a question in the transcript rather than on a file — naming
@@ -579,7 +582,24 @@ contains that word, so a pattern on it is satisfied before the run starts.
   path — SC-6, SC-8, SC-9, and `2584-sc4` — declare
   `BEHAVIOR_EXPECTED_ARTIFACT` and `BEHAVIOR_EXPECTED_ARTIFACT_GREP`, and
   SC-7's and SC-10's declare both empty; each declared content pattern is
-  absent from its target before the run.
+  absent from its target before the run and is a pattern the harness's
+  content check can match.
+
+### SC-12 (behavioral) — the directed card edit completes without the full path's machinery
+
+A developer-directed card edit whose content leaves no material open choice
+completes on the short path: the run performs the edit and produces no
+issue, no spec document, and no validation dispatch. The scenario is the
+extended `2584-sc4-directed-card-edit-no-archaeology`, whose two criteria —
+the anti-archaeology property and this one — are judged by one clean-room
+evaluation of its run.
+
+- **Verify:** two-SC pattern — behavioral run of
+  `2584-sc4-directed-card-edit-no-archaeology`; clean-room evaluation of
+  `session.yaml` confirms that the run edited the card the request names,
+  that it contains no issue filing, no spec document, and no validation
+  dispatch, and that it contains no admission archaeology and no halt for
+  direction.
 
 ## Success-criteria table
 
@@ -595,7 +615,8 @@ contains that word, so a pattern on it is satisfied before the run starts.
 | SC-8 | The short path is taken in collapsed form, without ceremony, and the verify dispatch is present | behavioral | run → clean-room read of `session.yaml` |
 | SC-9 | The short path ends when the work outgrows it: expanded scope, then a full-path spec artifact, then the second file's edit | behavioral | run → clean-room read of `session.yaml` |
 | SC-10 | A directed deck edit with an open choice gets one question | behavioral | run → clean-room read of `session.yaml` |
-| SC-11 | Scenario set aligned; every scenario's goal condition declares a content pattern absent from its target before the run | structural | read `tests-v2/behaviors/` |
+| SC-11 | Scenario set aligned; every scenario's goal condition declares a content pattern absent from its target before the run and matchable by the harness's content check | structural | read `tests-v2/behaviors/` |
+| SC-12 | A directed card edit completes without the full path's machinery | behavioral | run → clean-room read of `session.yaml` |
 
 ## Out of scope
 
