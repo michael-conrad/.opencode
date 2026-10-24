@@ -102,9 +102,10 @@ evidence:
     tool''s mechanics. The coverage half stopped reopening, which is the recomposition''s effect.'
   totals:
     dispatches: 13
-    rounds_returning_findings: 12
-    findings: 40
+    rounds_returning_findings: 11
+    round_returning_no_verdict: 1
     final_verdict: PASS (round 13, zero findings)
+    findings: 40
 outcome: recompose
 recomposition:
   retained: The rule. The correspondence card carries the channel set, the stakeholder-notice class with
