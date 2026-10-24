@@ -89,8 +89,12 @@ body: '## Problem
   carrying the round''s findings, the adjudicated classes with their classifications,
   and a re-evaluation''s outcome and grounds — never a second copy of the verdict.
 
+  5. **The artifacts'' single-sourcing discipline (R-9):** the spec card''s self-containment
+  clause and the plan card''s artifact-discipline rule carry it — each operative fact
+  stated once in its owning section, every other mention pointing at its owner; the
+  loop-engine cure both loops measured.
 
-  The stale gloss (R-8): the implementation-workflow verify-pass row stops stating
+  6. The stale gloss (R-8): the implementation-workflow verify-pass row stops stating
   a bound of one review.
 
 
@@ -177,6 +181,17 @@ body: '## Problem
   - **R-7 — The bars stand.** The findings-are-fixed requirement — findings are never
   negotiated away — and criteria invariance SHALL stand unchanged, and SHALL never
   be satisfied by a round count.
+
+  - **R-9 — The artifacts'' single-sourcing discipline.** The spec card''s §5 self-containment
+  clause SHALL carry the discipline this artifact''s own loop measured: an artifact
+  states each operative fact once, in the section that owns it — surfaces in the scope
+  table, rules in the requirements, checks as mappings whose element lists the mapped
+  requirement owns, measured history in the evidence — with the artifact''s own loop
+  history deferred to the issue''s record — and every other mention points at its
+  owner. The plan card''s artifact-discipline rule (its §5) SHALL carry the parallel
+  statement in plan voice. The discipline is the measured cure for the loop engine:
+  the round ledger of this artifact and of `.opencode#2662` shows the findings concentrating
+  wherever a fact was stated more than once.
 
   - **R-8 — The stale gloss.** The implementation-workflow reference''s verify-pass
   row SHALL describe its step consistently with the verify card''s review loop — the
@@ -293,5 +308,5 @@ body: '## Problem
 
   Artifacts for agents: `.opencode/.issues/2660/`.'
 created_at: '2026-10-23T20:53:36+00:00'
-updated_at: '2026-10-24T17:58:50+00:00'
+updated_at: '2026-10-24T17:59:04+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2660
