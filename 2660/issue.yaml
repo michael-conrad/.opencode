@@ -125,20 +125,23 @@ body: '## Problem
   per issue, one top-level section per artifact under validation, each entry carrying
   the round''s outcome, every defect class the round adjudicated with its classification
   (a finding or a preference) and, for a finding, its remediation performed or the
-  outcome reached, including the terminal cycle. The classification a round records
-  is not an observation — it is the classification the round made — and recording
-  it is what makes the stability requirement checkable. The record lives beside the
-  artifact and never inside the spec or plan body; a cycle whose artifact belongs
-  to no issue in a store (the `work` card''s short-path scope statement) records per
-  the `verify` card''s own recording rule and appends no store record. A cycle''s
-  judgment cites the record.
+  outcome reached, including the terminal cycle; and, when a cycle ran the structural
+  re-evaluation, the re-evaluation''s outcome and its grounds — the factors it examined
+  and what it found under each. The classification a round records is not an observation
+  — it is the classification the round made — and recording it is what makes the stability
+  requirement checkable. The record lives beside the artifact and never inside the
+  spec or plan body; a cycle whose artifact belongs to no issue in a store (the `work`
+  card''s short-path scope statement) records per the `verify` card''s own recording
+  rule and appends no store record. A cycle''s judgment cites the record.
 
   - **R-6** — Both criteria sources'' verdict contracts SHALL state the finding/preference
   boundary as class-determined: a factual defect is a finding regardless of effect;
   a preference is never a finding; no third category exists. The same defect class
   SHALL be classified the same way in every round, and the validation record''s per-round
   classification of each adjudicated class is what makes that checkable. The churn
-  rule''s verbatim form is unchanged.
+  rule''s verbatim form is unchanged; its "correctness" prong is the artifact''s factual
+  accuracy and the completeness of its impact enumeration — a defect in either is
+  a factual defect, classified by its class like any other.
 
   - **R-7** — The findings-are-fixed requirement and criteria invariance SHALL stand
   unchanged, and SHALL never be satisfied by a round count.
@@ -243,5 +246,5 @@ body: '## Problem
 
   Artifacts for agents: `.opencode/.issues/2660/`.'
 created_at: '2026-10-23T20:53:36+00:00'
-updated_at: '2026-10-24T08:05:59+00:00'
+updated_at: '2026-10-24T08:16:12+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2660
