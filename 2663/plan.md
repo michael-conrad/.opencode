@@ -174,7 +174,10 @@ case. That is how the RED assertions below are run.
 ## Rollback
 
 Every change is a text edit to tracked files in one repository; the branch is
-a single commit off the verified trunk tip `a1fb61c6`, so
-`git reset --hard a1fb61c6` restores the pre-change state. No change touches
+four commits above the verified trunk tip `a1fb61c6` — one per item, each
+committed and pushed before the next begins — so
+`git reset --hard a1fb61c6` restores the pre-change state of this change. The
+`.opencode#2657` branch is stacked on this one, so a reset here rebases it:
+its base moves, and its own commits are replayed onto the reset tip. No change touches
 a credential, a deployment surface, or a remote's contents. The harness's own
 artifacts live under `tmp/` and are disposable.
