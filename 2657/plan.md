@@ -38,7 +38,7 @@ stacked beneath this one.
 
 ## The work record's path
 
-R-10 requires the work card to name the work record's path. The plan fixes it:
+R-3 requires the work card to name the work record's path. The plan fixes it:
 the path **`git rev-parse --git-path work-record.md` reports**, inside the
 repository's own git directory. That path is not a working-tree path, so the
 record never appears in the repository's status and needs no ignore-rule
@@ -164,7 +164,10 @@ spec card owns it.
   own criterion; each new script contains `behavior_run` and `exit 0` and no
   assertion helper; each of the six scenarios the change touches declares
   `BEHAVIOR_GOAL_ACTIONS`, and each declares
-  `BEHAVIOR_EXPECTED_ARTIFACT` except SC-10's; each declared content pattern
+  `BEHAVIOR_EXPECTED_ARTIFACT` except SC-7's and SC-10's — SC-7's
+  because the full-path spec artifact's path depends on the issue number the
+  run creates, SC-10's because its criterion turns on a question in the
+  transcript; each declared content pattern
   is absent from its target before the run (`grep` over the target returns
   no match); each fixture's trunk-settling step is present; and the store
   bootstrap is executable — drive it against a project prepared the way the
@@ -200,8 +203,8 @@ spec card owns it.
 
 ## Item 3 — the work card: path selection, criteria, scope, record (SC-2)
 
-- Deliverable: `skills/work/SKILL.md` rewritten to R-1 through R-7, R-10,
-  and R-11. The card's rule 4 names the work record's path as the one
+- Deliverable: `skills/work/SKILL.md` rewritten to R-1 through R-5 and
+  R-7 — the requirements the work card carries. The card's rule 4 names the work record's path as the one
   `git rev-parse --git-path work-record.md` reports — inside the repository's
   own git directory, which is not a working-tree path, so the record is
   absent from the repository's status without any ignore-rule entry. No
@@ -497,12 +500,14 @@ spec card owns it.
   directed card edit and produces no issue, no spec document, and no
   validation dispatch — the evidence is the clean-room evaluation record for
   the run, which names the criterion and the `session.yaml` events it read.
-- RED: the criterion is a preservation — the pre-change deck's short path was
-  the default for a developer-specified single-file edit, so the property
-  holds there and the RED has no failing assertion to record. The RED that
-  does exist is the scenario's own: the file did not exist before this change
-  (item 1's RED), and the scenario's second criterion had no clean-room
-  evaluation to judge it — which is what this item adds.
+- RED: the scenario existed before this change, carrying only the
+  `.opencode#2584` anti-archaeology criterion — `grep -c "^# .opencode#2657
+  SC-" tests-v2/behaviors/2584-sc4-directed-card-edit-no-archaeology.sh`
+  returns 0 at the base — so the second criterion, and the clean-room
+  evaluation that would judge it, did not exist. The criterion is a
+  preservation: the pre-change deck's short path was the default for a
+  developer-specified single-file edit, so the property holds there and the
+  RED is the criterion's absence, not a failing run.
 - GREEN: run `2584-sc4-directed-card-edit-no-archaeology` against the branch
   tip that carries the card changes. The clean-room evaluation shows the run
   edited the card the request names, that it contains no issue filing, no
@@ -515,16 +520,20 @@ spec card owns it.
 
 ## Rollback
 
-Every change is a text edit to tracked files plus five new test files and
-one deletion; the branch is a single feature branch off the stacked harness
-branch, whose base is the verified trunk tip `a1fb61c6`, so
-`git reset --hard a1fb61c6` restores the pre-change state. No change touches
-a credential, a deployment surface, or a remote's contents. The harness's own
-artifacts live under `tmp/` and are disposable.
+Every change is a text edit to tracked files plus eleven new test files
+(five scenarios and six fixtures) and one deletion; this change is one commit
+on top of the harness branch, whose base is the verified trunk tip `a1fb61c6`.
+`git reset --hard feature/2663-harness-cap-hit-resume` restores the
+pre-change state of *this* change — resetting to `a1fb61c6` instead would
+also drop the stacked harness repair, which belongs to `.opencode#2663`. No
+change touches a credential, a deployment surface, or a remote's contents.
+The harness's own artifacts live under `tmp/` and are disposable.
 
-The two changes are separate branches with one commit each, so each is
-reviewed on its own: `feature/2663-harness-cap-hit-resume` (the harness
-repair) and `feature/2657-path-selection-short-path` (this change, stacked on
-it). The pre-split history of this work is preserved in the local branch
-`backup/2657-monolithic`; the tree it holds is identical to the two branches'
-combined tree.
+The two changes are separate branches, so each is reviewed on its own:
+`feature/2663-harness-cap-hit-resume` (the harness repair, four commits
+above the trunk tip) and `feature/2657-path-selection-short-path` (this
+change, one commit on top of it). The pre-split history of this work is
+preserved in the local branch `backup/2657-monolithic`; its tree holds the
+monolithic state before the harness repair's later fixes landed, so it
+differs from the two branches' combined tree in the nine files those fixes
+touched.
