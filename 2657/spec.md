@@ -287,18 +287,20 @@ task. R-9 and SC-11 carry both.
   path — name the short path's artifact rather than the term's definition.
   The deck's records are named, and each card's reference names the record
   it means. There is one record: the **work record**, a single file in the
-  working tree, at a path the work card's convention names. It carries
-  two things. The **provenance** the branch card records — the verified
+  repository's own git directory, at a path the work card's convention names.
+  It carries two things. The **provenance** the branch card records — the verified
   trunk tip, the branch, the base tip, and the issue where one exists — which
   the branch card writes at its trunk-freshness step, before any modification
   and before the branch exists, and extends at its provenance step. The
   **scope statement** R-4 describes, which the work card writes before the
   first edit. The work record is a work-state artifact, which the cleanup
   card removes; it is not part of the branch's commits, because the commit
-  card stages named files only; and the repository's ignore rules cover the
-  record's path, so the record never appears in the repository's status and
-  never blocks a tool that requires a clean working tree. Every "work record"
-  and "work state" reference in `skills/work/SKILL.md`,
+  card stages named files only; and its path is covered by the repository's
+  ignore rules by construction — the convention names a file inside the
+  repository's own git directory — so the record never appears in the
+  repository's status and never blocks a tool that requires a clean working
+  tree, and establishing that coverage never touches the tracked tree. Every
+  "work record" and "work state" reference in `skills/work/SKILL.md`,
   `skills/git-workflow-branch/SKILL.md`, `skills/implement/SKILL.md`,
   `skills/git-workflow-cleanup/SKILL.md`, `skills/verify/SKILL.md`, and
   `skills/git-workflow-pr/SKILL.md` — in each card's body and in its
@@ -396,9 +398,7 @@ self-certified, and R-5 re-examines it when the work outgrows it.
 `skill-creator`, `verify`, `git-workflow-pr`, `git-workflow-branch`, and
 `git-workflow-cleanup` cards; `tests-v2/behaviors/`; the cap-hit resume
 path in `tests-v2/behaviors/helpers.sh` together with the Docker resume
-launcher in `tests-v2/docker/docker-harness.sh`; and the ignore rules of the
-repositories a change touches, which cover the work record's path. The
-amendments to
+launcher in `tests-v2/docker/docker-harness.sh`. The amendments to
 `verify`, `git-workflow-pr`, `git-workflow-branch`, and `git-workflow-cleanup`
 are clause-level clarifications that name the artifact the card already
 requires and, for the verify card, the verdict unit and owning card the
@@ -474,9 +474,9 @@ them.
   "work state" reference, in each card's body and frontmatter description,
   names the work record, the part it names covers the reference's
   requirement, each card that owns the record states where and when the agent
-  writes it and that the repository's ignore rules cover its path, the two
-  routing cards point at the work card's definition, and the two consuming
-  cards name the short path's artifact.
+  writes it and that the record's path is covered by the repository's ignore
+  rules by construction, the two routing cards point at the work card's
+  definition, and the two consuming cards name the short path's artifact.
 
 ### SC-5 (structural) — the verification and PR-readiness gates read the scope statement
 
