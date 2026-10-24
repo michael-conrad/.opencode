@@ -127,12 +127,17 @@ body: '## Problem
   (a finding or a preference) and, for a finding, its remediation performed or the
   outcome reached, including the terminal cycle; and, when a cycle ran the structural
   re-evaluation, the re-evaluation''s outcome and its grounds — the factors it examined
-  and what it found under each. The classification a round records is not an observation
-  — it is the classification the round made — and recording it is what makes the stability
-  requirement checkable. The record lives beside the artifact and never inside the
-  spec or plan body; a cycle whose artifact belongs to no issue in a store (the `work`
-  card''s short-path scope statement) records per the `verify` card''s own recording
-  rule and appends no store record. A cycle''s judgment cites the record.
+  and what it found under each. The recorded class is the criteria source''s enumerated
+  defect class where one applies and, for a factual defect, one of the fixed factual-defect
+  kinds — a stale citation, a wrong count, a mis-scoped claim, a mis-sourced attribution,
+  a scope gap, an internal contradiction — and the same defect carries the same label
+  in every round, so that two rounds'' entries for one defect compare. The classification
+  a round records is not an observation — it is the classification the round made
+  — and recording it is what makes the stability requirement checkable. The record
+  lives beside the artifact and never inside the spec or plan body; a cycle whose
+  artifact belongs to no issue in a store (the `work` card''s short-path scope statement)
+  records per the `verify` card''s own recording rule and appends no store record.
+  A cycle''s judgment cites the record.
 
   - **R-6** — Both criteria sources'' verdict contracts SHALL state the finding/preference
   boundary as class-determined: a factual defect is a finding regardless of effect;
@@ -208,8 +213,15 @@ body: '## Problem
   | SC-9 | An agent running the revised loop on an artifact engineered so each round
   yields genuinely new shallow findings with no obvious convergence performs the structural
   re-evaluation instead of continuing unbounded in-place revision, and its outcome
-  appears in the issue''s validation record | behavioral | Tier-1 clean-room behavioral
-  dispatch per the `behavioral-testing` card, modeled on `.opencode/.issues/2582/audit/tier1-dispatch-SC15-20261013.yaml`
+  appears in the issue''s validation record — and the run reaches a fifth revision,
+  where the count trigger mandates the re-evaluation independently of the judgment''s
+  firing | behavioral | Tier-1 clean-room behavioral dispatch per the `behavioral-testing`
+  card: dispatch a sub-agent with no prior context to run the revised loop rule against
+  an engineered artifact through at least five revisions, from its recorded dispatch
+  evidence (prompt and observed output persisted in the owning issue''s artifact area)
+  assert the re-evaluation fired at or before the fifth revision — by the judgment
+  where it fires and by the count where it would not — and the record carries the
+  outcome and its grounds; modeled on `.opencode/.issues/2582/audit/tier1-dispatch-SC15-20261013.yaml`
   |
 
 
@@ -246,5 +258,5 @@ body: '## Problem
 
   Artifacts for agents: `.opencode/.issues/2660/`.'
 created_at: '2026-10-23T20:53:36+00:00'
-updated_at: '2026-10-24T08:24:59+00:00'
+updated_at: '2026-10-24T08:25:23+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2660
