@@ -546,5 +546,5 @@ above the trunk tip) and `feature/2657-path-selection-short-path` (this
 change, one commit on top of it). The pre-split history of this work is
 preserved in the local branch `backup/2657-monolithic`; its tree holds the
 monolithic state before the harness repair's later fixes landed, so it
-differs from the two branches' combined tree in the nine files those fixes
+differs from the two branches' combined tree in the ten files those fixes
 touched.
