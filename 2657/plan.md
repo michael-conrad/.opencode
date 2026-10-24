@@ -386,9 +386,14 @@ fail (`implement` card rule 3, rule 10).
   and the `session.yaml` events it read.
 - RED: run `2657-sc3-short-path-collapsed-form` with
   `BEHAVIOR_SUBMODULE_COMMIT=a1fb61c6`. The pre-change card records no scope
-  statement — the record it names has no surface — so the run edits
-  `SUPPORT.md` with no scope statement preceding it. Evidence: the artifact
-  directory.
+  statement — the concept does not exist on that deck, and the record it
+  names has no surface — so the run announces the short path in its own words
+  ("Direct single-file change with the request as spec — short path") and
+  produces no artifact at all: no write, edit, or patch call in any of the
+  recorded runs, `SUPPORT.md` read and never modified, and no scope statement
+  anywhere in the record. What the runs establish is that the pre-change
+  deck has no scope statement to state and no artifact to produce. Evidence:
+  the artifact directories and their clean-room evaluations.
 - GREEN: run the same scenario unpinned. The clean-room evaluation shows the
   scope statement precedes the edit and carries R-4's contents; the run
   contains no spec document, no plan document, no spec-validation or
