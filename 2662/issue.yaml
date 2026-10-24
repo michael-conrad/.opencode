@@ -35,7 +35,7 @@ body: '## Problem
   ## Scope
 
 
-  Seven deck surfaces in the `.opencode` submodule:
+  Six deck surfaces in the `.opencode` submodule:
 
 
   - `skills/correspondence/SKILL.md` — description and body: the channel set, the
@@ -60,8 +60,11 @@ body: '## Problem
 
   Untouched: `floor.md` (a substantive write triggers the ainglish whole-card-on-touch
   conversion of the whole floor); the `spec`, `research`, `behavioral-testing`, `gh-cli`,
-  and `gb-cli` cards; the `git-workflow-pr` PR-body contract; the `local-issues` tool;
-  `tests-v2/`; the criteria sets and the `skill-creator` admission gate.
+  and `gb-cli` cards; the `git-workflow-pr` PR-body contract; the `issues` card''s
+  label clause (§2) and ticket-state hygiene (§6) — the state-tracking adjacency is
+  recorded in the spec, and the label model is a separate question this change does
+  not re-litigate; the `local-issues` tool; `tests-v2/`; the criteria sets and the
+  `skill-creator` admission gate.
 
 
   ## Approach
@@ -73,10 +76,10 @@ body: '## Problem
   the agent publishes generated content, so the card is loaded at the moment the agent
   decides where content goes. The card''s body gains the channel set (stakeholder
   surfaces against working surfaces), the **positive** remote class (a stakeholder
-  notice: content a named reader must act on before the work can continue), the **named**
-  internal class (the five observed failure classes, plus progress narration and audit
-  and verification verdicts), the **default under uncertainty** (the working surface,
-  with the asymmetry that decides the tie: a notice can be added later, published
+  notice: content whose reader must take a specific action before the work can continue),
+  the **named** internal class (the five observed failure classes, plus progress narration
+  and audit and verification verdicts), the **default under uncertainty** (the working
+  surface, with the asymmetry that decides the tie: a notice can be added later, published
   narration cannot be withdrawn), the **route** for each class (chat for the live
   exchange; the local issue store for the record; the artifacts for the durable trace;
   the artifact edited in place for a correction), and the no-read-back rule (a tracker
@@ -87,10 +90,12 @@ body: '## Problem
 
 
   The change adds **no script, no wrapper, no tool command, no classifier, and no
-  threshold** — the rule is judgment. The deck''s own history is that scripted instruction
-  surfaces become decks that have to be trashed and replaced, and the agent in the
-  reported situation is already rogue and would work around any interlock; the deck''s
-  answer is a rule that is true, findable, and correct on its default path.
+  threshold** — the rule is judgment. The pre-rip deck''s scripted instruction surfaces
+  are preserved in `attic/` after the #2490 rewrite, and the developer''s ruling in
+  this session is explicit: scripting produces decks that have to be trashed and replaced.
+  The agent in the reported situation is already rogue and would work around any interlock,
+  so the deliverable is a rule that is true, findable, and correct on its default
+  path.
 
 
   ## Requirements
@@ -107,9 +112,9 @@ body: '## Problem
   the agent decides where content goes; and SHALL state the decision the card owns.
 
   - **R-3** — The rule SHALL state the positive remote class: a remote issue comment
-  is a stakeholder notice whose content a named reader must act on before the work
-  can continue; and SHALL name the qualifying kinds (a decision, a scope change, a
-  finding, a status the reader must act on).
+  is a stakeholder notice — content whose reader must take a specific action before
+  the work can continue; and SHALL name the qualifying kinds (a decision, a scope
+  change, a finding, a status the reader must act on).
 
   - **R-4** — The rule SHALL name the content that never reaches the tracker, and
   the named set SHALL include every observed failure class: escalation reports, clarification
@@ -142,7 +147,9 @@ body: '## Problem
   contract.
 
   - **R-11** — The change SHALL add no script, no wrapper, no tool command, no classifier,
-  and no size threshold, and SHALL touch no file outside the surfaces named in Scope.
+  and no size or count threshold.
+
+  - **R-12** — The change SHALL touch no file outside the surfaces named in Scope.
 
 
   ## Success criteria
@@ -164,9 +171,9 @@ body: '## Problem
   |
 
   | SC-3 | The rule states the positive remote class — a remote issue comment is a
-  stakeholder notice whose content a named reader must act on before the work can
-  continue — and names the qualifying kinds | structural | Read the rule text; assert
-  the predicate and each named kind present |
+  stakeholder notice, content whose reader must take a specific action before the
+  work can continue — and names the qualifying kinds | structural | Read the rule
+  text; assert the predicate and each named kind present |
 
   | SC-4 | The rule names as content that never reaches the tracker: escalation reports,
   clarification requests, the agent''s reasoning, chat and session-transcript excerpts,
@@ -204,13 +211,16 @@ body: '## Problem
   contract | structural | Read the rule text and `skills/git-workflow-pr/SKILL.md`
   §4; assert both clauses and that §4 is unchanged |
 
-  | SC-11 | The change adds no script, wrapper, tool command, classifier, or size
-  threshold, and touches no file outside the surfaces named in Scope | structural
-  | The change''s file list against its base tip contains only the named surfaces;
-  no new or modified file under `tools/`, `tests-v2/`, `hooks/`, or `plugins/`; no
-  numeric threshold on content size |
+  | SC-11 | The change adds no script, no wrapper, no tool command, no classifier,
+  and no size or count threshold | structural | The change''s file list against its
+  base tip contains no added or modified file under `tools/`, `tests-v2/`, `hooks/`,
+  or `plugins/`; the amended text contains no numeric threshold on content size |
 
-  | SC-12 | No clause in the amended deck leaves a tracker comment satisfiable by
+  | SC-12 | The change touches no file outside the surfaces named in Scope | structural
+  | The change''s file list against its base tip contains exactly the named surfaces
+  |
+
+  | SC-13 | No clause in the amended deck leaves a tracker comment satisfiable by
   an escalation report, a clarification request, a reasoning trace, a chat excerpt,
   or a state update — the five observed failure classes | semantic | A fresh-context
   reviewer, given the amended cards and the recorded observed-failure classes, judges
@@ -224,10 +234,14 @@ body: '## Problem
   - `floor.md` — the whole-card ainglish conversion cost, and the skill-creator card''s
   always-loaded-surface discipline.
 
-  - The `spec` and `plan` cards'' artifact-discipline rules; the `gh-cli` and `gb-cli`
-  cards'' command mechanics; the `behavioral-testing` card.
+  - The `spec` card''s artifact-discipline rules; the `gh-cli` and `gb-cli` cards''
+  command mechanics; the `behavioral-testing` card.
 
   - The `git-workflow-pr` PR-body contract.
+
+  - The `issues` card''s label clause (§2) and its ticket-state hygiene (§6) — the
+  state-tracking adjacency is recorded in the spec; the label model is a separate
+  question this change does not re-litigate.
 
   - Any new tool command, wrapper, hook, or scenario script; any size or count threshold.
 
@@ -241,7 +255,7 @@ body: '## Problem
   not edited here.
 
   - A sweep of the existing trackers for comments the new rule would classify as internal
-  — a developer-side cleanup, not a deck change.
+  — a developer-side cleanup, not a deck change, and not a deletion this change performs.
 
 
   ## Impact
@@ -254,8 +268,12 @@ body: '## Problem
   class, a default, and routes. Risk: over-suppression — a legitimate stakeholder
   notice withheld; bounded by the positive class (R-3) and by the developer''s own
   review of the tracker, which is where the notice would otherwise have been noise.
-  Blast radius: the seven amended deck surfaces and their routed consumers; the `local-issues`
-  tool is untouched.
+  Second risk: no enforcement — a determined agent that disregards every card remains
+  outside the deck''s reach, by the developer''s explicit direction; the change''s
+  effect rests on the rule being encountered, on the channels being named at each
+  producer, and on the default being the working surface. Blast radius: the six amended
+  deck surfaces and their routed consumers; the `local-issues` tool, the harness,
+  and every script surface are untouched.
 
 
   > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2662/
@@ -265,5 +283,5 @@ body: '## Problem
 
   '
 created_at: '2026-10-24T03:19:45+00:00'
-updated_at: '2026-10-24T03:21:51+00:00'
+updated_at: '2026-10-24T03:24:28+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2662
