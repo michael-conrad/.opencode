@@ -30,7 +30,8 @@ tree, which carries both changes.
 | `tests-v2/behaviors/2584-sc5-short-path-single-file.sh` | retired (deleted) | SC-11 |
 | `tests-v2/behaviors/2584-sc4-directed-card-edit-no-archaeology.sh` | header states the second criterion | SC-11 |
 | `tests-v2/behaviors/2657-sc1..sc5-*.sh` | five new scenarios | SC-6..SC-10, SC-11 |
-| `tests-v2/behaviors/fixtures/setup/2657-sc1..sc5-*.sh` | five new setup fixtures | SC-11 |
+| `tests-v2/behaviors/fixtures/setup/2657-common.sh` | the shared setup helper every per-scenario fixture sources: the store bootstrap and the trunk settling | SC-11 |
+| `tests-v2/behaviors/fixtures/setup/2657-sc1..sc5-*.sh` | five new per-scenario setup fixtures | SC-11 |
 
 No harness file is in this change: the cap-hit resume, the determination
 gate, and the surfaces that state them belong to `.opencode#2663`'s change,
@@ -80,18 +81,24 @@ run's evidence and the criterion it did not confirm. It is not absorbed by
 reinterpreting the criterion, and the criterion is not weakened to make it
 fail (`implement` card rule 3, rule 10).
 
-A behavioral GREEN that does not confirm is handled the same way, and the spec
-names the step that follows: the three criteria that turn on a full-path spec
-artifact (SC-6, SC-7, SC-9) are re-scoped at the spec — the scenario's
-artifact made small enough for the harness's per-turn budget — and the spec
-is revised and re-validated before those criteria are judged again. The
-implementor does not re-scope the criterion, and does not re-scope the
+A behavioral GREEN that does not confirm is handled the same way. The
+remedy for a criterion that cannot be met within the harness's per-turn
+budget is a re-scope at the spec — the scenario's artifact made small enough
+for the budget — and that remedy is the harness's own rule, not this plan's:
+`tests-v2/AGENTS.md` §17's R-18 cause-analysis mandate and the per-turn
+generation section ("a scenario whose legitimate turns routinely hit the cap
+is re-scoped at the spec"), and `skills/behavioral-testing/SKILL.md` rule 2.
+The implementor does not re-scope the criterion, and does not re-scope the
 scenario, to make the GREEN pass: the re-scope is a spec revision, and the
 spec card owns it.
 
 ## Item 1 — the scenario set (SC-11)
 
-- Deliverable: five new scenario scripts and five matching setup fixtures;
+- Deliverable: five new scenario scripts, five matching per-scenario setup
+  fixtures, and the shared setup helper they source (`2657-common.sh` — the
+  store bootstrap and the trunk settling, which the per-scenario fixtures
+  call and which the harness's fixture-issue injection has already prepared
+  the store for);
   `2584-sc5-short-path-single-file.sh` deleted; `2584-sc4`'s header states
   the anti-archaeology criterion and the no-full-path-machinery criterion
   beside it. Each scenario is an artifact-only generator: it runs
@@ -156,7 +163,8 @@ spec card owns it.
   that exists in the deck.
 - Verify: `ls tests-v2/behaviors/2657-sc*` → 5 files; `ls
   tests-v2/behaviors/fixtures/setup/2657-sc*` → 5 files, each name equal to
-  its scenario's `SCENARIO_NAME`; `test ! -e
+  its scenario's `SCENARIO_NAME`; `tests-v2/behaviors/fixtures/setup/2657-common.sh`
+  exists and each per-scenario fixture sources it; `test ! -e
   tests-v2/behaviors/2584-sc5-short-path-single-file.sh`; `grep` of
   `2584-sc4`'s header shows both criteria, and the second names the criterion
   that judges it (SC-12); `grep -c "^# .opencode#2657 SC-"
