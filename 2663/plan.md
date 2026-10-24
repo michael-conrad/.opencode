@@ -81,9 +81,12 @@ case. That is how the RED assertions below are run.
   the scenario's resume never runs.
 - GREEN: add the composer and wire it into both resume paths; make the
   artifact-directory argument optional in both helpers.
-- Verify: `grep -n "Continue the task from where you left off"` over both
-  files returns only comments; the composer runs against a real session
-  database and returns a message naming the recorded next action; the
+- Verify: read the two files — the cap-hit resume calls the composer and
+  passes its message to both the Docker and the host resume path, and the
+  Docker resume launcher's own default is the tail-derived message rather
+  than a fixed string; `grep -n "Continue the task from where you left off"`
+  over both files returns only comments; the composer runs against a real
+  session database and returns a message naming the recorded next action; the
   six-argument call to `__resume_on_cap_hit` and to `__docker_launch_resume`
   runs without an unbound-variable error; `grep -c
   "OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=.*4000"` over the cap surfaces is
@@ -174,10 +177,14 @@ case. That is how the RED assertions below are run.
 ## Rollback
 
 Every change is a text edit to tracked files in one repository; the branch is
-four commits above the verified trunk tip `a1fb61c6` — one per item, each
-committed and pushed before the next begins — so
+four commits above the verified trunk tip `a1fb61c6`, so
 `git reset --hard a1fb61c6` restores the pre-change state of this change. The
-`.opencode#2657` branch is stacked on this one, so a reset here rebases it:
-its base moves, and its own commits are replayed onto the reset tip. No change touches
+commits do not map one-to-one onto the items — the first carries items 1, 2
+and 3's surfaces, the second items 2 and 3's corrections, the third a
+one-line attribution fix, and the fourth item 1's optional-argument change
+together with item 4's pattern terminator — so the branch is reverted as a
+unit, not item by item. The `.opencode#2657` branch is stacked on this one,
+so a reset here rebases it: its base moves, and its own commits are replayed
+onto the reset tip. No change touches
 a credential, a deployment surface, or a remote's contents. The harness's own
 artifacts live under `tmp/` and are disposable.
