@@ -47,24 +47,29 @@ body: '## Problem
   Three files in the `.opencode` submodule — two cards and one guideline:
 
 
-  - `skills/correspondence/SKILL.md` — description and body: the channel set, the
-  stakeholder-notice class with its falsifier, the internal class naming the observed
-  failure classes, the default under uncertainty, the route per class, the class-coverage
-  statement for developer-directed content, the no-read-back rule, the pull-request
-  surfaces, and the statement that the tracker''s labels and closure state are the
-  `issues` card''s surfaces. The card''s §1 audience-separation sentence is superseded
-  by the rule, which states the same principle with the channel set and the classes
-  made explicit, and the body gains a heading for the rule — the `issues` card''s
-  link names that heading, because the deck''s `reference-integrity` tool resolves
-  a canonical link''s text against the target file''s headings; the card''s §2 (executive-summary
-  format) and §5 (identity byline) are unchanged and continue to govern a stakeholder
-  notice; the retired card''s per-comment-type templates are not restored.
+  - `skills/correspondence/SKILL.md` — description and body: the description''s own
+  audience-separation sentence rewritten into the widened router, with its terms bound
+  and its narrowing of stakeholder channels to correspondence dropped; the channel
+  set, the stakeholder-notice class with its falsifier, the internal class naming
+  the observed failure classes, the default under uncertainty, the route per class,
+  the class-coverage statement for developer-directed content, the no-read-back rule,
+  the pull-request surfaces, and the statement that the tracker''s labels and closure
+  state are the `issues` card''s surfaces. The card''s §1 audience-separation sentence
+  is superseded by the rule, which states the same principle with the channel set
+  and the classes made explicit, and the body gains a heading for the rule — the `issues`
+  card''s link names that heading, because the deck''s `reference-integrity` tool
+  resolves a canonical link''s text against the target file''s headings; the card''s
+  §2 (executive-summary format) and §5 (identity byline) are unchanged and continue
+  to govern a stakeholder notice; the retired card''s per-comment-type templates are
+  not restored.
 
   - `skills/issues/SKILL.md` §3 and description — §3 defers to the channel rule and
   states the caller-side discipline (gate evaluated before committing to post; posting
   is not the default); the description''s summary of the gate is corrected, so the
-  router no longer reads as banning progress narration only; the card''s one non-canonical
-  cross-reference converts to the canonical form.
+  router no longer reads as banning progress narration only; the card''s two non-canonical
+  cross-references — the markdown link to the remote-body-format reference and the
+  bare pointer to the detail cards under `references/` — convert to the canonical
+  form.
 
   - `guidelines/deprecation-encounter-protocol.md` R-4 — both encounter-evidence append
   sites are routed to the ticket''s store record, so the deck carries no live instruction
@@ -146,7 +151,9 @@ body: '## Problem
   - **R-2** — The `correspondence` skill description SHALL name each of the seven
   stakeholder channels enumerated in R-1 and chat, and SHALL state the decision the
   card owns; so that the card is loaded at the moment the agent chooses between a
-  working surface and a stakeholder surface.
+  working surface and a stakeholder surface. The description''s own audience-separation
+  sentence SHALL be rewritten: it states the principle once, with the terms bound,
+  and no longer narrows stakeholder channels to correspondence.
 
   - **R-3** — The rule SHALL state the positive remote class with a falsifier: a stakeholder
   notice is content whose reader must take a specific action before the work can continue
@@ -311,10 +318,14 @@ body: '## Problem
   |
 
   | SC-12 | The `correspondence` card states the audience-separation principle once:
-  its §1 sentence is superseded by the rule, and no second statement of the principle
-  with an unbound "internal findings" term remains | structural | Read `skills/correspondence/SKILL.md`;
-  assert §1''s sentence is gone, the rule''s statement present, and that the terms
-  "internal" and "finding" are bound within the rule |
+  its §1 sentence is superseded by the rule, its description''s audience-separation
+  sentence is rewritten into the router, and no statement of the principle with an
+  unbound "internal findings" term remains in the card — body or description | structural
+  | Read `skills/correspondence/SKILL.md` in full, body and frontmatter; assert §1''s
+  sentence is gone, the rule''s statement present, the description carries the widened
+  router and not a second principle statement, that the terms "internal" and "finding"
+  are bound within the rule, and that nothing narrows stakeholder channels to correspondence
+  |
 
   | SC-13 | Each non-canonical cross-reference in the amended `issues` card reads
   in the canonical `Read [Text](path)` form — its markdown link to the remote-body-format
@@ -421,5 +432,5 @@ body: '## Problem
 
   '
 created_at: '2026-10-24T03:19:45+00:00'
-updated_at: '2026-10-24T07:08:42+00:00'
+updated_at: '2026-10-24T07:26:03+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2662
