@@ -4,6 +4,266 @@ status: open
 labels:
 - needs-approval
 - spec
-body: ''
+body: '## Problem
+
+
+  The live deck has no rule that keeps the agent''s own working content off the remote
+  issue tracker, and no card that names the channel for an escalation or a clarification
+  request. The deck''s only instruction on the matter is `skills/issues/SKILL.md`
+  §3 — one compressed sentence: a remote comment is posted "only for a major substantive
+  change that needs special attention — findings or decisions a stakeholder must see,"
+  with three named exclusions (progress narration, internal reasoning, routine status).
+  The developer''s observed failures are not on that list: escalation reports, clarification
+  requests, the agent''s reasoning, chat and session-transcript excerpts, and pipeline-state
+  updates. Each reads as a "finding a stakeholder must see," so the agent posts them;
+  the developer deletes them as noise.
+
+
+  The gate is a **closed ban-list** where the pre-rewrite deck had an **open classification
+  with a stated default**, so content the list does not name escapes the rule. Separately,
+  the channel vacuum: the implementation-workflow reference says to "report the state,
+  the blocker, and what is needed," the `verify` card says escalation "fires" to the
+  developer, and the floor''s standing formula says to halt with an open-ended clarification
+  request — none names where the report goes, and the issue being worked is the only
+  durable, developer-visible object within reach. The deck already holds the governing
+  principle — `skills/correspondence/SKILL.md` §1: "Internal findings, audit output,
+  and raw progress go to chat — never to stakeholder channels," with a description
+  that already claims the decision ("when deciding whether content belongs in a stakeholder
+  channel at all") — but no card ever names the issue tracker as a stakeholder channel.
+
+
+  ## Scope
+
+
+  Seven deck surfaces in the `.opencode` submodule:
+
+
+  - `skills/correspondence/SKILL.md` — description and body: the channel set, the
+  stakeholder-notice class, the internal class naming the observed failure classes,
+  the default under uncertainty, the route per class, the no-read-back rule, PR-comment
+  parity, the format rule.
+
+  - `skills/issues/SKILL.md` §3 and description — §3 defers to the channel rule and
+  states the caller-side discipline (gate evaluated before committing to post; posting
+  is not the default); the description''s summary of the gate is corrected.
+
+  - `skills/implement/references/implementation-workflow.md` — the escalation rule
+  names the channel.
+
+  - `skills/verify/SKILL.md` §4 — the escalation rule names the channel.
+
+  - `skills/git-workflow-pr/SKILL.md` §6 — "Notify and stop" names the medium.
+
+  - `skills/work/SKILL.md` §4 — the work record''s contents never become a tracker
+  comment; durable state lives in the local issue store and the artifacts.
+
+
+  Untouched: `floor.md` (a substantive write triggers the ainglish whole-card-on-touch
+  conversion of the whole floor); the `spec`, `research`, `behavioral-testing`, `gh-cli`,
+  and `gb-cli` cards; the `git-workflow-pr` PR-body contract; the `local-issues` tool;
+  `tests-v2/`; the criteria sets and the `skill-creator` admission gate.
+
+
+  ## Approach
+
+
+  One rule, one home, no mechanism. The `correspondence` card is widened to own the
+  **channel decision** — which surface a piece of agent-generated content belongs
+  on, and in what form — and its description is widened to name every surface on which
+  the agent publishes generated content, so the card is loaded at the moment the agent
+  decides where content goes. The card''s body gains the channel set (stakeholder
+  surfaces against working surfaces), the **positive** remote class (a stakeholder
+  notice: content a named reader must act on before the work can continue), the **named**
+  internal class (the five observed failure classes, plus progress narration and audit
+  and verification verdicts), the **default under uncertainty** (the working surface,
+  with the asymmetry that decides the tie: a notice can be added later, published
+  narration cannot be withdrawn), the **route** for each class (chat for the live
+  exchange; the local issue store for the record; the artifacts for the durable trace;
+  the artifact edited in place for a correction), and the no-read-back rule (a tracker
+  comment is never an answer, an authorization, or a record the agent reads back).
+  `skills/issues/SKILL.md` §3 keeps a pointer and the caller-side discipline the retired
+  card carried. The four escalation and notification producers each name their channel,
+  so the vacuum is closed at each producer and not only at the gate.
+
+
+  The change adds **no script, no wrapper, no tool command, no classifier, and no
+  threshold** — the rule is judgment. The deck''s own history is that scripted instruction
+  surfaces become decks that have to be trashed and replaced, and the agent in the
+  reported situation is already rogue and would work around any interlock; the deck''s
+  answer is a rule that is true, findable, and correct on its default path.
+
+
+  ## Requirements
+
+
+  - **R-1** — The `correspondence` card SHALL name the channel set: the stakeholder
+  channels (the issue tracker, a pull-request body, a pull-request comment, a wiki
+  page, a release note, correspondence) and the working surfaces (chat, the local
+  issue store, the artifacts under an issue''s folder); and SHALL state that the card
+  owns the channel decision while the card owning a surface owns that surface''s mechanics.
+
+  - **R-2** — The `correspondence` skill description SHALL name each surface on which
+  the agent publishes agent-generated content, so the card is loaded at the moment
+  the agent decides where content goes; and SHALL state the decision the card owns.
+
+  - **R-3** — The rule SHALL state the positive remote class: a remote issue comment
+  is a stakeholder notice whose content a named reader must act on before the work
+  can continue; and SHALL name the qualifying kinds (a decision, a scope change, a
+  finding, a status the reader must act on).
+
+  - **R-4** — The rule SHALL name the content that never reaches the tracker, and
+  the named set SHALL include every observed failure class: escalation reports, clarification
+  requests, the agent''s reasoning, chat and session-transcript excerpts, and pipeline
+  state — together with progress narration and audit and verification verdicts.
+
+  - **R-5** — The rule SHALL state that the default under uncertainty is the working
+  surface, and SHALL state the asymmetry that decides the tie: a stakeholder notice
+  can be added later, and published narration cannot be withdrawn.
+
+  - **R-6** — The rule SHALL name the route for each class: chat for a live exchange
+  (an escalation, a clarification request), the local issue store for the record (the
+  `local-issues comment --number repo#N --type internal` command), the artifacts for
+  the durable trace, and the artifact edited in place for a correction.
+
+  - **R-7** — The rule SHALL state that a tracker comment is never an answer, an authorization,
+  or a record the agent reads back.
+
+  - **R-8** — The escalation and notification producers SHALL each name their channel:
+  the implementation-workflow reference''s escalation rule, the `verify` card''s escalation
+  rule, the `git-workflow-pr` card''s terminal instruction, and the `work` card''s
+  work-record rule. Each names the developer, in chat, as the recipient.
+
+  - **R-9** — The `issues` card''s comment gate SHALL defer to the channel rule through
+  the deck''s canonical link form, and SHALL state that the gate is evaluated before
+  the agent commits to posting and that posting is not the default outcome.
+
+  - **R-10** — The rule SHALL state that a pull-request comment follows the same gate
+  as an issue comment; a pull-request body continues to follow the `git-workflow-pr`
+  contract.
+
+  - **R-11** — The change SHALL add no script, no wrapper, no tool command, no classifier,
+  and no size threshold, and SHALL touch no file outside the surfaces named in Scope.
+
+
+  ## Success criteria
+
+
+  | ID | Criterion | Class | Instrument |
+
+  |----|-----------|-------|------------|
+
+  | SC-1 | The `correspondence` card names the stakeholder channels and the working
+  surfaces, and states that the card owns the channel decision while the card owning
+  a surface owns that surface''s mechanics | structural | Read `skills/correspondence/SKILL.md`;
+  assert each channel and each working surface named and the jurisdiction clause present
+  |
+
+  | SC-2 | The `correspondence` skill description names every surface on which the
+  agent publishes generated content and states the decision the card owns | structural
+  | Read the frontmatter description; assert each surface named and the decision stated
+  |
+
+  | SC-3 | The rule states the positive remote class — a remote issue comment is a
+  stakeholder notice whose content a named reader must act on before the work can
+  continue — and names the qualifying kinds | structural | Read the rule text; assert
+  the predicate and each named kind present |
+
+  | SC-4 | The rule names as content that never reaches the tracker: escalation reports,
+  clarification requests, the agent''s reasoning, chat and session-transcript excerpts,
+  pipeline state, progress narration, and audit and verification verdicts | structural
+  | Read the rule text; assert each of the seven named |
+
+  | SC-5 | The rule states that the default under uncertainty is the working surface
+  and states the asymmetry that decides the tie | structural | Read the rule text;
+  assert the default clause and the asymmetry clause present |
+
+  | SC-6 | The rule names the route for each class — chat for the live exchange, the
+  local issue store for the record (with the `local-issues comment --type internal`
+  command named), the artifacts for the durable trace, the artifact edited in place
+  for a correction | structural | Read the rule text; assert each route present and
+  the local-store command named |
+
+  | SC-7 | The rule states that a tracker comment is never an answer, an authorization,
+  or a record the agent reads back | structural | Read the rule text; assert all three
+  exclusions present |
+
+  | SC-8 | Each of the four producers names its channel and its recipient: the implementation-workflow
+  reference''s escalation rule, the `verify` card''s escalation rule, the `git-workflow-pr`
+  card''s terminal instruction, and the `work` card''s work-record rule | structural
+  | Read each of the four surfaces; assert the channel clause and the recipient present
+  in each |
+
+  | SC-9 | The `issues` card''s comment gate defers to the channel rule through the
+  deck''s canonical link form and states that the gate is evaluated before the agent
+  commits to posting and that posting is not the default outcome | structural | Read
+  `skills/issues/SKILL.md` §3 and its description; assert the link form and both clauses;
+  run `.opencode/tools/reference-integrity` and confirm the link resolves |
+
+  | SC-10 | The rule states that a pull-request comment follows the same gate as an
+  issue comment and that a pull-request body continues to follow the `git-workflow-pr`
+  contract | structural | Read the rule text and `skills/git-workflow-pr/SKILL.md`
+  §4; assert both clauses and that §4 is unchanged |
+
+  | SC-11 | The change adds no script, wrapper, tool command, classifier, or size
+  threshold, and touches no file outside the surfaces named in Scope | structural
+  | The change''s file list against its base tip contains only the named surfaces;
+  no new or modified file under `tools/`, `tests-v2/`, `hooks/`, or `plugins/`; no
+  numeric threshold on content size |
+
+  | SC-12 | No clause in the amended deck leaves a tracker comment satisfiable by
+  an escalation report, a clarification request, a reasoning trace, a chat excerpt,
+  or a state update — the five observed failure classes | semantic | A fresh-context
+  reviewer, given the amended cards and the recorded observed-failure classes, judges
+  the amended text against that question and returns a zero-finding verdict, applying
+  the spec card''s validation standards |
+
+
+  ## Out of scope
+
+
+  - `floor.md` — the whole-card ainglish conversion cost, and the skill-creator card''s
+  always-loaded-surface discipline.
+
+  - The `spec` and `plan` cards'' artifact-discipline rules; the `gh-cli` and `gb-cli`
+  cards'' command mechanics; the `behavioral-testing` card.
+
+  - The `git-workflow-pr` PR-body contract.
+
+  - Any new tool command, wrapper, hook, or scenario script; any size or count threshold.
+
+  - The `local-issues` tool''s implementation — its existing `comment` and `update`
+  commands are named by the rule, not changed.
+
+  - The criteria sets, the `skill-creator` admission gate, and every other deck-governance
+  rule.
+
+  - `.opencode#2661`''s R-5 recomposition notice — permitted by the new rule, and
+  not edited here.
+
+  - A sweep of the existing trackers for comments the new rule would classify as internal
+  — a developer-side cleanup, not a deck change.
+
+
+  ## Impact
+
+
+  Consumers: every agent session that touches a tracked issue — the deck''s own issue
+  pipeline, the repos whose issues it works, and the developers reading those trackers.
+  The change removes the deck''s only instruction that the agent can read as permission
+  to publish its working content, and replaces it with a positive class, a named internal
+  class, a default, and routes. Risk: over-suppression — a legitimate stakeholder
+  notice withheld; bounded by the positive class (R-3) and by the developer''s own
+  review of the tracker, which is where the notice would otherwise have been noise.
+  Blast radius: the seven amended deck surfaces and their routed consumers; the `local-issues`
+  tool is untouched.
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2662/
+
+
+  Artifacts for agents: `.opencode/.issues/2662/`.
+
+  '
 created_at: '2026-10-24T03:19:45+00:00'
-updated_at: '2026-10-24T03:19:45+00:00'
+updated_at: '2026-10-24T03:21:51+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2662
