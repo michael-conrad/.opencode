@@ -69,7 +69,8 @@ that record. The refusal is the missing root, not the record's content.
 
 ### Defect 3 — the path's documentation states behavior the code does not have (open)
 
-Two surfaces describe the gate in terms the code does not have.
+Two surfaces describe the gate in terms the code does not have, and a third
+states a rule the gate does not implement.
 
 `tests-v2/with-test-home`'s `__sc8_determination_gate` carries a comment
 stating that the cap-hit resume "cannot exist yet — it is written when the
@@ -96,6 +97,14 @@ when the monitor is off. The row's claim is false in both directions, and the
 row's own recovery guidance — the §10.5 full re-run fallback — remains the
 truth.
 
+`skills/behavioral-testing/SKILL.md` rule 9 states that "a run whose record
+carries no valid orchestrator decision cannot resume through the §10.7 path".
+The gate permits a resume on a non-undetermined classification with no
+decision at all — `progressing-directionally` or `off-track` returns
+immediately — so the rule as stated is narrower than the rule the code
+implements, and it names a condition that is not necessary for the refusal it
+describes.
+
 The consequence is that the repair is described by a rule that is not the
 rule, and the unmonitored path is described as recoverable by a route it does
 not have. A reader — or a later agent — taking either statement at face value
@@ -117,10 +126,12 @@ draws the wrong conclusion about when a capped run may resume.
   root the repair adds is the one root the parser discards. *Open.*
 - **RC-4** — The gate's rule is expressed only in terms of the determination
   record, and the path's documentation reached past it: it explained the
-  cap-hit case with a premise the harness's own ordering contradicts, and
-  described an exemption the code does not implement. The documentation and
-  the code were written and revised apart, and nothing checked the
-  correspondence. *Open.*
+  cap-hit case with a premise the harness's own ordering contradicts,
+  described an exemption the code does not implement, described the
+  unmonitored path as recoverable by a route it does not have, and narrowed
+  the gate's rule to one of its two branches. The documentation and the code
+  were written and revised apart, and nothing checked the correspondence.
+  *Open.*
 
 ## Requirements
 
@@ -141,16 +152,18 @@ draws the wrong conclusion about when a capped run may resume.
   tier's `TMP_DIR` is the staging root and does not contain the record.
 - **R-3** — The record and the decision exist before the resume. The
   monitored post-run block writes the determination record for every
-  monitored run, appends the orchestrator decision only on the monitor's
-  halt-class path (the poll log's `MONITOR-HALTED` marker), and attempts the
+  monitored run, appends the orchestrator decision when the poll log carries
+  the `MONITOR-HALTED` marker — the classification-halt path and the
+  dispatch-failure-ceiling path both write that marker — and attempts the
   cap-hit resume after both. The gate's rule is the one the code implements:
   a resume is permitted when the record carries a non-undetermined
-  classification or a valid recorded decision — `continue-new-dispatch`, or
-  `terminate-with-root-cause` carrying a root cause. The cap-hit resume is
-  not an exception to that rule, because the record and the decision the
-  rule reads are already written when the resume is attempted. The resume
-  path is monitor-gated: a run without the monitor writes no record and
-  attempts no resume.
+  classification — `progressing-directionally` or `off-track` — or a valid
+  recorded decision — `continue-new-dispatch`, or `terminate-with-root-cause`
+  carrying a root cause; a record carrying neither is refused. The cap-hit
+  resume is not an exception to that rule, because the record and the
+  decision the rule reads are already written when the resume is attempted.
+  The resume path is monitor-gated: a run without the monitor writes no
+  record and attempts no resume.
 - **R-4** — The surfaces that state the path state it as the code has it.
   `tests-v2/with-test-home`'s gate comment states the gate's rule and drops
   the cap-hit explanation whose premise the ordering contradicts, so no
@@ -160,9 +173,10 @@ draws the wrong conclusion about when a capped run may resume.
   determination record and attempts no cap-hit resume, so the §10.7
   resumption path hard-blocks for an unmonitored home and the §10.5 full
   re-run fallback remains its recovery.
-  `skills/behavioral-testing/SKILL.md` rule 9 states that a run whose record
-  carries no valid orchestrator decision cannot resume through the §10.7
-  path.
+  `skills/behavioral-testing/SKILL.md` rule 9 states the gate's rule as the
+  code has it: a resume is permitted when the record carries a
+  non-undetermined classification or a valid recorded decision, and a run
+  whose record carries neither cannot resume through the §10.7 path.
 - **R-5** — The per-turn output cap's default stays 4,000 on every surface
   that sets it, and `2646-sc-cap-resume-probe.sh` keeps its deliberate 150
   override. The observed degenerate-turn band is where these turns sit, so
@@ -176,22 +190,24 @@ criteria of `.opencode#2657`, whose runs depend on this capability to produce
 an artifact at all. That work states this capability as a dependency rather
 than absorbing it.
 
-**Risk — the gate is a safety precondition.** The gate stops a resume whose
-home carries no valid determination, so that a run judged off-track does not
-continue. The gate's rule is unchanged by this spec: only the roots it scans
-and the documentation of it change. SC-3's negative control keeps the
-gate's blocking behavior observable.
+**Risk — the gate's rule is untouched; what it sees is not.** The gate stops a
+resume whose home carries no determination it accepts — no record at all, or
+a record whose classification is neither non-undetermined nor accompanied by a
+valid decision. The gate does not stop a run the monitor classified
+`off-track`: its rule accepts any non-undetermined classification, and this
+spec does not change that rule. The widening of the scan roots means the
+gate's existing rule now reaches records it could not see — including a
+record for an `off-track` run, which the rule accepts. The change does not
+widen what the gate accepts, only what it can see. SC-3's negative control
+keeps the gate's blocking behavior observable.
 
-**Risk — a wider gate is a weaker gate.** The scan roots widen to the
-artifact directory, so the gate sees a record it previously could not. A
-record that carries an undetermined classification and no valid decision is
-still blocked, so the widening admits no resume the gate would have refused
-for a reason.
-
-**Boundary — a run the monitor never classified.** A monitored run whose poll
-log carries no classification at all is recorded with `classification: none`,
-carries no decision, and is refused by the gate. The cap-resume path for such
-a run stays unavailable. This is a boundary of the existing rule, not a
+**Boundary — a run the monitor neither classified nor halted.** A monitored
+run whose poll log carries neither a taxonomy classification nor the
+`MONITOR-HALTED` marker is recorded with `classification: none` and carries
+no decision, and the gate refuses it; the cap-resume path for such a run
+stays unavailable. A run halted by the dispatch-failure ceiling is not in
+that class: the ceiling path writes the marker, so a decision is appended and
+the gate accepts the record. This is a boundary of the existing rule, not a
 defect this spec changes; it is stated so that no reader infers that every
 capped run can resume.
 
@@ -252,15 +268,17 @@ still fails fast with its `FATAL:` message and dispatches no inference.
 
 In `tests-v2/behaviors/helpers.sh`'s monitored post-run block, the
 determination record is written for every monitored run, the orchestrator
-decision is appended only on the monitor's halt-class path, and the cap-hit
-resume is attempted after both; the resume path returns immediately when the
-monitor is off. The gate's rule — a non-undetermined classification or a
-valid recorded decision — is the rule the code implements, and the cap-hit
-resume is not an exception to it.
+decision is appended when the poll log carries the `MONITOR-HALTED` marker —
+written by the classification-halt path and by the dispatch-failure-ceiling
+path — and the cap-hit resume is attempted after both; the resume path
+returns immediately when the monitor is off. The gate's rule is the rule the
+code implements: a non-undetermined classification — `progressing-directionally`
+or `off-track` — or a valid recorded decision, and a record carrying neither
+is refused. The cap-hit resume is not an exception to that rule.
 
 - **Verify:** read `tests-v2/behaviors/helpers.sh` and
-  `tests-v2/with-test-home`; the order of the three calls and the gate's
-  decision branches are visible at their call sites.
+  `tests-v2/with-test-home`; the order of the three calls, the marker's two
+  writers, and the gate's decision branches are visible at their call sites.
 
 ### SC-5 (structural) — the documentation states the path as the code has it
 
@@ -270,14 +288,16 @@ claim a cap-hit exemption the gate does not implement. `tests-v2/AGENTS.md`
 truthfully: an unmonitored run writes no determination record and attempts no
 cap-hit resume, so the §10.7 resumption path hard-blocks for an unmonitored
 home and the §10.5 full re-run fallback remains its recovery.
-`skills/behavioral-testing/SKILL.md` rule 9 states that a run whose record
-carries no valid orchestrator decision cannot resume through the §10.7 path.
+`skills/behavioral-testing/SKILL.md` rule 9 states the gate's rule as the
+code has it: a resume is permitted when the record carries a
+non-undetermined classification or a valid recorded decision, and a run whose
+record carries neither cannot resume through the §10.7 path.
 
 - **Verify:** read the three files that document the path —
   `tests-v2/with-test-home`, `tests-v2/AGENTS.md`, and
   `skills/behavioral-testing/SKILL.md` — against the code read in SC-2 and
   SC-4; each statement above is present, and no statement in them describes
-  an exemption, a record, or a recovery route the code does not have.
+  an exemption, a rule, a record, or a recovery route the code does not have.
 
 ### SC-6 (structural) — the per-turn output cap's default is unchanged
 
@@ -295,7 +315,7 @@ default still carries the 4,000 literal, and
 | SC-1 | Resume message tail-derived in both paths; anchorless literal in comments only | structural | read + grep the two harness files |
 | SC-2 | The gate scans every root the launcher names, the last element included | structural | drive the gate with two named roots; the `FATAL:` message names both |
 | SC-3 | Gate finds the record in the artifact directory and permits the preserved run's record; still fails fast with no record | structural | two replays of the gate against the preserved run |
-| SC-4 | Record written, then decision on the halt path, then the resume; the gate's rule is the rule the code implements | structural | read the two harness files |
+| SC-4 | Record written, then the decision when the poll log carries the `MONITOR-HALTED` marker, then the resume; the gate's rule is the rule the code implements | structural | read the two harness files |
 | SC-5 | The three files that document the path state it as the code has it | structural | read the three files against SC-2 and SC-4 |
 | SC-6 | Cap default 4,000; the probe's deliberate override untouched | structural | grep the cap surfaces |
 
@@ -326,10 +346,11 @@ see. The gate's rule is untouched, and the record the preserved run carries —
 a valid recorded decision — is the record it accepts. The post-run block's
 ordering, which already places the record and the decision before the
 resume, is stated as the reason the cap-hit case is not an exception to the
-gate's rule. The two surfaces that described the path in other terms are
-brought into line with the code, and the unmonitored path's real recovery —
-the §10.5 full re-run fallback — is restored to the documentation that had
-replaced it.
+gate's rule. The three surfaces that described the path in other terms are
+brought into line with the code — the gate comment, the unmonitored path's
+row, and the rule that narrowed the gate's rule to one branch — and the
+unmonitored path's real recovery, the §10.5 full re-run fallback, is
+restored to the documentation that had replaced it.
 
 The criteria are executable rather than descriptive: the gate's behavior is
 verified by replaying it against the preserved run, once permitting and once
