@@ -148,10 +148,11 @@ resumed turn continues the recorded work instead of restarting it.
 
 The determination gate that guards a resume is the third measurement
 defect, and its cause is scan coverage rather than a missing record: the
-harness writes the determination record and the orchestrator decision into
-the run's artifact directory before it attempts the cap-hit resume, but the
-gate's scan roots were the Docker tier's staging root and the run's
-behaviour-test directory — neither of which contains the artifact directory.
+harness writes the determination record — and, on the monitor's halt-class
+path, the orchestrator decision — into the run's artifact directory before it
+attempts the cap-hit resume, but the gate's scan roots were the Docker tier's
+staging root and the run's behaviour-test directory — neither of which
+contains the artifact directory.
 The gate therefore reported `determination.yaml not found in any scenario
 evidence dir` and refused every cap-hit resume before any inference was
 dispatched, and the run exhausted the cap-resume ceiling with its artifact
@@ -213,7 +214,9 @@ of doing the task. R-9 and SC-11 carry both.
   and that names what to build, may serve as the short path's scope —
   subject to R-3.
 - **R-3** — The short path is available only when every one of these criteria
-  holds: the developer's request names no stage; the change touches one file;
+  holds, and the criteria are assessed on the developer's request as it stands
+  before the agent reads the change's files: the developer's request names no
+  stage; the request touches one file;
   the request leaves no material choice open about what to build, and the
   agent supplies no product decision the developer did not state; the change's
   completion is decidable from the request's own statement — the file now
@@ -260,7 +263,10 @@ of doing the task. R-9 and SC-11 carry both.
   scope and does not ask the developer to approve it again. A developer who
   wants to approve the scope before implementation asks for that stage, and
   R-1 routes the request to the full path.
-- **R-5** — The short path ends when the work outgrows it. If, after the
+- **R-5** — The short path ends when the work outgrows it. R-3's
+  file-count criterion is a statement about the request — the request names
+  one file — and what the work turns out to need is R-5's subject, not R-3's.
+  If, after the
   short path is taken, the work acquires a second file, a second concern, a
   derived success criterion, a product decision the developer did not state,
   or a surface the request did not name, the agent extends the scope
@@ -381,8 +387,9 @@ of doing the task. R-9 and SC-11 carry both.
   turns sit, so raising the cap would re-open the failure the cap exists to
   prevent. The determination gate that guards a resume finds the record it
   needs: the gate's scan roots include the run's artifact directory, which is
-  where the harness writes the determination record and the orchestrator
-  decision, and both exist before the cap-hit resume is attempted. Without
+  where the harness writes the determination record and — on the monitor's
+  halt-class path — the orchestrator decision, both of which exist before the
+  cap-hit resume is attempted. Without
   that root the gate never saw the record — the Docker tier's `TMP_DIR` is the
   staging root, which does not contain it — and refused every cap-hit resume
   with `determination.yaml not found in any scenario evidence dir`, so the run
