@@ -9,11 +9,13 @@ body: '## Problem
 
   The live deck has no rule that keeps the agent''s own working content off the remote
   issue tracker, and no card that names the route for an escalation, a clarification
-  request, or a state update. The deck''s only instruction on the matter is `skills/issues/SKILL.md`
-  §3: a remote comment is posted "only for a major substantive change that needs special
-  attention — findings or decisions a stakeholder must see," with three exclusions
-  (progress narration, internal reasoning, routine status) that "stay in chat or the
-  local store."
+  request, or a state update. The deck''s only instruction on *when* to post a comment
+  is `skills/issues/SKILL.md` §3: a remote comment is posted "only for a major substantive
+  change that needs special attention — findings or decisions a stakeholder must see,"
+  with three exclusions (progress narration, internal reasoning, routine status) that
+  "stay in chat or the local store." One further live instruction appends content
+  to a tracker — `guidelines/deprecation-encounter-protocol.md` R-4: "Found → append
+  the encounter evidence as a comment."
 
 
   The developer''s observed failures are the agent''s escalation reports, clarification
@@ -26,9 +28,10 @@ body: '## Problem
   is not recognized the agent has nowhere else to put the content. The channel vacuum
   compounds it: the implementation-workflow reference says to "report the state, the
   blocker, and what is needed," the `verify` card says escalation "fires" to the developer,
-  the floor''s standing formula says to halt with an open-ended clarification request
-  — none names where the report goes, and the tracker is the surface that persists,
-  is developer-visible, and already carries pipeline state.
+  the `git-workflow-pr` card says "Notify and stop," the floor''s standing formula
+  says to halt with an open-ended clarification request — none names where the report
+  goes, and the tracker is the surface that persists, is developer-visible, and already
+  carries pipeline state.
 
 
   The deck already holds the governing principle — `skills/correspondence/SKILL.md`
@@ -41,8 +44,9 @@ body: '## Problem
   ## Scope
 
 
-  Ten surfaces in the `.opencode` submodule — five cards, two card-owned reference
-  files, one guideline:
+  Ten files in the `.opencode` submodule — six cards, three card-owned reference files,
+  one guideline. The spec''s §2.1 and §2.2 hold the single inventory; rows marked
+  **producer** are the escalation or clarification producers the route clause binds.
 
 
   - `skills/correspondence/SKILL.md` — description and body: the channel set, the
@@ -58,11 +62,12 @@ body: '## Problem
   is not the default); the description''s summary of the gate is corrected, so the
   router no longer reads as banning progress narration only.
 
-  - `skills/verify/SKILL.md` §4, `skills/spec/references/validation-standards.md`,
-  `skills/plan/references/plan-validation-standards.md`, `skills/implement/references/implementation-workflow.md`,
-  `skills/implement/SKILL.md` §8, `skills/work/SKILL.md`''s closing paragraph, `guidelines/deprecation-encounter-protocol.md`
-  R-3 — the seven escalation and clarification producers, each naming its route and
-  its recipient.
+  - **Producers amended** (each names its route and its recipient — the developer,
+  in chat): `skills/verify/SKILL.md` §4; `skills/spec/references/validation-standards.md`
+  escalation paragraph; `skills/plan/references/plan-validation-standards.md` escalation
+  paragraph; `skills/implement/references/implementation-workflow.md` escalation rule;
+  `skills/implement/SKILL.md` §8; `skills/work/SKILL.md` closing paragraph; `skills/git-workflow-pr/SKILL.md`
+  §6; `guidelines/deprecation-encounter-protocol.md` R-3.
 
   - `skills/work/SKILL.md` §4 — the work record''s contents never become a tracker
   comment; durable state lives in the local issue store and the artifacts.
@@ -71,19 +76,26 @@ body: '## Problem
   is routed to the ticket''s store record, not to a tracker comment.
 
 
+  **Producers covered without amendment**, with the reason: `skills/spec/SKILL.md`
+  §9 and `skills/implement/SKILL.md` §13 (deprecation escalation — defers to the amended
+  protocol); `skills/skill-creator/SKILL.md` and `skills/explore/SKILL.md` (their
+  questions are asked in the session — chat by construction); `floor.md`''s standing
+  formula (untouched; the rule carries the route).
+
+
   Untouched: `floor.md` (a substantive write triggers the ainglish whole-card-on-touch
   conversion of the whole floor); the `spec`, `plan`, `research`, `skill-creator`,
-  `explore`, `behavioral-testing`, `gh-cli`, and `gb-cli` cards — each producer there
-  is either chat-bound by construction or defers to an amended surface, and the inventory
-  is in the spec; the `git-workflow-pr` PR-body rule; the `issues` card''s label clause
-  (§2) and ticket-state hygiene (§6) — the channel rule''s carve-out keeps the two
-  surfaces consistent; the `local-issues` tool; `tests-v2/`; the criteria sets and
-  the `skill-creator` admission gate.
+  `explore`, `behavioral-testing`, `gh-cli`, and `gb-cli` cards; the `git-workflow-pr`
+  PR-body rule; the `issues` card''s label clause (§2) and ticket-state hygiene (§6)
+  — the channel rule''s carve-out keeps the two surfaces consistent; the criteria
+  sets'' defect classes, verdict contracts, analysis families, and loop mechanics;
+  the `local-issues` tool; `tests-v2/`; the `skill-creator` admission gate.
 
 
   **Extent:** the edit to each card is larger than the deltas above. Under the ainglish
   discipline''s whole-card-on-touch rule, each amended card''s entire normative prose
-  is returned under the discipline (R-14).
+  is returned under the discipline, and the six non-canonical cross-references in
+  the amended cards convert to the canonical form (R-14, R-16).
 
 
   ## Approach
@@ -105,12 +117,12 @@ body: '## Problem
   and the no-read-back rule (a tracker comment is never an answer, an authorization,
   or a record the agent reads back). `skills/issues/SKILL.md` §3 keeps a pointer and
   the caller-side discipline the retired card carried. Every escalation and clarification
-  producer in the live deck states its route and its recipient — the spec''s §6.2
-  enumerates all eleven producers, of which seven carry a route clause and four are
-  already chat-bound or defer to an amended surface — so the vacuum is closed at each
-  producer and not only at the gate. The rule is stated centrally *and* at each producer:
-  the escalation rule exists in three verbatim copies, and a route stated in one and
-  not the others leaves the deck stating one rule two ways.
+  producer in the live deck states its route and its recipient, so the vacuum is closed
+  at each producer and not only at the gate. The rule is stated centrally *and* at
+  each producer: the escalation rule appears in three places — the two criteria-set
+  files carry the same paragraph, and the `verify` card''s copy differs slightly —
+  and a route stated in one and not the others leaves the deck stating one rule two
+  ways.
 
 
   The change adds **no script, no wrapper, no tool command, no classifier, and no
@@ -141,7 +153,9 @@ body: '## Problem
   - **R-3** — The rule SHALL state the positive remote class with a falsifier: a remote
   issue comment is a stakeholder notice — content whose reader must take a specific
   action before the work can continue; and SHALL name the qualifying kinds (a decision,
-  a scope change, a finding, a status the reader must act on).
+  a scope change, a finding, a status the reader must act on) — those kinds being
+  the ones outside the internal class named in R-4, so that no content is qualified
+  by R-3 and forbidden by R-4.
 
   - **R-4** — The rule SHALL name the content that never reaches a remote issue comment
   or a pull-request comment, and the named set SHALL include every observed failure
@@ -162,12 +176,15 @@ body: '## Problem
   - **R-7** — The rule SHALL state that a tracker comment is never an answer, an authorization,
   or a record the agent reads back.
 
-  - **R-8** — Each escalation and clarification producer enumerated in §6.2 as carrying
-  a route SHALL state its route and its recipient — the developer, in chat. The producers
-  are: the `verify` card''s escalation rule, the spec card''s validation standards''
-  escalation rule, the plan card''s validation standards'' escalation rule, the implementation-workflow
-  reference''s escalation rule, the `implement` card''s narration-to-deliverable halt,
-  the `work` card''s closing halt clause, and the deprecation protocol''s R-3 escalation.
+  - **R-8** — Each producer listed in §2.1 as carrying a route SHALL state its route
+  and its recipient — the developer, in chat. The producers are the `verify` card''s
+  escalation rule, the spec card''s validation standards'' escalation rule, the plan
+  card''s validation standards'' escalation rule, the implementation-workflow reference''s
+  escalation rule, the `implement` card''s narration-to-deliverable halt, the `work`
+  card''s closing halt clause, the `git-workflow-pr` card''s terminal instruction,
+  and the deprecation protocol''s R-3 escalation. Each producer listed in §2.2 as
+  covered already states its route — in the session, or by deferring to a surface
+  this change amends.
 
   - **R-9** — The `work` card''s work-record rule SHALL state that the work record''s
   contents never become a tracker comment, and SHALL name the local issue store and
@@ -184,7 +201,7 @@ body: '## Problem
   - **R-12** — The change SHALL add no script, no wrapper, no tool command, no classifier,
   and no size or count threshold.
 
-  - **R-13** — The change SHALL touch no file outside the surfaces named in Scope.
+  - **R-13** — The change SHALL touch no file outside the surfaces listed in §2.1.
 
   - **R-14** — Each amended card''s full normative prose SHALL be returned under the
   ainglish writing discipline, per that discipline''s whole-card-on-touch rule — the
@@ -197,6 +214,13 @@ body: '## Problem
   - **R-15** — The deprecation protocol''s encounter-evidence append SHALL be routed
   to the ticket''s store record rather than to a tracker comment, so that the protocol''s
   evidence log does not create a second channel for working content.
+
+  - **R-16** — Each non-canonical cross-reference in an amended card SHALL convert
+  to the canonical `Read [Text](path)` form, per the skill-creator card''s forwards-only
+  rule ("existing content converts when touched"): the `issues` card''s remote-body-format
+  reference, the `verify` card''s two validation-standards references, the `implement`
+  card''s change-gate and deprecation-protocol references, and the `work` card''s
+  deprecation-protocol reference.
 
 
   ## Success criteria
@@ -221,8 +245,9 @@ body: '## Problem
 
   | SC-3 | The rule states the positive remote class with a falsifier — a remote issue
   comment is a stakeholder notice, content whose reader must take a specific action
-  before the work can continue — and names the qualifying kinds | structural | Read
-  the rule text; assert the predicate and each named kind present |
+  before the work can continue — names the qualifying kinds, and states that those
+  kinds are the ones outside R-4''s internal class | structural | Read the rule text;
+  assert the predicate, each named kind, and the precedence clause present |
 
   | SC-4 | The rule names as content that never reaches a remote issue comment or
   a pull-request comment: escalation reports, clarification requests, the agent''s
@@ -246,12 +271,9 @@ body: '## Problem
   or a record the agent reads back | structural | Read the rule text; assert all three
   exclusions present |
 
-  | SC-8 | Each of the seven escalation and clarification producers enumerated in
-  R-8 states its route and its recipient — the developer, in chat | structural | Read
-  `skills/verify/SKILL.md` §4, `skills/spec/references/validation-standards.md`, `skills/plan/references/plan-validation-standards.md`,
-  `skills/implement/references/implementation-workflow.md`, `skills/implement/SKILL.md`
-  §8, `skills/work/SKILL.md`''s closing paragraph, and `guidelines/deprecation-encounter-protocol.md`
-  R-3; assert the route clause and the recipient present in each |
+  | SC-8 | Each of the eight producers named in R-8 states its route and its recipient
+  — the developer, in chat | structural | Read §2.1''s producer surfaces; assert the
+  route clause and the recipient present in each of the eight |
 
   | SC-9 | The `work` card''s work-record rule states that the work record''s contents
   never become a tracker comment and names the local issue store and the artifacts
@@ -278,14 +300,13 @@ body: '## Problem
   count, and no mechanical classifier — no rule whose outcome is fixed by a procedure
   rather than by judgment |
 
-  | SC-13 | The change touches no file outside the surfaces named in Scope | structural
-  | The change''s file list against its base tip contains exactly the named surfaces
-  |
+  | SC-13 | The change touches no file outside the surfaces listed in §2.1 | structural
+  | The change''s file list against its base tip contains exactly the §2.1 files |
 
   | SC-14 | Each amended card''s full normative prose, and each amended reference
   file''s and the guideline''s normative prose, conforms to the ainglish writing discipline''s
   five ambiguity families | semantic | A fresh-context reviewer reads each of the
-  five amended cards, the two reference files, and the guideline against the discipline''s
+  six amended cards, the three reference files, and the guideline against the discipline''s
   five families and the whole-card-on-touch rule, and returns a zero-finding verdict
   on ambiguity; a content defect the reviewer notes is recorded in `.opencode/.issues/2662/audit/ainglish-conversion.md`
   and does not bear on the verdict |
@@ -297,7 +318,15 @@ body: '## Problem
   `floor.md` and confirm no other instruction to post a tracker comment remains outside
   the amended channel rule |
 
-  | SC-16 | No clause in the amended deck leaves a tracker comment satisfiable by
+  | SC-16 | Each non-canonical cross-reference in an amended card reads in the canonical
+  `Read [Text](path)` form, and no amended card retains a markdown link to another
+  deck file that lacks the canonical form | structural | Read each of the six amended
+  cards; assert each of the six cross-references named in R-16 carries the canonical
+  form, and that no further non-canonical link to a deck file remains in them (the
+  `reference-integrity` tool inspects canonical links only, so this check is by reading)
+  |
+
+  | SC-17 | No clause in the amended deck leaves a tracker comment satisfiable by
   an escalation report, a clarification request, a reasoning trace, a chat excerpt,
   or a state update — the five observed failure classes | semantic | A fresh-context
   reviewer, given the amended cards and the recorded observed-failure classes, judges
@@ -321,6 +350,9 @@ body: '## Problem
   surfaces consistent; the label model itself is a separate question this change does
   not re-litigate.
 
+  - The criteria sets'' defect classes, verdict contracts, analysis families, and
+  loop mechanics — only the escalation paragraph of each is amended.
+
   - The retired pre-rip card''s per-comment-type templates — not restored; the `correspondence`
   card''s existing format rules govern.
 
@@ -329,8 +361,7 @@ body: '## Problem
   - The `local-issues` tool''s implementation — its existing `comment` and `update`
   commands are named by the rule, not changed.
 
-  - The criteria sets, the `skill-creator` admission gate, and every other deck-governance
-  rule.
+  - The `skill-creator` admission gate and every other deck-governance rule.
 
   - Content defects that the ainglish conversion surfaces — recorded in `.opencode/.issues/2662/audit/ainglish-conversion.md`,
   not fixed, except where the fix is one of this spec''s rules.
@@ -358,11 +389,12 @@ body: '## Problem
   risk: a wider diff than the ten deltas — the ainglish whole-card-on-touch rule brings
   each amended card''s entire normative prose into scope (the `issues` card''s eight
   items and operating contract, the `work` card''s seven items, the `verify` card''s
-  twelve items, the `implement` card''s thirteen items, and the `correspondence` card''s
-  five); the conversion resolves ambiguity without changing substance, and content
-  defects it surfaces are recorded rather than fixed. Blast radius: the five amended
-  cards'' full normative prose, the two card-owned reference files, and the one guideline;
-  the `local-issues` tool, the harness, and every script surface are untouched.
+  twelve items, the `implement` card''s thirteen items, the `git-workflow-pr` card''s
+  six items, and the `correspondence` card''s five); the conversion resolves ambiguity
+  without changing substance, and content defects it surfaces are recorded rather
+  than fixed. Blast radius: the six amended cards'' full normative prose, the three
+  card-owned reference files, and the one guideline; the `local-issues` tool, the
+  harness, and every script surface are untouched.
 
 
   > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2662/
@@ -372,5 +404,5 @@ body: '## Problem
 
   '
 created_at: '2026-10-24T03:19:45+00:00'
-updated_at: '2026-10-24T04:03:58+00:00'
+updated_at: '2026-10-24T04:16:49+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2662
