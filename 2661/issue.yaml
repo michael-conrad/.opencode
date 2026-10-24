@@ -4,7 +4,187 @@ status: open
 labels:
 - needs-approval
 - spec
-body: ''
+body: '## Problem
+
+
+  When a validation loop''s structural re-evaluation resolves an artifact as over-fat
+  or mis-decomposed — `.opencode#2660`''s Recompose outcome — the deck has no protocol
+  for performing the split. The `issues` card carries the deck''s only hierarchy sentence
+  as of 2026-10-23 ("Link sub-issues to parents; the hierarchy carries the authorization
+  cascade and closure order" — `skills/issues/SKILL.md` §4) with nothing that states
+  what the cascade or closure order concretely is, how a split is performed, or what
+  becomes of the issue''s plan, links, and authorization.
+
+
+  Every measured split in the store was ad hoc: `.opencode#2210/#2211`, `.opencode#2622/#2623`,
+  and `.opencode#2658/#2659` all carry empty link records (checked 2026-10-23), and
+  `.opencode#2658`''s recomposition (2026-10-23) redistributed content with no registered
+  parent/sub relationship. The instance could not answer the questions a post-approval
+  split makes live — does implementation authorization survive the split, what happens
+  to an existing plan, in which order do which issues close, who is told — because
+  no rule states any of them.
+
+
+  ## Scope
+
+
+  Three cards in the `.opencode` submodule:
+
+
+  - `skills/issues/SKILL.md` — a recomposition protocol: split mechanics (parts as
+  issues, registered as sub-issues via the `local-issues` tool''s `link`), the umbrella
+  spec (parts, seams, and the re-evaluation''s grounds; redistributed content deleted
+  in the same action), the authorization void, the stakeholder notification, the review
+  shape, and the closure order.
+
+  - `skills/work/SKILL.md` §3 — the authorization check names the recomposition void.
+
+  - `skills/plan/SKILL.md` — plan supersession at recomposition.
+
+
+  ## Approach
+
+
+  The sibling spec''s re-evaluation judges *that* an artifact must recompose; this
+  spec governs *how*. One issue per part, registered as sub-issues of the recomposed
+  issue. The recomposed issue keeps an umbrella spec recording the parts and the seams
+  between them, with the redistributed content deleted in the same action. Implementation/PR
+  authorization carried for the pre-split scope is void at recomposition — the developer
+  is notified and states the parts'' authorization; a spec-phase recomposition has
+  nothing to void. A plan derived from the pre-split spec is superseded; new plans
+  derive from the parts'' specs. The review shape defers to the PR contract — issues
+  authorized together share one branch and one PR carrying one squashed commit per
+  part. Closure runs parts-first; the recomposed issue closes only after every part
+  has closed, as a verdict-backed closure recording the redistribution. No part count
+  and no size threshold: the decomposition is the loop rule''s judgment; the protocol
+  governs mechanics only.
+
+
+  ## Requirements
+
+
+  - **R-1** — The agent resolving a re-evaluation to recomposition SHALL perform the
+  split: create one issue per part artifact and register each as a sub-issue of the
+  recomposed issue via the `local-issues` tool''s `link`; each part''s spec reads
+  standalone and records its side of the seams.
+
+  - **R-2** — The recomposed issue''s spec SHALL become the umbrella: it records the
+  parts, the seams between them (shared conventions, interfaces, ordering constraints
+  a part builds on), and the re-evaluation''s grounds; the redistributed content is
+  deleted from it in the same action — no superseded-content pointers.
+
+  - **R-3** — Implementation or PR authorization carried for the pre-split scope SHALL
+  be void at recomposition; work already delivered under then-valid authorization
+  stays delivered; the parts'' further implementation and PR work proceeds only under
+  the authorization the developer states after the notification. A recomposition during
+  the spec phase has nothing to void, and the notification still applies.
+
+  - **R-4** — A plan derived from the pre-split spec SHALL be superseded at recomposition;
+  new plans derive from the parts'' specs; delivered items keep their delivered state,
+  and plan state never migrates to the parts.
+
+  - **R-5** — The agent performing the recomposition SHALL notify the developer at
+  split time, carrying the recomposed issue''s and each part''s issue and artifacts
+  URLs plus the authorization consequence — posted as a stakeholder comment on the
+  recomposed issue per the `issues` card''s comment gate; chat reporting accompanies
+  it and does not replace it.
+
+  - **R-6** — The parts'' review shape SHALL follow the PR contract: issues authorized
+  together share one branch and one PR carrying one squashed commit per part; a part
+  never opens its own branch or PR outside the authorization scope that names it.
+
+  - **R-7** — Each part SHALL close by its own delivered work or triage verdict; the
+  recomposed issue closes only after every part has closed, as a verdict-backed closure
+  whose record states the redistribution.
+
+  - **R-8** — The protocol SHALL state no part count and no size threshold: which
+  parts an over-fat artifact decomposes into is the loop rule''s judgment; the protocol
+  governs the split''s mechanics, recording, authorization, notification, review shape,
+  and closure.
+
+
+  ## Success criteria
+
+
+  | ID | Criterion | Class | Instrument |
+
+  |----|-----------|-------|------------|
+
+  | SC-1 | `skills/issues/SKILL.md` carries the recomposition protocol: the trigger
+  (the loop rule''s Recompose outcome), sub-issue registration via `local-issues link`,
+  standalone part specs recording their seam sides | structural | Read `skills/issues/SKILL.md`;
+  assert the elements present |
+
+  | SC-2 | The umbrella rule is stated: parts, seams, and grounds recorded; redistributed
+  content deleted in the same action; no superseded-content pointers | structural
+  | Read the protocol; assert each element |
+
+  | SC-3 | The void-on-split is stated in both the protocol and `work/SKILL.md` §3;
+  delivered work stays; parts await the stated authorization | structural | Read `skills/issues/SKILL.md`
+  and `skills/work/SKILL.md` §3; assert |
+
+  | SC-4 | `plan/SKILL.md` states plan supersession at recomposition; new plans derive
+  from the parts'' specs; delivered items keep their state | structural | Read `skills/plan/SKILL.md`;
+  assert |
+
+  | SC-5 | The notification is a stakeholder comment per the comment gate, carrying
+  the recomposed and parts URLs and the authorization consequence | structural | Read
+  the protocol; assert |
+
+  | SC-6 | The parts'' PR shape matches `git-workflow-pr` §3 — one branch and one
+  PR per authorization scope, one squashed commit per part | structural | Read the
+  protocol against `skills/git-workflow-pr/SKILL.md` §3; assert consistency |
+
+  | SC-7 | The closure order is stated — parts first; the recomposed issue closes
+  after all parts close, verdict-backed with the redistribution recorded — and the
+  hierarchy sentence carries it | structural | Read the protocol; assert the order
+  and the hierarchy binding |
+
+  | SC-8 | No threshold on part counts and no size metric appear anywhere in the protocol
+  | structural | Read the protocol text; assert no numeral bounds a part count or
+  an artifact size and no size metric is named |
+
+  | SC-9 | An agent applying the amended protocol to a fixture scenario — an over-fat
+  issue holding an approved spec with implementation in progress — states the actions
+  the protocol requires of it, and the stated actions carry the protocol''s elements
+  | behavioral | Tier-1 clean-room behavioral dispatch per the `behavioral-testing`
+  card, modeled on `.opencode/.issues/2582/audit/tier1-dispatch-SC15-20261013.yaml`
+  |
+
+
+  ## Out of scope
+
+
+  - The loop rule itself — the sibling `.opencode#2660`.
+
+  - `skills/git-workflow-pr/SKILL.md` — its §3 already governs the shape; the protocol
+  defers to it and does not amend it.
+
+  - The criteria sets and the `skill-creator` admission gate.
+
+  - The `.opencode#2658`/`#2659` instances and retrospective link registration for
+  them.
+
+  - Part-count determinations and any size metric.
+
+  - Deck-debt ledger entries — `.opencode#2610` governs the ledger.
+
+
+  ## Impact
+
+
+  Consumers: every validation loop the sibling rule governs — spec validation, plan
+  validation, deliverable review — gains a defined path out of a Recompose outcome
+  instead of ad-hoc mechanics. Risk: an over-eager split mid-implementation — bounded
+  by R-3''s authorization void and R-5''s notification, which place the developer''s
+  authorization decision after every split. Blast radius: the three amended cards''
+  routed consumers.
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2661/
+
+
+  Artifacts for agents: `.opencode/.issues/2661/`.'
 created_at: '2026-10-24T02:47:26+00:00'
-updated_at: '2026-10-24T02:48:04+00:00'
+updated_at: '2026-10-24T03:02:24+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2661
