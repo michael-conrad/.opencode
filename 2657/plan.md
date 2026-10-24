@@ -196,7 +196,9 @@ spec card owns it.
     change touches one file; the request leaves no material choice open about
     what to build and the agent supplies no product decision the developer
     did not state; the change's completion is decidable from the request's
-    own statement; the change alters no credential, authentication or
+    own statement — the file now contains what the request said — with no
+    acceptance criterion, test, or evaluation the developer did not state;
+    the change alters no credential, authentication or
     authorization check, dependency, or deployment surface; the change
     touches no surface the developer did not name. A failed criterion — and
     uncertainty about one — sends the change to the full path. One exception:
@@ -377,8 +379,18 @@ spec card owns it.
 - RED: run `2657-sc2-complicated-change-full-path` with
   `BEHAVIOR_SUBMODULE_COMMIT=a1fb61c6`. The pre-change card makes the short
   path the default for single-file developer-specified changes, and "Add
-  caching to the search endpoint" is exactly that — so the run edits
-  `src/search.py` with no spec artifact. Evidence: the artifact directory.
+  caching to the search endpoint" is exactly that — so the run announces the
+  short path, branches `feature/search-caching`, and loads the `implement`
+  card, having loaded neither the `spec` nor the `explore` card. The
+  recorded run produced no artifact of any kind: its tool-call census is
+  read, grep, bash, and skill only, with zero write, edit, or patch calls,
+  and no implementation file was modified. What the run establishes is the
+  route, in its own words — "The `work` card routes this as a direct
+  developer order — single file (`src/search.py`), short path: branch →
+  implement → verify" — and, at seq=174, that it identified the open
+  material choices (the cache key, the expiry, the invalidation policy),
+  weighed halting, and proceeded. Evidence: the run's artifact directory and
+  the clean-room evaluation written into it.
 - GREEN: run the same scenario unpinned. The clean-room evaluation shows the
   run's first edit to an implementation file comes after a full-path spec
   artifact appears in the run — a spec carrying success criteria, not the
@@ -402,8 +414,9 @@ spec card owns it.
   recorded runs, `SUPPORT.md` read and never modified, and no scope statement
   anywhere in the record. What the runs establish is that the pre-change
   deck has no scope statement to state and no artifact to produce. Evidence:
-  the three recorded artifact directories, and the clean-room evaluation
-  written into the third of them.
+  the three recorded artifact directories — the clean-room evaluation is in
+  the second (`…-gguf4-1`), and the quoted announcement is in the third
+  (`…-gguf4-2`), which has no evaluation of its own.
 - GREEN: run the same scenario unpinned. The clean-room evaluation shows the
   scope statement precedes the edit and carries R-4's contents; the run
   contains no spec document, no plan document, no spec-validation or
