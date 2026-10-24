@@ -66,10 +66,8 @@ body: '## Problem
   - `skills/issues/SKILL.md` §3 and description — §3 defers to the channel rule and
   states the caller-side discipline (gate evaluated before committing to post; posting
   is not the default); the description''s summary of the gate is corrected, so the
-  router no longer reads as banning progress narration only; the card''s two non-canonical
-  cross-references — the markdown link to the remote-body-format reference and the
-  bare pointer to the detail cards under `references/` — convert to the canonical
-  form.
+  router no longer reads as banning progress narration only; every non-canonical cross-reference
+  the card carries converts to the canonical form.
 
   - `guidelines/deprecation-encounter-protocol.md` R-4 — both encounter-evidence append
   sites are routed to the ticket''s store record, so the deck carries no live instruction
@@ -99,17 +97,17 @@ body: '## Problem
 
   One rule, one home, no mechanism. The `correspondence` card is widened to own the
   **channel decision** — which surface a piece of agent-generated content belongs
-  on, and in what form — and its description is widened to name every surface on which
-  the agent publishes generated content, so the card is loaded at the moment the agent
-  chooses between a working surface and a stakeholder surface. The card''s body gains
-  the channel set (stakeholder surfaces against working surfaces), a **falsifiable**
-  remote class (a stakeholder notice: content whose reader must take a specific action
-  before the work can continue), the **named** internal class (the five observed failure
-  classes, plus progress narration and audit and verification verdicts), the **default
-  under uncertainty** (the working surface, with the asymmetry that decides the tie:
-  a notice can be added later, published narration cannot be withdrawn), the **route**
-  for each class (chat for the live exchange; the local issue store for the record;
-  the artifacts for the durable trace; the artifact edited in place for a correction),
+  on — and its description is widened to name every surface on which the agent publishes
+  generated content, so the card is loaded at the moment the agent chooses between
+  a working surface and a stakeholder surface. The card''s body gains the channel
+  set (stakeholder surfaces against working surfaces), a **falsifiable** remote class
+  (a stakeholder notice: content whose reader must take a specific action before the
+  work can continue), the **named** internal class (the five observed failure classes,
+  plus progress narration and audit and verification verdicts), the **default under
+  uncertainty** (the working surface, with the asymmetry that decides the tie: a notice
+  can be added later, published narration cannot be withdrawn), the **route** for
+  each class (chat for the live exchange; the local issue store for the record; the
+  artifacts for the durable trace; the artifact edited in place for a correction),
   the **class-coverage statement** (developer-directed content — an escalation, a
   clarification request, a report, a consultation — reaches the developer in chat,
   whichever card produces it), and the no-read-back rule (a tracker comment is never
@@ -214,14 +212,13 @@ body: '## Problem
   once — with the channel set, the classes, and the terms bound — and the live deck''s
   separation is extended to every stakeholder surface rather than narrowed to comments.
 
-  - **R-13** — Each non-canonical cross-reference in the amended `issues` card SHALL
+  - **R-13** — Every non-canonical cross-reference in the amended `issues` card SHALL
   convert to the canonical `Read [Text](path)` form, per the skill-creator card''s
   forwards-only rule ("existing content converts when touched"), with its bracketed
   text naming a heading in the target file so the deck''s `reference-integrity` tool
-  resolves it: the card''s markdown link to the remote-body-format reference, whose
-  text becomes "the remote body format", and the card''s bare pointer to its detail
-  cards under `references/`, which becomes links naming "the local-issues CLI reference"
-  and "the local-issues sync and worktree mechanics".
+  resolves it. The obligation is universal over the card''s cross-references, not
+  over a list: whatever non-canonical reference the card carries when it is touched
+  converts.
 
   - **R-14** — Each amended card''s full normative prose SHALL be returned under the
   ainglish writing discipline, per that discipline''s whole-card-on-touch rule, whose
@@ -327,14 +324,13 @@ body: '## Problem
   are bound within the rule, and that nothing narrows stakeholder channels to correspondence
   |
 
-  | SC-13 | Each non-canonical cross-reference in the amended `issues` card reads
-  in the canonical `Read [Text](path)` form — its markdown link to the remote-body-format
-  reference and its bare pointer to the detail cards under `references/` — and the
-  card retains no further non-canonical cross-reference to deck content | structural
-  | Read `skills/issues/SKILL.md`; assert the canonical form on both, that each bracketed
-  text names a heading in its target, and that no further non-canonical reference
-  to deck content remains in the card; run `.opencode/tools/reference-integrity` over
-  the deck and confirm it reports no broken link |
+  | SC-13 | Every non-canonical cross-reference in the amended `issues` card reads
+  in the canonical `Read [Text](path)` form, each bracketed text naming a heading
+  in its target, and the card retains no non-canonical reference to deck content |
+  structural | Read `skills/issues/SKILL.md`; assert the canonical form on every cross-reference
+  the card carries, that each bracketed text names a heading in its target, and that
+  no non-canonical reference to deck content remains; run `.opencode/tools/reference-integrity`
+  over the deck and confirm it reports no broken link |
 
   | SC-14 | Each amended card''s full normative prose, and the guideline''s amended
   passage, conforms to the ainglish writing discipline''s five ambiguity families
@@ -432,5 +428,5 @@ body: '## Problem
 
   '
 created_at: '2026-10-24T03:19:45+00:00'
-updated_at: '2026-10-24T07:26:03+00:00'
+updated_at: '2026-10-24T07:40:17+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2662
