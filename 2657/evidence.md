@@ -114,15 +114,25 @@ deck change under test.
 ## Consequence for the criteria
 
 - SC-6, SC-7 and SC-9 each require "a full-path spec artifact" in the run.
-  Under cause 1 that artifact is not producible in this harness with the
-  default model, so those three criteria are not measurable as instrumented.
-  SC-6's instrument additionally fails to *discriminate* the two decks: both
-  fail for artifact reasons rather than for the routing reasons the criterion
-  is about, which is a second, independent argument for re-scoping it.
+  Cause 1 explains why: the anchorless cap-hit resume made every capped turn
+  re-derive the session's history and issue no tool call, so the run could
+  not finish its artifact no matter how many resumes it got. R-13 is the
+  remedy — the resume now carries the recorded tail, so a resumed turn
+  continues the recorded work. **This record's original claim that the
+  artifact is "not producible in this harness" was written before R-13
+  landed and described the anchorless resume's effect, not a limit of the
+  harness.** The re-runs decide it: if the artifact still does not appear, the
+  three criteria are re-scoped at the spec (a smaller artifact) and the spec
+  is revised and re-validated, per the harness's own rule — "a scenario
+  whose legitimate turns routinely hit the cap is re-scoped at the spec".
+- SC-6's instrument additionally fails to *discriminate* the two decks as
+  written: both failed for artifact reasons rather than for the routing
+  reasons the criterion is about. R-13 is what makes the routing observable
+  in the run, so the criterion is judged from the re-run.
 - SC-8 and SC-10 require no spec artifact, so they are measurable as
-  instrumented once causes 2 and 3 are fixed — and with them fixed the
-  monitor can conclude a run as soon as the criterion's decisive fact
-  appears, rather than waiting out the model's deliberation.
+  instrumented — and with causes 2 and 3 fixed the monitor can conclude a
+  run as soon as the criterion's decisive fact appears, rather than waiting
+  out the model's deliberation.
 - The deck change itself is not implicated in any of the three causes. In the
   SC-6 GREEN the new deck routed to the named stage in two polls with the
   developer's approval gate explicitly identified, where the pre-change deck
@@ -130,14 +140,10 @@ deck change under test.
   exist in the deck. In the SC-8 RED the pre-change deck's own words are the
   defect: *"Direct single-file change with the request as spec — short
   path."*
-- One cost of the change is worth recording: `skills/work/SKILL.md` grew
-  from 53 to 127 lines, and the card's text is in the agent's context on
-  every run, so the deck's first-turn latency rises with it. The
-  `skill-creator` card's own standard is "bodies stay lean; details go one
-  level deep in `references/`". Moving the criteria set and the scope
-  statement's detail into a `references/` file — with the card pointing at
-  them — would cut that, at the cost of a spec revision, since SC-2 requires
-  the criteria to be stated in rule 1's body.
+- The work card's length is **not** the verbosity driver, contrary to an
+  earlier reading here: the pre-change 53-line card produced the same
+  4,000-token first turn, so the model's deliberation on the deck prompt —
+  not the size of the card this change rewrites — is what fills the budget.
 
 ## Suite-wide result
 
