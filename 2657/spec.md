@@ -147,11 +147,15 @@ anchorless form. R-13 makes the resume carry the recorded tail, so the
 resumed turn continues the recorded work instead of restarting it.
 
 The determination gate that guards a resume is the third measurement
-defect: it refuses a resume unless a determination record exists, and that
-record is written when the attempt ends — after the resume it would have
-permitted. Every cap-hit resume was therefore blocked before any inference
-was dispatched, and the run exhausted the cap-resume ceiling with its
-artifact never produced.
+defect, and its cause is scan coverage rather than a missing record: the
+harness writes the determination record and the orchestrator decision into
+the run's artifact directory before it attempts the cap-hit resume, but the
+gate's scan roots were the Docker tier's staging root and the run's
+behaviour-test directory — neither of which contains the artifact directory.
+The gate therefore reported `determination.yaml not found in any scenario
+evidence dir` and refused every cap-hit resume before any inference was
+dispatched, and the run exhausted the cap-resume ceiling with its artifact
+never produced.
 
 Two further defects at the scenario layer keep a run from being judged or
 from recovering: a scenario that declares no goal condition leaves the
@@ -375,12 +379,14 @@ of doing the task. R-9 and SC-11 carry both.
   cap's default is unchanged, and the probe scenario that lowers the cap
   deliberately is untouched: the observed degenerate-turn band is where these
   turns sit, so raising the cap would re-open the failure the cap exists to
-  prevent. The determination gate that guards a resume permits the cap-hit
-  resume: the run's own session record shows the last assistant turn ended
-  with `finish: "length"`, which is the condition the cap-resume path exists
-  to continue, and the determination record for that attempt cannot exist yet
-  — it is written when the attempt ends, which is after the resume it would
-  have permitted. The cap-resume ceiling bounds that cycle.
+  prevent. The determination gate that guards a resume finds the record it
+  needs: the gate's scan roots include the run's artifact directory, which is
+  where the harness writes the determination record and the orchestrator
+  decision, and both exist before the cap-hit resume is attempted. Without
+  that root the gate never saw the record — the Docker tier's `TMP_DIR` is the
+  staging root, which does not contain it — and refused every cap-hit resume
+  with `determination.yaml not found in any scenario evidence dir`, so the run
+  exhausted the cap-resume ceiling with its artifact never produced.
 
 ## Impact
 
@@ -440,8 +446,10 @@ self-certified, and R-5 re-examines it when the work outgrows it.
 `skill-creator`, `verify`, `git-workflow-pr`, `git-workflow-branch`, and
 `git-workflow-cleanup` cards; `tests-v2/behaviors/`; the cap-hit resume
 path in `tests-v2/behaviors/helpers.sh` together with the Docker resume
-launcher in `tests-v2/docker/docker-harness.sh` and the determination gate
-in `tests-v2/with-test-home`. The amendments to
+launcher in `tests-v2/docker/docker-harness.sh`, the determination gate
+in `tests-v2/with-test-home`, and the three surfaces that state the gate's
+behaviour — `tests-v2/AGENTS.md` §10.7 and §17 and
+`skills/behavioral-testing/SKILL.md` rule 9. The amendments to
 `verify`, `git-workflow-pr`, `git-workflow-branch`, and `git-workflow-cleanup`
 are clause-level clarifications that name the artifact the card already
 requires and, for the verify card, the verdict unit and owning card the
@@ -668,17 +676,20 @@ deliberate probe override in `2646-sc-cap-resume-probe.sh` — which lowers the
 cap so the probe hits it deterministically — is untouched.
 
 - **Verify:** read `tests-v2/behaviors/helpers.sh`,
-  `tests-v2/docker/docker-harness.sh`, and `tests-v2/with-test-home`; the
-  cap-hit resume path calls the tail-message composer and passes its message
-  to both the Docker and the host resume path, and the Docker resume
-  launcher's own default is tail-derived rather than anchorless, so a caller
-  that passes no message does not reintroduce the anchorless form; the
+  `tests-v2/docker/docker-harness.sh`, `tests-v2/with-test-home`,
+  `tests-v2/AGENTS.md` §10.7 and §17, and `skills/behavioral-testing/SKILL.md`
+  rule 9; the cap-hit resume path calls the tail-message composer and passes
+  its message to both the Docker and the host resume path, and the Docker
+  resume launcher's own default is tail-derived rather than anchorless, so a
+  caller that passes no message does not reintroduce the anchorless form; the
   anchorless message appears in executable code in neither file; the
-  determination gate permits the resume when the run's own session record
-  shows the last assistant turn ended with `finish: "length"`; every surface
-  that sets `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` with the default still
-  carries the 4,000 literal, and `2646-sc-cap-resume-probe.sh` still carries
-  its own deliberate override.
+  determination gate's scan roots include the run's artifact directory, where
+  the harness writes the record, and the launcher names that directory; the
+  three documentation surfaces state the gate's scan coverage and the decision
+  the gate accepts; every surface that sets
+  `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` with the default still carries the
+  4,000 literal, and `2646-sc-cap-resume-probe.sh` still carries its own
+  deliberate override.
 
 ## Success-criteria table
 
@@ -718,10 +729,11 @@ cap so the probe hits it deterministically — is untouched.
   facts only.
 - The retired `attic/` deck; the `tests-v2` harness's isolation contract, its
   default model, its change-control rules, and its per-turn output cap;
-  `guidelines/`, `agents/`, `prompts/`, and `opencode.jsonc`. R-13 reaches two
-  harness behaviours — the message the cap-hit resume sends, in the helpers'
-  resume path and in the Docker resume launcher's default — and nothing else
-  in the harness.
+  `guidelines/`, `agents/`, `prompts/`, and `opencode.jsonc`. R-13 reaches
+  three harness behaviours — the message the cap-hit resume sends, in the
+  helpers' resume path and in the Docker resume launcher's default, and the
+  determination gate's scan roots — and the three surfaces that state the
+  gate's behaviour, and nothing else in the harness.
 
 ## Approach
 
