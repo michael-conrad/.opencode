@@ -3,9 +3,8 @@
 Spec: `.opencode/.issues/2663/spec.md` (fresh-context validation PASS, zero
 findings). Branch: `feature/2663-harness-cap-hit-resume`, base `a1fb61c6`
 (the `.opencode` trunk tip, verified against `origin/main` at plan time).
-Repository: `michael-conrad/.opencode` (the `.opencode` submodule). One
-commit per issue; the `.opencode#2657` change is stacked on this branch and
-depends on it.
+Repository: `michael-conrad/.opencode` (the `.opencode` submodule). The
+`.opencode#2657` change is stacked on this branch and depends on it.
 
 ## Surfaces touched
 
@@ -33,10 +32,11 @@ are preserved (SC-7).
 4. **Item 4** — a goal condition's content pattern is matched as a pattern
    (SC-6).
 
-Items 1 and 2 depend on nothing; item 3 depends on item 2, because the
-surfaces it changes state the gate that item 2 changes; item 4 depends on
-nothing. The order is acyclic, and every item is committed and pushed before
-the next begins.
+Item 2 depends on item 1, because the artifact directory the launcher names
+is the value item 1's optional argument carries; item 3 depends on item 2,
+because the surfaces it changes state the gate that item 2 changes; item 4
+depends on nothing. The order is acyclic, and every item is committed and
+pushed before the next begins.
 
 The gate's own instruments are executable and do not dispatch inference: the
 gate's function is extracted from `tests-v2/with-test-home` and invoked
@@ -88,8 +88,15 @@ case. That is how the RED assertions below are run.
   runs without an unbound-variable error; `grep -c
   "OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=.*4000"` over the cap surfaces is
   unchanged, and the probe scenario still carries its own override (SC-7);
-  and the post-run block's three calls are read at their call sites — the
-  record, then the decision on the marker, then the resume (SC-4).
+  and the post-run block is read at its call sites, in order: the
+  session-isolation check, which ends the block before the record is
+  written; the record write; the undetermined-cycle ceiling check, which
+  ends the block before the decision and before the resume; the decision
+  append, gated on the `MONITOR-HALTED` marker; the resume; and the resume
+  helper's monitor gate, which returns immediately when the monitor is off.
+  The marker's two writers — the classification-halt path and the
+  dispatch-failure-ceiling path — and the gate's decision branches are read
+  at their call sites (SC-4).
 - Dependency: none.
 
 ## Item 2 — the gate scans every named root, and finds the record (SC-2, SC-3)
@@ -106,21 +113,21 @@ case. That is how the RED assertions below are run.
   scenario evidence dir … (evidence trees scanned: …/tmp/docker-staging/tmp
   …/tmp/behavior-test-20261023-144745/2657-sc1-stage-request-runs-stage)`
   lines, naming the two roots it scanned and neither of them the record's
-  directory; and the list's last element, replayed against the extracted
-  gate: with `BEHAVIOR_DETERMINATION_SCAN_DIR` naming two roots, the gate's
-  `FATAL:` message names only the first — the parser reads the list with
-  `printf '%s' … | tr ':' '\n'`, whose output carries no trailing newline, so
-  the final element is read into the loop's variable and the loop body never
-  runs for it.
+  directory. At the base the gate has no list at all: it appends the whole
+  value of `BEHAVIOR_DETERMINATION_SCAN_DIR` as one root, and the launcher
+  names one — the evidence directory — so the record's directory is never
+  among the roots the gate looks in.
 - GREEN: the launcher's two-root list; the gate's list parsing.
 - Verify: the extracted gate, driven with `BEHAVIOR_DETERMINATION_SCAN_DIR`
-  naming two roots and no record in either — the gate's `FATAL:` message
-  names both (SC-2); the extracted gate, driven with the scan list naming
-  the preserved run's artifact directory and the target home the preserved
-  `stderr.log` names — the gate permits the resume (exit 0, no `FATAL:`),
-  because the preserved record carries a valid recorded decision (SC-3); and
-  the same gate with the scan list naming an empty directory — it still
-  fails fast with its `FATAL:` (SC-3's negative control).
+  naming two roots and the record present in the SECOND of them — the gate
+  permits the resume (exit 0, no `FATAL:`), which is what proves the last
+  element is scanned rather than merely named in the error message (SC-2);
+  the extracted gate, driven with the scan list naming the preserved run's
+  artifact directory and the target home the preserved `stderr.log` names —
+  the gate permits the resume, because the preserved record carries a valid
+  recorded decision (SC-3); and the same gate with the scan list naming an
+  empty directory — it still fails fast with its `FATAL:` (SC-3's negative
+  control).
 - Dependency: item 1 (the resume path that carries the artifact directory).
 
 ## Item 3 — the surfaces that state the gate state the change's gate (SC-5)
@@ -133,13 +140,15 @@ case. That is how the RED assertions below are run.
   hard-blocks for an unmonitored home and the §10.5 full re-run fallback
   remains its recovery; `skills/behavioral-testing/SKILL.md` rule 9 states
   the gate's rule as the code has it.
-- RED: the three surfaces against the code — the gate's comment claims the
-  cap-hit case "cannot exist yet" and that the gate therefore permits a
-  resume whose home's last assistant turn ended with `finish=length`, which
-  the function does not implement; §14's row states that an unmonitored run's
-  record carries a recorded orchestrator decision, which the flag-gated
-  record write does not produce; rule 9 narrows the gate's rule to one of
-  its two branches.
+- RED: the three surfaces against the code, at the base. No surface names
+  the run's artifact directory as a root the gate scans — the base's gate
+  scans the runner's `TMP_DIR` and the one root the launcher names, and
+  nothing tells a reader that the record's directory is a third place the
+  gate must look; and no surface states the gate's rule in full: the base's
+  gate comment states the refusal conditions but not that a non-undetermined
+  classification permits a resume with no recorded decision, and rule 9
+  names only the unmonitored case. A reader of the three surfaces cannot tell
+  either which roots the gate scans or what the gate accepts.
 - GREEN: the three surfaces rewritten to the code's rule and coverage.
 - Verify: read the three files against the code read in items 1 and 2 — each
   statement above is present, and no statement in them describes an
