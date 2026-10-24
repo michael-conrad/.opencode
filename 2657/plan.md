@@ -233,8 +233,8 @@ spec card owns it.
     a developer-directed edit to the deck whose content leaves a material
     open choice is a question in the deck-governance card, not the full
     path. The same rule carries the two clauses that ride with the
-    criteria: the **short path ends when the work outgrows it** (R-5), and
-    **no ceremony, and no waived stage** (R-6). Rule 1's paragraph and its
+    criteria: the **short path ends when the work outgrows it** (R-4), and
+    **no ceremony, and no waived stage** (R-7). Rule 1's paragraph and its
     bullet list each refer to the criteria set rather than stating a
     predicate of their own, so the card's three forms cannot disagree.
   - **Rule 2 — a stated stage request is not a specification** (new). It
@@ -246,17 +246,20 @@ spec card owns it.
     a developer's directive satisfies a stage's content; it never suppresses
     a stage — no directive, however emphatic and however small the change,
     removes a stage.
-  - **Rule 4 — the work record and the scope statement** (new). R-4 and
-    R-10: the record is one file in the repository's own git directory, at
-    the path `git rev-parse --git-path work-record.md` reports — not a
+  - **Rule 4 — the work record and the scope statement** (new). R-3: the
+    record is one file in the repository's own git directory, at the path
+    `git rev-parse --git-path work-record.md` reports — not a
     working-tree path, so it never appears in the repository's status and
     needs no ignore-rule entry; scratch, never committed, removed at
-    cleanup; it holds the provenance (verified trunk tip, branch, base tip,
-    issue where one exists), written by `git-workflow-branch` at its
-    trunk-freshness step, and the scope statement (path taken, the criteria
-    that selected it, what changes, what "done" is checked against, what is
-    out of scope, the order of the work, and any reason a card requires
-    recorded for a departure from a default), written before the first edit.
+    cleanup; it holds the provenance — the verified trunk tip, which the
+    `git-workflow-branch` card writes at its trunk-freshness step before the
+    branch exists, and the branch, the base tip, and the issue where one
+    exists, which the same card records alongside that tip at its provenance
+    step once the branch exists — and the scope statement (path taken, the
+    criteria that selected it, what changes, what "done" is checked against,
+    what is out of scope, the order of the work, and any reason a card
+    requires recorded for a departure from a default), written before the
+    first edit.
     The check is the criterion the `verify` card's reviewer measures the
     scope statement against and the verdict unit on the short path; the work
     card is that statement's criteria reference. The developer's work order
@@ -266,7 +269,7 @@ spec card owns it.
     `implement` → `verify` → `git-workflow-pr`; full `explore` → `spec` →
     developer approval → `plan` → `implement` → `verify` →
     `git-workflow-pr`.
-  - **Rule 6 — boundaries** (amended; the rest unchanged). R-11's
+  - **Rule 6 — boundaries** (amended; the rest unchanged). R-4's
     qualification: the missing-artifact clause applies to a change on the
     full path; on the short path the scope statement is the spec artifact.
   - **Rule 7 — deprecation encounters** (untouched).
