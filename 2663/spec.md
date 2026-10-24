@@ -68,16 +68,13 @@ among them.
   message; the repair that fixed one scenario's bespoke recovery path was
   never applied to the path every scenario takes. The repair composes the
   message from the run's session database, and both resume paths use it.
-- **RC-2** — The gate's scan roots were the two directories the launcher
-  named, and neither is the directory the record is written to; the gate
-  could not find what it looked for. The repair names the artifact directory
-  in the launcher's list.
-- **RC-3** — The gate's scan roots are the directories the launcher names,
+- **RC-2** — The gate's scan roots are the directories the launcher names,
   and the launcher named two: the tier's staging root and the run's evidence
   directory. The record is written to a third — the run's artifact directory
   — which no launcher named, so the gate looked for the record somewhere the
-  record never was.
-- **RC-4** — The gate's rule, its scan roots, and the unmonitored path's
+  record never was. The repair names the artifact directory in the launcher's
+  list, and the gate scans every root the list carries.
+- **RC-3** — The gate's rule, its scan roots, and the unmonitored path's
   recovery route are stated in three hand-written places — the gate's own
   comment, `tests-v2/AGENTS.md`, and `skills/behavioral-testing/SKILL.md` —
   and nothing ties them to the code, so a change to one is not carried to
