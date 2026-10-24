@@ -1,73 +1,93 @@
 # Spec: The behavioral harness can complete and judge a capped run
 
-Provenance: developer directive 2026-10-24 (a spec that needed more than four
-revisions is re-evaluated for decomposition, and the measurement concern is
-extracted from `.opencode#2657` into this spec). Observed failures: the
-anchorless cap-hit resume, recorded in the deck's correction catalogue
-`.opencode/.issues/lessons-learned/session-2026-10-20/README.md` LL-3
-(first observed on the `#2639` scenario's recovery path) and in this deck's own
-runs — three consecutive `FATAL: resume failed — no non-undetermined
-determination exists` with no inference dispatched
-(`tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-256k-gguf4/stderr.log`),
-and the run's capped assistant message at `finish: "length"` with 4,000 output
-tokens and no tool call (the same run's exported `session.yaml`).
+Provenance: the measurement concern separated from `.opencode#2657` (the
+deck's path-selection work), where it is a stated dependency of that work's
+behavioral criteria; the two carry different gates — the harness's
+change-control rules and the deck's admission gate — and the separation keeps
+each gate exercisable on its own terms. Observed failures: the anchorless
+cap-hit resume, recorded in the deck's correction catalogue
+`.opencode/.issues/lessons-learned/session-2026-10-20/README.md` LL-3 (first
+observed on the `#2639` scenario's recovery path: the default resume message
+"gives the model no state anchor, so it reconstructs from a ~65k-token context
+every turn" and issues "ZERO tool calls"); and this deck's own run —
+`tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-256k-gguf4/`,
+whose `stderr.log` carries three consecutive `FATAL: resume failed — no
+non-undetermined determination exists … determination.yaml not found in any
+scenario evidence dir … no inference dispatched`, whose `determination.yaml`
+carries `classification: undetermined` with a recorded
+`terminate-with-root-cause` decision, and whose `monitor.log` ends
+`MONITOR-HALTED polls=4`.
 
 ## Problem
 
 A behavioral run whose turn ends at the harness's per-turn output cap cannot
 be resumed, cannot be judged, and never produces the artifact its criterion
-asks about. Three defects sit on that path. The first two are fixed; the
-third is open, and the two surfaces that describe the path both describe a
-behavior the code does not have.
+asks about. The path carries three defects. Two are repaired; the third is
+open, and two surfaces describe the path in terms the code does not have.
 
-### Defect 1 — the resume gives the model no state anchor (fixed)
+### Defect 1 — the resume gives the model no state anchor (repaired)
 
 The cap-hit resume sent "Continue the task from where you left off." The
 model then re-derives the session's history from a long context, spends the
 whole per-turn budget re-deriving, and issues no tool call; the resume makes
 no progress and the run exhausts the cap-resume ceiling with no artifact. The
-deck records this in its own catalogue: the default message "gives the model
-no state anchor, so it reconstructs from a ~65k-token context every turn" and
-issues "ZERO tool calls". The run-level fix `.opencode#2639` applied to its
-own scenario's bespoke recovery path; the generic path every scenario takes
-still sent the anchorless form.
+deck records this in its own catalogue, on the `#2639` scenario's bespoke
+recovery path; the generic path every scenario takes still sent the
+anchorless form. The repair composes the resume message from the run's own
+session database — the agent's last recorded reasoning and the recorded
+in-flight tool call — so the resumed turn continues the recorded work.
 
-### Defect 2 — the determination gate cannot see the record (fixed)
+### Defect 2 — the determination gate cannot see the record (repaired)
 
 The gate that guards a resume scans the Docker tier's staging root and the
 run's behaviour-test directory. The determination record is written to the
-run's artifact directory, which is neither — the Docker tier's `TMP_DIR` is
+run's artifact directory, which is neither: the Docker tier's `TMP_DIR` is
 the staging root and does not contain it. The gate therefore refused every
 cap-hit resume with `determination.yaml not found in any scenario evidence
-dir`, before any inference was dispatched.
+dir` — the message the preserved run's `stderr.log` carries three times —
+before any inference was dispatched. The repair puts the artifact directory
+among the roots the launcher names.
 
-### Defect 3 — the gate blocks a capped run the monitor could not judge (open)
+The record the gate could not find is present in the preserved run's artifact
+directory, and it carries what the gate accepts: `classification: undetermined`
+with a recorded `terminate-with-root-cause` decision carrying a root cause.
+The gate's own rule — a resume is permitted when the record carries a
+non-undetermined classification or a valid recorded decision — would permit
+that record. The refusal was the missing root, not the record's content.
 
-The gate permits a resume when the home's determination record carries a
-non-undetermined classification, or a valid recorded orchestrator decision.
-A capped run's monitor frequently classifies the attempt `undetermined`, and
-the orchestrator decision is appended only on the monitor's halt-class path —
-the poll log's `MONITOR-HALTED` marker. A capped attempt that was neither
-judged nor halted has a record the gate finds and still blocks on. The
-record exists when the resume is attempted, so the record's absence is not
-the blocker; the record's content is.
+### Defect 3 — the path's documentation states behavior the code does not have (open)
 
-The surfaces that describe the path describe a behavior the code does not
-have. `tests-v2/with-test-home`'s `__sc8_determination_gate` carries a
-comment stating that the gate "permits the resume when the target home's own
-session record shows the last assistant turn ended with finish=length"; the
-function contains no such check — the word `finish` appears in the file only
-in that comment. `tests-v2/AGENTS.md` §10.7 row 6 states that an unmonitored
-run's determination record "carries the run's exit code and a recorded
-orchestrator decision", so the resumption path passes the gate; the record is
-flag-gated — `__write_determination_record` runs only under
-`BEHAVIOR_SEMANTIC_MONITOR=1` — so an unmonitored run writes no record at
-all.
+Two surfaces describe the gate in terms the code does not have.
 
-The consequence is that the two documented repairs do not reach the observed
-failure. A run whose monitor classified the attempt `undetermined` without a
-halt marker is still refused, and the refusal is reported as a missing
-determination when the record is present and readable.
+`tests-v2/with-test-home`'s `__sc8_determination_gate` carries a comment
+stating that the cap-hit resume "cannot exist yet — it is written when the
+attempt ends, which is after the resume it would have permitted", and that
+"the gate therefore permits the resume when the target home's own session
+record shows the last assistant turn ended with finish=length". The function
+contains no such check — the word `finish` appears in the file only in that
+comment — and the premise is false: the harness writes the determination
+record, then appends the orchestrator decision on the monitor's halt-class
+path, and only then attempts the cap-hit resume. The ordering is deliberate
+and is documented where it is implemented, in
+`tests-v2/behaviors/helpers.sh`'s monitored post-run block, whose comment
+names the observed refusals the ordering answered.
+
+`tests-v2/AGENTS.md` §14 (the "Layered Hang Diagnosis and Abort Completeness"
+table, rule 6) states that an unmonitored run "records no monitor
+classification, so its determination record carries the run's exit code and a
+recorded orchestrator decision; the §10.7 resumption path then passes the SC-8
+determination gate on that record, and a hang in an unmonitored run is
+recoverable by resume". An unmonitored run writes no record at all:
+`__write_determination_record` runs only under `BEHAVIOR_SEMANTIC_MONITOR=1`.
+It also never attempts a cap-hit resume — the resume path returns immediately
+when the monitor is off. The row's claim is false in both directions, and the
+row's own recovery guidance — the §10.5 full re-run fallback — remains the
+truth.
+
+The consequence is that the repair is described by a rule that is not the
+rule, and the unmonitored path is described as recoverable by a route it does
+not have. A reader — or a later agent — taking either statement at face value
+draws the wrong conclusion about when a capped run may resume.
 
 ## Root causes
 
@@ -77,13 +97,12 @@ determination when the record is present and readable.
 - **RC-2** — The gate's scan roots were the two directories the launcher
   named, and neither is the directory the record is written to; the gate
   could not find what it looked for.
-- **RC-3** — The gate's rule is written in terms of the determination record
-  alone, but the case the gate must not block — the cap-hit resume — is
-  defined by the session's own last turn, which the record does not carry.
-  The rule has no way to recognize the case it must permit.
-- **RC-4** — The documentation of the gate and of the unmonitored path was
-  written from intent rather than from the code, and the code was never
-  checked against it.
+- **RC-3** — The gate's rule is expressed only in terms of the determination
+  record, and the path's documentation reached past it: it explained the
+  cap-hit case with a premise the harness's own ordering contradicts, and
+  described an exemption the code does not implement. The documentation and
+  the code were written and revised apart, and nothing checked the
+  correspondence.
 
 ## Requirements
 
@@ -94,57 +113,68 @@ determination when the record is present and readable.
   default in `tests-v2/docker/docker-harness.sh` — so a caller that passes no
   message does not reintroduce the anchorless form. The anchorless literal
   survives in comments only.
-- **R-2** — The determination gate permits the cap-hit resume. The record for
-  a capped attempt is written when the attempt ends, which is after the
-  resume it would have permitted, so the gate must not block that case: it
-  permits the resume when the target home's own session record shows the last
-  assistant turn ended with `finish=length`. The signal is the one the
-  harness already reads to detect the cap hit
-  (`__last_assistant_finish`). The cap-resume ceiling bounds that cycle, so
-  permitting it cannot produce an unbounded loop. Every other resume the gate
-  blocks today is still blocked.
-- **R-3** — The gate finds the record. Its scan roots are the runner's
+- **R-2** — The gate finds the record. Its scan roots are the runner's
   `TMP_DIR` plus every root the launcher names in
   `BEHAVIOR_DETERMINATION_SCAN_DIR` — a colon-separated list carrying the
   run's evidence directory and the run's artifact directory, which is where
   the harness writes the determination record and, on the monitor's halt-class
   path, the orchestrator decision. The Docker tier's `TMP_DIR` is the staging
   root and does not contain the record.
-- **R-4** — The record and the decision exist before the resume, and the
-  record's existence is conditional. The monitored post-run block writes the
-  determination record for every monitored run, appends the orchestrator
-  decision only on the monitor's halt-class path, and runs the cap-hit
-  resume after both. A record is written only under
-  `BEHAVIOR_SEMANTIC_MONITOR=1`; an unmonitored run writes no record, and
-  the §10.5 full re-run fallback remains its recovery.
-- **R-5** — The surfaces that state the gate's behavior state it truthfully:
-  `tests-v2/AGENTS.md` §10.7 and §14 and `skills/behavioral-testing/SKILL.md`
-  rule 9 describe the scan roots, the cap-hit exemption, the decision the
-  gate accepts, the unmonitored path's actual behavior, and the ordering that
-  makes the record available before the resume. The per-turn output cap's
-  default stays 4,000 on every surface that sets it, and
-  `2646-sc-cap-resume-probe.sh` keeps its deliberate 150 override.
+- **R-3** — The record and the decision exist before the resume. The
+  monitored post-run block writes the determination record for every
+  monitored run, appends the orchestrator decision only on the monitor's
+  halt-class path (the poll log's `MONITOR-HALTED` marker), and attempts the
+  cap-hit resume after both. The gate's rule is the one the code implements:
+  a resume is permitted when the record carries a non-undetermined
+  classification or a valid recorded decision — `continue-new-dispatch`, or
+  `terminate-with-root-cause` carrying a root cause. The cap-hit resume is
+  not an exception to that rule, because the record and the decision the
+  rule reads are already written when the resume is attempted. The resume
+  path is monitor-gated: a run without the monitor writes no record and
+  attempts no resume.
+- **R-4** — The surfaces that state the path state it as the code has it.
+  `tests-v2/with-test-home`'s gate comment states the gate's rule and drops
+  the cap-hit explanation whose premise the ordering contradicts, so no
+  surface claims an exemption the gate does not implement.
+  `tests-v2/AGENTS.md` §10.7 states the gate's scan coverage, and §14 states
+  the unmonitored path truthfully — an unmonitored run writes no
+  determination record and attempts no cap-hit resume, so the §10.7
+  resumption path hard-blocks for an unmonitored home and the §10.5 full
+  re-run fallback remains its recovery.
+  `skills/behavioral-testing/SKILL.md` rule 9 states that a run whose record
+  carries no valid orchestrator decision cannot resume through the §10.7
+  path.
+- **R-5** — The per-turn output cap's default stays 4,000 on every surface
+  that sets it, and `2646-sc-cap-resume-probe.sh` keeps its deliberate 150
+  override. The observed degenerate-turn band is where these turns sit, so
+  raising the cap would re-open the failure the cap exists to prevent.
 
 ## Impact
 
 **Consumers.** Every behavioral scenario in `tests-v2/behaviors/`, and every
 behavioral criterion judged from a run — including the five behavioral
-criteria of `.opencode#2657`, which depend on this capability to produce a
-run at all. This spec is the prerequisite that capability's evidence rests
-on, and `.opencode#2657` states the dependency rather than absorbing it.
+criteria of `.opencode#2657`, whose runs depend on this capability to produce
+an artifact at all. That work states this capability as a dependency rather
+than absorbing it.
 
 **Risk — the gate is a safety precondition.** The gate stops a resume whose
 home carries no valid determination, so that a run judged off-track does not
-continue. The exemption is narrow: it applies only to a home whose last
-assistant turn ended at the output cap — the case the cap-resume path exists
-for — and the cap-resume ceiling bounds the cycle. SC-2's negative control
-keeps the gate's blocking behavior observable.
+continue. The gate's rule is unchanged by this spec: only the roots it scans
+and the documentation of it change. SC-2's negative control keeps the
+gate's blocking behavior observable.
 
 **Risk — a wider gate is a weaker gate.** The scan roots widen to the
 artifact directory, so the gate sees a record it previously could not. A
-record that exists but carries an undetermined classification and no valid
-decision is still blocked, so the widening does not admit a run the gate
-would have refused for a reason.
+record that carries an undetermined classification and no valid decision is
+still blocked, so the widening admits no resume the gate would have refused
+for a reason.
+
+**Boundary — a run the monitor never classified.** A monitored run whose poll
+log carries no classification at all is recorded with `classification: none`,
+carries no decision, and is refused by the gate. The cap-resume path for such
+a run stays unavailable. This is a boundary of the existing rule, not a
+defect this spec changes; it is stated so that no reader infers that every
+capped run can resume.
 
 **Blast radius.** `tests-v2/behaviors/helpers.sh`,
 `tests-v2/docker/docker-harness.sh`, `tests-v2/with-test-home`,
@@ -167,46 +197,56 @@ the anchorless literal appears in executable code in neither file.
 - **Verify:** read the two files; grep the anchorless literal in both — hits
   in comments only.
 
-### SC-2 (structural) — the gate permits a capped run, and still blocks an unjustified one
+### SC-2 (structural) — the gate finds the record, and the gate still blocks without one
 
-`tests-v2/with-test-home`'s `__sc8_determination_gate` permits a resume
-whose target home's session record shows the last assistant turn ended with
-`finish=length`, whether or not a determination record was found; a home
-without that signal and without a record still fails fast with the gate's
-FATAL message and dispatches no inference.
+`tests-v2/with-test-home`'s `__sc8_determination_gate` finds the
+determination record in the run's artifact directory when the launcher names
+that directory in `BEHAVIOR_DETERMINATION_SCAN_DIR`, and permits the resume
+that the preserved run's record supports — the record carries
+`classification: undetermined` with a recorded `terminate-with-root-cause`
+decision carrying a root cause. With no record in the scanned roots, the gate
+still fails fast with its `FATAL:` message and dispatches no inference.
 
-- **Verify:** two synthetic homes driven through
-  `bash tests-v2/with-test-home --resume-home <home>` — one whose
-  `.local/share/opencode/opencode.db` carries an assistant message with
-  `finish=length` (the run must not emit the gate's FATAL) and one with no
-  such message and no determination record (the run must emit it). Both
-  checks are executable; the second is the negative control.
+- **Verify:** two replays of the gate against the preserved run
+  `tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-256k-gguf4/`
+  — the gate's function extracted from `tests-v2/with-test-home` and invoked
+  directly, so that no inference is dispatched: one replay with `TMP_DIR` set
+  to a scratch directory, `BEHAVIOR_DETERMINATION_SCAN_DIR` naming that run's
+  artifact directory, and the target home set to the home path the preserved
+  `stderr.log` names (the gate must permit — exit 0, no `FATAL:` on stderr);
+  one replay with the scan directory naming an empty directory (the gate must
+  emit its `FATAL:`).
 
-### SC-3 (structural) — the gate finds the record, and the record is there before the resume
+### SC-3 (structural) — the record and the decision exist before the resume
 
-The gate's scan roots are the runner's `TMP_DIR` plus every root the
-launcher names in `BEHAVIOR_DETERMINATION_SCAN_DIR`, and the launcher names
-the run's artifact directory — the directory the harness writes the
-determination record to — alongside the run's evidence directory. In
-`tests-v2/behaviors/helpers.sh`'s monitored post-run block, the determination
-record is written, then the orchestrator decision is appended on the
-monitor's halt-class path only, and the cap-hit resume runs after both.
+In `tests-v2/behaviors/helpers.sh`'s monitored post-run block, the
+determination record is written for every monitored run, the orchestrator
+decision is appended only on the monitor's halt-class path, and the cap-hit
+resume is attempted after both; the resume path returns immediately when the
+monitor is off. The gate's rule — a non-undetermined classification or a
+valid recorded decision — is the rule the code implements, and the cap-hit
+resume is not an exception to it.
 
-- **Verify:** read the three files; the scan-root list, the launcher
-  environment, and the post-run call order are visible at their call sites.
+- **Verify:** read `tests-v2/behaviors/helpers.sh` and
+  `tests-v2/with-test-home`; the order of the three calls and the gate's
+  decision branches are visible at their call sites.
 
-### SC-4 (structural) — the documentation states the gate truthfully
+### SC-4 (structural) — the documentation states the path as the code has it
 
-`tests-v2/AGENTS.md` §10.7 and §14 and `skills/behavioral-testing/SKILL.md`
-rule 9 state the gate's scan roots, the cap-hit exemption, the decision the
-gate accepts and the halt-class path that produces it, the unmonitored path's
-actual behavior (no record is written, so the resumption path still blocks
-and the §10.5 full re-run fallback remains the recovery), and the ordering
-that makes the record available before the resume. No surface states a
-behavior the code does not have.
+`tests-v2/with-test-home`'s gate comment states the gate's rule and does not
+claim a cap-hit exemption the gate does not implement. `tests-v2/AGENTS.md`
+§10.7 states the gate's scan coverage, and §14 states the unmonitored path
+truthfully: an unmonitored run writes no determination record and attempts no
+cap-hit resume, so the §10.7 resumption path hard-blocks for an unmonitored
+home and the §10.5 full re-run fallback remains its recovery.
+`skills/behavioral-testing/SKILL.md` rule 9 states that a run whose record
+carries no valid orchestrator decision cannot resume through the §10.7 path.
 
-- **Verify:** read the three surfaces; each statement in the list above is
-  present and matches the code read in SC-3.
+- **Verify:** read the three files that document the path —
+  `tests-v2/with-test-home`, `tests-v2/AGENTS.md`, and
+  `skills/behavioral-testing/SKILL.md` — against the code read in SC-2 and
+  SC-3; each statement above is present, and no statement in them describes
+  an exemption, a record, or a recovery route the code does not have.
 
 ### SC-5 (structural) — the per-turn output cap's default is unchanged
 
@@ -222,21 +262,21 @@ default still carries the 4,000 literal, and
 | ID | Criterion | Class | Instrument |
 |----|-----------|-------|------------|
 | SC-1 | Resume message tail-derived in both paths; anchorless literal in comments only | structural | read + grep the two harness files |
-| SC-2 | Gate permits a `finish=length` cap-hit resume; still fails fast without it | structural | two synthetic homes through `with-test-home --resume-home` |
-| SC-3 | Gate's scan roots include the artifact directory; record written, then decision on the halt path, then the resume | structural | read the three harness files |
-| SC-4 | The three documentation surfaces state the gate's behavior as the code has it | structural | read the three surfaces against SC-3 |
+| SC-2 | Gate finds the record in the artifact directory and permits the preserved run's record; still fails fast with no record | structural | two replays of the gate against the preserved run |
+| SC-3 | Record written, then decision on the halt path, then the resume; the gate's rule is the rule the code implements | structural | read the two harness files |
+| SC-4 | The three documentation surfaces state the path as the code has it | structural | read the three surfaces against SC-2 and SC-3 |
 | SC-5 | Cap default 4,000; the probe's deliberate override untouched | structural | grep the cap surfaces |
 
 ## Out of scope
 
 - The per-turn output cap's default and the probe scenario's deliberate
-  override. The observed degenerate-turn band is where these turns sit, so
-  raising the cap would re-open the failure the cap exists to prevent.
+  override (R-5 preserves them).
 - The harness's isolation contract, its default model, and its
   change-control rules.
 - The monitor's classification quality, the undetermined-cycle ceiling, and
   the orchestrator's decision semantics. This change makes the existing
-  semantics reachable at the cap-hit resume; it does not change them.
+  semantics reachable at the cap-hit resume; it does not change them, and it
+  does not add a cap-hit exemption to the gate.
 - The deck's path-selection rules, the scenario set, and the deck cards that
   carry them — `.opencode#2657`'s subject, which states this capability as a
   dependency of its behavioral criteria.
@@ -244,22 +284,23 @@ default still carries the 4,000 literal, and
 
 ## Approach
 
-Repair the path rather than relax the gate. The resume message is composed
-from the session database the harness already exports, so the model resumes on
-the recorded tail instead of re-deriving its history. The gate keeps its
-blocking rule and gains exactly one exemption, keyed on the `finish=length`
-signal the harness already reads to detect the cap hit: a run the cap ended
-is the run the resume exists for, and the record for that attempt is written
-after the resume it would have permitted. The launcher names the artifact
-directory among the gate's scan roots, so the record is found where it is
-written. The three documentation surfaces then state what the code does —
-including the unmonitored path's real behavior, which the previous text got
-wrong.
+Repair the path rather than relax the gate, and make the documentation say
+what the code does. The resume message is composed from the session database
+the harness already exports, so the model resumes on the recorded tail instead
+of re-deriving its history. The launcher names the artifact directory among
+the gate's scan roots, so the record is found where it is written; the gate's
+rule is untouched, and the record the preserved run carries — a valid recorded
+decision — is the record it accepts. The post-run block's ordering, which
+already places the record and the decision before the resume, is stated as
+the reason the cap-hit case is not an exception to the gate's rule. The two
+surfaces that described the path in other terms are brought into line with
+the code, and the unmonitored path's real recovery — the §10.5 full re-run
+fallback — is restored to the documentation that had replaced it.
 
-The criteria are executable rather than descriptive: the exemption is
-verified by driving two synthetic homes through the gate's real entry point,
-one permitted and one refused, so that the correspondence between this spec
-and the code is checked rather than asserted.
+The criteria are executable rather than descriptive: the gate's behavior is
+verified by replaying it against the preserved run, once permitting and once
+refusing, so the correspondence between this spec and the code is checked
+rather than asserted.
 
 ---
 *Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
