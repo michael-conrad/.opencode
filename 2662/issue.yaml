@@ -66,21 +66,27 @@ body: '## Problem
   in chat): `skills/verify/SKILL.md` §4; `skills/spec/references/validation-standards.md`
   escalation paragraph; `skills/plan/references/plan-validation-standards.md` escalation
   paragraph; `skills/implement/references/implementation-workflow.md` escalation rule;
-  `skills/implement/SKILL.md` §8; `skills/work/SKILL.md` closing paragraph; `skills/git-workflow-pr/SKILL.md`
-  §6; `guidelines/deprecation-encounter-protocol.md` R-3.
+  `skills/implement/SKILL.md` §4 and §8; `skills/work/SKILL.md` closing paragraph;
+  `skills/git-workflow-pr/SKILL.md` §2(c) and §6; `guidelines/deprecation-encounter-protocol.md`
+  R-3.
 
   - `skills/work/SKILL.md` §4 — the work record''s contents never become a tracker
   comment; durable state lives in the local issue store and the artifacts.
 
-  - `guidelines/deprecation-encounter-protocol.md` R-4 — the encounter-evidence append
-  is routed to the ticket''s store record, not to a tracker comment.
+  - `skills/implement/SKILL.md` §13 — the deprecation exception path names the same
+  route as the amended deprecation protocol, so the two do not misbind.
+
+  - `guidelines/deprecation-encounter-protocol.md` R-4 — both encounter-evidence append
+  sites are routed to the ticket''s store record, not to a tracker comment.
 
 
   **Producers covered without amendment**, with the reason: `skills/spec/SKILL.md`
-  §9 and `skills/implement/SKILL.md` §13 (deprecation escalation — defers to the amended
-  protocol); `skills/skill-creator/SKILL.md` and `skills/explore/SKILL.md` (their
-  questions are asked in the session — chat by construction); `floor.md`''s standing
-  formula (untouched; the rule carries the route).
+  §9 and `skills/implement/SKILL.md` §13''s protocol reference (deprecation escalation
+  — defers to the amended protocol); `skills/skill-creator/SKILL.md` and `skills/explore/SKILL.md`
+  (their questions are asked in the session — chat by construction); `floor.md`''s
+  standing formula (untouched; the rule carries the route); `skills/git-workflow-branch/SKILL.md`
+  §2, `skills/git-workflow-conflict/SKILL.md` §4, and `skills/reference-currency/SKILL.md`
+  §3 (cards this change does not amend — covered by the channel rule''s class).
 
 
   Untouched: `floor.md` (a substantive write triggers the ainglish whole-card-on-touch
@@ -116,10 +122,13 @@ body: '## Problem
   the artifacts for the durable trace; the artifact edited in place for a correction),
   and the no-read-back rule (a tracker comment is never an answer, an authorization,
   or a record the agent reads back). `skills/issues/SKILL.md` §3 keeps a pointer and
-  the caller-side discipline the retired card carried. Every escalation and clarification
-  producer in the live deck states its route and its recipient, so the vacuum is closed
-  at each producer and not only at the gate. The rule is stated centrally *and* at
-  each producer: the escalation rule appears in three places — the two criteria-set
+  the caller-side discipline the retired card carried. **Coverage of the channel vacuum
+  is by class, not by enumeration:** the rule routes developer-directed content —
+  an escalation, a clarification request, a report, a consultation — to the developer
+  in chat wherever any card produces it; and the producers in the cards this change
+  amends each state that route at the point of decision, where the agent is holding
+  the card that produces the report. The rule is stated centrally *and* at the producers
+  in the amended cards: the escalation rule appears in three places — the two criteria-set
   files carry the same paragraph, and the `verify` card''s copy differs slightly —
   and a route stated in one and not the others leaves the deck stating one rule two
   ways.
@@ -168,23 +177,18 @@ body: '## Problem
   can be added later, and published narration cannot be withdrawn.
 
   - **R-6** — The rule SHALL name the route for each class: chat for a live exchange
-  (an escalation, a clarification request), the local issue store for the record —
-  naming both the `local-issues comment --number repo#N --type internal` command and
-  the `local-issues update --number repo#N --status`/`--phase` state fields — the
-  artifacts for the durable trace, and the artifact edited in place for a correction.
+  (an escalation, a clarification request, a report to the developer), the local issue
+  store for the record — naming both the `local-issues comment --number repo#N --type
+  internal` command and the `local-issues update --number repo#N --status`/`--phase`
+  state fields — the artifacts for the durable trace, and the artifact edited in place
+  for a correction.
 
   - **R-7** — The rule SHALL state that a tracker comment is never an answer, an authorization,
   or a record the agent reads back.
 
-  - **R-8** — Each producer listed in §2.1 as carrying a route SHALL state its route
-  and its recipient — the developer, in chat. The producers are the `verify` card''s
-  escalation rule, the spec card''s validation standards'' escalation rule, the plan
-  card''s validation standards'' escalation rule, the implementation-workflow reference''s
-  escalation rule, the `implement` card''s narration-to-deliverable halt, the `work`
-  card''s closing halt clause, the `git-workflow-pr` card''s terminal instruction,
-  and the deprecation protocol''s R-3 escalation. Each producer listed in §2.2 as
-  covered already states its route — in the session, or by deferring to a surface
-  this change amends.
+  - **R-8** — Each producer marked in §2.1 as carrying a route SHALL state its route
+  and its recipient — the developer, in chat. Each producer marked in §2.2 as covered
+  already states its route — in the session, or by the channel rule''s class.
 
   - **R-9** — The `work` card''s work-record rule SHALL state that the work record''s
   contents never become a tracker comment, and SHALL name the local issue store and
@@ -211,8 +215,11 @@ body: '## Problem
   The conversion SHALL preserve the prose''s substance, changing nothing beyond this
   spec''s rules.
 
-  - **R-15** — The deprecation protocol''s encounter-evidence append SHALL be routed
-  to the ticket''s store record rather than to a tracker comment, so that the protocol''s
+  - **R-15** — The deprecation protocol''s encounter-evidence appends — the "Found
+  → append the encounter evidence as a comment" clause and the duplicates bullet''s
+  "appending its encounter evidence to the first ticket" — and the `implement` card''s
+  deprecation exception path''s "appends to a `[BITROT]` ticket" SHALL be routed to
+  the ticket''s store record rather than to a tracker comment, so that the protocol''s
   evidence log does not create a second channel for working content.
 
   - **R-16** — Each non-canonical cross-reference in an amended card SHALL convert
@@ -271,9 +278,10 @@ body: '## Problem
   or a record the agent reads back | structural | Read the rule text; assert all three
   exclusions present |
 
-  | SC-8 | Each of the eight producers named in R-8 states its route and its recipient
-  — the developer, in chat | structural | Read §2.1''s producer surfaces; assert the
-  route clause and the recipient present in each of the eight |
+  | SC-8 | Each producer marked in §2.1 as carrying a route states its route and its
+  recipient — the developer, in chat | structural | Read §2.1''s producer surfaces;
+  assert the route clause and the recipient present in each producer marked there
+  |
 
   | SC-9 | The `work` card''s work-record rule states that the work record''s contents
   never become a tracker comment and names the local issue store and the artifacts
@@ -311,12 +319,14 @@ body: '## Problem
   on ambiguity; a content defect the reviewer notes is recorded in `.opencode/.issues/2662/audit/ainglish-conversion.md`
   and does not bear on the verdict |
 
-  | SC-15 | The deprecation protocol''s encounter-evidence append is routed to the
-  ticket''s store record rather than to a tracker comment, and no other live card
-  instructs the agent to post a tracker comment | structural | Read `guidelines/deprecation-encounter-protocol.md`
-  R-4; assert the route present; grep the live deck''s `skills/`, `guidelines/`, and
-  `floor.md` and confirm no other instruction to post a tracker comment remains outside
-  the amended channel rule |
+  | SC-15 | The deprecation protocol''s two encounter-evidence appends and the `implement`
+  card''s deprecation append are routed to the ticket''s store record rather than
+  to a tracker comment, and no other live card instructs the agent to publish agent-generated
+  working content as a tracker comment | structural | Read `guidelines/deprecation-encounter-protocol.md`
+  R-4 and `skills/implement/SKILL.md` §13; assert the route present in each; grep
+  the live deck''s `skills/`, `guidelines/`, and `floor.md` and confirm no instruction
+  remains to publish agent-generated working content as a tracker comment, excluding
+  the `gb-cli` card''s state-mutation comment route and command patterns |
 
   | SC-16 | Each non-canonical cross-reference in an amended card reads in the canonical
   `Read [Text](path)` form, and no amended card retains a markdown link to another
@@ -341,7 +351,9 @@ body: '## Problem
   always-loaded-surface discipline.
 
   - The `spec` card''s artifact-discipline rules; the `gh-cli` and `gb-cli` cards''
-  command mechanics; the `behavioral-testing` card.
+  command mechanics, their `gb issue comment` file-passing pattern, and the platform
+  system comment the `gb-cli` card mandates for GitBucket issue state mutation; the
+  `behavioral-testing` card.
 
   - The `git-workflow-pr` PR-body rule.
 
@@ -352,6 +364,9 @@ body: '## Problem
 
   - The criteria sets'' defect classes, verdict contracts, analysis families, and
   loop mechanics — only the escalation paragraph of each is amended.
+
+  - The producers in cards this change does not amend — covered by the channel rule''s
+  class.
 
   - The retired pre-rip card''s per-comment-type templates — not restored; the `correspondence`
   card''s existing format rules govern.
@@ -404,5 +419,5 @@ body: '## Problem
 
   '
 created_at: '2026-10-24T03:19:45+00:00'
-updated_at: '2026-10-24T04:16:49+00:00'
+updated_at: '2026-10-24T04:33:34+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2662
