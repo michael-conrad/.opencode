@@ -22,14 +22,13 @@ carries `classification: undetermined` with a recorded
 
 A behavioral run in the Docker tier whose turn ends at the harness's per-turn
 output cap cannot be resumed, cannot be judged, and never produces the
-artifact its criterion asks about. The path carries three defects. One is
-repaired; two are open, and two surfaces describe the path in terms the code
-does not have. The refusal is a Docker-tier defect: on the host tier the
-gate's `TMP_DIR` root is the parent repository's `tmp/`, where the artifact
-directory sits at a depth the gate scans, so the host tier's gate finds the
-record.
+artifact its criterion asks about. The path carries three defects, and two
+surfaces describe the path in terms the code does not have. The refusal is a
+Docker-tier defect: on the host tier the gate's `TMP_DIR` root is the parent
+repository's `tmp/`, where the artifact directory sits at a depth the gate
+scans, so the host tier's gate finds the record.
 
-### Defect 1 — the resume gives the model no state anchor (repaired)
+### Defect 1 — the resume gives the model no state anchor
 
 The cap-hit resume sent "Continue the task from where you left off." The
 model then re-derives the session's history from a long context, spends the
@@ -41,7 +40,7 @@ anchorless form. The repair composes the resume message from the run's own
 session database — the agent's last recorded reasoning and the recorded
 in-flight tool call — so the resumed turn continues the recorded work.
 
-### Defect 2 — the Docker tier's gate never scans the record's directory (open)
+### Defect 2 — the Docker tier's gate never scans the record's directory
 
 In the Docker tier the gate that guards a resume scans the tier's staging
 root and the run's behaviour-test directory. The determination record is
@@ -55,18 +54,17 @@ dispatched. On the host tier the same gate scans the parent repository's
 searches, so the host tier's gate finds the record; the defect is in the
 Docker tier's scan roots, not in the gate's rule.
 
-The repair has two halves, and one of them is in place. The launcher now
-names the run's artifact directory among the roots it passes to the gate, and
-the gate's scan roots are the runner's `TMP_DIR` plus every root named in
-`BEHAVIOR_DETERMINATION_SCAN_DIR`. The second half is not in place: the gate
-parses that colon-separated list with
+The repair has two halves: the launcher names the run's artifact directory
+among the roots it passes to the gate, and the gate scans every root named in
+`BEHAVIOR_DETERMINATION_SCAN_DIR`. The second half is where the defect
+survives. The gate parses that colon-separated list with
 `printf '%s' "$BEHAVIOR_DETERMINATION_SCAN_DIR" | tr ':' '\n'`, whose output
 carries no trailing newline, so the final element is read into the loop's
 variable but the loop body never runs for it. The artifact directory is the
 final element of the list the launcher builds — `dirname "$err_file"` and then
 `$artifact_dir` — so the one root the repair added is the one root the gate
-drops, and the gate's scanned roots are still the staging root and the
-evidence directory. The refusal the repair targeted still occurs.
+drops, and the gate's scanned roots are the staging root and the evidence
+directory — the refusal the preserved run recorded.
 
 The record the gate cannot see is present in the preserved run's artifact
 directory, and it carries what the gate accepts: `classification: undetermined`
@@ -75,7 +73,7 @@ The gate's own rule — a resume is permitted when the record carries a
 non-undetermined classification or a valid recorded decision — would permit
 that record. The refusal is the missing root, not the record's content.
 
-### Defect 3 — the path's documentation states behavior the code does not have (open)
+### Defect 3 — the path's documentation states behavior the code does not have
 
 Two surfaces describe the gate in terms the code does not have, and a third
 states a rule the gate does not implement.
@@ -85,8 +83,8 @@ stating that the cap-hit resume "cannot exist yet — it is written when the
 attempt ends, which is after the resume it would have permitted", and that
 "the gate therefore permits the resume when the target home's own session
 record shows the last assistant turn ended with finish=length". The function
-contains no such check — the word `finish` appears in the file only in that
-comment — and the premise is false: the harness writes the determination
+contains no such check — the gate's code never reads the home's session
+record — and the premise is false: the harness writes the determination
 record, then appends the orchestrator decision on the monitor's halt-class
 path, and only then attempts the cap-hit resume. The ordering is deliberate
 and is documented where it is implemented, in
@@ -122,16 +120,16 @@ draws the wrong conclusion about when a capped run may resume.
 
 - **RC-1** — The generic cap-hit resume path carried the anchorless default
   message; the repair that fixed one scenario's bespoke recovery path was
-  never applied to the path every scenario takes. *Repaired:* the message is
-  composed from the run's session database, and both resume paths use it.
+  never applied to the path every scenario takes. The repair composes the
+  message from the run's session database, and both resume paths use it.
 - **RC-2** — The gate's scan roots were the two directories the launcher
   named, and neither is the directory the record is written to; the gate
-  could not find what it looked for. *Repaired in the launcher:* the launcher
-  now names the artifact directory too.
+  could not find what it looked for. The repair names the artifact directory
+  in the launcher's list.
 - **RC-3** — The gate's scan-root list is parsed by a loop whose last
   element is dropped, so a root named at the end of the list is never
   scanned. The launcher appends the artifact directory last, and the one
-  root the repair adds is the one root the parser discards. *Open.*
+  root the repair adds is the one root the parser discards.
 - **RC-4** — The gate's rule is expressed only in terms of the determination
   record, and the path's documentation reached past it: it explained the
   cap-hit case with a premise the harness's own ordering contradicts,
@@ -139,7 +137,6 @@ draws the wrong conclusion about when a capped run may resume.
   unmonitored path as recoverable by a route it does not have, and narrowed
   the gate's rule to one of its two branches. The documentation and the code
   were written and revised apart, and nothing checked the correspondence.
-  *Open.*
 
 ## Requirements
 
