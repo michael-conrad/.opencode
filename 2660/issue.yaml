@@ -51,9 +51,13 @@ body: '## Problem
   - `skills/plan/references/plan-validation-standards.md` §Verdict contract + §Loop
   — the same in plan voice, including the missing observation-is-a-finding line.
 
-  - `skills/verify/SKILL.md` §3 and §4 — the same judgment, outcomes, and recording
-  in the review loop''s dispatch voice, with §3''s recording rule reconciled against
-  the per-issue validation record.
+  - `skills/verify/SKILL.md` §2, §3, and §4 — the same judgment, outcomes, and recording
+  in the review loop''s dispatch voice; the canonical factor set carried or pointed
+  to; §3''s verdict contract carrying the same finding/preference boundary and determinant
+  as the criteria sources'' and the same zero-finding bar; §2''s churn rule reading
+  its "correctness" prong as the artifact''s factual accuracy and the completeness
+  of its impact enumeration, with its wording unchanged; and §3''s recording rule
+  reconciled against the per-issue validation record.
 
   - `skills/implement/references/implementation-workflow.md` verify-pass row — the
   purpose gloss aligned with the `verify` card''s review loop.
@@ -174,9 +178,13 @@ body: '## Problem
   and that a cycle whose artifact belongs to no issue in a store appends no store
   record and records per the verify card''s own rule |
 
-  | SC-2 | The re-evaluation names the minimum factor set and states it as exemplary
-  and open | structural | Read the canonical statement; assert each factor named and
-  the openness clause |
+  | SC-2 | The re-evaluation names the minimum factor set — repo boundaries, separation
+  of concerns, atomic work-unit decomposition, fatness, intent wording/reachability
+  — and states it as exemplary and open, and the plan card''s validation standards
+  and the `verify` card''s review loop each carry or point to that set | structural
+  | Read the canonical statement; assert each factor named and the openness clause;
+  read `plan-validation-standards.md` §Loop and `verify/SKILL.md` §4 and assert each
+  carries or points to the canonical factor set |
 
   | SC-3 | The three outcomes are stated with their behaviors — Sound records findings
   and resumes unchanged, Recompose performs the split per the recomposition protocol,
@@ -188,9 +196,12 @@ body: '## Problem
   the protocol is absent |
 
   | SC-4 | The record convention is stated canonically exactly once — `.issues/{N}/audit/validation.yaml`,
-  per-round entries, one section per artifact, outside artifact bodies, marked `(YAML)`
+  per-round entries, one section per artifact, outside artifact bodies, marked `(YAML)`,
+  each entry carrying the round''s findings, the adjudicated classes with their classifications,
+  and the re-evaluation''s outcome and grounds when one ran, and no copy of the verdict
   — and the other two locations bind to it | structural | Read the three locations;
-  assert path/shape and the bindings |
+  assert path/shape — including the no-verdict-copy clause and the re-evaluation''s
+  outcome and grounds slot — and the bindings |
 
   | SC-5 | Both criteria sources'' verdict contracts state the class-determined finding
   bar with exactly two categories, no third category, and the same-class-same-classification
@@ -206,9 +217,12 @@ body: '## Problem
   the row; assert the gloss and no single-review cap |
 
   | SC-8 | A record entry''s shape is decidable for later judgment: same-class entries
-  reveal classification consistency; each entry shows verdict and remediation/outcome
-  | structural | Read the canonical record mechanics; assert per-finding class, verdict,
-  remediation/outcome |
+  reveal classification consistency; each entry shows the round''s findings, the adjudicated
+  classes with their classifications, the remediation performed or outcome reached,
+  and — when a re-evaluation ran — its outcome and grounds | structural | Read the
+  canonical record mechanics; assert the round''s findings, each adjudicated class
+  with its classification, the remediation or outcome reached, and the re-evaluation''s
+  outcome and grounds slot |
 
   | SC-9 | An agent running the revised loop on an artifact engineered so each round
   yields genuinely new shallow findings with no obvious convergence performs the structural
@@ -258,5 +272,5 @@ body: '## Problem
 
   Artifacts for agents: `.opencode/.issues/2660/`.'
 created_at: '2026-10-23T20:53:36+00:00'
-updated_at: '2026-10-24T08:36:51+00:00'
+updated_at: '2026-10-24T08:37:20+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2660
