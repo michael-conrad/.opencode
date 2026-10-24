@@ -1,0 +1,22 @@
+# Spec validation dispatch — .opencode#2661 (round 1)
+# Fresh-context reviewer per .opencode/skills/spec §6; criteria restated verbatim
+# from .opencode/skills/spec/references/validation-standards.md (criteria
+# invariance). Churn rule included verbatim. One reviewer; no prior context.
+reviewed_at: 2026-10-23
+criteria_source: .opencode/skills/spec/references/validation-standards.md
+verdict: PASS
+findings: []
+summary: >
+  Reviewer performed exhaustive checks of the spec's two negation claims — a
+  store-wide sweep confirming every link record (`links: []`) including the
+  six named split-pair issues, and a deck-wide grep confirming the issues
+  card §4 sentence is the only hierarchy text and no card states split
+  mechanics, cascade content, or closure order. Every §6 and anchor claim
+  verified against sources: commit c81089a5's subject verbatim; plan §4,
+  work §3, git-workflow-pr §3, and spec-card §5 citations resolve accurately;
+  the local-issues link command, the SC-9 fixture model, sibling #2660's
+  Recompose outcome, and #2610 as ledger-governing all exist as stated;
+  requirements R-1 through R-8 trace to the directive and the #2658 observed
+  failure with no orphaned criteria, capable instruments on all nine SCs,
+  and no defect-class or analysis-family instance found.
+loop_state: clean PASS on first dispatch; zero findings; loop exit

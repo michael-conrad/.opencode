@@ -1,0 +1,26 @@
+# Spec validation dispatch — .opencode#2660 (round 1)
+# Fresh-context reviewer per .opencode/skills/spec §6; criteria restated verbatim
+# from .opencode/skills/spec/references/validation-standards.md (criteria
+# invariance). Churn rule included verbatim. One reviewer; no prior context.
+reviewed_at: 2026-10-23
+criteria_source: .opencode/skills/spec/references/validation-standards.md
+verdict: PASS
+findings: []
+summary: >
+  Reviewer recomputed the #2658 measured instance from the store's git log
+  (round labels 1-10 with duplicate commit pairs at rounds 2 and 3, fifteen
+  non-automated commits, the exact c81089a5 recomposition subject and date,
+  the 221-to-122-line reduction with 12-to-10 requirements/criteria, and the
+  114-of-221 evidence span — 81 of 163 non-blank lines — all reproduced), read
+  the #2582 audit records directly (claims_sampled 17→13→44→36→65, verbatim
+  round-1 F2 and round-5 sub-churn quotes, clean PASS), and confirmed the
+  current-state residues live: the implementation-workflow "one bounded
+  review" row, plan-validation-standards.md's missing observation-is-a-finding
+  line, the b7ace773 (2026-10-10) verdict-contract abolition subject, #2606's
+  Alternative (c) counter quote and the floor's fact/intent-decidable rule,
+  the work card's #2657 provenance and short-path scope statement, the spec
+  card §5 footer allowlist, the #2617 routing-table retirement, and the
+  absence of audit verdict records in the #2658 and #2657 store folders;
+  the ~23-commit figure and stated label ranges resolved against the store
+  history, and the three quoted remediation subjects appeared verbatim.
+loop_state: clean PASS on first dispatch; zero findings; loop exit
