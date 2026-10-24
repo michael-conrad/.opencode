@@ -120,7 +120,7 @@ fail (`implement` card rule 3, rule 10).
   | `2657-sc1-stage-request-runs-stage` | SC-6 | `src/upload.py` (the client the request names) and `docs/architecture.md` (so the `docs/` directory the spec file goes in exists) | "Write a spec for how the upload client should retry a failed upload, put it in `docs/upload-retry-spec.md`, and get my approval of it before you write any code." |
   | `2657-sc2-complicated-change-full-path` | SC-7 | `src/search.py` (the endpoint the request names) | "Add caching to the search endpoint." |
   | `2657-sc3-short-path-collapsed-form` | SC-8 | `SUPPORT.md` (the file the request names) | "Add a `## Support` heading to the top of SUPPORT.md pointing at the issue tracker." |
-  | `2657-sc4-short-path-ends-when-outgrown` | SC-9 | `src/feature.py` and `docs/feature.md` (the first file the request names, and the second file the work turns out to require) | "Add a `--json` flag to the feature script so it prints the feature as JSON." |
+  | `2657-sc4-short-path-ends-when-outgrown` | SC-9 | `src/feature.py` (the file the request names; it delegates its argument parsing) and `src/cli.py` (the parser that must accept the flag, so the change cannot be completed in the script alone) | "Add a `--json` flag to the feature script so it prints the feature as JSON." |
   | `2657-sc5-directed-deck-edit-open-choice` | SC-10 | the deck checkout the harness already provides — the target card `skills/spec/SKILL.md` is in it | "Add a rule to the agent deck card at `.opencode/skills/spec/SKILL.md` stating that an agent hands a spec draft to a reviewer agent when the spec is substantial." |
 
   The prompts are real-domain tasks, not interviews (`tests-v2/AGENTS.md`
@@ -169,9 +169,13 @@ fail (`implement` card rule 3, rule 10).
 
 ## Item 3 — the work card: path selection, criteria, scope, record (SC-2)
 
-- Deliverable: `skills/work/SKILL.md` rewritten to R-1 through R-7,   R-10, and R-11, and the deck repository's `.gitignore` gains one line,
-  `.work/`, so the work record the card names is scratch that never appears
-  in `git status`. The card has five rules today and seven after the change:
+- Deliverable: `skills/work/SKILL.md` rewritten to R-1 through R-7, R-10,
+  and R-11. The card's rule 4 names the work record's path as the one
+  `git rev-parse --git-path work-record.md` reports — inside the repository's
+  own git directory, which is not a working-tree path, so the record is
+  absent from the repository's status without any ignore-rule entry. No
+  tracked file changes to establish that coverage, and no `.gitignore` line
+  is added: the record is not in the working tree at all. The card has five rules today and seven after the change:
   three amended in place, two new, two untouched.
   - **Frontmatter description** (amended) names the stage-request trigger
     and refers to the card's short-path criteria rather than stating a
@@ -204,8 +208,10 @@ fail (`implement` card rule 3, rule 10).
     a stage — no directive, however emphatic and however small the change,
     removes a stage.
   - **Rule 4 — the work record and the scope statement** (new). R-4 and
-    R-10: the record is `.work/record.md` in the working tree of the
-    repository the change touches, scratch, never committed, removed at
+    R-10: the record is one file in the repository's own git directory, at
+    the path `git rev-parse --git-path work-record.md` reports — not a
+    working-tree path, so it never appears in the repository's status and
+    needs no ignore-rule entry; scratch, never committed, removed at
     cleanup; it holds the provenance (verified trunk tip, branch, base tip,
     issue where one exists), written by `git-workflow-branch` at its
     trunk-freshness step, and the scope statement (path taken, the criteria
@@ -237,11 +243,10 @@ fail (`implement` card rule 3, rule 10).
   → 1 hit in `skills/work/SKILL.md` (the phrase is line-wrapped after "is a",
   so the grep fragment stops before the wrap);
   `grep -n "short-path criteria" skills/work/SKILL.md` → 0 hits;
-  `grep -n ".work/record.md" skills/work/SKILL.md` → 0 hits;
+  `grep -n "git-path work-record.md" skills/work/SKILL.md` → 0 hits;
   `grep -n "scope statement" skills/work/SKILL.md` → 0 hits;
-  `grep -n "^\.work/" .gitignore` → 0 hits.
-- GREEN: rewrite the card per the structure above; add the one `.gitignore`
-  line.
+  `grep -n "not a working-tree path" skills/work/SKILL.md` → 0 hits.
+- GREEN: rewrite the card per the structure above.
 - Verify: read the card back, clause by clause — the six criteria appear
   once, in rule 1's body; the frontmatter description, rule 1's paragraph,
   and rule 1's bullet list each refer to them; the R-5 and R-6 clauses ride
@@ -249,7 +254,9 @@ fail (`implement` card rule 3, rule 10).
   missing-artifact clause is qualified; both uncertainty rules are
   qualified; `grep -rn "a developer's direct request is the spec" skills/ guidelines/ floor.md`
   → 0 hits; `grep -rn "Excess ceremony on a direct order" skills/ guidelines/ floor.md`
-  → 0 hits; `grep -n "^\.work/" .gitignore` → 1 hit.
+  → 0 hits; `grep -n "git-path work-record.md" skills/work/SKILL.md` → 1
+  hit, and `grep -n "not a working-tree path" skills/work/SKILL.md` → 1 hit;
+  `git diff --name-only` shows no `.gitignore` change.
 - Dependency: none.
 
 ## Item 4 — the deck-governance carve-out is bounded (SC-3)
@@ -284,8 +291,7 @@ fail (`implement` card rule 3, rule 10).
     is written to it at the trunk-freshness step; rule 5's "record … in the
     work state" names the work record and its provenance part.
   - `skills/git-workflow-cleanup/SKILL.md` — rule 5's work-state artifacts
-    are the working-tree scratch files the agent created, the work record
-    among them.
+    are the scratch files the agent created, the work record among them.
   - `skills/work/SKILL.md` — already carries the definition and the record
     (item 3).
 - RED: `grep -in "short-path" skills/plan/SKILL.md skills/implement/SKILL.md`
@@ -337,10 +343,13 @@ fail (`implement` card rule 3, rule 10).
   with `BEHAVIOR_SUBMODULE_COMMIT=a1fb61c6` — the pre-change deck. The
   pre-change card prices stage-seeking against the developer's request
   ("a developer's direct request is the spec"; "Excess ceremony on a direct
-  order is a defect signal"), so the run implements instead of writing
-  `docs/upload-retry-spec.md`. The clean-room evaluation of the run's
-  `session.yaml` shows the file was not written and an implementation edit
-  was made. Evidence: the artifact directory under
+  order is a defect signal"), so the run spends itself on the store and
+  never writes the stage's artifact. The recorded pre-change run of this
+  scenario bears that out: the clean-room evaluation of its `session.yaml`
+  found no write, edit, or patch call anywhere in the session, the file
+  `docs/upload-retry-spec.md` was never created, and the only
+  implementation-file event was a read of `src/upload.py` — the run produced
+  neither the artifact nor an implementation edit. Evidence: the artifact directory under
   `tmp/behavioral-evidence-2657-sc1-*`.
 - GREEN: with items 2–6 landed and pushed, run the same scenario unpinned.
   The clean-room evaluation shows the run wrote `docs/upload-retry-spec.md`
@@ -396,9 +405,9 @@ fail (`implement` card rule 3, rule 10).
   the GREEN run.
 - RED: run `2657-sc4-short-path-ends-when-outgrown` with
   `BEHAVIOR_SUBMODULE_COMMIT=a1fb61c6`. The pre-change card has no rule for
-  a short-path change that acquires a second file, so the run edits
-  `docs/feature.md` with no expanded scope and no full-path stage artifact
-  between the two edits. Evidence: the artifact directory.
+  a short-path change that acquires a second file, so the run edits the
+  parser module `src/cli.py` with no expanded scope and no full-path stage
+  artifact between the two edits. Evidence: the artifact directory.
 - GREEN: run the same scenario unpinned. The clean-room evaluation shows the
   expanded scope statement precedes the second file's edit, and a full-path
   spec artifact — a spec carrying success criteria, not the scope statement —
