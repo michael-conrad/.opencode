@@ -152,10 +152,15 @@ draws the wrong conclusion about when a capped run may resume.
   tier's `TMP_DIR` is the staging root and does not contain the record.
 - **R-3** — The record and the decision exist before the resume. The
   monitored post-run block writes the determination record for every
-  monitored run, appends the orchestrator decision when the poll log carries
-  the `MONITOR-HALTED` marker — the classification-halt path and the
-  dispatch-failure-ceiling path both write that marker — and attempts the
-  cap-hit resume after both. The gate's rule is the one the code implements:
+  monitored run that reaches it, appends the orchestrator decision when the
+  poll log carries the `MONITOR-HALTED` marker — the classification-halt path
+  and the dispatch-failure-ceiling path both write that marker — and
+  attempts the cap-hit resume after both. Two checks sit in that sequence
+  and can end the block before its later steps: the session-isolation check
+  ends it before the record is written, and the undetermined-cycle ceiling
+  check ends it before the decision is appended and before the resume is
+  attempted. The ceiling's place in the sequence is the harness's own, and
+  this spec does not move it. The gate's rule is the one the code implements:
   a resume is permitted when the record carries a non-undetermined
   classification — `progressing-directionally` or `off-track` — or a valid
   recorded decision — `continue-new-dispatch`, or `terminate-with-root-cause`
@@ -201,15 +206,17 @@ record for an `off-track` run, which the rule accepts. The change does not
 widen what the gate accepts, only what it can see. SC-3's negative control
 keeps the gate's blocking behavior observable.
 
-**Boundary — a run the monitor neither classified nor halted.** A monitored
-run whose poll log carries neither a taxonomy classification nor the
-`MONITOR-HALTED` marker is recorded with `classification: none` and carries
-no decision, and the gate refuses it; the cap-resume path for such a run
-stays unavailable. A run halted by the dispatch-failure ceiling is not in
-that class: the ceiling path writes the marker, so a decision is appended and
-the gate accepts the record. This is a boundary of the existing rule, not a
-defect this spec changes; it is stated so that no reader infers that every
-capped run can resume.
+**Boundary — runs the cap-resume path does not reach.** A monitored run whose
+poll log carries neither a taxonomy classification nor the `MONITOR-HALTED`
+marker is recorded with `classification: none` and carries no decision, and
+the gate refuses it; the cap-resume path for such a run stays unavailable. A
+run whose undetermined-cycle count has reached the ceiling ends the post-run
+block before the decision is appended and before the resume is attempted, so
+no cap-hit resume runs for it. A run halted by the dispatch-failure ceiling
+is not in either class: that path writes the marker, so a decision is
+appended and the gate accepts the record. These are boundaries of the
+existing rule, not defects this spec changes; they are stated so that no
+reader infers that every capped run can resume.
 
 **Blast radius.** `tests-v2/behaviors/helpers.sh`,
 `tests-v2/docker/docker-harness.sh`, `tests-v2/with-test-home`,
@@ -267,18 +274,22 @@ still fails fast with its `FATAL:` message and dispatches no inference.
 ### SC-4 (structural) — the record and the decision exist before the resume
 
 In `tests-v2/behaviors/helpers.sh`'s monitored post-run block, the
-determination record is written for every monitored run, the orchestrator
-decision is appended when the poll log carries the `MONITOR-HALTED` marker —
-written by the classification-halt path and by the dispatch-failure-ceiling
-path — and the cap-hit resume is attempted after both; the resume path
-returns immediately when the monitor is off. The gate's rule is the rule the
-code implements: a non-undetermined classification — `progressing-directionally`
+determination record is written for every monitored run that reaches it, the
+orchestrator decision is appended when the poll log carries the
+`MONITOR-HALTED` marker — written by the classification-halt path and by the
+dispatch-failure-ceiling path — and the cap-hit resume is attempted after
+both; the resume path returns immediately when the monitor is off. The
+session-isolation check ends the block before the record is written, and the
+undetermined-cycle ceiling check ends it before the decision is appended and
+before the resume is attempted. The gate's rule is the rule the code
+implements: a non-undetermined classification — `progressing-directionally`
 or `off-track` — or a valid recorded decision, and a record carrying neither
 is refused. The cap-hit resume is not an exception to that rule.
 
 - **Verify:** read `tests-v2/behaviors/helpers.sh` and
-  `tests-v2/with-test-home`; the order of the three calls, the marker's two
-  writers, and the gate's decision branches are visible at their call sites.
+  `tests-v2/with-test-home`; the order of the calls, the marker's two
+  writers, the two checks that can end the block, and the gate's decision
+  branches are visible at their call sites.
 
 ### SC-5 (structural) — the documentation states the path as the code has it
 
@@ -315,7 +326,7 @@ default still carries the 4,000 literal, and
 | SC-1 | Resume message tail-derived in both paths; anchorless literal in comments only | structural | read + grep the two harness files |
 | SC-2 | The gate scans every root the launcher names, the last element included | structural | drive the gate with two named roots; the `FATAL:` message names both |
 | SC-3 | Gate finds the record in the artifact directory and permits the preserved run's record; still fails fast with no record | structural | two replays of the gate against the preserved run |
-| SC-4 | Record written, then the decision when the poll log carries the `MONITOR-HALTED` marker, then the resume; the gate's rule is the rule the code implements | structural | read the two harness files |
+| SC-4 | Record written, then the decision when the poll log carries the `MONITOR-HALTED` marker, then the resume; the two checks that can end the block before those steps; the gate's rule is the rule the code implements | structural | read the two harness files |
 | SC-5 | The three files that document the path state it as the code has it | structural | read the three files against SC-2 and SC-4 |
 | SC-6 | Cap default 4,000; the probe's deliberate override untouched | structural | grep the cap surfaces |
 
@@ -325,10 +336,11 @@ default still carries the 4,000 literal, and
   override (R-5 preserves them).
 - The harness's isolation contract, its default model, and its
   change-control rules.
-- The monitor's classification quality, the undetermined-cycle ceiling, and
-  the orchestrator's decision semantics. This change makes the existing
-  semantics reachable at the cap-hit resume; it does not change them, and it
-  does not add a cap-hit exemption to the gate.
+- The monitor's classification quality, the undetermined-cycle ceiling and
+  its place in the post-run block's sequence, and the orchestrator's decision
+  semantics. This change makes the existing semantics reachable at the
+  cap-hit resume; it does not change them, and it does not add a cap-hit
+  exemption to the gate.
 - The deck's path-selection rules, the scenario set, and the deck cards that
   carry them — `.opencode#2657`'s subject, which states this capability as a
   dependency of its behavioral criteria.
