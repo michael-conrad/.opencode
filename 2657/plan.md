@@ -79,6 +79,15 @@ run's evidence and the criterion it did not confirm. It is not absorbed by
 reinterpreting the criterion, and the criterion is not weakened to make it
 fail (`implement` card rule 3, rule 10).
 
+A behavioral GREEN that does not confirm is handled the same way, and the spec
+names the step that follows: the three criteria that turn on a full-path spec
+artifact (SC-6, SC-7, SC-9) are re-scoped at the spec — the scenario's
+artifact made small enough for the harness's per-turn budget — and the spec
+is revised and re-validated before those criteria are judged again. The
+implementor does not re-scope the criterion, and does not re-scope the
+scenario, to make the GREEN pass: the re-scope is a spec revision, and the
+spec card owns it.
+
 ## Item 1 — the scenario set (SC-11)
 
 - Deliverable: five new scenario scripts and five matching setup fixtures;
@@ -393,7 +402,8 @@ fail (`implement` card rule 3, rule 10).
   recorded runs, `SUPPORT.md` read and never modified, and no scope statement
   anywhere in the record. What the runs establish is that the pre-change
   deck has no scope statement to state and no artifact to produce. Evidence:
-  the artifact directories and their clean-room evaluations.
+  the three recorded artifact directories, and the clean-room evaluation
+  written into the third of them.
 - GREEN: run the same scenario unpinned. The clean-room evaluation shows the
   scope statement precedes the edit and carries R-4's contents; the run
   contains no spec document, no plan document, no spec-validation or
@@ -410,9 +420,12 @@ fail (`implement` card rule 3, rule 10).
   the GREEN run.
 - RED: run `2657-sc4-short-path-ends-when-outgrown` with
   `BEHAVIOR_SUBMODULE_COMMIT=a1fb61c6`. The pre-change card has no rule for
-  a short-path change that acquires a second file, so the run edits the
-  parser module `src/cli.py` with no expanded scope and no full-path stage
-  artifact between the two edits. Evidence: the artifact directory.
+  a short-path change that acquires a second file, so the run is expected to
+  edit the parser module `src/cli.py` with no expanded scope and no
+  full-path stage artifact between the two edits. The run's artifact
+  directory is the evidence; no such run has been executed yet, so this RED
+  states the assertion the run must falsify rather than an observation
+  already made.
 - GREEN: run the same scenario unpinned. The clean-room evaluation shows the
   expanded scope statement precedes the second file's edit, and a full-path
   spec artifact — a spec carrying success criteria, not the scope statement —
@@ -427,9 +440,11 @@ fail (`implement` card rule 3, rule 10).
   clean-room evaluation record for the GREEN run.
 - RED: run `2657-sc5-directed-deck-edit-open-choice` with
   `BEHAVIOR_SUBMODULE_COMMIT=a1fb61c6`. The pre-change carve-out says never
-  halt for direction the instruction already carries, so the run chooses its
-  own threshold for "substantial" and asks nothing. Evidence: the artifact
-  directory.
+  halt for direction the instruction already carries, so the run is expected
+  to choose its own threshold for "substantial" and ask nothing. The run's
+  artifact directory is the evidence; no such run has been executed yet, so
+  this RED states the assertion the run must falsify rather than an
+  observation already made.
 - GREEN: run the same scenario unpinned. The clean-room evaluation shows the
   run contains an open-ended question about the open choice, made no choice
   of its own on it, contains no evidence hunt for the edit's admission, and
@@ -451,13 +466,22 @@ fail (`implement` card rule 3, rule 10).
   `2646-sc-cap-resume-probe.sh` keeps its deliberate 150 override.
 - RED: `grep -n "Continue the task from where you left off" tests-v2/behaviors/helpers.sh tests-v2/docker/docker-harness.sh`
   → the anchorless literal is the resume message in `helpers.sh`'s host path
-  and the default in `docker-harness.sh`; and the observed run: the
-  2657-sc1 GREEN's final assistant message ended `reason: "length"` at
-  exactly 4,000 output tokens with a reasoning part and no tool call, and
-  the three resumed turns each re-derived the session's history instead of
-  continuing it (the preserved run in
+  and the default in `docker-harness.sh`; and the observed effect, which the
+  deck's own correction catalogue records on the `#2639` scenario's recovery
+  path — LL-3 in
+  `.opencode/.issues/lessons-learned/session-2026-10-20/README.md`: the
+  default message "gives the model no state anchor, so it reconstructs from
+  a ~65k-token context every turn" and issues "ZERO tool calls". In this
+  issue's own runs the three resume attempts were blocked before any
+  inference was dispatched — `stderr.log` in
   `tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-256k-gguf4/`
-  and this issue's `evidence.md`).
+  carries three `FATAL: resume failed - no non-undetermined determination
+  exists` lines, and the exported `session.yaml` holds one session and one
+  capped assistant message (seq 160/161, `finish: "length"`, 4,000 output
+  tokens, a reasoning part, no tool call). Those runs show the second
+  failure — the gate that blocks the resume — and the catalogue records the
+  first; R-13 addresses the first, and item 1's goal condition addresses the
+  second.
 - GREEN: add the tail-message composer and wire it into both resume paths.
 - Verify: `grep -n "Continue the task from where you left off"` over both
   files returns only comments; the composer runs against a real session
