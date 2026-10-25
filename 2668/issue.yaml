@@ -1,0 +1,8 @@
+title: '[SPEC] Human-only merge extends to merge approvals — the agent never merges
+  and never approves a merge, in any repository'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-10-25T01:21:59+00:00'
+updated_at: '2026-10-25T01:21:59+00:00'
