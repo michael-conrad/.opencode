@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 (restructured from the pre-rip reference, tag pre-rip); #2557 build-verification row + language/toolchain row; submodule execution boundary, .opencode#2563; #2551 test-value gate at the RED step; test-quality rows, .opencode#2601 -->
+<!-- Provenance: AI-authored, .opencode#2490 (restructured from the pre-rip reference, tag pre-rip); #2557 build-verification row + language/toolchain row; submodule execution boundary, .opencode#2563; #2551 test-value gate at the RED step; test-quality rows, .opencode#2601; docs-currentness step, .opencode#2670 -->
 
 # Implementation Workflow Reference
 
@@ -16,6 +16,7 @@ benefits from a clean-room dispatch — judgment, not ritual.
 | language/toolchain | identify the languages and build tools of the files about to be modified; load their cards (where cards exist) and `programming-principles` | language standards shape the change before the first edit, not after the first defect |
 | authorization | check floor vocabulary + current session state | confirm the change's scope is authorized before modifying files |
 | branch | `git-workflow-branch` conventions | feature branch exists before the first file modification |
+| docs-currentness | for every surface the change implements against that is documented outside this repository — library APIs, language features, configuration formats, wire formats, dependency versions; the applicable set is the agent's judgment at cycle time — consult the surface's current authoritative documentation (official docs at the current version, the live package registry, or the consumed source and type hints) before the first code-write of that surface, per cycle (a mid-cycle change touching a new such surface re-triggers); state in chat what the current documentation established, briefly and discriminatingly; memory, training data, prior sessions' knowledge, similar-library analogy, and stale posts are not verification; a witnessed deprecation — Read [the deprecation encounter protocol](../../guidelines/deprecation-encounter-protocol.md); composes with the consumed-framework docs pass ([implement](../SKILL.md) item 6) | the change never rests on unverified knowledge of the externally-documented surfaces it implements against — memory and training data are not verification |
 
 ## Submodule execution boundary
 

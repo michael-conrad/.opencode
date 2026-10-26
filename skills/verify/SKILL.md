@@ -2,12 +2,12 @@
 name: verify
 description: "Load when checking a deliverable against its stated requirements before any completion or PR-readiness claim, or when auditing an existing artifact on demand — a spec, plan, or deliverable re-checked against the criteria set its producing card owns. Dispatches exactly ONE fresh-context reviewer — never the implementor — who reads the primary artifacts (spec/SCs, the diff, actual executed test output) and flags only gaps affecting correctness or stated requirements. FAIL → remediate → fresh re-review → repeat until a zero-finding verdict, with semantic spin detection; on spin, fix the diagnosed cause at a higher level; escalate when spin persists. Never proceed past an unremediated FAIL. One verdict record; no artifact chains."
 license: MIT
-provenance: AI-authored, .opencode#2490; #2518 criteria invariance
+provenance: AI-authored, .opencode#2490; #2518 criteria invariance; externally-documented-surface examination, .opencode#2670
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar; behavioral-testing dispatch fix, .opencode#2578; artifact-presence gate, .opencode#2597; instrument-capability rule + criteria-set ownership, .opencode#2601; spin-bounded review loop, .opencode#2606; state-decidable verdict resolution, .opencode#2646 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar; behavioral-testing dispatch fix, .opencode#2578; artifact-presence gate, .opencode#2597; instrument-capability rule + criteria-set ownership, .opencode#2601; spin-bounded review loop, .opencode#2606; state-decidable verdict resolution, .opencode#2646; externally-documented-surface examination, .opencode#2670 -->
 
 # verify — the single verification pass
 
@@ -95,6 +95,13 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance
     card first and read `.opencode/tests-v2/AGENTS.md` as its step 1 requires
     (session.yaml from `behavior_run`, plus the clean-room evaluation). An
     ad-hoc `opencode run` produces no evidence the reviewer can consume.
+13. **Externally-documented-surface usage.** The reviewer's diff examination
+    includes the change's usage of surfaces documented outside the repository —
+    library APIs, language features, configuration formats, wire formats,
+    dependency versions — judged for adequacy against their current
+    documentation. Usage the current documentation contradicts is a correctness
+    finding, flagged under the churn rule: it affects correctness, and the
+    anti-churn binding is unchanged.
 
 **Agent-to-agent format:** structured data one agent creates for another — or
 ingests from another — defaults to YAML, marked by the bare `(YAML)` token at
