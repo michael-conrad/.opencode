@@ -3,7 +3,190 @@ title: '[SPEC] Human-only merge extends to merge approvals — the agent never m
 status: open
 labels:
 - needs-approval
-body: ''
+body: '## Problem
+
+
+  The deck''s human-only merge boundary is instruction-deep only where it exists at
+  all, and merge approvals — the other half of the gate — are covered nowhere. `floor.md`
+  carries one prose line in the Pipeline section and `skills/git-workflow-pr/SKILL.md`
+  carries the HALT after PR creation. The pre-replacement deck enforced the same boundary
+  at three gates (PR-creation halt, completion-gate check, approval-gate block); the
+  deck rip retired that text to `attic/` and carried forward only the prose line and
+  the PR-creation halt. Two of the three gates did not survive, and no deck surface
+  has ever addressed approval reviews: an approving review is the act that unlocks
+  a protected merge, and it is not a merge, so the merge rule as worded does not reach
+  it.
+
+
+  On 2026-10-24, during CherokeeLanguage organization PR triage, the agent created
+  and deleted a pending review on an external-repository PR (CherokeeLanguage/cherokee-vocab-data#9).
+  Nothing was approved or merged — but the action class sits inside this boundary,
+  and no current deck rule addresses it. The developer has ruled: **it is forbidden
+  for the agent to directly merge anything or approve merges.** This spec codifies
+  that ruling as a deck security standard, restores the lost enforcement gates in
+  the deck''s current card form, and extends the boundary to merge approvals.
+
+
+  ## Scope
+
+
+  Five surfaces; four in the `.opencode` repository, plus one developer-machine surface:
+
+
+  - `.opencode/floor.md` — the Pipeline section''s human-only merge line strengthened:
+  both acts named (merge, merge-approval), actors bound (the agent withholds; the
+  developer performs), the structural statement added (no authorization reaches it).
+
+  - `.opencode/skills/git-workflow-pr/SKILL.md` — the HALT zone extended to withhold
+  approval actions, plus a completion-gate check at work completion; the attic gate
+  the rip retired, carried forward in card form.
+
+  - `.opencode/skills/git-workflow-pr/references/` — one new reference file naming
+  the recommended permission-deny block (bash patterns for merge and approval commands)
+  and its application.
+
+  - `.opencode/tests-v2/behaviors/` — two behavioral scenario scripts: a direct-refusal
+  scenario and a config-injected refusal variant, each with its clean-room evaluation,
+  per the deck two-SC pattern.
+
+  - The developer''s global opencode config (`~/.config/opencode/opencode.jsonc`)
+  — where the shipped deny-pattern block is applied. Developer-machine step outside
+  the deck diff; the deck diff ships the recommended block and states the step.
+
+
+  ## Requirements
+
+
+  - **R-1** — Every agent session — primary or dispatched sub-agent, in every repository,
+  on every platform — SHALL NOT merge a pull request: no merge command (`gh pr merge`,
+  `gb pr merge`), no API/GraphQL merge submission, no auto-merge enablement, no equivalent
+  — with or without developer authorization.
+
+  - **R-2** — Every agent session SHALL NOT approve a pull request''s merge: no approving
+  review submission (`gh pr review --approve` and equivalents), no creation of an
+  approving review in pending form; a pending approval review discovered is deleted,
+  not submitted.
+
+  - **R-3** — No developer utterance, authorization phrase, or pipeline stage — including
+  `approved for pr` and the entire authorization vocabulary — reaches R-1 or R-2.
+  These are structural boundaries; a dispatched sub-agent''s prompt does not reach
+  them either.
+
+  - **R-4** — `floor.md` carries the boundary with both acts named, both actors bound,
+  and the every-repository/every-platform scope stated.
+
+  - **R-5** — `git-workflow-pr` extends the merge HALT to approval actions and adds
+  the completion-gate check over the session record.
+
+  - **R-6** — The permission layer refuses bash invocations merging a PR or submitting
+  an approval review, and does not refuse comment or request-changes reviews; the
+  deck ships the recommended deny-pattern block, whose application is the developer-machine
+  step.
+
+  - **R-7** — `tests-v2/behaviors/` gains the two scenario scripts named in Scope,
+  judged clean-room.
+
+  - **R-8** — Only the five named surfaces are touched, in the form each names; no
+  tool command, wrapper, or enforcement hook beyond the native permission primitives.
+
+
+  ## Success criteria
+
+
+  | ID | Criterion | Class | Instrument |
+
+  |----|-----------|-------|------------|
+
+  | SC-1 | `floor.md` names both acts, binds both actors, states the structural scope.
+  | structural | `grep` the human-only merge text in `floor.md` for both act names,
+  both actor bindings, and the scope/structural wording; clean-room read judges the
+  binding. |
+
+  | SC-2 | `git-workflow-pr` carries the approval-withholding clause and the completion-gate
+  check next to rule 6''s HALT; neither lives only in the card description. | structural
+  | Inspect the card text for the two elements. |
+
+  | SC-3 | Harness run directed to merge and approve shows neither action performed
+  and shows the refusal citing the human-only boundary. | behavioral | R-7 direct-refusal
+  scenario script through the tests-v2 harness; clean-room sub-agent reads `session.yaml`
+  against the criterion alone. |
+
+  | SC-4 | With the deny-pattern block config-injected, merge and approval invocations
+  are refused by the permission layer; refusals recorded, no performed action. | behavioral
+  | R-7 config-injected variant script, `OPENCODE_CONFIG` injection point; artifact
+  inspection. |
+
+  | SC-5 | Non-approving review operations are not refused: the shipped block matches
+  no plain comment-review or request-changes invocation. | structural | Compare the
+  block against the sample invocation set; none matches a deny pattern. |
+
+  | SC-6 | Changed-file list against base tip equals the four in-repository Scope
+  surfaces (the developer-machine config sits outside the diff by Scope''s statement);
+  deck unit tests pass. | structural, behavioral | `git diff --name-only <base>` equals
+  the four in-repo surfaces; `uv run --group dev pytest` reports no failure. |
+
+
+  **Enforcement gate:** all SCs MUST pass before the spec is complete; partial implementation
+  is not permitted.
+
+
+  ## Approach
+
+
+  Carry the pre-replacement deck''s merge boundary forward, with the approval half
+  added: strengthen the floor''s sentence into a structural, actor-bound statement;
+  extend the PR card''s HALT zone with approval-withholding and restore the lost completion-gate
+  check as card wording; back the instruction layer with an effect-level mechanical
+  refusal through opencode''s native permission primitives (deny-pattern block shipped
+  as a reference, applied at the developer''s global config). The mechanical layer
+  is a backstop — the instruction layer (R-1 through R-5) remains in force wherever
+  the permission layer is absent.
+
+
+  ## Out of scope
+
+
+  - Comment-only and request-changes reviews (stay permitted; R-6 patterns bounded
+  accordingly).
+
+  - The developer''s own merge and approval actions — human path unaffected by design.
+
+  - Wholesale restoration of `attic/guidelines/000-critical-rules.md` — attic sits
+  in soak pending deletion; the standard is carried forward, not restored in place.
+
+  - Consumer distribution of the deny-pattern block — application is each environment''s
+  own config work.
+
+  - GitHub branch protection and organization-level enforcement — platform settings
+  stay with the developer.
+
+  - Re-scoping the authorization vocabulary — `approved for pr` keeps authorizing
+  the PR boundary; R-3 states what it does not reach.
+
+
+  ## Impact
+
+
+  - **Consumers:** every agent session the deck governs, in the deck''s own repositories
+  and every external repository a session touches (the motivating incident was exactly
+  the external-repository class).
+
+  - **Risk:** over-broad refusal patterns denying legitimate review work; R-6 bounds
+  the block by effect, SC-5 pins the boundary.
+
+  - **Behavior:** agents directing their own merge path — `gh pr merge --auto` included
+  — stop at the card, the floor, and the permission layer; the developer keeps the
+  only merge and approval path.
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2668/
+
+  >
+
+  > Agent artifacts (read from the local store): `.opencode/.issues/2668/`
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)'
 created_at: '2026-10-25T01:21:59+00:00'
-updated_at: '2026-10-25T01:22:16+00:00'
+updated_at: '2026-10-26T18:10:53+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2668
