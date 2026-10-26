@@ -1,11 +1,13 @@
 title: '[SPEC] Docs-currentness duty and rule-compliance counterweight — sequence
   over gates'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec
 body: ''
 created_at: '2026-10-26T18:19:06+00:00'
-updated_at: '2026-10-26T18:20:17+00:00'
+updated_at: '2026-10-26T18:41:10+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2670
 remote_url: https://github.com/michael-conrad/.opencode/issues/2670
+closed_at: '2026-10-26T18:41:10+00:00'
+close_reason: completed
