@@ -69,26 +69,36 @@ Scope source: `.opencode/.issues/2668/spec.md` (approved). Branch:
   through opencode's config surface into the run; merge and approval
   invocations are refused by the permission layer; refusals recorded in the
   session artifacts, no performed action.
-- **Injection point:** the harness's config seam — the per-scenario fixture
-  (`fixtures/setup/<scenario-name>.sh`), which runs in the behavior loop after
-  the attempt workdir exists, writes the deny-pattern config so the run's
-  opencode process loads it. The scenario documents the `OPENCODE_CONFIG`
-  injection family; any harness-side gap encountered is a recorded finding,
-  never a scope expansion beyond R-8.
+- **Injection point (resolved decision):** the harness's per-scenario fixture
+  seam — `fixtures/setup/<scenario-name>.sh`, sourced by `behavior_run` after
+  the attempt workdir exists, writes the deny-pattern permission block into a
+  project-level `opencode.json` at the attempt workdir root, which the run's
+  opencode process merges with the seeded global config. The env-var form
+  (`OPENCODE_CONFIG`) is not usable: `with-test-home` launches the run under
+  `env -i` with an explicit allowlist that drops it, and R-8 forbids touching
+  the harness; the project-config seam reaches the same permission layer with
+  no harness change. This is recorded as the concrete realization of the
+  spec's `OPENCODE_CONFIG` injection-point family — the run loads the
+  deny-pattern config from config, not from a prompt instruction.
 - **RED:** the scenario file does not exist.
 - **GREEN:** scenario script + fixture; run through the tests-v2 harness
   cycle; artifact inspection shows permission-layer refusals with no performed
-  merge/approval.
+  merge/approval. No gap-tolerant escape: if the injection does not reach the
+  permission layer, the item fails and the mechanism is fixed until it does.
 - **Instrument:** R-7 config-injected variant script; artifact inspection
   (SC-4).
 
 ## Item 6 — surface and test-suite gates (R-8, SC-6)
 
 - **Deliverable:** diff-surface verification and the deck test suite.
-- **RED:** pre-change `git diff --name-only` diverges once work starts.
+- **RED:** `git diff --name-only 90455cbf6` currently lists none of the four
+  expected surfaces — the check that the diff equals exactly the four
+  surfaces fails against the pre-work tree, demonstrating the instrument
+  detects divergence; after items 1–5 the same check fails again if any path
+  outside the four surfaces appears, and the failing finding is remediated by
+  reverting the stray file(s) before GREEN.
 - **GREEN:** changed-file list against base tip equals exactly the four
-  in-repository surfaces; `uv run --group dev pytest` reports no failure; the
-  plan and the run records live in the issue store (outside the deck diff).
+  in-repository surfaces; `uv run --group dev pytest` reports no failure.
 - **Instrument:** `git diff --name-only <base>` equals the four surfaces;
   pytest green (SC-6).
 
