@@ -2,12 +2,12 @@
 name: implement
 description: "Load when executing an approved plan or making any change during the implementation work cycle — before starting work and before every mid-cycle change. Loads the implementation-workflow reference first (pre-implementation checklist, RED/GREEN chain, post-implementation gates). Run tests and show real output as evidence; use the project's connectors, libraries, and test frameworks from the floor inventory — bespoke reimplementation of what a library provides is a defect. Also load when implementation effort balloons into deep verification of a consumed framework's internals, verification tests of what the build system already guarantees, or methodology-only narration."
 license: MIT
-provenance: AI-authored, .opencode#2490; short-path inline default, .opencode#2645
+provenance: AI-authored, .opencode#2490; short-path inline default, .opencode#2645; docs-currentness pointer, .opencode#2670
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention; #2550 SC-fidelity mandate; #2557 language/tool call out; #2551 consumables effort bound, fabricated-tests offender classes, narration-to-deliverable bound; test-quality + reverse drift, .opencode#2601; short-path inline default, .opencode#2645 -->
+<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention; #2550 SC-fidelity mandate; #2557 language/tool call out; #2551 consumables effort bound, fabricated-tests offender classes, narration-to-deliverable bound; test-quality + reverse drift, .opencode#2601; short-path inline default, .opencode#2645; docs-currentness pointer, .opencode#2670 -->
 
 # implement — executing the work
 
@@ -17,7 +17,9 @@ provenance: AI-authored, .opencode#2490; short-path inline default, .opencode#26
    languages and build tools the files about to be modified belong to and load
    their cards (where cards exist), and load `programming-principles` for the
    engineering-principles layer — the load happens before the first code
-   modification, not after the first defect.
+   modification, not after the first defect. The docs-currentness step in
+   [the implementation-workflow reference](references/implementation-workflow.md)
+   is part of this pre-implementation work.
 3. **Per item: RED → GREEN → verify → commit.** Each RED is confirmed
    failing for the stated reason before its GREEN begins, and multi-item
    work runs per-item cycles — never batch RED then batch GREEN, which
