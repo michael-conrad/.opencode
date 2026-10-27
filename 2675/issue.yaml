@@ -1,0 +1,8 @@
+title: 'test(#2672): regression tests fail — test env lacks pyyaml'
+status: open
+labels:
+- needs-approval
+- defect
+body: ''
+created_at: '2026-10-27T15:52:31+00:00'
+updated_at: '2026-10-27T15:52:31+00:00'
