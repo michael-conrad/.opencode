@@ -12,41 +12,40 @@ Parent-side pointer capture rules are all creation-time and merge-relative:
 - The submodule pointer rides with real parent content (AGENTS.md; `git-workflow-commit`).
 - (e) excludes pointer-only PRs.
 - (f) times the parent PR strictly after submodule PR merges, with a re-verification before creation.
-The moving-while-open case and the moves-again-before-creation case have no owner: nothing forbids them, nothing requires the update. The stale window is a gap, not a contradiction — the fix is one rule stating pointer currency at the PR.
+
+The moving-while-open case and the moves-again-before-creation case have no owner; and the PR surface affirmatively restricts updates: §6's HALT block states "update the PR only on review feedback". The currency rule therefore owns both windows in §2 and names itself as §6's second update trigger — a stale window and an affirmative restriction, not a bare gap.
 
 ## Scope (deck fix)
 
-- `skills/git-workflow-pr/SKILL.md` §2 — within the submodule block ((d)–(f)), the pointer-currency rule: a parent-repo PR always carries the pointer to the submodule's current trunk-referencing state the parent work ships (real content rides with it per (e)); when the submodule pointer moves while the parent PR is open — or moves between the parent branch's pointer capture and the PR's creation — the PR is updated to the moved pointer, with the parent's verification re-run against the composed state before the update, per the moving-while-open requirement above.
+- `skills/git-workflow-pr/SKILL.md` §2 and §6 — the pointer-currency rule in the submodule block ((d)–(f)): a parent-repo PR always carries the pointer to the submodule's current trunk-referencing state the parent work ships (real content rides with it per (e)); when the submodule pointer moves while the parent PR is open — or moves between the parent branch's pointer capture and the PR's creation — the PR is updated to the moved pointer, with the parent's verification re-run against the composed state before the update, per the moving-while-open requirement above.
 - The rule composes with (f): (f) continues to own the create-time ordering; the new rule owns currency while open (and the pointer-move-before-act window).
 
 ## Requirements
 
-- **R-1** — The card §2 submodule block SHALL state that a parent-repo PR whose parent carries any real content beyond pointer bumps always includes the submodule pointer bump when the submodule's checked-out HEAD has advanced past the parent's recorded gitlink.
-- **R-2** — The same block SHALL state the currency rule: a submodule pointer move while the parent PR is open (or between pointer capture and PR creation) obliges the PR's update to the moved pointer, with the parent's verification re-run against the composed state before the update; a PR representing a stale pointer is the named defect (bitrot).
-- **R-3** — The rule SHALL state its composition with (f) and shall not alter (d) or (e), the PR-completion invariant, the HALT-after-creation boundary, or any other card rule.
+- **R-1** — The card §2 SHALL state the currency rule: a parent-repo PR always carries the submodule pointer the parent's state actually references (the existence of a bump is (d)'s fact — checked-out HEAD past the recorded gitlink; carrying it is mandatory, with (e)'s pointer-only exclusion unchanged); a submodule pointer move while the parent PR is open (or between pointer capture and PR creation) obliges the PR's update to the moved pointer, with the parent's verification re-run against the composed state before the update; a PR representing a stale pointer is the named defect (bitrot).
+- **R-2** — The card §6's update clause SHALL state this rule as its second permitted update trigger: after PR creation the PR is updated only on review feedback or on submodule pointer movement under §2's currency rule — the two triggers named together, no other triggers added, the update mechanics unchanged.
+- **R-3** — The rule SHALL state its composition with (f) and §6's named-triggers form and shall not alter (d) or (e), the PR-completion invariant, the HALT-after-creation boundary, or any other card rule.
 
 ## Success criteria
 
 | ID | Criterion | Class | Instrument |
 |----|-----------|-------|------------|
-| SC-1 | The card §2 submodule block states the always-carry rule (pointer bump included whenever the submodule's checked-out HEAD is past the recorded gitlink and the parent PR carries real content) | structural | Read the card; assert the always-carry statement present |
-| SC-2 | The same block states the currency rule — pointer move while the parent PR is open (or between capture and creation) obliges the PR update to the moved pointer, with the parent's verification re-run before the update, and names the stale-PR defect | structural | Read the card; assert the currency rule, the re-verify-before-update step, and the defect naming present |
-| SC-3 | Every other rule of the card is unchanged in operative content | structural | The change's diff; assert the edit is confined to the §2 submodule block and no other rule changed |
+| SC-1 | The card §2 submodule block states the currency rule: the PR always carries the pointer the parent's state references (carrying mandatory, (e) unchanged), and a pointer move while the parent PR is open (or between capture and creation) obliges the PR update to the moved pointer with the parent's verification re-run before the update, naming the stale-PR defect | structural | Read the card; assert the always-carry statement, the currency rule, the re-verify-before-update step, and the defect naming present |
+| SC-2 | The card §6's update clause names the currency rule as its second permitted update trigger (review feedback or submodule pointer movement under §2, no other triggers) | structural | Read §6; assert the two named triggers and the no-other-triggers statement present |
+| SC-3 | Every other rule of the card is unchanged in operative content | structural | The change's diff; assert the edits are confined to the §2 submodule block and the §6 update clause, and no other rule changed |
 
 ## Out of scope
 
-- (e) pointer-only prohibition and (f)'s create-time ordering gate — unchanged; the new rule composes with them.
+- (e) pointer-only prohibition and (f)'s create-time ordering gate — unchanged; the new rule composes with them. §6's update clause keeps its form: the currency trigger is stated as its second named trigger in place, superseding the review-feedback-only wording.
 - Any scripted enforcement of pointer currency — agent judgment at the PR surface; mechanisms verify facts only.
 - The corpus/parent repos of other deployments — deck rule only, root-agnostic.
 
 ## Impact
 
-Consumers: every parent-repo PR alongside submodule work, and the developers who review them. Risk: an agent churning a parent PR on every submodule commit — bounded because the rule keys on the pointer moving (gitlink drift), not on submodule activity, and the update is one pointer bump plus the re-verification (f) already prescribes. Blast radius: one block of one card; no other rule-bearing file.
+Consumers: every parent-repo PR alongside submodule work, and the developers who review them. Risk: an agent churning a parent PR on every submodule commit — bounded because the rule keys on the pointer moving (gitlink drift), not on submodule activity, and the update is one pointer bump plus the re-verification (f) already prescribes. Blast radius: two blocks of one card (the §2 submodule block and §6's update clause); no other rule-bearing file.
 
 ## Evidence trail (from the session)
 
 - The developer ruling (2026-10-27, session): quoted in Problem.
 - The gap (read 2026-10-27): `git-workflow-pr/SKILL.md` §2(e)/(f) — no currency rule for the moving-while-open window; this session's planned parent PR would carry the `.opencode` pointer while the same branch's submodule work continues (the #2678 fix lands on the same branch behind the #2665 rule edits).
-
-> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2679/
 

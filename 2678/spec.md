@@ -41,5 +41,3 @@ Consumers: every agent supervising a behavioral run or background job. The chang
 - The regression (2026-10-27, this session): the SC-5 SC-6 supervision run's poll history — consecutive poll tool calls with no intervening standalone text update across many cycles after the poll 30 point; the developer's ruling quoted in Problem.
 - The rule's prior hardening (read 2026-10-27): `.opencode#2619` unconditional-update wording and `.opencode#2570` filtered-output defect — both in the card §9 and `tests-v2/AGENTS.md` §14.
 
-> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2678/
-
