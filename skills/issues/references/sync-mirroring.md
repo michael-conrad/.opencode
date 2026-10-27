@@ -51,9 +51,12 @@ number in that repo's own namespace.
   `rebase-apply` present), it reports `rebase_in_progress` with the actual
   remedy — `git -C <worktree> rebase --abort`, or resolve conflicts and
   `git -C <worktree> rebase --continue` (#2548 C2/C3).
-- `init` = ensure worktrees in all repos (root first, then `.gitmodules`
-  children) + commit pending changes + `pull --rebase origin issues-data` +
-  push; pair it with `sync` at session start. First establishment requires a
+- `init` = ensure worktrees in all store-holding repos (root first, then its
+  *registered* submodules per git's registered-submodule mechanism) + commit
+  pending changes + `pull --rebase origin issues-data` + push; pair it with
+  `sync` at session start. A repo classified pull-only (effective
+  `http`/`https` origin) receives no store, no fetch, and no push (#2667).
+  First establishment requires a
   reachable remote when `origin/issues-data` may exist — a failed fetch
   fails fatally rather than minting a divergent empty orphan branch
   (#2548 C4).

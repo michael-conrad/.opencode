@@ -24,7 +24,7 @@ Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 """
 
 import argparse
-import configparser
+
 import os
 import re
 import shutil
@@ -367,32 +367,118 @@ def _issues_branch_exists(repo_path: Path | None = None) -> bool:
     return result.returncode == 0
 
 
-def _discover_all_repos() -> list[Path]:
-    """Discover parent repo + child repos via .gitmodules parsing.
+def _registered_store_host_paths(root: Path) -> list[tuple[str, str]]:
+    """Paths eligible to hold an issue store, via git's registered-submodule
+    mechanism (#2667 R-1).
 
-    Root repo is always first. Child repos come exclusively from
-    .gitmodules entries. No filesystem glob, no worktree detection.
+    Intersects the paths the workspace's ``.gitmodules`` names with the
+    paths ``git submodule status`` reports for the workspace root — git's
+    registration record, not ``.gitmodules`` text, decides eligibility.
+    Each result carries the status marker: ``-`` (uninitialized) callers
+    exclude; ``+`` (checkout differs from the recorded gitlink) is a
+    store host like any registered one.
+    """
+    gm = subprocess.run(
+        [
+            "git", "-C", str(root), "config", "-f", ".gitmodules",
+            "--get-regexp", r"submodule\..*\.path",
+        ],
+        capture_output=True, text=True, timeout=15,
+    )
+    if gm.returncode != 0 or not gm.stdout.strip():
+        return []
+    status = subprocess.run(
+        ["git", "-C", str(root), "submodule", "status"],
+        capture_output=True, text=True, timeout=15,
+    )
+    status_info: dict[str, str] = {}
+    if status.returncode == 0:
+        for line in status.stdout.splitlines():
+            parts = line.split()
+            if len(parts) >= 2:
+                status_info[parts[1]] = line[0]
+    declared: list[str] = []
+    for line in gm.stdout.splitlines():
+        value = line.partition(" ")[2].strip()
+        if value:
+            declared.append(value)
+    return [
+        (path, status_info[path]) for path in sorted(set(declared))
+        if path in status_info
+    ]
+
+
+def _discover_all_repos() -> list[Path]:
+    """Discover parent repo + child repos via git's registered-submodule
+    mechanism (#2667 R-1).
+
+    Root repo is always first. Child repos come from ``git submodule
+    status`` intersected with ``.gitmodules``-declared paths; a path
+    reported uninitialized (leading ``-``) is excluded and never aborts
+    the bootstrap. A directory named in ``.gitmodules`` that git has
+    never registered — a removed gitlink, deinitialized-and-forgotten
+    entry — is not a store host.
     """
     root = PROJECT_DIR.resolve()
     repos: list[Path] = [root]
 
-    gitmodules = root / ".gitmodules"
-    if not gitmodules.exists():
-        return repos
-
-    config = configparser.ConfigParser()
-    config.read(str(gitmodules))
-    for section in config.sections():
-        if not section.startswith("submodule "):
-            continue
-        path_val = config.get(section, "path", fallback="")
-        if not path_val:
-            continue
-        child = (root / path_val).resolve()
+    for path, marker in _registered_store_host_paths(root):
+        if marker == "-":
+            continue  # uninitialized — no store, no bootstrap failure (R-1)
+        child = (root / path).resolve()
         if child.is_dir() and child not in repos:
             repos.append(child)
 
     return repos
+
+
+def _is_pull_only(repo_path: Path | None = None) -> bool:
+    """Detect a pull-only repository (#2667 R-2).
+
+    A repository whose effective ``origin`` URL — as ``git remote
+    get-url origin`` reports it, after git's URL rewrites — carries the
+    scheme ``http`` or ``https``. Such an origin serves fetch but is not
+    evidence of push rights, so the tool's write operations are refused
+    against it. The workspace root is exempt: the scheme of the root's
+    own origin is not evidence about the developer's push rights on
+    their own repository, and an ``https`` root is a common state for a
+    repository cloned over the web. A repository with no ``origin`` is
+    neither pull-only nor pushable — the existing no-remote handling
+    applies.
+    """
+    target = repo_path or Path(os.getcwd())
+    if target.resolve() == PROJECT_DIR.resolve():
+        return False  # workspace root exempt (R-2)
+    result = subprocess.run(
+        ["git", "-C", str(target), "remote", "get-url", "origin"],
+        capture_output=True, text=True, timeout=15,
+    )
+    if result.returncode != 0:
+        return False
+    url = result.stdout.strip()
+    return url.startswith("http://") or url.startswith("https://")
+
+
+def _reject_pull_only(repo_name: str, repo_path: Path | None) -> None:
+    """Refuse a mutation naming a pull-only repository (#2667 R-3).
+
+    Pull-only here is a write-eligibility classification, not a push
+    probe: the repository is served over ``http(s)``, the tool performs
+    no store operation against it, and a mutation naming it exits
+    non-zero with a diagnostic naming the repository and its
+    classification.
+    """
+    target = repo_path if repo_path is not None else Path(os.getcwd())
+    if not _is_pull_only(target):
+        return
+    print(
+        f"error: repo '{repo_name}' ({target}) is pull-only: its origin "
+        "serves http(s), the session performs no issue-store operations "
+        "against it, and mutations naming it are refused. Read and write "
+        f"its issues through the platform CLI (qualifier '{repo_name}#N').",
+        file=sys.stderr,
+    )
+    sys.exit(1)
 
 
 def _has_remote(repo_path: Path | None = None) -> bool:
@@ -510,10 +596,17 @@ def _detect_dual_branch() -> dict | None:
 
 
 def _ensure_all_worktrees() -> bool:
-    """Ensure worktrees exist in current repo and all discovered child repos."""
+    """Ensure worktrees exist in current repo and all discovered child repos.
+
+    A pull-only child repository is skipped (#2667 R-3): no store branch,
+    no worktree, no fetch, no push — the absent store there is
+    intentional, not a failure.
+    """
     repos = _discover_all_repos()
     all_ok = True
     for repo in repos:
+        if _is_pull_only(repo):
+            continue
         try:
             if not _ensure_worktree(repo_path=repo):
                 all_ok = False
@@ -1200,6 +1293,7 @@ def cmd_create(args: argparse.Namespace) -> None:
         )
     repo_name, num = _require_qualified(args.number)
     repo_path = _resolve_and_validate_repo(repo_name)
+    _reject_pull_only(repo_name, repo_path)
     current_repo_name = repo_path.name
     args.number = num
     qualified = f"{current_repo_name}#{args.number}"
@@ -1493,6 +1587,7 @@ def cmd_read_sub_issues(args: argparse.Namespace) -> None:
 def cmd_update(args: argparse.Namespace) -> None:
     _repo_name, args.number = _require_qualified(args.number)
     repo_path = _resolve_and_validate_repo(_repo_name)
+    _reject_pull_only(_repo_name, repo_path)
     if not issue_exists(args.number, repo_path):
         _not_found(args.number, repo_path)
     path = get_issue_path(args.number, repo_path=repo_path) / "issue.yaml"
@@ -1526,6 +1621,7 @@ def cmd_update(args: argparse.Namespace) -> None:
 def cmd_comment(args: argparse.Namespace) -> None:
     _repo_name, args.number = _require_qualified(args.number)
     repo_path = _resolve_and_validate_repo(_repo_name)
+    _reject_pull_only(_repo_name, repo_path)
     if not issue_exists(args.number, repo_path):
         _not_found(args.number, repo_path)
     path = get_issue_path(args.number, repo_path=repo_path) / "comments.yaml"
@@ -1549,6 +1645,7 @@ def cmd_comment(args: argparse.Namespace) -> None:
 def cmd_close(args: argparse.Namespace) -> None:
     _repo_name, args.number = _require_qualified(args.number)
     repo_path = _resolve_and_validate_repo(_repo_name)
+    _reject_pull_only(_repo_name, repo_path)
     if not issue_exists(args.number, repo_path):
         _not_found(args.number, repo_path)
     path = get_issue_path(args.number, repo_path=repo_path) / "issue.yaml"
@@ -1568,6 +1665,7 @@ def cmd_close(args: argparse.Namespace) -> None:
 def cmd_delete(args: argparse.Namespace) -> None:
     _repo_name, args.number = _require_qualified(args.number)
     repo_path = _resolve_and_validate_repo(_repo_name)
+    _reject_pull_only(_repo_name, repo_path)
     if not issue_exists(args.number, repo_path):
         _not_found(args.number, repo_path)
     links = yaml_load(
@@ -1715,12 +1813,14 @@ def cmd_list(args: argparse.Namespace) -> None:
 def cmd_link(args: argparse.Namespace) -> None:
     parent_repo, parent_num = _require_qualified(args.number)
     parent_path = _resolve_and_validate_repo(parent_repo)
+    _reject_pull_only(parent_repo, parent_path)
     if not issue_exists(parent_num, parent_path):
         _not_found(parent_num, parent_path)
     sub_list: list[int] = []
     for sub_item in args.sub:
         _sub_repo, sub_num = _parse_qualified(sub_item)
         sub_path = _resolve_and_validate_repo(_sub_repo)
+        _reject_pull_only(_sub_repo, sub_path)
         if not issue_exists(sub_num, sub_path):
             _not_found(sub_num, sub_path)
         sub_list.append(sub_num)
@@ -1747,6 +1847,7 @@ def cmd_renumber(args: argparse.Namespace) -> None:
         print("Error: --from and --to must be in the same repo.", file=sys.stderr)
         sys.exit(1)
     repo_path = _resolve_and_validate_repo(from_repo)
+    _reject_pull_only(from_repo, repo_path)
     if not issue_exists(from_num, repo_path):
         _not_found(from_num, repo_path)
     if issue_exists(to_num, repo_path):
@@ -1996,10 +2097,20 @@ def _push_issues_branch_safe(issues_dir: Path) -> dict | None:
 
 
 def _sync_repo(repo_path: Path, qualifier: str, issues_dir: Path | None = None) -> dict:
-    """Core sync logic for a single repo. Returns status dict."""
+    """Core sync logic for a single repo. Returns status dict.
+
+    A pull-only repository reports its classification and carries no
+    operation result (#2667 R-3/R-4): the entry's status is
+    ``pull-only`` — an informational steady state, not a sync failure —
+    and no fetch, rebase, or push runs against it.
+    """
     if issues_dir is None:
         issues_dir = repo_path / ISSUES_DIR
     entry: dict = {"qualifier": qualifier, "path": str(repo_path)}
+    if _is_pull_only(repo_path):
+        entry["status"] = "pull-only"
+        entry["classification"] = "pull-only"
+        return entry
     if not (issues_dir / ".git").is_file():
         entry["status"] = "no_worktree"
         return entry
@@ -2174,6 +2285,7 @@ def cmd_sync_file(args: argparse.Namespace) -> None:
         )
         sys.exit(1)
     repo_path, repo_name, rel_path = resolved
+    _reject_pull_only(repo_name, repo_path)
     result = _sync_file_in_worktree(repo_path, rel_path, args.message)
     result["repo"] = repo_name
     print(yaml_dump(result))
@@ -2394,8 +2506,18 @@ def _doctor_repo_report(repo: Path) -> str:
 
     Markers: repo=<path> branch_state={HEALTHY|UNHEALTHY}
     merge_base_delta={absent|<ahead>/<behind>} worktree={active|absent}
+
+    A pull-only repository (#2667 R-4) is reported with its classification
+    and intentionally carries no ``branch_state=UNHEALTHY`` marker: R-3
+    makes the absent store deliberate there, so the absent-branch health
+    failure would be a false alarm.
     """
     issues_dir = repo / ISSUES_DIR
+    if _is_pull_only(repo):
+        return (
+            f"repo={repo} issues_dir={issues_dir} classification=pull-only "
+            "branch_state=absent-by-design worktree=absent"
+        )
     local_exists = _issues_branch_exists(repo_path=repo)
     branch_state = "HEALTHY" if local_exists else "UNHEALTHY"
     if local_exists and _doctor_remote_branch_exists(repo):

@@ -31,7 +31,11 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    if the trunk moved; state the verified tip in the work record. When scanning
    branches, `issues-data` is a reserved orphan-branch issue-store ref, checked
    out in a linked worktree (the `+` marker in `git branch -a`) — never a
-   feature-branch naming or cleanup candidate (#2548 C8).
+   feature-branch naming or cleanup candidate (#2548 C8). **Registration
+   scope:** this sync applies to *registered* submodules — entries git's own
+   submodule mechanism tracks. A checkout the workspace root does not track
+   (a gitignored or otherwise unregistered sub-repository) is not a
+   submodule: it has no pointer to sync.
    **Bounded verification.** Trunk-freshness verification is bounded and
    read-only: verify the working repo's trunk tip against its remote (fetch
    and compare) and proceed to the branch decision on that evidence. A
@@ -47,7 +51,19 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    commits** — and only then commence work. At the review surface the
    pointer-only prohibition applies (see `git-workflow-commit` #5 and
    `git-workflow-pr`): the pointer rides with real changes in the squashed
-   per-issue commit, never as a standalone parent PR.
+   per-issue commit, never as a standalone parent PR. **Registration scope:**
+   the pointer-capture commit applies to *registered* submodules only; a
+   checkout the workspace root does not track is not a submodule — it has no
+   pointer to capture, and the agent does not move its HEAD to a remote trunk
+   tip.
+   **Pull-only delivery (#2667).** A registered submodule whose origin is
+   pull-only — an `http`/`https` origin, so that a push to it cannot succeed —
+   receives no branch creation in it, no commit in it, and no push to it: the
+   agent does not attempt a push it knows cannot succeed. The handling is the
+   agent's judgment — deliver the change from a repository it can push to
+   (such as a fork or clone of that repository), or report to the developer
+   that the change cannot be delivered from this workspace. Nothing here
+   forbids delivering the change from a repository the agent can push to.
 4. **Submodule deinit remediation.** False-modified submodule status (a
    phantom ` M <submodule>` in the parent) caused by divergent nested
    submodule state is remediated with, run from the parent repo root:
