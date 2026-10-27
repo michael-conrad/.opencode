@@ -39,5 +39,6 @@ Consumers: every agent supervising a behavioral run or background job. The chang
 ## Evidence trail (from the session)
 
 - The regression (2026-10-27, this session): the SC-5 SC-6 supervision run's poll history — consecutive poll tool calls with no intervening standalone text update across many cycles after the poll 30 point; the developer's ruling quoted in Problem.
+- **Recurrence (2026-10-27, ~polls 15–16 of the SC-6 supervision):** bare tool-call cycles repeated after the fix was implemented — the developer re-ruled ("regression. file a fix spec and implement it. the agent is polling with no in-chat reporting."). The rule text was on the branch; the supervising agent's behavior had not internalized the structural boundary mid-session. Recorded as the defect's self-demonstration: the violation shape (tool call directly following a tool call) is observable exactly as R-1 states, and the supervisor can audit its own transcript for it.
 - The rule's prior hardening (read 2026-10-27): `.opencode#2619` unconditional-update wording and `.opencode#2570` filtered-output defect — both in the card §9 and `tests-v2/AGENTS.md` §14.
 
