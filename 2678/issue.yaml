@@ -3,6 +3,137 @@ title: 'The supervisor''s per-poll in-chat update: polls ran bare (consecutive t
 status: open
 labels:
 - needs-approval
-body: ''
+- spec
+body: '## Problem
+
+
+  During a supervised behavioral run (2026-10-27, the `.opencode#2665` SC-5 verification
+  session), the supervising agent''s poll cycle degraded from the mandated shape —
+  poll tool call → semantic analysis delivered as a standalone in-chat text update
+  → next poll — into consecutive bare poll tool calls: across roughly a dozen consecutive
+  60-second cycles the supervisor issued poll commands with the analysis absent from
+  chat entirely. Neither content filtering nor any harness cause applied; the supervisor
+  simply stopped delivering the standalone text turn while continuing the cycle.
+
+
+  The rule that was skipped already exists and was already hardened once: the `behavioral-testing`
+  card §9 Agent-Supervisor Mandate (SC-17/SC-18, #2456, tightened #2557; unconditional
+  update, .opencode#2619) and its §14 mirror in `tests-v2/AGENTS.md` ("Every update
+  is delivered as a substantive text message in the supervisor''s turn", "a poll with
+  no new evidence still delivers its update"). The developer''s session ruling: "regression.
+  file a fix spec and implement it. the agent is polling with no in-chat reporting."
+  The rule''s current wording frames the update as a postcondition of each poll''s
+  analysis; a supervisor reading it mid-cycle treats the analysis as done once the
+  judgment completes in reasoning, and the standalone delivery stops despite the rule
+  — the recorded failures keep repeating, this time without any filtering trigger
+  at all.
+
+
+  ## Root cause in the deck
+
+
+  The mandate states the update''s content, cadence, and unconditional character,
+  and states that ending the turn after the update is a defect — but states the update''s
+  delivery as a consequence of the analysis ("it MUST... and delivers every update...")
+  rather than as the cycle''s structural step. Nothing marks the boundary between
+  the poll tool call and the update in a way that fails when the text turn does not
+  happen: a supervisor that issues the next poll tool call immediately after a poll
+  is never confronted by any statement whose violation it can observe in its own turn
+  sequence. Observed this session: bare polls are invisible to the violating supervisor
+  — the defect has no self-detection point.
+
+
+  ## Scope (deck fix)
+
+
+  - `skills/behavioral-testing/SKILL.md` §9 — the Agent-Supervisor Mandate gains the
+  structural statement: the supervision cycle is exactly [tool call: sleep+poll] →
+  [standalone text update, no tool call attached] → repeat, and an intervening standalone
+  text update is required between any two consecutive tool calls of a supervised cycle;
+  a tool call following a poll''s analysis without that text turn between them is
+  the defect, regardless of content.
+
+  - `tests-v2/AGENTS.md` §14 Agent-Supervisor Mandate — the mirror gains the same
+  structural statement (the two surfaces carry the rule in the established two-home
+  form).
+
+
+  ## Requirements
+
+
+  - **R-1** — The mandate text SHALL state the cycle structurally: supervised cycles
+  advance as tool call → standalone text update → tool call; the update is the only
+  deliverable between consecutive poll tool calls, and its absence is observable in
+  the supervisor''s own transcript as a tool call directly following another tool
+  call.
+
+  - **R-2** — The existing unconditional-update, content, cadence-ceiling, and timestamp-accounting
+  requirements stand unchanged; this change adds the structural boundary, never rewords
+  their substance.
+
+  - **R-3** — Both surfaces (the card and its §14 mirror) carry the statement; neither
+  surface''s other rules change.
+
+
+  ## Success criteria
+
+
+  | ID | Criterion | Class | Instrument |
+
+  |----|-----------|-------|------------|
+
+  | SC-1 | The card''s Agent-Supervisor Mandate states the tool-call → standalone-text-update
+  → tool-call cycle shape, and states that a tool call directly following another
+  tool call of the same supervised cycle (no text update between) is the defect |
+  structural | Read `skills/behavioral-testing/SKILL.md` §9; assert the cycle shape
+  statement and the direct-following-form defect statement present |
+
+  | SC-2 | The §14 mirror in `tests-v2/AGENTS.md` carries the same statement | structural
+  | Read the §14 Agent-Supervisor Mandate; assert the same cycle shape and defect
+  statements present |
+
+  | SC-3 | Every other line of both files is unchanged in operative content (the edit
+  is additive) | structural | The change''s diff; assert additions only within the
+  mandate blocks and no operative-content change elsewhere |
+
+
+  ## Out of scope
+
+
+  - Any scripted or mechanical enforcement of the update cadence — the cycle is the
+  supervisor''s behavior; it is intent-decidable and never scripted (floor: mechanisms
+  verify facts only).
+
+  - The harness''s own monitor loop (30–60 s) — untouched; this mandate governs the
+  agent supervisor only.
+
+
+  ## Impact
+
+
+  Consumers: every agent supervising a behavioral run or background job. The change
+  gives the skipped-update failure a self-observable form: the violating transcript
+  shape (tool call directly following a tool call) is visible to the supervisor and
+  to reviewers. Risk: none additive — the cycle was already mandated; the structural
+  statement removes the reading that made it skippable.
+
+
+  ## Evidence trail (from the session)
+
+
+  - The regression (2026-10-27, this session): the SC-5 SC-6 supervision run''s poll
+  history — consecutive poll tool calls with no intervening standalone text update
+  across many cycles after the poll 30 point; the developer''s ruling quoted in Problem.
+
+  - The rule''s prior hardening (read 2026-10-27): `.opencode#2619` unconditional-update
+  wording and `.opencode#2570` filtered-output defect — both in the card §9 and `tests-v2/AGENTS.md`
+  §14.
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2678/
+
+
+  '
 created_at: '2026-10-27T20:37:46+00:00'
-updated_at: '2026-10-27T20:37:46+00:00'
+updated_at: '2026-10-27T20:38:51+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2678
