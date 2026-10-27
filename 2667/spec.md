@@ -42,6 +42,8 @@ The seven surfaces:
 
 The one added file: a behavioral scenario script under `tests-v2/behaviors/`, the artifact generator for the pull-only handling clause, paired with a clean-room evaluation of its recorded tool calls.
 
+Section 2 reconciliation (2026-10-27, from the #2667 verify pass; text-level reconciliation, no code change): the tests surface also gains a committed module, `tests/test_local_issues/test_pull_only.py`, whose functions carry the R-2/R-3/R-4 behaviors as regression instruments — the plan's Items 2–3 require executable RED assertions for the detection, the mutation refusals, and the doctor classification, and Items 6's transient workspace constructions are not committed tests. The four functions named above are retained with their properties unchanged.
+
 Untouched: `floor.md`; `.opencode/AGENTS.md`; the `git-workflow-commit` and `git-workflow-pr` cards' own mechanics; the deck's own issue store contents; `attic/`; the `skill-creator` admission gate.
 
 ## 3. Requirements
