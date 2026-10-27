@@ -78,7 +78,11 @@ No enforcement mechanism; the three conditions are agent judgment.
   fixture repo whose agent feature branch — created by the agent, unmerged,
   held by no other party — is already pushed to the fixture origin as the open
   PR's head and carries several unsquashed commits, driving the agent to the
-  PR boundary. Artifact-only generator per the harness AGENTS.md; clean-room
+  PR boundary pre-scoped per the re-scope-on-need rule: the fixture
+  pre-supplies the completed pre-create facts (`tmp/checks/`), the scenario
+  declares its goal condition (`pr-body.md` + required pattern), and the task
+  shape keeps the run agent's generation inside its bounded budget.
+  Artifact-only generator per the harness AGENTS.md; clean-room
   reviewer at evaluation time.
 - **RED:** the scenario script absent — the harness's file listing fails.
 - **GREEN:** author the script + fixture per §3 of `tests-v2/AGENTS.md`
@@ -100,32 +104,53 @@ No enforcement mechanism; the three conditions are agent judgment.
 ### Item 7 — surface check (SC-7)
 
 - **Deliverable:** unchanged (a check, not a file — the instrument runs
-  against the working branch's accumulated diff after Items 1–6, and again as
-  the PR-prep final check).
-- **RED:** after Items 1–6, run the diff check on the working tree; it fails if
-  any rule-bearing file beyond `skills/git-workflow-pr/SKILL.md`,
-  `floor.md`, and the `tests-v2/` scenario/fixture files appears in the
-  diff, or if the wiki-operations / git-workflow-cleanup cards were touched
-  under another surface's edit.
+  against the working branch's accumulated diff after Items 1–6 and 8, and
+  again as the PR-prep final check).
+- **RED:** after Items 1–6 and 8, run the diff check on the working tree; it
+  fails if any rule-bearing file beyond `skills/git-workflow-pr/SKILL.md`,
+  `floor.md`, `tests-v2/AGENTS.md` (per the 2026-10-27 revision), and the
+  `tests-v2/` scenario/fixture files appears in the diff, or if the
+  wiki-operations / git-workflow-cleanup cards were touched under another
+  surface's edit.
 - **GREEN:** the executed diff itself asserts the criterion — no remediation
   beyond not making violations (an accidental stray edit is reverted; the
   re-run passes).
 - **Instrument:** the change's diff — assert it touches no rule-bearing file
-  beyond the two named rule surfaces plus the scenario/fixture files (which
+  beyond the three named rule surfaces plus the scenario/fixture files (which
   carry no rule-bearing content per the spec), and `git diff --stat` shows the
   wiki-operations and git-workflow-cleanup cards untouched.
+
+### Item 8 — harness-spec re-scope-on-need rule (SC-8)
+
+- **Deliverable:** `tests-v2/AGENTS.md` §3a (the pre-supplied-environment
+  mandate's home) gains a "Re-scope on need" statement under the
+  §3a corollaries: triggers (a run agent that never reaches its action
+  sequence under the harness's bounded model constraints — exit at a
+  bounded-generation turn or stall in re-planning), the re-scope surfaces
+  (fixture, prompt, declared goal condition, staged boundary state), the
+  record-in-scenario-file requirement, and blind retry /
+  escalate-without-re-scope named as the replaced failure forms
+  (.opencode#2665 run record as the provenance).
+- **RED:** grep `tests-v2/AGENTS.md` for "re-scope on need"/"rescope" — absent.
+- **GREEN:** add the rule to §3a as corollary 4.
+- **Instrument:** read §3a; assert trigger, surfaces, record requirement, and
+  both replaced failure forms named (SC-8's instrument).
 
 ## Dependencies
 
 4 ← 1..3 (floor carve-out names the rule the card statement completes; run
 1→3 first). 5 ← 1..3; 6 ← 1..3 (scenarios exercise the rule as written).
-7 ← all (the surface check reads the whole diff). 1→2→3 sequence in one file;
+7 ← all (the surface check reads the whole diff; its exception set now
+includes `tests-v2/AGENTS.md` per the 2026-10-27 revision). 8 ← 5, 6 (the
+rule codifies the re-scope those scenarios' revision performed).
+1→2→3 sequence in one file;
 each GREEN extends the rule without rewriting prior clauses.
 
 ## Traceability
 
 Item 1→SC-1, Item 2→SC-2, Item 3→SC-4, Item 4→SC-3, Item 5→SC-5,
-Item 6→SC-6, Item 7→SC-7. All seven SCs covered; no orphan item.
+Item 6→SC-6, Item 7→SC-7, Item 8→SC-8 (provenance: developer directive
+2026-10-27). All eight SCs covered; no orphan item.
 
 ## Documentation Sources
 
@@ -163,4 +188,6 @@ harness's standard run). Item 7: one diff command.
 
 Everything in the spec's Out of scope section: wiki-operations and
 git-workflow-cleanup rules, attic edits, general published-branch rewrite
-permission, and any enforcement mechanism.
+permission, and any enforcement mechanism. The 2026-10-27 revision adds
+`tests-v2/AGENTS.md` as the third rule surface (SC-8) and widens SC-7's
+exception set accordingly.
