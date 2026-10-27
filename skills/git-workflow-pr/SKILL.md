@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668 -->
 
 # git-workflow-pr
 
@@ -97,7 +97,20 @@ filed fix issue; "the failures pre-existed" is a defect to file, never a
      changelog-bearing).
 5. **Create via the platform CLI** (`gh pr create` / `gb` equivalent) —
    authenticated tooling, never raw API calls.
-6. **HALT after creation.** PR merge is a human gate. Notify and stop; update
-   the PR only on review feedback.
+6. **HALT after creation — merge and approval actions withheld.** PR merge
+    is a human gate: no `gh pr merge`, `gb pr merge`, merge API submission,
+    or auto-merge enablement, ever. The gate extends to merge approvals: no
+    approving review is submitted (`gh pr review --approve` and
+    equivalents), no approving review is created in pending form — a pending
+    approving review discovered is deleted, not submitted. Comment-only and
+    request-changes reviews remain permitted. These are structural
+    boundaries: no authorization reaches them. Notify and stop; update
+    the PR only on review feedback.
+7. **Completion-gate check.** At work completion — before the PR-prep step —
+    audit the session record: the work's own record shows no performed merge,
+    no submitted approving review, and no pending approving review left
+    standing (a discovered pending approving review is deleted). Any hit is a
+    boundary violation: report it, and do not proceed to PR prep until the
+    record is clean.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
