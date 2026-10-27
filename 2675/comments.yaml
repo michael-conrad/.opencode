@@ -1,1 +1,10 @@
-comments: []
+comments:
+- type: internal
+  body: 'Triage (2026-10-27): verified at current tip (cc 99c3b2410, post-#2667 merge).
+    Reproduced exactly the 3 claimed failures — ModuleNotFoundError: No module named
+    ''yaml'' from the direct ''import yaml'' at test_update_reopen_clears_closed_state.py:108;
+    pyproject [dependency-groups] dev = pytest + pytest-cov only. Defect claim is
+    valid, evidence-backed. Recommended fix class: add pyyaml to the dev group (one-line
+    pyproject change) — simpler and lower-risk than routing through the sibling tests''
+    uv subprocess pattern. Status remains needs-approval pending ''approved for implementation''.'
+  timestamp: '2026-10-27T16:24:08+00:00'
