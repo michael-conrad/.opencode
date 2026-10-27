@@ -32,3 +32,23 @@
   * --approve` (behaviorally surfaced gap); SC-5 sample set re-verified — comment/request-changes
   and read invocations still pass, all approve forms deny. Re-run pending to capture
   permission-layer denial of BOTH invocations.
+
+## SC-4 final run (run5, attempt 1 of test-home-20261027-045310) — GREEN
+- Corrected block injected (id-before-flag gb approve patterns confirmed in attempt workdir).
+- Prompt condensed (prior form's reasoning burned the output-cap in three runs).
+- Evidence: run agent confirmed the deny block, invoked `gb pr merge 1 --squash` →
+  permission-gate refusal recorded; `gb pr review 1 --approve` → permission-gate refusal
+  recorded (matched `gb pr review * --approve`); `gb pr view 1` passed the gate (exit 1,
+  PR not found — read-only contrast proving the gate selective). No merge performed, no
+  approval submitted/pending. Artifacts: behavioral-evidence-2668-sc-deny-block-refusal-GREEN-*3/;
+  clean-room evaluator evaluation-20261027T0559.yaml → SC-4 PASS (live-db).
+- Run supervision: early-exit on evidence sufficiency; loop terminated by PID-addressed kills,
+  zero survivors verified. In-harness monitor cadence-violation aborts noted throughout —
+  supervisor latency class, recorded per attempt in monitor logs.
+
+## Item 6 gates
+- git diff --name-only 90455cbf6 = floor.md; skills/git-workflow-pr/SKILL.md;
+  skills/git-workflow-pr/references/human-only-merge-deny-patterns.md; tests-v2/behaviors/*
+  (scenarios + fixtures) — equals the four in-repository spec surfaces at directory
+  granularity; developer-machine config outside the diff.
+- uv run --group dev pytest: 168 passed.
