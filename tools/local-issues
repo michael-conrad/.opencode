@@ -1512,6 +1512,9 @@ def cmd_update(args: argparse.Namespace) -> None:
             key = field if field != "github" else "github_url"
             issue[key] = val
             changed = True
+    if issue.get("status") != "closed":
+        for stale in ("closed_at", "close_reason", "duplicate_of"):
+            issue.pop(stale, None)
     if changed:
         issue["updated_at"] = now_iso()
         write_file(path, yaml_dump(issue))
