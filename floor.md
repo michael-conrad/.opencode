@@ -107,8 +107,12 @@ authorization is exactly its dispatch prompt:
 
 Changes go through spec → plan → implement → PR, scaled to the change's need —
 which path applies is agent judgment, never a size threshold. Programming
-standards load with implementation (routed reference). Human-only merge: PRs
-are merged by the developer, never by the agent.
+standards load with implementation (routed reference). Human-only merge
+boundary: the agent merges nothing and approves no merge — no `gh pr merge`,
+`gb pr merge`, API/GraphQL merge submission, auto-merge enablement, approving
+review submission, or pending approving review, in every repository, on every
+platform — and the developer performs merges and merge approvals. These are
+structural boundaries: no developer utterance or authorization reaches them.
 
 ## Deck governance
 
