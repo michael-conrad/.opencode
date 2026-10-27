@@ -160,6 +160,24 @@ def _is_wiki_origin(url: str) -> bool:
     return segment.endswith(".wiki") or segment.endswith(".wiki.git")
 
 
+def _is_pull_only_repo(repo_dir: str) -> bool:
+    """Detect a pull-only repository (#2667 R-5).
+
+    Same detection as `tools/local-issues` R-2: the effective `origin`
+    URL — `git remote get-url origin`, after git's URL rewrites — carries
+    the scheme `http` or `https`. The workspace root is exempt: the
+    scheme of the root's own origin is not evidence about the
+    developer's push rights on their own repository. A repository with
+    no `origin` is not classified.
+    """
+    if os.path.abspath(repo_dir) == os.path.abspath(os.getcwd()):
+        return False  # workspace root exempt
+    url = run_git_command(["-C", repo_dir, "remote", "get-url", "origin"])
+    if not url:
+        return False
+    return url.startswith("http://") or url.startswith("https://")
+
+
 def _registered_submodule_paths(repo_dir: str) -> list[str]:
     """Paths of a repo's registered submodules (#2544 strict discovery).
 
@@ -225,6 +243,7 @@ def collect_repo_info() -> list[dict[str, str]]:
         "repo": repo,
         "platform": platform or "unknown",
         "url": url_str,
+        "writability": "not-pull-only",  # workspace root is exempt (R-2/R-5)
     })
 
     def walk(base_dir: str, base_rel: str) -> None:
@@ -247,6 +266,7 @@ def collect_repo_info() -> list[dict[str, str]]:
                 "repo": sub_repo,
                 "platform": sub_platform or "unknown",
                 "url": sub_url,
+                "writability": "pull-only" if _is_pull_only_repo(child_dir) else "not-pull-only",
             })
             walk(child_dir, child_rel)
 
@@ -736,6 +756,9 @@ def collect_issue_artifact_paths(repo_info: list[dict[str, str]]) -> list[str]:
         # with their own issue folders
         if repo_path == ".issues" or repo_path.endswith("/.issues"):
             continue
+        if repo.get("writability") == "pull-only":
+            # Pull-only repository: holds no local issue store (#2667 R-3/R-5)
+            continue
         if repo_path == ".":
             issues_rel = ".issues/"
             issues_abs = os.path.join(cwd, ".issues")
@@ -977,8 +1000,12 @@ def main() -> int:
         print(f"  repo: {entry['repo']}")
         print(f"  platform: {entry['platform']}")
         print(f"  url: {entry['url']}")
+        print(f"  writability: {entry.get('writability', 'not-pull-only')}")
         # Store path for qualified-reference resolution: local artifacts
-        # for repo#N live under {issues}/{N}/ (#2549 change 2)
+        # for repo#N live under {issues}/{N}/ (#2549 change 2). A
+        # pull-only repository holds no store and carries no path (#2667 R-5).
+        if entry.get("writability") == "pull-only":
+            continue
         if entry["path"] == ".":
             print("  issues: .issues/")
         else:

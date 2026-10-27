@@ -29,9 +29,15 @@ TOOL_NAME = "local-issues"
 GITMODULES = (
     '[submodule ".opencode"]\n'
     "\tpath = .opencode\n"
-    "\turl = https://example.invalid/michael-conrad/.opencode.git\n"
+    "\turl = git@example.invalid:michael-conrad/.opencode.git\n"
 )
 TMP_DIR = Path(__file__).resolve().parents[3] / "tmp" / "issue-2432" / "test-sandboxes"
+
+CHILD_NAME = ".opencode"
+# An ssh-form origin: outside the pull-only classification (R-2), so the
+# absent issues-data branch is a genuine branch-health failure.
+CHILD_URL = "git@example.invalid:michael-conrad/.opencode.git"
+GITLINK_SHA = "f" * 40
 
 # Machine-greppable marker expectation: an unhealthy branch-state marker
 # must name the repo and carry the UNHEALTHY marker token.
@@ -87,6 +93,26 @@ def sandbox() -> Path:
     _write_fake_worktree_gitlink(root_issues)
     _write_fake_worktree_gitlink(child_issues)
     subprocess.run(["git", "init", "-q", str(root)], check=True)
+    # Register the child on git's registered-submodule mechanism (#2667
+    # R-1): the module checkout is a real git repository, its gitlink is
+    # recorded in the index, and the module url sits in git's config —
+    # the eligibility mechanism `doctor` discovers store hosts by. The
+    # ssh-form url keeps the child outside the pull-only classification
+    # (R-2), so the absent issues-data branch is a genuine health failure,
+    # not the by-design absent store of a pull-only child.
+    subprocess.run(
+        ["git", "init", "-q", str(root / CHILD_NAME)], check=True
+    )
+    subprocess.run(
+        ["git", "-C", str(root), "update-index", "--add", "--cacheinfo",
+         f"160000,{GITLINK_SHA},.opencode"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(root), "config",
+         f"submodule.{CHILD_NAME}.url", CHILD_URL],
+        check=True,
+    )
     # Sanity: confirm the local issues-data branch really is absent.
     branches = subprocess.run(
         ["git", "branch", "--list", "issues-data"],

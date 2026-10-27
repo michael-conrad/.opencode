@@ -61,9 +61,9 @@ def sandbox() -> Path:
     if base.exists():
         shutil.rmtree(base)
     root = base / ROOT_REPO_NAME
-    tools_dir = root / ".opencode" / "tools"
     child_issues = root / CHILD_REPO_NAME / ".issues" / ISSUE_NUMBER
     nested_dir = root / "docs"
+    tools_dir = root / CHILD_REPO_NAME / "tools"
     tools_dir.mkdir(parents=True)
     child_issues.mkdir(parents=True)
     nested_dir.mkdir(parents=True)
@@ -72,12 +72,47 @@ def sandbox() -> Path:
         "title: fixture\nlabels: []\ncreated: '2026-01-01T00:00:00Z'\n",
         encoding="utf-8",
     )
-    (root / ".gitmodules").write_text(
-        f'[submodule "{CHILD_REPO_NAME}"]\n\tpath = {CHILD_REPO_NAME}\n',
-        encoding="utf-8",
-    )
     subprocess.run(["git", "init", "-q", str(root)], check=True)
+    # Register the child through git's registered-submodule mechanism —
+    # the eligibility rule since #2667 R-1. The child is discovered only
+    # when `git submodule status` reports it with the .gitmodules path.
     subprocess.run(["git", "init", "-q", str(root / CHILD_REPO_NAME)], check=True)
+    readme = root / CHILD_REPO_NAME / "README.md"
+    readme.write_text("fixture\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(root / CHILD_REPO_NAME), "add", "README.md"], check=True)
+    subprocess.run(
+        ["git", "-C", str(root / CHILD_REPO_NAME), "-c", "user.name=fixture",
+         "-c", "user.email=f@x", "commit", "-q", "-m", "child init"],
+        check=True,
+    )
+    child_sha = subprocess.run(
+        ["git", "-C", str(root / CHILD_REPO_NAME), "rev-parse", "HEAD"],
+        capture_output=True, text=True, check=True,
+    ).stdout.strip()
+    child_url = str(root / CHILD_REPO_NAME)
+    gitmodules = (
+        f'[submodule "{CHILD_REPO_NAME}"]\n'
+        f"\tpath = {CHILD_REPO_NAME}\n"
+        f"\turl = {child_url}\n"
+    )
+    (root / ".gitmodules").write_text(gitmodules, encoding="utf-8")
+    subprocess.run(
+        ["git", "-C", str(root), "add", ".gitmodules"], check=True
+    )
+    subprocess.run(
+        ["git", "-C", str(root), "update-index", "--add", "--cacheinfo",
+         f"160000,{child_sha},{CHILD_REPO_NAME}"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(root), "config", f"submodule.{CHILD_REPO_NAME}.url", child_url],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(root), "-c", "user.name=fixture",
+         "-c", "user.email=f@x", "commit", "-q", "-m", "init"],
+        check=True,
+    )
     driver = base / "driver.py"
     driver.write_text(_driver_source(), encoding="utf-8")
     return root

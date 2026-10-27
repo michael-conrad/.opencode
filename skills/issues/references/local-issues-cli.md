@@ -12,7 +12,7 @@ remains the flag-level source of truth. All numbers use the qualified
 
 | Command | Flags | Behavior |
 |---|---|---|
-| `init` | — | Bootstrap `issues-data` worktrees in all repos (root + `.gitmodules` children); pull remote `issues-data` where present |
+| `init` | — | Bootstrap `issues-data` worktrees in all store-holding repos (root + its registered submodules per `git submodule status`); pull remote `issues-data` where present. A repository classified pull-only (effective `http`/`https` origin) is excluded — it receives no store, no fetch, and no push (#2667) |
 | `sync` | — | Per repo: commit pending, pull-rebase, push. Reports per-repo status (`ok`, `no_worktree`, `no_remote`, `conflict`, …) |
 | `sync-file` | `--file`, `--message` | Commit + push one file into the correct repo's issues worktree; prints status/commit SHA/file URL |
 | `create` | `--number repo#N` (required), `--title`, `--labels` | Registers the local `{N}/` folder after the remote-first reservation; duplicate in the target repo exits 1; uniqueness is per-repo only |

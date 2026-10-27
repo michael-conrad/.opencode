@@ -16,7 +16,11 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    numbers are rejected; remote operations go through the platform CLI
    (`gh` / `gb`) — authenticated tools, never raw API scripts. The script's
    `--help` is the flag-level source of truth; detail cards under
-   `references/` carry the CLI and sync mechanics.
+   `references/` carry the CLI and sync mechanics. **Pull-only repositories
+   (#2667):** a repository the tool classifies pull-only (its effective
+   origin is `http`/`https`) holds no local issue store; the local store's
+   operations never target it, and its issues are read and written through
+   the platform CLI against its own tracker.
 2. **Creation.** Remote first: when the store has a remote tracker, file the
    remote issue to reserve the number before any local folder setup — every
    issue type; the local `{N}/` mirror follows, its `github_url` field
@@ -75,7 +79,9 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
 
 - **Tool path:** `.opencode/tools/local-issues` — run it directly
   (`./.opencode/tools/local-issues <command> [flags]`). First mutation
-  auto-initializes the `.issues/` orphan-branch worktree.
+  auto-initializes the `.issues/` orphan-branch worktree in a store-holding
+  repository — every repository the tool classifies writable; a pull-only
+  repository carries no store and never receives one (#2667).
 - **Invocation:** every number argument uses the qualified `repo#N` form;
   bare numbers exit with the available-qualifier list.
 - **Session start:** `init` (bootstrap worktrees + pull remote `issues-data`
