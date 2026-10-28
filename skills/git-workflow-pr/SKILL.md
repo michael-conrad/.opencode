@@ -2,12 +2,12 @@
 name: git-workflow-pr
 description: "Load before opening any pull request, preparing work for review, or updating an existing PR — in any repo, whenever PR-boundary authorization arrives or the work reaches the review boundary. PRs are for completed and fully tested work; partial PRs require explicit special authorization. Squash the branch's work to one reviewable commit per issue, write a PR body with summary and executed-test evidence, then HALT — humans merge, never the agent."
 license: MIT
-provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; agent-owned scoped branch rewrite, .opencode#2665
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668; agent-owned scoped branch rewrite, .opencode#2665 -->
 
 # git-workflow-pr
 
@@ -46,7 +46,25 @@ filed fix issue; "the failures pre-existed" is a defect to file, never a
 3. **Shape.** A stacked PR is **one PR against the trunk containing one
    squashed commit per issue ticket** — the body closes every stacked issue.
    Squash WIP to one commit per issue at PR creation; a stacked branch chain
-   rides in that one PR, never as one PR per stacked layer. Issues authorized
+   rides in that one PR, never as one PR per stacked layer.
+   **Agent-owned per-issue squash on a published branch.** The producing agent —
+   holding the authorization to prepare a PR from its own feature branch —
+   produces the per-issue squash itself and pushes the rewritten branch with
+   `git push --force-with-lease origin <branch>`; the agent performs the squash
+   and the push itself and does not solicit a developer's force-push decision;
+   the PR body states that the branch was rewritten (the squash of the branch's
+   per-issue commits to one commit per issue). **Scoped branch rewrite.** This
+   authorization binds to the producing agent's own feature branch, and before
+   the push the agent establishes each of three conditions: (1) the branch was
+   created by this agent for the work in hand — not created by another party;
+   (2) the branch has not been merged into the trunk; (3) no other party holds
+   the branch — another party holds it when that party created it, commits to
+   it, or works from it, and the producing agent's own push of the branch to
+   the origin remote to carry the PR is not a hold by another party. A branch
+   failing any one of the three conditions falls under the floor's general
+   gate — the developer's explicit naming of the action and its target. The
+   agent-owned authorization covers `git push --force-with-lease` only: an
+   unleased `git push --force` proceeds only under the floor's general gate. Issues authorized
    together share that one branch and that one PR — N branches / N PRs for one
    authorization scope is the violation. **Scope boundary.** The
    authorization scope is the developer directive that produced the work —

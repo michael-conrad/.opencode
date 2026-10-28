@@ -351,7 +351,7 @@ __docker_launch_run() {
     [ -n "${GB_PROTOCOL:-}" ] && docker_env+=(-e "GB_PROTOCOL=$GB_PROTOCOL")
     [ -n "${GB_TOKEN:-}" ] && docker_env+=(-e "GB_TOKEN=$GB_TOKEN")
     [ -n "${BEHAVIOR_NEEDS_REMOTE:-}" ] && docker_env+=(-e "BEHAVIOR_NEEDS_REMOTE=$BEHAVIOR_NEEDS_REMOTE")
-    docker_env+=(-e "OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=4000")
+    docker_env+=(-e "OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=${OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX:-4000}")  # spec-gated raise: tests-v2 §5 + .opencode#2665 revision
     [ -n "${BEHAVIOR_SET_BARE_REMOTE:-}" ] && docker_env+=(-e "BEHAVIOR_SET_BARE_REMOTE=$BEHAVIOR_SET_BARE_REMOTE")
     [ -n "${BEHAVIOR_NEEDS_MULTI_SUBMODULES:-}" ] && docker_env+=(-e "BEHAVIOR_NEEDS_MULTI_SUBMODULES=$BEHAVIOR_NEEDS_MULTI_SUBMODULES")
     [ -n "${BEHAVIOR_SHARED_HOME:-}" ] && docker_env+=(-e "BEHAVIOR_SHARED_HOME=$BEHAVIOR_SHARED_HOME")
@@ -427,7 +427,7 @@ __docker_launch_resume() {
     [ -n "${GB_PROTOCOL:-}" ] && docker_env+=(-e "GB_PROTOCOL=$GB_PROTOCOL")
     [ -n "${GB_TOKEN:-}" ] && docker_env+=(-e "GB_TOKEN=$GB_TOKEN")
     [ -n "${BEHAVIOR_NEEDS_REMOTE:-}" ] && docker_env+=(-e "BEHAVIOR_NEEDS_REMOTE=$BEHAVIOR_NEEDS_REMOTE")
-    docker_env+=(-e "OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=4000")
+    docker_env+=(-e "OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=${OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX:-4000}")  # spec-gated raise: tests-v2 §5 + .opencode#2665 revision
     # The §10.7 determination gate inside the container must also scan the
     # run's evidence dir (where determination records live) — TMP_DIR alone
     # is the staging root there and never contains the record (.opencode#2646
