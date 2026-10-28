@@ -41,3 +41,5 @@ at escalating gaps through the reindex supervision); developer correction verbat
 "poll discipline has failed. this is a regression. poll every 60s. report in chat every
 poll. the dev cannot read your thoughts and hidden shell outputs. file a fix spec to address
 this constant regression in behavior."
+
+**Consumed:** 2026-10-28 — remediation shipped in that session's own change (.opencode#2619, behavioral-testing §9: the mandate binds any supervised operation, 60-second ceiling holds, per-poll in-chat update is unconditional; mirrored into tests-v2/AGENTS.md). Marker added at the 2026-10-28 lessons review; no new filing required.

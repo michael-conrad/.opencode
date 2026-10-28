@@ -27,3 +27,5 @@
 **Remediation target:** `poll-run.sh` reminder header + both reminder blocks and `behavioral-testing` SKILL.md rule 9 now encode the MID-FLOW ordering rule — the update text is delivered BEFORE the next poll call, in the same working session, never terminal (commit `403f8d5a`). `.opencode#2646` R-5/SC-6 makes cadence compliance a verified deliverable computed from recorded poll timestamps (fact-decidable), so the class is no longer unenforceable prose.
 
 **Consumed:** 2026-10-20 — `.opencode#2647` filed; fix shipped in commit `403f8d5a` (inside #2646's scope); SC-6/R-5 added to #2646.
+
+**Consumed:** 2026-10-28 — correction recorded as developer direction in #2644 (R-2); the rules the lesson cites already bind (behavioral-testing R-20, floor standing formula) and the lesson requires no deck-text change, so no deck defect exists to file. Marker added at the 2026-10-28 lessons review.
