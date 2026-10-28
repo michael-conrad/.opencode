@@ -114,6 +114,13 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    a poll with no new evidence still delivers its update — "no change" stated
    plainly is the update (the developer cannot read tool outputs or agent
    reasoning; an unreported interval is invisible time).
+   **The update is the cycle's structural step (.opencode#2678):** a
+   supervised cycle advances exactly tool call (sleep + poll) → standalone
+   text update (no tool call attached) → next tool call — a tool call
+   directly following another tool call of the same supervised cycle, with no
+   intervening text update in between, is the defect in the supervisor's own
+   transcript, regardless of what the analysis concluded and regardless of
+   content; the skipped-update failure is self-observable in that shape.
    **Never kill by name pattern.** Run cleanup and abort kill only the PIDs the
    agent itself launched — record the PID at launch and re-verify survivors by
    PID (`kill -9 <pid>`, `ps -p <pid>`), never by a name match. A pattern kill

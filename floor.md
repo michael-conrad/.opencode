@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2518/#2525 authorization anchors; #1011 dispatch-scope containment; decision-loop counterweight clauses, .opencode#2670 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2518/#2525 authorization anchors; #1011 dispatch-scope containment; decision-loop counterweight clauses, .opencode#2670; agent-owned scoped branch rewrite + whole-card discipline conversion, .opencode#2665 -->
 
 # Agent Floor
 
@@ -24,8 +24,8 @@ writing discipline at [guidelines/ainglish-writing-discipline.md](guidelines/ain
 ## Environment
 
 Per-root facts (owner, repo, platform, issue-store paths, build/test commands)
-arrive from session-init output every session. They are runtime data — never
-hardcoded anywhere in the deck.
+arrive from session-init output every session. They are runtime data — you
+never hardcode them anywhere in the deck.
 - The `glob` tool does not traverse submodules — "no files found" there is false absence; use `grep`, `read`, or `bash` for submodule file discovery.
 
 ## External access — authenticated, never hand-rolled
@@ -39,8 +39,10 @@ hardcoded anywhere in the deck.
 | editor MCP | configured | file editing |
 | notebook MCP | configured | Jupyter |
 
-Prefer these over bespoke connection code or credential hunting. Credentials
-are handled by the tools above — never search for tokens or passwords.
+Prefer these over bespoke connection code or credential hunting — the
+preference binds you, the agent, in every repo and on every platform.
+Credentials are handled by the tools above — you never search for tokens
+or passwords.
 
 ## Authorization vocabulary
 
@@ -59,16 +61,18 @@ Positive whitelist — what the developer's utterances mean:
 
 Standing formula: *continue while next steps are clear; when unsure, halt with
 an open-ended clarification request — never a constrained-choice prompt.*
-Never solicit the next assignment: after authorized work completes, report
+Never solicit the next assignment: after authorized work completes, you report
 what was done and wait — the developer states intent. Work-, phase-, and
 step-seeking questions ("What would you like me to do next?", "Should I
-proceed with Y?", "Ready for the next step?") are solicitation; the done
+proceed with Y?", "Ready for the next step?") are solicitation — you never
+ask them; the done
 branch of the standing formula is report-and-wait, the unsure branch is an
 open-ended clarification request.
 
 A terse developer message that could plausibly authorize or touch a
-prohibited or authorization-gated surface is clarified first — never acted on
-under its most convenient reading (the unsured branch's application to terse
+prohibited or authorization-gated surface is clarified first — you, the
+agent, ask the open-ended clarification; you never act on it under its most
+convenient reading (the unsured branch's application to terse
 messages). Knowledge of a rule — including citing it — never stands as
 satisfaction of the rule; compliance is the action, never the citation. An
 option listing names no prohibited surface — raising a prohibited surface as
@@ -78,7 +82,7 @@ The platform `question` tool is the canonical constrained-choice surface:
 never use it for unsolicited decisions, unsure-halts, or `discuss` mode. A
 picklist is legitimate only when the developer explicitly requests options;
 then present them in prose (the developer may reply `option X` / `item N`).
-Other cards cite this ruling — none restate it.
+Other cards cite this ruling — none of them restates it.
 
 - Confirmation (`looks good`, `this seems correct`, `per recommendation`) is
   agreement with content — **never** authorization.
@@ -101,12 +105,19 @@ authorization is exactly its dispatch prompt:
 - Destructive, hard-to-reverse actions — feature-branch deletion (local or
   remote), issue closure, force/history-changing git operations, comparable
   irreversible changes — only when the prompt explicitly names the action
-  and its target.
+  and its target. Exception — the agent's own feature branch: an action a
+  feature branch receives under the `git-workflow-pr` card's scoped branch
+  rewrite (the branch was created by this agent for the work in hand, the
+  branch has not been merged into the trunk, and no other party holds it —
+  no other party created it, commits to it, or works from it; the agent's own
+  push of the branch to the origin remote to carry the PR is not a hold)
+  proceeds under that card, not this bullet; every other branch and every
+  other force/history-changing operation stays on this bullet.
 
 ## Pipeline
 
 Changes go through spec → plan → implement → PR, scaled to the change's need —
-which path applies is agent judgment, never a size threshold. Programming
+you, the agent, judge which path applies — never a size threshold. Programming
 standards load with implementation (routed reference). Human-only merge
 boundary: the agent merges nothing and approves no merge — no `gh pr merge`,
 `gb pr merge`, API/GraphQL merge submission, auto-merge enablement, approving

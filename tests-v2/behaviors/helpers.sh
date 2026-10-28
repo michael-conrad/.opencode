@@ -477,7 +477,7 @@ CLSPROMPT
         LOGNAME=opencode-test-user \
         LANG="${LANG:-C.UTF-8}" \
         TERM="${TERM:-dumb}" \
-        OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX="4000" \
+        OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX="${OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX:-4000}" \
         opencode run "$cls_prompt" --model "$model" \
         > "$cls_stdout" 2> "$cls_stderr" 200>&- &
     cls_pid=$!

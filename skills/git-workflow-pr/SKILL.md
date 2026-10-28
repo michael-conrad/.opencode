@@ -2,12 +2,12 @@
 name: git-workflow-pr
 description: "Load before opening any pull request, preparing work for review, or updating an existing PR — in any repo, whenever PR-boundary authorization arrives or the work reaches the review boundary. PRs are for completed and fully tested work; partial PRs require explicit special authorization. Squash the branch's work to one reviewable commit per issue, write a PR body with summary and executed-test evidence, then HALT — humans merge, never the agent."
 license: MIT
-provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679 -->
 
 # git-workflow-pr
 
@@ -43,10 +43,38 @@ filed fix issue; "the failures pre-existed" is a defect to file, never a
    After the submodule PRs merge, the parent PR carries the pointer to the
    merged submodule trunk tip, re-synced with the parent's verification
    re-run against the composed state before creation.
+   (g) **Pointer currency at the PR (.opencode#2679):** a parent-repo PR
+   always carries the submodule pointer the parent's state actually
+   references — the bump's existence is (d)'s fact (checked-out HEAD past the
+   recorded gitlink), carrying it with the parent's real content is mandatory,
+   and (e)'s pointer-only exclusion stands. Submodule pointer currency has no
+   stale window while a parent PR exists: a pointer move while the parent PR
+   is open — or between the parent branch's pointer capture and the PR's
+   creation — obliges the PR's update to the moved pointer, with the parent's
+   verification re-run against the composed state before the update; a PR
+   representing a stale pointer is the defect this rule names (bitrot).
 3. **Shape.** A stacked PR is **one PR against the trunk containing one
    squashed commit per issue ticket** — the body closes every stacked issue.
    Squash WIP to one commit per issue at PR creation; a stacked branch chain
-   rides in that one PR, never as one PR per stacked layer. Issues authorized
+   rides in that one PR, never as one PR per stacked layer.
+   **Agent-owned per-issue squash on a published branch.** The producing agent —
+   holding the authorization to prepare a PR from its own feature branch —
+   produces the per-issue squash itself and pushes the rewritten branch with
+   `git push --force-with-lease origin <branch>`; the agent performs the squash
+   and the push itself and does not solicit a developer's force-push decision;
+   the PR body states that the branch was rewritten (the squash of the branch's
+   per-issue commits to one commit per issue). **Scoped branch rewrite.** This
+   authorization binds to the producing agent's own feature branch, and before
+   the push the agent establishes each of three conditions: (1) the branch was
+   created by this agent for the work in hand — not created by another party;
+   (2) the branch has not been merged into the trunk; (3) no other party holds
+   the branch — another party holds it when that party created it, commits to
+   it, or works from it, and the producing agent's own push of the branch to
+   the origin remote to carry the PR is not a hold by another party. A branch
+   failing any one of the three conditions falls under the floor's general
+   gate — the developer's explicit naming of the action and its target. The
+   agent-owned authorization covers `git push --force-with-lease` only: an
+   unleased `git push --force` proceeds only under the floor's general gate. Issues authorized
    together share that one branch and that one PR — N branches / N PRs for one
    authorization scope is the violation. **Scope boundary.** The
    authorization scope is the developer directive that produced the work —
@@ -105,7 +133,8 @@ filed fix issue; "the failures pre-existed" is a defect to file, never a
     approving review discovered is deleted, not submitted. Comment-only and
     request-changes reviews remain permitted. These are structural
     boundaries: no authorization reaches them. Notify and stop; update
-    the PR only on review feedback.
+    the PR only on review feedback or on submodule pointer movement under
+    §2(g)'s currency rule — the two permitted update triggers, no others.
 7. **Completion-gate check.** At work completion — before the PR-prep step —
     audit the session record: the work's own record shows no performed merge,
     no submitted approving review, and no pending approving review left
