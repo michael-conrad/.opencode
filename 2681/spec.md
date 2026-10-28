@@ -101,7 +101,8 @@ Deck surfaces of the `.opencode` repository, plus issue-store data:
 - `tests-v2/` — one behavioral scenario reproducing the observed failure and
   one companion proving no over-reach.
 - The `.opencode#2681` record — title, body, and labels reconciled to the
-  corrected fact base on both surfaces (delivered by this revision).
+  corrected fact base on both surfaces (record maintenance inside this
+  revision's flow; SC-7 decides the end state).
 
 Deck text edits ride deck governance: the `skill-creator` admission gate
 applies at implementation. A substantive write to `floor.md` triggers the
@@ -116,8 +117,10 @@ conformance across the whole floor's normative prose rather than re-converts.
   `.opencode` repository, exits 0 printing zero `invalid-yaml` lines. Repairs
   touch YAML validity only — a repair preserves each file's semantic content,
   changing nothing beyond what validity requires. Where validity admits more
-  than one reading, the repair follows the record's surrounding content and
-  the choice stays visible in the store commit. Repairs ride the store's
+  than one reading, the repair names the chosen reading and its ground in
+  `.opencode/.issues/2681/research/repair-log.md` (file, chosen reading,
+  ground) before the store sync — a multi-reading repair with no matching log
+  entry violates this requirement. Repairs ride the store's
   `issues-data` branch via the store's own tooling (`local-issues`; plain
   file edits plus the tool's sync), never a feature branch.
 - **R-2 — remediation-first routing in the deck (O-2, O-3).** The deck's
@@ -160,7 +163,8 @@ conformance across the whole floor's normative prose rather than re-converts.
   authorization still routes to the filed-fix-issue disposition and blocks the
   gate until dispositioned.
 - **R-6 — no mechanism (standing ruling, #2664 spec Approach).** The change
-  adds no tool command, no wrapper, no enforcement hook, no script — deck rule
+  adds no tool command, no wrapper, no enforcement hook, and no script
+  outside the `tests-v2/` harness scenarios this spec orders — deck rule
   text, store data repair, and harness scenarios only.
 
 ## Success criteria
@@ -168,10 +172,15 @@ conformance across the whole floor's normative prose rather than re-converts.
 - **SC-1 (structural) (→ R-1).** Unscoped `local-issues validate-yaml`, cwd = the
   `.opencode` repository, exits 0 with zero `invalid-yaml` lines.
   *Instrument:* executed command; captured output.
-- **SC-2 (structural) (→ R-1).** Repair minimality: the store-branch diff alters no
-  file outside the issue store, and no YAML file beyond what validity
-  requires. *Instrument:* recorded fresh-context diff review of the hygiene
-  commits (verdict and findings in the record).
+- **SC-2 (structural) (→ R-1).** Repair minimality and disclosure: the
+  store-branch diff alters no file outside the issue store, and no YAML file
+  beyond what validity requires — and every changed file the review
+  classifies as admitting more than one valid reading carries a matching
+  choice entry (file, chosen reading, ground) in
+  `.opencode/.issues/2681/research/repair-log.md`. *Instrument:* recorded
+  fresh-context diff review of the hygiene commits cross-checking the diff
+  against that repair log — zero findings, or findings remediated before
+  re-review; the verdict and findings live in the record.
 - **SC-3 (structural) (→ R-2).** Both rule surfaces carry the clause. *Instrument:*
   grep in `skills/git-workflow-pr/SKILL.md` and
   `skills/implement/references/implementation-workflow.md` for the issues-data
@@ -193,11 +202,15 @@ conformance across the whole floor's normative prose rather than re-converts.
   still blocks the gate and routes to a filed disposition.
 - **SC-7 (structural) (→ R-4).** Record consistency. *Instrument:* read-back of
   GitHub #2681 and `.opencode/.issues/2681/` — titles equal, labels equal,
-  remote body's artifacts pointer resolves to `.opencode/.issues/2681/`,
-  `spec.md` present and store-authoritative.
+  the remote body carries the corrected fact base (the 273-file store
+  population, and the filing's 2-file counting named as non-reproducible
+  damage rather than as output) verified by reading the fetched body, the
+  body's artifacts pointer resolves to `.opencode/.issues/2681/`, the local
+  store body mirrors the remote body, and `spec.md` is present and
+  store-authoritative.
 - **SC-8 (structural) (→ R-6).** No mechanism added. *Instrument:* the change's file
   list against its base tip adds or modifies nothing under `tools/`, `hooks/`,
-  or `plugins/`, and adds no script anywhere.
+  or `plugins/`, and adds no script outside the `tests-v2/` scenario set.
 - **SC-9 (structural) (→ dependent-behavior preservation).** Test-contract
   currency: the structural suites that assert the amended surfaces still
   pass when the rule text changes under them. *Instrument:* executed
@@ -228,21 +241,25 @@ conformance across the whole floor's normative prose rather than re-converts.
 ## Approach
 
 1. **Store repair first (R-1).** Bulk parse repair of the 273 files on the
-   `issues-data` branch via the store's tooling; repairs stay minimal
-   (SC-2's review records the verdict). Doing this before the deck text lands
-   also makes this change's own PR checklist run the `validate-yaml` gate
-   genuinely green rather than dispositioned.
-2. **Deck text (R-2, R-3).** Amend the two rule surfaces and the floor's
+   `issues-data` branch via the store's tooling; repairs stay minimal, and any
+   multi-reading choice is logged per SC-2. Doing this before the deck text
+   lands also makes this change's own PR checklist run the `validate-yaml`
+   gate genuinely green rather than dispositioned.
+2. **Record reconciliation (R-4, O-5).** The #2681 record — title, labels,
+   and body — is reconciled on both surfaces (the local store folder and the
+   GitHub tracker) as part of this revision flow, before implementation work
+   starts; SC-7 decides the reconciled end state.
+3. **Deck text (R-2, R-3).** Amend the two rule surfaces and the floor's
    scope doctrine; the floor edit keeps whole-card writing-discipline
    conformance. The rule text follows the store guides' own vocabulary
    (agent-owned, authorization-free, issues-data branch) so the
    always-injected surface and the conditional guides state one doctrine.
-3. **Behavioral scenarios (R-5).** RED/GREEN per the `behavioral-testing`
+4. **Behavioral scenarios (R-5).** RED/GREEN per the `behavioral-testing`
    card's harness path: scenario (a) fails against the un-amended surfaces
    because the agent tickets instead of repairs; scenario (b) fails if the
    carve-out is written broad enough to swallow implementation-remedy
    failures.
-4. **Verify and ship.** Fresh-context `verify` dispatch against these SCs,
+5. **Verify and ship.** Fresh-context `verify` dispatch against these SCs,
    then the PR per `git-workflow-pr` (one PR for the issue; the store repairs
    ride `issues-data`, not the PR branch). After merge, #2681 closes as
    verified-resolved per the issues card.
