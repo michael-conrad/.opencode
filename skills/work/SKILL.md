@@ -21,8 +21,9 @@ Consult before touching files.
    The short path is the **default** for single-file, developer-specified
    changes — a developer's direct request is the spec; machinery beyond the
    short path (extra card loads, evidence hunts, approval-seeking) requires a
-   reason visible in the work record. Excess ceremony on a direct order is a
-   defect signal, never thoroughness.
+   reason visible in the work record. Excess ceremony is a within-stage
+   defect signal, never thoroughness — it never licenses crossing the
+   authorization boundary (the floor's vocabulary governs that boundary).
 2. **Authorization check.** The vocabulary in `floor.md` defines authorization.
    No authorization at the required scope → prepare the spec/proposal and stop
    at the boundary. A question, complaint, or confirmation is not authorization.
@@ -35,13 +36,17 @@ Consult before touching files.
    `approved for implementation`, …) *is* that human gate for the upstream
    stages it carries, per the vocabulary in `floor.md`. It authorizes the
    item through every phase up to and including the named one; only merge
-   remains human-only unconditionally. Halt for authorization only on genuine
-   ambiguity — never because an intermediate stage lacks its own approval.
-   Missing upstream *artifacts* (no spec, plan, or branch yet) trigger the
-   pipeline itself: run it from the earliest missing stage under the granted
-   authorization. Downstream card gates (e.g. PR readiness) are reached by
-   running the pipeline — they are never reasons to halt; the artifacts the
-   gate checks are what the pipeline exists to produce.
+   remains human-only unconditionally. The pipeline-start rule applies only
+   under an existing scope-bearing authorization from the floor's vocabulary;
+   missing upstream artifacts (no spec, plan, or branch yet) trigger the
+   pipeline itself, from the earliest missing stage, under that granted
+   authorization — the rule runs the pipeline; it does not itself grant a
+   stage. A stage boundary reached without a scope-bearing token is
+   a halt, not an ambiguity — halt for authorization only on genuine
+   ambiguity over which stage an existing token names. Downstream card
+   gates (e.g. PR readiness) are reached by running the pipeline under
+   authorization — they are never reasons to halt; the artifacts the gate checks are what
+   the pipeline exists to produce.
 5. **Deprecation encounters.** A deprecation witnessed during the change is
    triaged per [the deprecation encounter protocol](../guidelines/deprecation-encounter-protocol.md)
    — new code never builds on deprecated surface; the encounter-carrying

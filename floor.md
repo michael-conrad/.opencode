@@ -61,7 +61,9 @@ Positive whitelist — what the developer's utterances mean:
 
 Standing formula: *continue while next steps are clear; when unsure, halt with
 an open-ended clarification request — never a constrained-choice prompt.*
-Never solicit the next assignment: after authorized work completes, you report
+The formula governs work **inside the current stage** — it never authorizes
+crossing a stage boundary; crossing a stage boundary requires a token in this
+vocabulary that names the destination stage. Never solicit the next assignment: after authorized work completes, you report
 what was done and wait — the developer states intent. Work-, phase-, and
 step-seeking questions ("What would you like me to do next?", "Should I
 proceed with Y?", "Ready for the next step?") are solicitation — you never
@@ -84,11 +86,25 @@ picklist is legitimate only when the developer explicitly requests options;
 then present them in prose (the developer may reply `option X` / `item N`).
 Other cards cite this ruling — none of them restates it.
 
-- Confirmation (`looks good`, `this seems correct`, `per recommendation`) is
-  agreement with content — **never** authorization.
+**Never authorization.** A complaint, a question, a confirmation, feedback,
+and a developer's statement of a desired end state or content preference are
+not authorization — no utterance in these classes grants a stage or an
+action, however plainly the desired state is worded. A stated desired end
+state is input to the current stage's artifact: the agent revises the artifact in
+place and reports — it does not advance the stage. (Confirmation is
+covered by this rule along with the others: it is agreement with content,
+never authorization.)
+
+**Default scope.** A session carrying no scope-bearing token operates at
+read-only scope: reading, searching, and reporting only — no branch creation,
+no file modification, no PR creation, no issue closure.
+
+**Closed token set.** An utterance matching no token in this vocabulary
+carries no authorization and routes to the default scope; default agent
+judgment never originates authorization.
+
 - `stop` alone = terminal halt, immediately, no output. `stop <doing X>` = a
   correction: cease that behavior, keep working.
-- Anything unlisted falls to default agent judgment.
 
 ## Dispatched sub-agent scope
 
