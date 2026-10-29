@@ -1,26 +1,4 @@
-problem built: fix-dev-base-branch-plan
-  objects: 1
-  fluents: 1
-  actions: 1
-  goals:   1
-[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
-[0m[96m  *** Credits ***
-[0m[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, [0m[96myou are using the following planning engine:
-[0m[96m  * Engine name: Tamer
-  * Developers:  FBK Tamer Development Team
-[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
-  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
-[0m[96m
-[0m
-plan length: 1
-
-- [ ] 1. run_p1()
-
----
-actions:
-- name: run_p1
-  parameters: []
-domain: fix-dev-base-branch-plan
-engine: tamer
-plan_length: 1
-status: SOLVED_SATISFICING
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: "problem built: fix-dev-base-branch-plan\n  objects: 1\n  fluents: 1\n  actions: 1\n  goals:   1\n\u001b[96m\u001b[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`\n\u001b[0m\u001b[96m  *** Credits ***\n\u001b[0m\u001b[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, \u001b[0m\u001b[96myou are using the following planning engine:\n\u001b[0m\u001b[96m  * Engine name: Tamer\n  * Developers:  FBK Tamer Development Team\n\u001b[0m\u001b[96m  * Description: \u001b[0m\u001b[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.\n  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.\u001b[0m\u001b[96m\n\u001b[0m\u001b[96m\n\u001b[0m\nplan length: 1\n\n- [ ] 1. run_p1()\n\n---\nactions:\n- name: run_p1\n  parameters: []\ndomain: fix-dev-base-branch-plan\nengine: tamer\nplan_length: 1\nstatus: SOLVED_SATISFICING\n"

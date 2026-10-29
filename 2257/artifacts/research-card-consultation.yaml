@@ -1,24 +1,28 @@
-# Research card consultation — issue #2257
-# Globbed .issues/research-cards/*.md (root) and .opencode/.issues/research-cards/*.md (submodule)
-# for cards matching the spec topic: GitBucket label-ops workflow / post-creation label mutation.
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    # Research card consultation — issue #2257
+    # Globbed .issues/research-cards/*.md (root) and .opencode/.issues/research-cards/*.md (submodule)
+    # for cards matching the spec topic: GitBucket label-ops workflow / post-creation label mutation.
 
-## Cards consulted (no direct match)
+    ## Cards consulted (no direct match)
 
-Root (.issues/research-cards/):
-  - audit-skill-dimo-role-chain-defects.md — matched grep 'label' but concerns audit/spec role chains, NOT GitBucket label-ops. Excluded.
-  - (others: per-sc-decomposition, writing-plans, etc.) — no GitBucket/label relevance
+    Root (.issues/research-cards/):
+      - audit-skill-dimo-role-chain-defects.md — matched grep 'label' but concerns audit/spec role chains, NOT GitBucket label-ops. Excluded.
+      - (others: per-sc-decomposition, writing-plans, etc.) — no GitBucket/label relevance
 
-Submodule (.opencode/.issues/research-cards/):
-  - wiki-operations-agent-tools-survey.md — matched grep 'gitbucket' but is a wiki-ops tool survey, NOT label-ops. Excluded.
-  - create-md-remote-format-defect.md, cross-reference-form-comparison.md, multi-feature-branch-main-with-submodules.md,
-    pre-response-gate-skill-description-design.md, spec-creation-state.md — no GitBucket label relevance
+    Submodule (.opencode/.issues/research-cards/):
+      - wiki-operations-agent-tools-survey.md — matched grep 'gitbucket' but is a wiki-ops tool survey, NOT label-ops. Excluded.
+      - create-md-remote-format-defect.md, cross-reference-form-comparison.md, multi-feature-branch-main-with-submodules.md,
+        pre-response-gate-skill-description-design.md, spec-creation-state.md — no GitBucket label relevance
 
-## Verdict
+    ## Verdict
 
-- NO research card exists with confidence >= 0.7 addressing GitBucket label mutation operations (issue-level vs repo-level).
-- The label-ops workflow is therefore UNRESOLVED and requires fresh live-instance empirical testing per the spec plan.
-- Existing card on GitBucket test harness (implicit via #2165 spec, not a research card) confirms the infrastructure exists to run the test.
+    - NO research card exists with confidence >= 0.7 addressing GitBucket label mutation operations (issue-level vs repo-level).
+    - The label-ops workflow is therefore UNRESOLVED and requires fresh live-instance empirical testing per the spec plan.
+    - Existing card on GitBucket test harness (implicit via #2165 spec, not a research card) confirms the infrastructure exists to run the test.
 
-## Action
+    ## Action
 
-- No cached findings to incorporate. Proceed with live local GitBucket instance test as the analysis basis.
+    - No cached findings to incorporate. Proceed with live local GitBucket instance test as the analysis basis.

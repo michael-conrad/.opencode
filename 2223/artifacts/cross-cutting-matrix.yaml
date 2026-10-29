@@ -1,93 +1,97 @@
-# cross-cutting-matrix.yaml — Analytical Artifact for Spec #2223
-# Generated: retroactive backfill from spec body
-# Spec: PR body template: standalone format, DiMo attestation, skill consolidation
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    # cross-cutting-matrix.yaml — Analytical Artifact for Spec #2223
+    # Generated: retroactive backfill from spec body
+    # Spec: PR body template: standalone format, DiMo attestation, skill consolidation
 
-spec: 2223
-artifact: cross-cutting-matrix
-generated_at: 2026-08-02T03:17:00Z
-mode: retroactive
+    spec: 2223
+    artifact: cross-cutting-matrix
+    generated_at: 2026-08-02T03:17:00Z
+    mode: retroactive
 
-cross_cutting_concerns:
-  - concern: "dual-auditor" terminology replacement
-    pattern: Replace "dual-auditor" with "DiMo chain" across all affected files
-    files_affected:
-      - .opencode/guidelines/000-critical-rules.md
-      - .opencode/guidelines/250-dark-prose-reference.md
-      - .opencode/guidelines/255-distribution-shifting-reference.md
-      - .opencode/guidelines/257-procedural-discipline-reference.md
-      - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
-      - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
-      - .opencode/skills/git-workflow-pr/reference/pr-body-template.md
-    total_occurrences: 6 (5 guideline/cleanup files + 1 in create-pr.md Data Flow table)
-    verification: grep for "dual-auditor" across .opencode/ — must return zero
+    cross_cutting_concerns:
+      - concern: "dual-auditor" terminology replacement
+        pattern: Replace "dual-auditor" with "DiMo chain" across all affected files
+        files_affected:
+          - .opencode/guidelines/000-critical-rules.md
+          - .opencode/guidelines/250-dark-prose-reference.md
+          - .opencode/guidelines/255-distribution-shifting-reference.md
+          - .opencode/guidelines/257-procedural-discipline-reference.md
+          - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+          - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+          - .opencode/skills/git-workflow-pr/reference/pr-body-template.md
+        total_occurrences: 6 (5 guideline/cleanup files + 1 in create-pr.md Data Flow table)
+        verification: grep for "dual-auditor" across .opencode/ — must return zero
 
-  - concern: "pr-creation-workflow" cross-reference removal
-    pattern: Update or remove all references to pr-creation-workflow skill
-    files_affected:
-      - .opencode/skills/git-workflow-pr/SKILL.md
-      - .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
-      - .opencode/skills/git-workflow-pr/tasks/review-prep.md
-      - .opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md
-      - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
-      - .opencode/skills/git-workflow-commit/tasks/implementation.md
-      - .opencode/skills/git-workflow-branch/tasks/provenance/trunk-push-provenance.md
-      - .opencode/skills/git-workflow/SKILL.md
-      - .opencode/skills/approval-gate/SKILL.md
-      - .opencode/skills/approval-gate-scope/SKILL.md
-      - .opencode/skills/writing-plans/reference/implementation-workflow.md
-      - .opencode/skills/requesting-code-review/tasks/prepare.md
-      - .opencode/guidelines/010-approval-gate.md
-      - .opencode/dispatch-table.yaml
-      - .opencode/README.md
-      - .opencode/.guidelines/registry.yaml
-      - .opencode/tests-v2/test-enforcement.sh
-      - .opencode/tests-v2/behaviors/fixtures/issues/2211/plan.md
-    total_occurrences: 35 (from grep results)
-    verification: grep for "pr-creation-workflow" across .opencode/ — must return zero (except CHANGELOG.md which is historical)
+      - concern: "pr-creation-workflow" cross-reference removal
+        pattern: Update or remove all references to pr-creation-workflow skill
+        files_affected:
+          - .opencode/skills/git-workflow-pr/SKILL.md
+          - .opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md
+          - .opencode/skills/git-workflow-pr/tasks/review-prep.md
+          - .opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md
+          - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+          - .opencode/skills/git-workflow-commit/tasks/implementation.md
+          - .opencode/skills/git-workflow-branch/tasks/provenance/trunk-push-provenance.md
+          - .opencode/skills/git-workflow/SKILL.md
+          - .opencode/skills/approval-gate/SKILL.md
+          - .opencode/skills/approval-gate-scope/SKILL.md
+          - .opencode/skills/writing-plans/reference/implementation-workflow.md
+          - .opencode/skills/requesting-code-review/tasks/prepare.md
+          - .opencode/guidelines/010-approval-gate.md
+          - .opencode/dispatch-table.yaml
+          - .opencode/README.md
+          - .opencode/.guidelines/registry.yaml
+          - .opencode/tests-v2/test-enforcement.sh
+          - .opencode/tests-v2/behaviors/fixtures/issues/2211/plan.md
+        total_occurrences: 35 (from grep results)
+        verification: grep for "pr-creation-workflow" across .opencode/ — must return zero (except CHANGELOG.md which is historical)
 
-  - concern: PR body template format consistency
-    pattern: All PR body sections must follow the standalone template format
-    files_affected:
-      - .opencode/skills/git-workflow-pr/reference/pr-body-template.md (source of truth)
-      - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md (references template)
-    verification: Template file contains all 7 required sections + closing keywords
+      - concern: PR body template format consistency
+        pattern: All PR body sections must follow the standalone template format
+        files_affected:
+          - .opencode/skills/git-workflow-pr/reference/pr-body-template.md (source of truth)
+          - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md (references template)
+        verification: Template file contains all 7 required sections + closing keywords
 
-  - concern: Authorization scope check relocation
-    pattern: Authorization check moves from pr-creation-workflow skill dispatch to orchestrator inline conditional
-    files_affected:
-      - .opencode/skills/git-workflow-pr/SKILL.md (new home of auth check)
-      - .opencode/skills/pr-creation-workflow/ (deleted — old home)
-    verification: git-workflow-pr SKILL.md has "Verify authorization scope" in Workflows section
+      - concern: Authorization scope check relocation
+        pattern: Authorization check moves from pr-creation-workflow skill dispatch to orchestrator inline conditional
+        files_affected:
+          - .opencode/skills/git-workflow-pr/SKILL.md (new home of auth check)
+          - .opencode/skills/pr-creation-workflow/ (deleted — old home)
+        verification: git-workflow-pr SKILL.md has "Verify authorization scope" in Workflows section
 
-  - concern: Audit pipeline terminology
-    pattern: All references to audit pipeline must use DiMo chain terminology
-    files_affected:
-      - .opencode/skills/audit/SKILL.md (add pr-body-audit task)
-      - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md (Data Flow table)
-      - .opencode/skills/git-workflow-pr/reference/pr-body-template.md (attestation section)
-    verification: grep for "Dual-Auditor" or "dual-auditor" in these files — must return zero
+      - concern: Audit pipeline terminology
+        pattern: All references to audit pipeline must use DiMo chain terminology
+        files_affected:
+          - .opencode/skills/audit/SKILL.md (add pr-body-audit task)
+          - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md (Data Flow table)
+          - .opencode/skills/git-workflow-pr/reference/pr-body-template.md (attestation section)
+        verification: grep for "Dual-Auditor" or "dual-auditor" in these files — must return zero
 
-dependency_matrix:
-  - from_file: .opencode/skills/git-workflow-pr/reference/pr-body-template.md
-    to_file: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
-    relationship: referenced_by
-    critical: true
-    description: create-pr.md must reference the standalone template; template must exist first
+    dependency_matrix:
+      - from_file: .opencode/skills/git-workflow-pr/reference/pr-body-template.md
+        to_file: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+        relationship: referenced_by
+        critical: true
+        description: create-pr.md must reference the standalone template; template must exist first
 
-  - from_file: .opencode/skills/git-workflow-pr/reference/closing-keywords.md
-    to_file: .opencode/skills/pr-creation-workflow/reference/closing-keywords.md
-    relationship: moved_from
-    critical: true
-    description: Must copy file before deleting source directory
+      - from_file: .opencode/skills/git-workflow-pr/reference/closing-keywords.md
+        to_file: .opencode/skills/pr-creation-workflow/reference/closing-keywords.md
+        relationship: moved_from
+        critical: true
+        description: Must copy file before deleting source directory
 
-  - from_file: .opencode/skills/git-workflow-pr/SKILL.md
-    to_file: .opencode/skills/pr-creation-workflow/SKILL.md
-    relationship: replaces
-    critical: true
-    description: git-workflow-pr absorbs authorization check from pr-creation-workflow
+      - from_file: .opencode/skills/git-workflow-pr/SKILL.md
+        to_file: .opencode/skills/pr-creation-workflow/SKILL.md
+        relationship: replaces
+        critical: true
+        description: git-workflow-pr absorbs authorization check from pr-creation-workflow
 
-  - from_file: .opencode/skills/audit/SKILL.md
-    to_file: .opencode/skills/git-workflow-pr/reference/pr-body-template.md
-    relationship: audits
-    critical: false
-    description: pr-body-audit task verifies PR body against template
+      - from_file: .opencode/skills/audit/SKILL.md
+        to_file: .opencode/skills/git-workflow-pr/reference/pr-body-template.md
+        relationship: audits
+        critical: false
+        description: pr-body-audit task verifies PR body against template

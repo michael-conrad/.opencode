@@ -1,73 +1,77 @@
-# validate-findings.yaml — .opencode#2447 plan structure validation
-# Re-validation after step 39 evidence-routing fix (rerouted to GitHub API comment).
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    # validate-findings.yaml — .opencode#2447 plan structure validation
+    # Re-validation after step 39 evidence-routing fix (rerouted to GitHub API comment).
 
-validated: 2026-09-17
-issue: 2447
-plan: .opencode/.issues/2447/plan.md
-solve_output: .opencode/.issues/2447/artifacts/solve-output.yaml (SAT)
+    validated: 2026-09-17
+    issue: 2447
+    plan: .opencode/.issues/2447/plan.md
+    solve_output: .opencode/.issues/2447/artifacts/solve-output.yaml (SAT)
 
-category_1_structural:
-  phase_table_columns: PASS
-  phase_procedure_steps: PASS
-  exit_criteria_sc_mapping: PASS
-  result: PASS
+    category_1_structural:
+      phase_table_columns: PASS
+      phase_procedure_steps: PASS
+      exit_criteria_sc_mapping: PASS
+      result: PASS
 
-category_2_skill_task_validity:
-  checks:
-    - test-driven-development phase-0/phase-4/red/green dispatch strings: PASS (match reference card)
-    - verification-before-completion verify dispatch string: PASS
-    - commit-inline orchestrator-direct: PASS
-    - audit DiMo investigator dispatch string: PASS
-    - z3-check orchestrator-direct: PASS
-    - finishing-a-development-branch checklist: PASS
-    - git-workflow-pr review-prep/create: PASS
-    - completion-core completion: PASS
-  invalid_references: []
-  result: PASS
+    category_2_skill_task_validity:
+      checks:
+        - test-driven-development phase-0/phase-4/red/green dispatch strings: PASS (match reference card)
+        - verification-before-completion verify dispatch string: PASS
+        - commit-inline orchestrator-direct: PASS
+        - audit DiMo investigator dispatch string: PASS
+        - z3-check orchestrator-direct: PASS
+        - finishing-a-development-branch checklist: PASS
+        - git-workflow-pr review-prep/create: PASS
+        - completion-core completion: PASS
+      invalid_references: []
+      result: PASS
 
-category_3_sc_coverage:
-  sc_coverage:
-    SC-1: [phase 1]
-    SC-2: [phase 1]
-    SC-3: [phase 2]
-    SC-4: [phase 2]
-    SC-5: [phase 3]
-  uncovered_scs: []
-  triplet_split_check:
-    SC-1: "RED 7 / GREEN 8 / COMMIT 11 — all phase 1"
-    SC-2: "RED 12 / GREEN 13 / COMMIT 14 — all phase 1"
-    SC-3: "RED 16 / GREEN 17 / COMMIT 20 — all phase 2"
-    SC-4: "RED 21 / GREEN 22 / COMMIT 25 — all phase 2"
-    SC-5: "RED 30 / GREEN 32 / verify 33 — all phase 3"
-  split_violations: []
-  result: PASS
+    category_3_sc_coverage:
+      sc_coverage:
+        SC-1: [phase 1]
+        SC-2: [phase 1]
+        SC-3: [phase 2]
+        SC-4: [phase 2]
+        SC-5: [phase 3]
+      uncovered_scs: []
+      triplet_split_check:
+        SC-1: "RED 7 / GREEN 8 / COMMIT 11 — all phase 1"
+        SC-2: "RED 12 / GREEN 13 / COMMIT 14 — all phase 1"
+        SC-3: "RED 16 / GREEN 17 / COMMIT 20 — all phase 2"
+        SC-4: "RED 21 / GREEN 22 / COMMIT 25 — all phase 2"
+        SC-5: "RED 30 / GREEN 32 / verify 33 — all phase 3"
+      split_violations: []
+      result: PASS
 
-category_4_concern_separation:
-  phase_1: "output-generation logic (Python)" — one concern
-  phase_2: "agent-facing documentation" — one concern
-  phase_3: "local git state hygiene" — one concern
-  duplicated_concerns: []
-  matches_concern_map: true
-  result: PASS
+    category_4_concern_separation:
+      phase_1: "output-generation logic (Python)" — one concern
+      phase_2: "agent-facing documentation" — one concern
+      phase_3: "local git state hygiene" — one concern
+      duplicated_concerns: []
+      matches_concern_map: true
+      result: PASS
 
-category_5_dag_validation:
-  cycles: none
-  unreachable_phases: none
-  orphan_phases: none
-  solve_status: SAT
-  result: PASS
+    category_5_dag_validation:
+      cycles: none
+      unreachable_phases: none
+      orphan_phases: none
+      solve_status: SAT
+      result: PASS
 
-category_6_holistic_quality:
-  tbd_todo_placeholders: none
-  checkbox_format: PASS (all steps)
-  dispatch_mode_consistency: PASS
-  prior_finding_step_39: FIXED — evidence rerouted to GitHub API comment on michael-conrad/.opencode#2447; no longer routes through the post-SC-5 nonexistent local-issues .opencode#N store
-  warnings:
-    - id: W-1
-      severity: warning (non-blocking)
-      detail: "Dispatch range summaries in frontmatter/plan headers are imprecise: Phase 2 declared 'direct (15-18) + task-card (19-28)' but steps 16-17 are task-card and steps 20, 25-28 are direct; Phase 3 declared 'direct (29-32) + task-card (33-40)' but steps 34-35 and 37-40 are direct. All direct steps inside task-card ranges are commit-inline / pre-cleanup / record steps, which the implementation-workflow reference card defines as orchestrator-direct — no substantive mode violation (no inline work in dispatched steps, no sub-agent dispatch for orchestrator work). Cosmetic range labels only."
-      remediation: optional — correct range labels in frontmatter and Phase Table Dispatch column at next plan revision
-  result: PASS
+    category_6_holistic_quality:
+      tbd_todo_placeholders: none
+      checkbox_format: PASS (all steps)
+      dispatch_mode_consistency: PASS
+      prior_finding_step_39: FIXED — evidence rerouted to GitHub API comment on michael-conrad/.opencode#2447; no longer routes through the post-SC-5 nonexistent local-issues .opencode#N store
+      warnings:
+        - id: W-1
+          severity: warning (non-blocking)
+          detail: "Dispatch range summaries in frontmatter/plan headers are imprecise: Phase 2 declared 'direct (15-18) + task-card (19-28)' but steps 16-17 are task-card and steps 20, 25-28 are direct; Phase 3 declared 'direct (29-32) + task-card (33-40)' but steps 34-35 and 37-40 are direct. All direct steps inside task-card ranges are commit-inline / pre-cleanup / record steps, which the implementation-workflow reference card defines as orchestrator-direct — no substantive mode violation (no inline work in dispatched steps, no sub-agent dispatch for orchestrator work). Cosmetic range labels only."
+          remediation: optional — correct range labels in frontmatter and Phase Table Dispatch column at next plan revision
+      result: PASS
 
-overall_status: PASS
-overall_summary: "All 6 categories PASS. One non-blocking warning (W-1) on dispatch range-label precision. Prior step 39 finding confirmed fixed."
+    overall_status: PASS
+    overall_summary: "All 6 categories PASS. One non-blocking warning (W-1) on dispatch range-label precision. Prior step 39 finding confirmed fixed."

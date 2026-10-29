@@ -1,126 +1,130 @@
-> Interface compatibility analysis for .opencode#2334
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    > Interface compatibility analysis for .opencode#2334
 
-meta:
-  issue: ".opencode#2334"
-  generated: "2026-08-26"
+    meta:
+      issue: ".opencode#2334"
+      generated: "2026-08-26"
 
-surfaces:
-  - interface: "060-tool-usage.md guideline content consumed by every session via instructions array"
-    change: NEW_SECTION_ONLY
-    compatibility: backward_compatible
-    breaking: false
-    detail: "additive section; existing tier table untouched"
+    surfaces:
+      - interface: "060-tool-usage.md guideline content consumed by every session via instructions array"
+        change: NEW_SECTION_ONLY
+        compatibility: backward_compatible
+        breaking: false
+        detail: "additive section; existing tier table untouched"
 
-  - interface: "sre-runbook RB_PATH contract (variable consumed by generate.md steps)"
-    change: UNCHANGED_SEMANTICS_NEW_RESOLUTION_MECHANISM
-    compatibility: backward_compatible
-    breaking: false
-    detail: "RB_PATH still resolves to a runbooks directory path or docs/runbooks/ fallback; consumers unchanged"
+      - interface: "sre-runbook RB_PATH contract (variable consumed by generate.md steps)"
+        change: UNCHANGED_SEMANTICS_NEW_RESOLUTION_MECHANISM
+        compatibility: backward_compatible
+        breaking: false
+        detail: "RB_PATH still resolves to a runbooks directory path or docs/runbooks/ fallback; consumers unchanged"
 
-  - interface: "format-matching dual-pattern mandate"
-    change: MODIFIED_INVOCATION_FORM_SAME_MANDATE
-    compatibility: backward_compatible
-    breaking: false
-    detail: "both stamp patterns still required; empty-result conclusion now gated"
+      - interface: "format-matching dual-pattern mandate"
+        change: MODIFIED_INVOCATION_FORM_SAME_MANDATE
+        compatibility: backward_compatible
+        breaking: false
+        detail: "both stamp patterns still required; empty-result conclusion now gated"
 
-  - interface: "verification-before-completion live-verification table schema"
-    change: CELL_VALUE_ONLY
-    compatibility: internal_only
-    breaking: false
+      - interface: "verification-before-completion live-verification table schema"
+        change: CELL_VALUE_ONLY
+        compatibility: internal_only
+        breaking: false
 
-  - interface: "audit task role contracts (investigator/evaluator/arbiter result YAML schemas)"
-    change: UNCHANGED
-    compatibility: unchanged
-    breaking: false
-    detail: "only invocation syntax and guard steps normalized"
+      - interface: "audit task role contracts (investigator/evaluator/arbiter result YAML schemas)"
+        change: UNCHANGED
+        compatibility: unchanged
+        breaking: false
+        detail: "only invocation syntax and guard steps normalized"
 
-  - interface: "research-card catalogue protocol (glob -> frontmatter grep -> confidence skip)"
-    change: CLARIFIED_INVOCATION_FORM
-    compatibility: backward_compatible
-    breaking: false
+      - interface: "research-card catalogue protocol (glob -> frontmatter grep -> confidence skip)"
+        change: CLARIFIED_INVOCATION_FORM
+        compatibility: backward_compatible
+        breaking: false
 
-  - interface: "tests-v2 scenario registration surface"
-    change: NEW_SCENARIO
-    compatibility: backward_compatible
-    breaking: false
+      - interface: "tests-v2 scenario registration surface"
+        change: NEW_SCENARIO
+        compatibility: backward_compatible
+        breaking: false
 
-removed_interfaces: []
-new_interfaces:
-  - "canonical glob invocation idiom documented in SC-1 (documentation-level interface)"
+    removed_interfaces: []
+    new_interfaces:
+      - "canonical glob invocation idiom documented in SC-1 (documentation-level interface)"
 
-summary:
-  backward_compatible: true
-  breaking_changes: 0
-  external_consumers_affected: 0
+    summary:
+      backward_compatible: true
+      breaking_changes: 0
+      external_consumers_affected: 0
 
-dependency_contract:
-  - source: ".opencode/guidelines/060-tool-usage.md glob-semantics section (SC-1)"
-    targets:
-      - ".opencode/skills/sre-runbook/tasks/generate.md (SC-2, SC-3)"
-      - ".opencode/skills/verification-before-completion/tasks/completion.md (SC-4)"
-      - ".opencode/skills/verification-before-completion/tasks/collect.md (SC-5)"
-      - ".opencode/skills/audit/tasks/*.md (27 SC-6 inventory files)"
-      - ".opencode/guidelines/020-go-prohibitions.md research-card catalogue clause (SC-7)"
-    contract: >
-      Definition-lives-once: LIM-1..LIM-6, canonical path-parameter idiom, and the
-      empty-result disambiguation rule are defined ONLY in the SC-1 section.
-      Every application site must reference them via the Read [Text](path)
-      cross-reference form, never restating the semantics inline.
-    type_constraint: "agent-facing instruction text; Read-link citation required"
+    dependency_contract:
+      - source: ".opencode/guidelines/060-tool-usage.md glob-semantics section (SC-1)"
+        targets:
+          - ".opencode/skills/sre-runbook/tasks/generate.md (SC-2, SC-3)"
+          - ".opencode/skills/verification-before-completion/tasks/completion.md (SC-4)"
+          - ".opencode/skills/verification-before-completion/tasks/collect.md (SC-5)"
+          - ".opencode/skills/audit/tasks/*.md (27 SC-6 inventory files)"
+          - ".opencode/guidelines/020-go-prohibitions.md research-card catalogue clause (SC-7)"
+        contract: >
+          Definition-lives-once: LIM-1..LIM-6, canonical path-parameter idiom, and the
+          empty-result disambiguation rule are defined ONLY in the SC-1 section.
+          Every application site must reference them via the Read [Text](path)
+          cross-reference form, never restating the semantics inline.
+        type_constraint: "agent-facing instruction text; Read-link citation required"
 
-  - source: ".opencode/skills/sre-runbook/tasks/generate.md RB_PATH discovery (SC-2)"
-    targets:
-      - "downstream write/env-search steps in the same generate.md task card"
-    contract: >
-      RB_PATH resolves to a runbooks directory path, or terminates at the
-      docs/runbooks/ fallback when no runbooks directory exists. The discovery
-      mechanism may change; the terminal fallback state must not.
-    type_constraint: "RB_PATH: filesystem directory path (string) or docs/runbooks/ fallback"
+      - source: ".opencode/skills/sre-runbook/tasks/generate.md RB_PATH discovery (SC-2)"
+        targets:
+          - "downstream write/env-search steps in the same generate.md task card"
+        contract: >
+          RB_PATH resolves to a runbooks directory path, or terminates at the
+          docs/runbooks/ fallback when no runbooks directory exists. The discovery
+          mechanism may change; the terminal fallback state must not.
+        type_constraint: "RB_PATH: filesystem directory path (string) or docs/runbooks/ fallback"
 
-  - source: ".opencode/skills/sre-runbook/tasks/generate.md format-matching gate (SC-3)"
-    targets: ["format decision downstream logic in generate.md"]
-    contract: >
-      Dual-pattern search uses path-parameter form with bracketed placeholders.
-      A no-existing-runbooks conclusion is gated behind an explicit empty-result
-      disambiguation step; both stamp checks preserved.
-    type_constraint: "glob invocation: path parameter with bracketed placeholder; absence conclusion gated"
+      - source: ".opencode/skills/sre-runbook/tasks/generate.md format-matching gate (SC-3)"
+        targets: ["format decision downstream logic in generate.md"]
+        contract: >
+          Dual-pattern search uses path-parameter form with bracketed placeholders.
+          A no-existing-runbooks conclusion is gated behind an explicit empty-result
+          disambiguation step; both stamp checks preserved.
+        type_constraint: "glob invocation: path parameter with bracketed placeholder; absence conclusion gated"
 
-  - source: ".opencode/skills/verification-before-completion/tasks/completion.md evidence check (SC-4)"
-    targets: ["completion claim verification flow"]
-    contract: >
-      Evidence-artifact existence check must reach files under gitignored
-      {project_root}/tmp/<issue>/artifacts/ directories; the invocation form
-      must be one that does not skip gitignored traversal targets.
-    type_constraint: "target path: {project_root}/tmp/<issue>/artifacts/ (gitignored)"
+      - source: ".opencode/skills/verification-before-completion/tasks/completion.md evidence check (SC-4)"
+        targets: ["completion claim verification flow"]
+        contract: >
+          Evidence-artifact existence check must reach files under gitignored
+          {project_root}/tmp/<issue>/artifacts/ directories; the invocation form
+          must be one that does not skip gitignored traversal targets.
+        type_constraint: "target path: {project_root}/tmp/<issue>/artifacts/ (gitignored)"
 
-  - source: ".opencode/skills/verification-before-completion/tasks/collect.md report check (SC-5)"
-    targets: ["report existence verification flow"]
-    contract: >
-      Report-existence check receives the same working invocation form as SC-4,
-      preserving MISSING-ELEMENT classification semantics.
-    type_constraint: "same working invocation form as SC-4; MISSING-ELEMENT semantics preserved"
+      - source: ".opencode/skills/verification-before-completion/tasks/collect.md report check (SC-5)"
+        targets: ["report existence verification flow"]
+        contract: >
+          Report-existence check receives the same working invocation form as SC-4,
+          preserving MISSING-ELEMENT classification semantics.
+        type_constraint: "same working invocation form as SC-4; MISSING-ELEMENT semantics preserved"
 
-  - source: ".opencode/skills/audit/tasks/*.md spec_local_dir / plan_local_dir listings (SC-6, 27 files)"
-    targets: ["per-file read loop", "downstream verdict logic in audit role chains"]
-    contract: >
-      Every listing that feeds downstream logic uses plain-string path-parameter
-      invocation with bracketed placeholders and carries an empty-result guard.
-      Empty results route to a blocked-note state, never proceeding on an
-      unguarded empty list. Role contracts and evidence schemas unchanged.
-    type_constraint: "glob invocation: path parameter; empty-guard required where listing feeds logic"
+      - source: ".opencode/skills/audit/tasks/*.md spec_local_dir / plan_local_dir listings (SC-6, 27 files)"
+        targets: ["per-file read loop", "downstream verdict logic in audit role chains"]
+        contract: >
+          Every listing that feeds downstream logic uses plain-string path-parameter
+          invocation with bracketed placeholders and carries an empty-result guard.
+          Empty results route to a blocked-note state, never proceeding on an
+          unguarded empty list. Role contracts and evidence schemas unchanged.
+        type_constraint: "glob invocation: path parameter; empty-guard required where listing feeds logic"
 
-  - source: ".opencode/guidelines/020-go-prohibitions.md research-card catalogue clause (SC-7)"
-    targets: ["research dispatch decision point"]
-    contract: >
-      Catalogue consultation specifies the path-parameter invocation form such
-      that literal translation cannot produce a silently-empty call. Confidence-skip
-      logic unchanged.
-    type_constraint: "glob invocation: explicit path-parameter phrasing; confidence-skip intact"
+      - source: ".opencode/guidelines/020-go-prohibitions.md research-card catalogue clause (SC-7)"
+        targets: ["research dispatch decision point"]
+        contract: >
+          Catalogue consultation specifies the path-parameter invocation form such
+          that literal translation cannot produce a silently-empty call. Confidence-skip
+          logic unchanged.
+        type_constraint: "glob invocation: explicit path-parameter phrasing; confidence-skip intact"
 
-  - source: "tests-v2 harness (SC-8): with-test-home wrapper, test-enforcement.sh registration"
-    targets: ["behavioral scenario script"]
-    contract: >
-      Scenario registers via test-enforcement.sh conventions and runs through
-      with-test-home. Stderr assertion helpers verify the agent emits a working
-      invocation action instead of concluding nonexistence from a silent-empty result.
-    type_constraint: "bash; with-test-home; >=600000ms timeout; no GNU timeout; stderr assertions"
+      - source: "tests-v2 harness (SC-8): with-test-home wrapper, test-enforcement.sh registration"
+        targets: ["behavioral scenario script"]
+        contract: >
+          Scenario registers via test-enforcement.sh conventions and runs through
+          with-test-home. Stderr assertion helpers verify the agent emits a working
+          invocation action instead of concluding nonexistence from a silent-empty result.
+        type_constraint: "bash; with-test-home; >=600000ms timeout; no GNU timeout; stderr assertions"

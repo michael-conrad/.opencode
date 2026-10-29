@@ -1,124 +1,128 @@
-# interface-compatibility.yaml — Analytical Artifact for Spec #2223
-# Generated: retroactive backfill from spec body
-# Spec: PR body template: standalone format, DiMo attestation, skill consolidation
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    # interface-compatibility.yaml — Analytical Artifact for Spec #2223
+    # Generated: retroactive backfill from spec body
+    # Spec: PR body template: standalone format, DiMo attestation, skill consolidation
 
-spec: 2223
-artifact: interface-compatibility
-generated_at: 2026-08-02T03:17:00Z
-mode: retroactive
+    spec: 2223
+    artifact: interface-compatibility
+    generated_at: 2026-08-02T03:17:00Z
+    mode: retroactive
 
-interfaces:
-  - name: skill({name: "pr-creation-workflow"})
-    type: skill dispatch
-    status: removed
-    consumers:
-      - orchestrators that currently dispatch pr-creation-workflow
-      - approval-gate skill (cross-reference)
-      - git-workflow skill (cross-reference)
-    replacement: skill({name: "git-workflow-pr"}) with inline authorization check
-    migration_risk: high — any agent that calls skill({name: "pr-creation-workflow"}) will get skill-not-found
-    mitigation: Update all dispatch calls before deleting the skill
+    interfaces:
+      - name: skill({name: "pr-creation-workflow"})
+        type: skill dispatch
+        status: removed
+        consumers:
+          - orchestrators that currently dispatch pr-creation-workflow
+          - approval-gate skill (cross-reference)
+          - git-workflow skill (cross-reference)
+        replacement: skill({name: "git-workflow-pr"}) with inline authorization check
+        migration_risk: high — any agent that calls skill({name: "pr-creation-workflow"}) will get skill-not-found
+        mitigation: Update all dispatch calls before deleting the skill
 
-  - name: task("execute pre-pr-checklist task from pr-creation-workflow")
-    type: task dispatch
-    status: removed
-    consumers:
-      - orchestrators that dispatch pre-pr-checklist
-    replacement: orchestrator inline authorization_scope check
-    migration_risk: medium — no direct task() call needed; orchestrator checks scope inline
+      - name: task("execute pre-pr-checklist task from pr-creation-workflow")
+        type: task dispatch
+        status: removed
+        consumers:
+          - orchestrators that dispatch pre-pr-checklist
+        replacement: orchestrator inline authorization_scope check
+        migration_risk: medium — no direct task() call needed; orchestrator checks scope inline
 
-  - name: task("execute sub-issue-collection task from pr-creation-workflow")
-    type: task dispatch
-    status: removed
-    consumers:
-      - orchestrators that dispatch sub-issue-collection
-    replacement: issue-operations --task read-sub-issues
-    migration_risk: low — sub-issue collection already available via issue-operations
+      - name: task("execute sub-issue-collection task from pr-creation-workflow")
+        type: task dispatch
+        status: removed
+        consumers:
+          - orchestrators that dispatch sub-issue-collection
+        replacement: issue-operations --task read-sub-issues
+        migration_risk: low — sub-issue collection already available via issue-operations
 
-  - name: task("execute create task from pr-creation-workflow")
-    type: task dispatch
-    status: removed
-    consumers:
-      - orchestrators that dispatch PR creation via pr-creation-workflow
-    replacement: git-workflow-pr --task pr-creation
-    migration_risk: medium — dispatch string changes; must update all callers
+      - name: task("execute create task from pr-creation-workflow")
+        type: task dispatch
+        status: removed
+        consumers:
+          - orchestrators that dispatch PR creation via pr-creation-workflow
+        replacement: git-workflow-pr --task pr-creation
+        migration_risk: medium — dispatch string changes; must update all callers
 
-  - name: task("execute completion task from pr-creation-workflow")
-    type: task dispatch
-    status: removed
-    consumers:
-      - orchestrators that dispatch completion via pr-creation-workflow
-    replacement: git-workflow-pr --task completion
-    migration_risk: medium — dispatch string changes
+      - name: task("execute completion task from pr-creation-workflow")
+        type: task dispatch
+        status: removed
+        consumers:
+          - orchestrators that dispatch completion via pr-creation-workflow
+        replacement: git-workflow-pr --task completion
+        migration_risk: medium — dispatch string changes
 
-  - name: task("execute closing-keywords from pr-creation-workflow")
-    type: task dispatch
-    status: removed
-    consumers:
-      - pair-pr-creation.md
-      - review-prep/report-url.md
-      - trunk-push-provenance.md
-      - create-pr.md
-      - prepare.md (requesting-code-review)
-      - pre-pr-checklist.md (pr-creation-workflow — will be deleted)
-    replacement: task("execute closing-keywords from git-workflow-pr")
-    migration_risk: medium — 6+ callers must update dispatch string
+      - name: task("execute closing-keywords from pr-creation-workflow")
+        type: task dispatch
+        status: removed
+        consumers:
+          - pair-pr-creation.md
+          - review-prep/report-url.md
+          - trunk-push-provenance.md
+          - create-pr.md
+          - prepare.md (requesting-code-review)
+          - pre-pr-checklist.md (pr-creation-workflow — will be deleted)
+        replacement: task("execute closing-keywords from git-workflow-pr")
+        migration_risk: medium — 6+ callers must update dispatch string
 
-  - name: github_create_pull_request() inline PR body
-    type: API call parameter
-    status: modified
-    consumers:
-      - create-pr.md (GitHub MCP section)
-    change: PR body content extracted to standalone file; API call references file path instead of inline content
-    migration_risk: low — API call structure unchanged; only body content sourcing changes
+      - name: github_create_pull_request() inline PR body
+        type: API call parameter
+        status: modified
+        consumers:
+          - create-pr.md (GitHub MCP section)
+        change: PR body content extracted to standalone file; API call references file path instead of inline content
+        migration_risk: low — API call structure unchanged; only body content sourcing changes
 
-  - name: gitbucket-api PR body parameter
-    type: API call parameter
-    status: modified
-    consumers:
-      - create-pr.md (GitBucket CLI section)
-    change: PR body content sourced from same standalone template as GitHub MCP section
-    migration_risk: low — same template file referenced by both sections
+      - name: gitbucket-api PR body parameter
+        type: API call parameter
+        status: modified
+        consumers:
+          - create-pr.md (GitBucket CLI section)
+        change: PR body content sourced from same standalone template as GitHub MCP section
+        migration_risk: low — same template file referenced by both sections
 
-  - name: audit skill Trigger Dispatch Table
-    type: dispatch table entry
-    status: added
-    consumers:
-      - orchestrators dispatching PR body audit
-    new_entry: "pr-body-audit" task
-    migration_risk: low — new entry, no existing consumers to break
+      - name: audit skill Trigger Dispatch Table
+        type: dispatch table entry
+        status: added
+        consumers:
+          - orchestrators dispatching PR body audit
+        new_entry: "pr-body-audit" task
+        migration_risk: low — new entry, no existing consumers to break
 
-  - name: git-workflow-pr SKILL.md Trigger Dispatch Table
-    type: dispatch table
-    status: replaced
-    consumers:
-      - orchestrators loading git-workflow-pr skill
-    change: Trigger Dispatch Table + DISPATCH_GATE replaced with Workflows section
-    migration_risk: medium — existing dispatch strings must remain valid or be updated
+      - name: git-workflow-pr SKILL.md Trigger Dispatch Table
+        type: dispatch table
+        status: replaced
+        consumers:
+          - orchestrators loading git-workflow-pr skill
+        change: Trigger Dispatch Table + DISPATCH_GATE replaced with Workflows section
+        migration_risk: medium — existing dispatch strings must remain valid or be updated
 
-  - name: git-workflow-pr SKILL.md description field
-    type: skill metadata
-    status: modified
-    consumers:
-      - skill() routing (available_skills matching)
-    change: "Load via skill() when" format → agent-intent format
-    migration_risk: low — description is for human/agent routing, not programmatic
+      - name: git-workflow-pr SKILL.md description field
+        type: skill metadata
+        status: modified
+        consumers:
+          - skill() routing (available_skills matching)
+        change: "Load via skill() when" format → agent-intent format
+        migration_risk: low — description is for human/agent routing, not programmatic
 
-compatibility_issues:
-  - issue: Orphaned cross-references after pr-creation-workflow deletion
-    severity: high
-    description: 20+ files reference pr-creation-workflow; if any are missed, agents will encounter broken links
-    affected_scs: [SC-29]
-    resolution: Exhaustive grep for "pr-creation-workflow" across .opencode/ before deletion
+    compatibility_issues:
+      - issue: Orphaned cross-references after pr-creation-workflow deletion
+        severity: high
+        description: 20+ files reference pr-creation-workflow; if any are missed, agents will encounter broken links
+        affected_scs: [SC-29]
+        resolution: Exhaustive grep for "pr-creation-workflow" across .opencode/ before deletion
 
-  - issue: Skill-not-found errors for agents with cached skill lists
-    severity: medium
-    description: Agents that cached available_skills before deletion may still try to dispatch pr-creation-workflow
-    affected_scs: [SC-13]
-    resolution: Session boundary handles cache invalidation; no code change needed
+      - issue: Skill-not-found errors for agents with cached skill lists
+        severity: medium
+        description: Agents that cached available_skills before deletion may still try to dispatch pr-creation-workflow
+        affected_scs: [SC-13]
+        resolution: Session boundary handles cache invalidation; no code change needed
 
-  - issue: closing-keywords.md dispatch string mismatch
-    severity: high
-    description: If dispatch string is updated in some files but not others, sub-agents will get wrong task reference
-    affected_scs: [SC-14, SC-29]
-    resolution: Update ALL "execute closing-keywords from pr-creation-workflow" to "execute closing-keywords from git-workflow-pr" in one pass
+      - issue: closing-keywords.md dispatch string mismatch
+        severity: high
+        description: If dispatch string is updated in some files but not others, sub-agents will get wrong task reference
+        affected_scs: [SC-14, SC-29]
+        resolution: Update ALL "execute closing-keywords from pr-creation-workflow" to "execute closing-keywords from git-workflow-pr" in one pass

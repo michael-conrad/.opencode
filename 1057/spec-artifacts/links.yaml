@@ -1,13 +1,17 @@
-# Issue 1057 — Links
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    # Issue 1057 — Links
 
-spec_url: "https://github.com/michael-conrad/.opencode/issues/1050"
-plan_url: "https://github.com/michael-conrad/.opencode/issues/1057"
+    spec_url: "https://github.com/michael-conrad/.opencode/issues/1050"
+    plan_url: "https://github.com/michael-conrad/.opencode/issues/1057"
 
-## Remote References
+    ## Remote References
 
-| Field | Value |
-|-------|-------|
-| owner | michael-conrad |
-| repo | .opencode |
-| spec_issue | 1050 |
-| plan_issue | 1057 |
+    | Field | Value |
+    |-------|-------|
+    | owner | michael-conrad |
+    | repo | .opencode |
+    | spec_issue | 1050 |
+    | plan_issue | 1057 |

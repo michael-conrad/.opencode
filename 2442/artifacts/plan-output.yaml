@@ -1,31 +1,4 @@
-engine: tamer
-status: SOLVED_SATISFICING
-problem built: issue-2442-phase-ordering
-  objects: 0
-  fluents: 2
-  actions: 2
-  goals:   1
-[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
-[0m[96m  *** Credits ***
-[0m[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, [0m[96myou are using the following planning engine:
-[0m[96m  * Engine name: Tamer
-  * Developers:  FBK Tamer Development Team
-[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
-  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
-[0m[96m
-[0m
-plan length: 2
-
-- [ ] 1. correct-agents-md-rule()
-- [ ] 2. behavioral-enforcement-scenario()
-
----
-actions:
-- name: correct-agents-md-rule
-  parameters: []
-- name: behavioral-enforcement-scenario
-  parameters: []
-domain: issue-2442-phase-ordering
-engine: tamer
-plan_length: 2
-status: SOLVED_SATISFICING
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: "engine: tamer\nstatus: SOLVED_SATISFICING\nproblem built: issue-2442-phase-ordering\n  objects: 0\n  fluents: 2\n  actions: 2\n  goals:   1\n\u001b[96m\u001b[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`\n\u001b[0m\u001b[96m  *** Credits ***\n\u001b[0m\u001b[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, \u001b[0m\u001b[96myou are using the following planning engine:\n\u001b[0m\u001b[96m  * Engine name: Tamer\n  * Developers:  FBK Tamer Development Team\n\u001b[0m\u001b[96m  * Description: \u001b[0m\u001b[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.\n  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.\u001b[0m\u001b[96m\n\u001b[0m\u001b[96m\n\u001b[0m\nplan length: 2\n\n- [ ] 1. correct-agents-md-rule()\n- [ ] 2. behavioral-enforcement-scenario()\n\n---\nactions:\n- name: correct-agents-md-rule\n  parameters: []\n- name: behavioral-enforcement-scenario\n  parameters: []\ndomain: issue-2442-phase-ordering\nengine: tamer\nplan_length: 2\nstatus: SOLVED_SATISFICING\n"

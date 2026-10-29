@@ -1,125 +1,129 @@
-# code-path-inventory.yaml — Analytical Artifact for Spec #2223
-# Generated: retroactive backfill from spec body
-# Spec: PR body template: standalone format, DiMo attestation, skill consolidation
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    # code-path-inventory.yaml — Analytical Artifact for Spec #2223
+    # Generated: retroactive backfill from spec body
+    # Spec: PR body template: standalone format, DiMo attestation, skill consolidation
 
-spec: 2223
-artifact: code-path-inventory
-generated_at: 2026-08-02T03:17:00Z
-mode: retroactive
+    spec: 2223
+    artifact: code-path-inventory
+    generated_at: 2026-08-02T03:17:00Z
+    mode: retroactive
 
-code_paths:
-  - id: CP-1
-    name: PR body generation (GitHub MCP)
-    trigger: create-pr task dispatched from git-workflow-pr
-    current_flow:
-      - create-pr.md reads inline template content
-      - Inline template contains dual-auditor attestation
-      - Template embedded in github_create_pull_request() call
-      - Verification-evidence-check gate checks audit-cross-validate-*.json
-    target_flow:
-      - create-pr.md reads standalone template from reference/pr-body-template.md
-      - Template contains DiMo 4-role chain attestation
-      - Template referenced (not embedded) in API call
-      - Verification-evidence-check gate checks judgment.yaml
-    affected_scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-27, SC-28]
+    code_paths:
+      - id: CP-1
+        name: PR body generation (GitHub MCP)
+        trigger: create-pr task dispatched from git-workflow-pr
+        current_flow:
+          - create-pr.md reads inline template content
+          - Inline template contains dual-auditor attestation
+          - Template embedded in github_create_pull_request() call
+          - Verification-evidence-check gate checks audit-cross-validate-*.json
+        target_flow:
+          - create-pr.md reads standalone template from reference/pr-body-template.md
+          - Template contains DiMo 4-role chain attestation
+          - Template referenced (not embedded) in API call
+          - Verification-evidence-check gate checks judgment.yaml
+        affected_scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-27, SC-28]
 
-  - id: CP-2
-    name: PR body generation (GitBucket CLI)
-    trigger: create-pr task dispatched from git-workflow-pr (GitBucket platform)
-    current_flow:
-      - create-pr.md reads inline template content (duplicated for GitBucket)
-      - Same inline template with dual-auditor attestation
-    target_flow:
-      - create-pr.md references same standalone template as GitHub MCP section
-      - Single source of truth for both platforms
-    affected_scs: [SC-12]
+      - id: CP-2
+        name: PR body generation (GitBucket CLI)
+        trigger: create-pr task dispatched from git-workflow-pr (GitBucket platform)
+        current_flow:
+          - create-pr.md reads inline template content (duplicated for GitBucket)
+          - Same inline template with dual-auditor attestation
+        target_flow:
+          - create-pr.md references same standalone template as GitHub MCP section
+          - Single source of truth for both platforms
+        affected_scs: [SC-12]
 
-  - id: CP-3
-    name: Authorization scope check
-    trigger: orchestrator needs to verify PR authorization before dispatching PR creation
-    current_flow:
-      - orchestrator calls skill({name: "pr-creation-workflow"})
-      - pr-creation-workflow dispatches pre-pr-checklist task
-      - pre-pr-checklist checks authorization_scope
-      - Returns result contract to orchestrator
-    target_flow:
-      - orchestrator checks authorization_scope inline (one-line conditional)
-      - No skill() or task() call needed
-      - Eliminates dispatch round-trip
-    affected_scs: [SC-13, SC-15]
+      - id: CP-3
+        name: Authorization scope check
+        trigger: orchestrator needs to verify PR authorization before dispatching PR creation
+        current_flow:
+          - orchestrator calls skill({name: "pr-creation-workflow"})
+          - pr-creation-workflow dispatches pre-pr-checklist task
+          - pre-pr-checklist checks authorization_scope
+          - Returns result contract to orchestrator
+        target_flow:
+          - orchestrator checks authorization_scope inline (one-line conditional)
+          - No skill() or task() call needed
+          - Eliminates dispatch round-trip
+        affected_scs: [SC-13, SC-15]
 
-  - id: CP-4
-    name: Skill discovery and routing
-    trigger: agent loads available_skills or dispatches via skill()
-    current_flow:
-      - pr-creation-workflow appears in available_skills list
-      - dispatch-table.yaml has pr-creation-workflow entry
-      - Cross-references in 20+ files point to pr-creation-workflow
-    target_flow:
-      - pr-creation-workflow removed from available_skills
-      - dispatch-table.yaml entry removed
-      - All cross-references updated to git-workflow-pr or removed
-    affected_scs: [SC-13, SC-29, SC-30]
+      - id: CP-4
+        name: Skill discovery and routing
+        trigger: agent loads available_skills or dispatches via skill()
+        current_flow:
+          - pr-creation-workflow appears in available_skills list
+          - dispatch-table.yaml has pr-creation-workflow entry
+          - Cross-references in 20+ files point to pr-creation-workflow
+        target_flow:
+          - pr-creation-workflow removed from available_skills
+          - dispatch-table.yaml entry removed
+          - All cross-references updated to git-workflow-pr or removed
+        affected_scs: [SC-13, SC-29, SC-30]
 
-  - id: CP-5
-    name: PR body audit
-    trigger: audit skill dispatched to verify PR body
-    current_flow:
-      - No PR body audit task exists
-      - Structural defects in PR bodies go undetected
-    target_flow:
-      - audit skill has pr-body-audit task
-      - Task verifies all 11 enumerated requirements (a) through (k)
-      - PR body structural defects caught before PR creation
-    affected_scs: [SC-20, SC-21]
+      - id: CP-5
+        name: PR body audit
+        trigger: audit skill dispatched to verify PR body
+        current_flow:
+          - No PR body audit task exists
+          - Structural defects in PR bodies go undetected
+        target_flow:
+          - audit skill has pr-body-audit task
+          - Task verifies all 11 enumerated requirements (a) through (k)
+          - PR body structural defects caught before PR creation
+        affected_scs: [SC-20, SC-21]
 
-  - id: CP-6
-    name: git-workflow-pr SKILL.md routing
-    trigger: orchestrator loads git-workflow-pr skill
-    current_flow:
-      - SKILL.md has Trigger Dispatch Table with 5 rows
-      - SKILL.md has DISPATCH_GATE section
-      - Description uses "Load via skill() when" format
-      - Cross-reference to pr-creation-workflow
-    target_flow:
-      - SKILL.md has Workflows section with 5 workflows
-      - No Trigger Dispatch Table or DISPATCH_GATE
-      - Description uses agent-intent format
-      - No cross-reference to pr-creation-workflow
-    affected_scs: [SC-16, SC-17, SC-18, SC-19, SC-30]
+      - id: CP-6
+        name: git-workflow-pr SKILL.md routing
+        trigger: orchestrator loads git-workflow-pr skill
+        current_flow:
+          - SKILL.md has Trigger Dispatch Table with 5 rows
+          - SKILL.md has DISPATCH_GATE section
+          - Description uses "Load via skill() when" format
+          - Cross-reference to pr-creation-workflow
+        target_flow:
+          - SKILL.md has Workflows section with 5 workflows
+          - No Trigger Dispatch Table or DISPATCH_GATE
+          - Description uses agent-intent format
+          - No cross-reference to pr-creation-workflow
+        affected_scs: [SC-16, SC-17, SC-18, SC-19, SC-30]
 
-  - id: CP-7
-    name: Terminology references
-    trigger: agent reads guidelines or cleanup task files
-    current_flow:
-      - 5 files contain "dual-auditor" references
-      - References describe audit pipeline that no longer exists
-    target_flow:
-      - All "dual-auditor" references replaced with "DiMo chain"
-      - Terminology matches current audit pipeline
-    affected_scs: [SC-22, SC-23, SC-24, SC-25, SC-26]
+      - id: CP-7
+        name: Terminology references
+        trigger: agent reads guidelines or cleanup task files
+        current_flow:
+          - 5 files contain "dual-auditor" references
+          - References describe audit pipeline that no longer exists
+        target_flow:
+          - All "dual-auditor" references replaced with "DiMo chain"
+          - Terminology matches current audit pipeline
+        affected_scs: [SC-22, SC-23, SC-24, SC-25, SC-26]
 
-  - id: CP-8
-    name: closing-keywords.md reference
-    trigger: sub-agent needs to format closing keywords for PR body
-    current_flow:
-      - Reference: pr-creation-workflow → task("execute closing-keywords from pr-creation-workflow")
-      - File lives at .opencode/skills/pr-creation-workflow/reference/closing-keywords.md
-    target_flow:
-      - Reference: git-workflow-pr → task("execute closing-keywords from git-workflow-pr")
-      - File lives at .opencode/skills/git-workflow-pr/reference/closing-keywords.md
-    affected_scs: [SC-14, SC-29]
+      - id: CP-8
+        name: closing-keywords.md reference
+        trigger: sub-agent needs to format closing keywords for PR body
+        current_flow:
+          - Reference: pr-creation-workflow → task("execute closing-keywords from pr-creation-workflow")
+          - File lives at .opencode/skills/pr-creation-workflow/reference/closing-keywords.md
+        target_flow:
+          - Reference: git-workflow-pr → task("execute closing-keywords from git-workflow-pr")
+          - File lives at .opencode/skills/git-workflow-pr/reference/closing-keywords.md
+        affected_scs: [SC-14, SC-29]
 
-dead_code_paths:
-  - path: .opencode/skills/pr-creation-workflow/tasks/pre-pr-checklist.md
-    reason: Skill directory to be deleted; authorization check folded into orchestrator inline
-  - path: .opencode/skills/pr-creation-workflow/tasks/sub-issue-collection.md
-    reason: Skill directory to be deleted; sub-issue collection handled by issue-operations
-  - path: .opencode/skills/pr-creation-workflow/tasks/create.md
-    reason: Skill directory to be deleted; PR creation handled by git-workflow-pr
-  - path: .opencode/skills/pr-creation-workflow/tasks/completion.md
-    reason: Skill directory to be deleted; completion handled by git-workflow-pr
-  - path: .opencode/skills/pr-creation-workflow/tasks/operating-protocol.md
-    reason: Skill directory to be deleted
-  - path: .opencode/skills/pr-creation-workflow/reference/closing-keywords.md
-    reason: MOVED to git-workflow-pr/reference/ — not dead, relocated
+    dead_code_paths:
+      - path: .opencode/skills/pr-creation-workflow/tasks/pre-pr-checklist.md
+        reason: Skill directory to be deleted; authorization check folded into orchestrator inline
+      - path: .opencode/skills/pr-creation-workflow/tasks/sub-issue-collection.md
+        reason: Skill directory to be deleted; sub-issue collection handled by issue-operations
+      - path: .opencode/skills/pr-creation-workflow/tasks/create.md
+        reason: Skill directory to be deleted; PR creation handled by git-workflow-pr
+      - path: .opencode/skills/pr-creation-workflow/tasks/completion.md
+        reason: Skill directory to be deleted; completion handled by git-workflow-pr
+      - path: .opencode/skills/pr-creation-workflow/tasks/operating-protocol.md
+        reason: Skill directory to be deleted
+      - path: .opencode/skills/pr-creation-workflow/reference/closing-keywords.md
+        reason: MOVED to git-workflow-pr/reference/ — not dead, relocated

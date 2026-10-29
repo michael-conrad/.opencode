@@ -1,41 +1,4 @@
-problem built: issue-2437-pr-creation-reclassification
-  objects: 5
-  fluents: 2
-  actions: 6
-  goals:   1
-[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
-[0m[96m  *** Credits ***
-[0m[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, [0m[96myou are using the following planning engine:
-[0m[96m  * Engine name: Tamer
-  * Developers:  FBK Tamer Development Team
-[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
-  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
-[0m[96m
-[0m
-plan length: 6
-
-- [ ] 1. complete_sc_1()
-- [ ] 2. complete_sc_2()
-- [ ] 3. complete_sc_3()
-- [ ] 4. complete_sc_4()
-- [ ] 5. complete_sc_5()
-- [ ] 6. finish_phase_1()
-
----
-actions:
-- name: complete_sc_1
-  parameters: []
-- name: complete_sc_2
-  parameters: []
-- name: complete_sc_3
-  parameters: []
-- name: complete_sc_4
-  parameters: []
-- name: complete_sc_5
-  parameters: []
-- name: finish_phase_1
-  parameters: []
-domain: issue-2437-pr-creation-reclassification
-engine: tamer
-plan_length: 6
-status: SOLVED_SATISFICING
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: "problem built: issue-2437-pr-creation-reclassification\n  objects: 5\n  fluents: 2\n  actions: 6\n  goals:   1\n\u001b[96m\u001b[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`\n\u001b[0m\u001b[96m  *** Credits ***\n\u001b[0m\u001b[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, \u001b[0m\u001b[96myou are using the following planning engine:\n\u001b[0m\u001b[96m  * Engine name: Tamer\n  * Developers:  FBK Tamer Development Team\n\u001b[0m\u001b[96m  * Description: \u001b[0m\u001b[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.\n  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.\u001b[0m\u001b[96m\n\u001b[0m\u001b[96m\n\u001b[0m\nplan length: 6\n\n- [ ] 1. complete_sc_1()\n- [ ] 2. complete_sc_2()\n- [ ] 3. complete_sc_3()\n- [ ] 4. complete_sc_4()\n- [ ] 5. complete_sc_5()\n- [ ] 6. finish_phase_1()\n\n---\nactions:\n- name: complete_sc_1\n  parameters: []\n- name: complete_sc_2\n  parameters: []\n- name: complete_sc_3\n  parameters: []\n- name: complete_sc_4\n  parameters: []\n- name: complete_sc_5\n  parameters: []\n- name: finish_phase_1\n  parameters: []\ndomain: issue-2437-pr-creation-reclassification\nengine: tamer\nplan_length: 6\nstatus: SOLVED_SATISFICING\n"

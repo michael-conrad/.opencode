@@ -1,10 +1,14 @@
-# Research card consultation for #2364
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    # Research card consultation for #2364
 
-## Matching cards
-None found. Searched all 11 research cards under .opencode/.issues/research-cards/; none match the topic of "mcp-tool-usage skill — tool hierarchy glob semantics consolidation."
+    ## Matching cards
+    None found. Searched all 11 research cards under .opencode/.issues/research-cards/; none match the topic of "mcp-tool-usage skill — tool hierarchy glob semantics consolidation."
 
-## Related cards (partial match)
-None found. An adjacent card "pre-response-gate-skill-description-design.md" covers skill description design but does not cover tool hierarchy or glob semantics.
+    ## Related cards (partial match)
+    None found. An adjacent card "pre-response-gate-skill-description-design.md" covers skill description design but does not cover tool hierarchy or glob semantics.
 
-## Conclusion
-No existing research. New analysis required.
+    ## Conclusion
+    No existing research. New analysis required.

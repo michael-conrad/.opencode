@@ -1,115 +1,119 @@
-# Interface Compatibility — Issue #2429 (.opencode)
-# Formalized from tmp/2427/artifacts/preliminary/interface-compat.md (brainstorming).
-# Regenerated 2026-09-03: scope G added — Interface 7 (tests-v2 monitoring harness, READ-ONLY under this plan; GREEN pre-committed as 4989ffb5). dependency_contract section unchanged (root dependency-contract.yaml already carries the 8-phase revision with scope-G variables).
-# Regenerated 2026-09-03 (scope H): Interface 8 added (spec-creation create task, remote-number-first numbering);
-# dependency_contract section extended with the scope-H edges matching dependency-contract.yaml REMOTE_NUMBER_FIRST.
-# Remediation for CONCERN_MAP_MISSING_SCOPE_H stale-artifact batch.
-# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
-status: complete
-source: "formalized from brainstorming preliminary + live verification; Interface 8 derived from spec.md §3 SC-11 + live read of skills/spec-creation/tasks/create.md (2026-09-03)"
-produced_at: "2026-09-03T22:29:00Z"
-updated_at: "2026-09-03T22:29:00Z"
-update_note: "Scope H added 2026-09-03 — Interface 8 (spec-creation create.md remote-number-first restructure) + dependency_contract scope-H edges. dependency-contract.yaml itself is CURRENT (17:42, carries phase9_done + create_task_numbering_remote_first) — not touched by this regeneration."
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    # Interface Compatibility — Issue #2429 (.opencode)
+    # Formalized from tmp/2427/artifacts/preliminary/interface-compat.md (brainstorming).
+    # Regenerated 2026-09-03: scope G added — Interface 7 (tests-v2 monitoring harness, READ-ONLY under this plan; GREEN pre-committed as 4989ffb5). dependency_contract section unchanged (root dependency-contract.yaml already carries the 8-phase revision with scope-G variables).
+    # Regenerated 2026-09-03 (scope H): Interface 8 added (spec-creation create task, remote-number-first numbering);
+    # dependency_contract section extended with the scope-H edges matching dependency-contract.yaml REMOTE_NUMBER_FIRST.
+    # Remediation for CONCERN_MAP_MISSING_SCOPE_H stale-artifact batch.
+    # Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
+    status: complete
+    source: "formalized from brainstorming preliminary + live verification; Interface 8 derived from spec.md §3 SC-11 + live read of skills/spec-creation/tasks/create.md (2026-09-03)"
+    produced_at: "2026-09-03T22:29:00Z"
+    updated_at: "2026-09-03T22:29:00Z"
+    update_note: "Scope H added 2026-09-03 — Interface 8 (spec-creation create.md remote-number-first restructure) + dependency_contract scope-H edges. dependency-contract.yaml itself is CURRENT (17:42, carries phase9_done + create_task_numbering_remote_first) — not touched by this regeneration."
 
-## Public Interfaces Inventory
+    ## Public Interfaces Inventory
 
-### Interface 1 — opencode.jsonc instructions array (UNCHANGED)
+    ### Interface 1 — opencode.jsonc instructions array (UNCHANGED)
 
-- 14 entries verified at .opencode/opencode.jsonc lines 76-93.
-- All paths remain valid: 020/080 keep paths (content changes); new Tier-2 files NOT added.
-- #497 WARNING comment stays accurate (true core remains in-context).
-- Verdict: UNCHANGED. Backward compatible.
+    - 14 entries verified at .opencode/opencode.jsonc lines 76-93.
+    - All paths remain valid: 020/080 keep paths (content changes); new Tier-2 files NOT added.
+    - #497 WARNING comment stays accurate (true core remains in-context).
+    - Verdict: UNCHANGED. Backward compatible.
 
-### Interface 2 — Guideline file paths as public API (STABLE)
+    ### Interface 2 — Guideline file paths as public API (STABLE)
 
-Consumers referencing by path: test-enforcement.sh FILE_SCENARIO_MAP (lines 129-139), behavioral scripts (2243, 2249-series, 2293, 2131-series, gb-cli-series), skill Read-links, AGENTS.md tables.
-- 020, 080, 000, AGENTS.md paths: retained.
-- New paths (Tier-2 destinations): additive; nothing breaks on creation; breakage only when section anchors move without re-pointing.
-- Verdict: COMPATIBLE (paths stable).
+    Consumers referencing by path: test-enforcement.sh FILE_SCENARIO_MAP (lines 129-139), behavioral scripts (2243, 2249-series, 2293, 2131-series, gb-cli-series), skill Read-links, AGENTS.md tables.
+    - 020, 080, 000, AGENTS.md paths: retained.
+    - New paths (Tier-2 destinations): additive; nothing breaks on creation; breakage only when section anchors move without re-pointing.
+    - Verdict: COMPATIBLE (paths stable).
 
-### Interface 3 — Section anchors / Read-link targets (BREAKING within files)
+    ### Interface 3 — Section anchors / Read-link targets (BREAKING within files)
 
-| Anchor | Current | Post-change |
-|--------|---------|-------------|
-| 020 §1.1 Orchestrator Context Discipline | line 80 | Tier-2 file → re-point |
-| 020 §1.6 Discussion Mode Mandates | line 248 | Tier-2 file → re-point |
-| 020 §4 Project-Local Tool Installation | line 286 | 085 canonical (dedup) → re-point |
-| 080 Typing / Modern Python / DI sections | lines 13-103 | Tier-2 file → re-point |
-| AGENTS.md gb CLI / editor MCP / Pair Mode | lines 173/297/381 | pointers → deep links break, pointer retained |
+    | Anchor | Current | Post-change |
+    |--------|---------|-------------|
+    | 020 §1.1 Orchestrator Context Discipline | line 80 | Tier-2 file → re-point |
+    | 020 §1.6 Discussion Mode Mandates | line 248 | Tier-2 file → re-point |
+    | 020 §4 Project-Local Tool Installation | line 286 | 085 canonical (dedup) → re-point |
+    | 080 Typing / Modern Python / DI sections | lines 13-103 | Tier-2 file → re-point |
+    | AGENTS.md gb CLI / editor MCP / Pair Mode | lines 173/297/381 | pointers → deep links break, pointer retained |
 
-Verdict: BREAKING within the change; mitigated by SC-8 sweep with grep evidence.
+    Verdict: BREAKING within the change; mitigated by SC-8 sweep with grep evidence.
 
-### Interface 4 — Behavioral test SCENARIO_PROMPTs (CONTRACT)
+    ### Interface 4 — Behavioral test SCENARIO_PROMPTs (CONTRACT)
 
-Prompts embed file paths instructing the tested agent ("Read the project's coding standards at .opencode/guidelines/080-code-standards.md..."). Rule: tested agent must still complete each prompt post-split — prompt path updated OR visible pointer routes there.
-Verified prompts: 2243-sc1 (line 35), 2249-sc6 (line 35), 2249-sc7-html-css (line 27), 2249-sc7-contested-ts.
-Verdict: BREAKING unless swept; mitigation is named phase (SC-8).
+    Prompts embed file paths instructing the tested agent ("Read the project's coding standards at .opencode/guidelines/080-code-standards.md..."). Rule: tested agent must still complete each prompt post-split — prompt path updated OR visible pointer routes there.
+    Verified prompts: 2243-sc1 (line 35), 2249-sc6 (line 35), 2249-sc7-html-css (line 27), 2249-sc7-contested-ts.
+    Verdict: BREAKING unless swept; mitigation is named phase (SC-8).
 
-### Interface 5 — session-enforcement.ts / env-loader.ts (NO COUPLING)
+    ### Interface 5 — session-enforcement.ts / env-loader.ts (NO COUPLING)
 
-Preliminary grep verified: zero guideline references. Verdict: NO IMPACT.
+    Preliminary grep verified: zero guideline references. Verdict: NO IMPACT.
 
-### Interface 6 — Guideline frontmatter schema (MUST PRESERVE on new files)
+    ### Interface 6 — Guideline frontmatter schema (MUST PRESERVE on new files)
 
-Schema: trigger_on, tier, load_when (verified on all Tier-1 files + 085/116 Tier-2). New Tier-2 files must carry tier: 2 + be registered in INDEX.md, else routing cannot find them.
-Verdict: COMPATIBLE with constraint on new files.
+    Schema: trigger_on, tier, load_when (verified on all Tier-1 files + 085/116 Tier-2). New Tier-2 files must carry tier: 2 + be registered in INDEX.md, else routing cannot find them.
+    Verdict: COMPATIBLE with constraint on new files.
 
-### Interface 7 — tests-v2 monitoring harness (scope G — READ-ONLY under this plan)
+    ### Interface 7 — tests-v2 monitoring harness (scope G — READ-ONLY under this plan)
 
-- The monitoring mandate GREEN change (tests-v2/AGENTS.md §14 + behaviors/helpers.sh `__semantic_monitor`) is ALREADY COMMITTED as 4989ffb5.
-- helpers.sh exports `__semantic_monitor` (line 485) and wires it into behavioral run paths (line 856); §10.7 carries the new-home-per-invocation limitation amendment.
-- No further harness edits authorized under this plan: helpers.sh and tests-v2/AGENTS.md are READ-ONLY in Phase 8 — a harness defect found during evidence recording is a spec-revision trigger, not an inline fix.
-- The monitoring evidence contract (poll log + semantic diagnosis alongside session.yaml) is the verified interface between Phase 8 and every behavioral SC verdict produced by monitored runs.
-Verdict: COMPATIBLE — interface already landed; Phase 8 consumes it evidence-only.
+    - The monitoring mandate GREEN change (tests-v2/AGENTS.md §14 + behaviors/helpers.sh `__semantic_monitor`) is ALREADY COMMITTED as 4989ffb5.
+    - helpers.sh exports `__semantic_monitor` (line 485) and wires it into behavioral run paths (line 856); §10.7 carries the new-home-per-invocation limitation amendment.
+    - No further harness edits authorized under this plan: helpers.sh and tests-v2/AGENTS.md are READ-ONLY in Phase 8 — a harness defect found during evidence recording is a spec-revision trigger, not an inline fix.
+    - The monitoring evidence contract (poll log + semantic diagnosis alongside session.yaml) is the verified interface between Phase 8 and every behavioral SC verdict produced by monitored runs.
+    Verdict: COMPATIBLE — interface already landed; Phase 8 consumes it evidence-only.
 
-### Interface 8 — spec-creation create task (scope H — RESTRUCTURED)
+    ### Interface 8 — spec-creation create task (scope H — RESTRUCTURED)
 
-- The task card `.opencode/skills/spec-creation/tasks/create.md` is read by sub-agents executing the spec-creation create step; its category (PRODUCTION), entry criteria, exit criteria, and result-contract field set are preserved — the Step 3 numbered procedure body is restructured.
-- Incumbent Step 3 stub-first flow: remote issue stub created (with `[SPEC]` prefix + `needs-approval` label) to establish the issue number, `html_url` extracted from the API response; the local record is created at a number picked independently (local counter / autonumber via `local-issues create` without `--number`) — two independent number sources.
-- Post-change Step 3 (remote-number-first per R-23): remote stub created FIRST (before any local record); remote-assigned number N taken from the API create response's `number` field; local record created at exactly N (local directory `.issues/N/`, issue.yaml with `remote_issue: N`); binding fields (remote_issue, remote_url, github_url) all referencing N — local == remote BY CONSTRUCTION. Local-counter numbering is explicitly restricted to local-only mode (no remote API). Result contract gains BLOCKED outcome with blocker reason `API_FAILURE_MID_FLOW` on API failure mid-flow (no silent reassignment, no half-bound state). Renumber/migrate repair documented per R-24 for a remote-assigned number whose local directory already exists.
-- Unchanged sub-interfaces: `.issues/N/` path convention; `remote_issue` binding-field shape; Step 3.1 local-canonical label writes (LOCAL_LABEL_WRITE_FAILED path); Step 3.2 best-effort remote label; Step 6 artifact-copy metadata-only rule.
-- Regression consumer: `tests-v2/behaviors/2241-sc6-spec-creation-create-local-first.sh` exercises create.md Step 3/Step 3.1 remote-first flow — the remote stub remains created FIRST; only the number source changes; re-run post-GREEN in Phase 9 post-regression.
-Verdict: COMPATIBLE with one documented behavioral-of-procedure change (number source); fixture evidence via `tests-v2/behaviors/2429-sc11-remote-number-first.sh` (new, Phase 9).
+    - The task card `.opencode/skills/spec-creation/tasks/create.md` is read by sub-agents executing the spec-creation create step; its category (PRODUCTION), entry criteria, exit criteria, and result-contract field set are preserved — the Step 3 numbered procedure body is restructured.
+    - Incumbent Step 3 stub-first flow: remote issue stub created (with `[SPEC]` prefix + `needs-approval` label) to establish the issue number, `html_url` extracted from the API response; the local record is created at a number picked independently (local counter / autonumber via `local-issues create` without `--number`) — two independent number sources.
+    - Post-change Step 3 (remote-number-first per R-23): remote stub created FIRST (before any local record); remote-assigned number N taken from the API create response's `number` field; local record created at exactly N (local directory `.issues/N/`, issue.yaml with `remote_issue: N`); binding fields (remote_issue, remote_url, github_url) all referencing N — local == remote BY CONSTRUCTION. Local-counter numbering is explicitly restricted to local-only mode (no remote API). Result contract gains BLOCKED outcome with blocker reason `API_FAILURE_MID_FLOW` on API failure mid-flow (no silent reassignment, no half-bound state). Renumber/migrate repair documented per R-24 for a remote-assigned number whose local directory already exists.
+    - Unchanged sub-interfaces: `.issues/N/` path convention; `remote_issue` binding-field shape; Step 3.1 local-canonical label writes (LOCAL_LABEL_WRITE_FAILED path); Step 3.2 best-effort remote label; Step 6 artifact-copy metadata-only rule.
+    - Regression consumer: `tests-v2/behaviors/2241-sc6-spec-creation-create-local-first.sh` exercises create.md Step 3/Step 3.1 remote-first flow — the remote stub remains created FIRST; only the number source changes; re-run post-GREEN in Phase 9 post-regression.
+    Verdict: COMPATIBLE with one documented behavioral-of-procedure change (number source); fixture evidence via `tests-v2/behaviors/2429-sc11-remote-number-first.sh` (new, Phase 9).
 
-## Dependency Contract
+    ## Dependency Contract
 
-- source: "opencode.jsonc instructions array"
-  target: "guidelines/000-critical-rules.md, 010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130, INDEX.md, AGENTS.md"
-  type: "artifact schema"
-  constraint: "array entries reference file paths that MUST continue to exist; paths stable through this change; new Tier-2 files must NOT be appended to the array"
-- source: "INDEX.md routing rows"
-  target: "Tier-2 guideline files"
-  type: "artifact schema"
-  constraint: "every demoted content class must have a routing row with trigger patterns matching content; frontmatter schema (trigger_on/tier/load_when) required on new files"
-- source: "test-enforcement.sh FILE_SCENARIO_MAP"
-  target: "guidelines/020-go-prohibitions.md, 000-critical-rules.md, 010-approval-gate.md"
-  type: "artifact schema"
-  constraint: "map keys on file paths — paths must remain unchanged; scenario content assertions must survive the split"
-- source: "behavioral SCENARIO_PROMPTs (2243/2249-series)"
-  target: "guidelines/080-code-standards.md DI sections"
-  type: "artifact schema"
-  constraint: "breaking — prompts must be re-pointed to the Tier-2 python-standards file or an in-file visible pointer must route agents there (sweep phase)"
-- source: "skill Read-links (audit x5, verification-before-completion x2, git-workflow-commit, git-workflow-branch, issue-review)"
-  target: "guidelines/020 §1.1/§1.6/§4, guidelines/080 Python sections"
-  type: "artifact schema"
-  constraint: "breaking for moved anchors — all Read-links must be re-pointed to new locations (sweep phase)"
-- source: "085-project-local-tools.md mutual Read-link"
-  target: "020-go-prohibitions.md §4"
-  type: "artifact schema"
-  constraint: "dedup resolution must flip the pointer direction (085 becomes canonical; 020 core holds pointer to 085)"
-- source: "spec-creation create task Step 3 (scope H)"
-  target: ".opencode/skills/spec-creation/tasks/create.md"
-  type: "artifact schema"
-  constraint: "remote-number-first per R-23 — remote stub created FIRST (before any local record); number taken from the API create response's `number` field; local record at exactly N (.issues/N/, issue.yaml remote_issue: N); binding fields (remote_issue, remote_url, github_url) reference N; local counter used ONLY in local-only mode; BLOCKED outcome API_FAILURE_MID_FLOW on API failure mid-flow (no silent reassignment)"
-- source: "local-issues tooling contract (scope H)"
-  target: "create.md Step 3 + 2241-sc6 scenario"
-  type: "artifact schema"
-  constraint: "remote_issue field and .counter interfaces keep their shapes; the counter path remains ONLY for local-only mode; renumber/migrate repair per R-24 when the remote-assigned number's local directory already exists; 2241-sc6 re-run post-GREEN confirms the remote stub stays FIRST"
+    - source: "opencode.jsonc instructions array"
+      target: "guidelines/000-critical-rules.md, 010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130, INDEX.md, AGENTS.md"
+      type: "artifact schema"
+      constraint: "array entries reference file paths that MUST continue to exist; paths stable through this change; new Tier-2 files must NOT be appended to the array"
+    - source: "INDEX.md routing rows"
+      target: "Tier-2 guideline files"
+      type: "artifact schema"
+      constraint: "every demoted content class must have a routing row with trigger patterns matching content; frontmatter schema (trigger_on/tier/load_when) required on new files"
+    - source: "test-enforcement.sh FILE_SCENARIO_MAP"
+      target: "guidelines/020-go-prohibitions.md, 000-critical-rules.md, 010-approval-gate.md"
+      type: "artifact schema"
+      constraint: "map keys on file paths — paths must remain unchanged; scenario content assertions must survive the split"
+    - source: "behavioral SCENARIO_PROMPTs (2243/2249-series)"
+      target: "guidelines/080-code-standards.md DI sections"
+      type: "artifact schema"
+      constraint: "breaking — prompts must be re-pointed to the Tier-2 python-standards file or an in-file visible pointer must route agents there (sweep phase)"
+    - source: "skill Read-links (audit x5, verification-before-completion x2, git-workflow-commit, git-workflow-branch, issue-review)"
+      target: "guidelines/020 §1.1/§1.6/§4, guidelines/080 Python sections"
+      type: "artifact schema"
+      constraint: "breaking for moved anchors — all Read-links must be re-pointed to new locations (sweep phase)"
+    - source: "085-project-local-tools.md mutual Read-link"
+      target: "020-go-prohibitions.md §4"
+      type: "artifact schema"
+      constraint: "dedup resolution must flip the pointer direction (085 becomes canonical; 020 core holds pointer to 085)"
+    - source: "spec-creation create task Step 3 (scope H)"
+      target: ".opencode/skills/spec-creation/tasks/create.md"
+      type: "artifact schema"
+      constraint: "remote-number-first per R-23 — remote stub created FIRST (before any local record); number taken from the API create response's `number` field; local record at exactly N (.issues/N/, issue.yaml remote_issue: N); binding fields (remote_issue, remote_url, github_url) reference N; local counter used ONLY in local-only mode; BLOCKED outcome API_FAILURE_MID_FLOW on API failure mid-flow (no silent reassignment)"
+    - source: "local-issues tooling contract (scope H)"
+      target: "create.md Step 3 + 2241-sc6 scenario"
+      type: "artifact schema"
+      constraint: "remote_issue field and .counter interfaces keep their shapes; the counter path remains ONLY for local-only mode; renumber/migrate repair per R-24 when the remote-assigned number's local directory already exists; 2241-sc6 re-run post-GREEN confirms the remote stub stays FIRST"
 
-## Signature Verification
+    ## Signature Verification
 
-No function signatures (markdown corpus). File-level existence verified by stat: all 15 injected files present; sizes recorded in pre-spec-inspection.yaml as diagnostic evidence; create.md verified read this session (stub-first flow, binding fields remote_issue/remote_url/github_url).
+    No function signatures (markdown corpus). File-level existence verified by stat: all 15 injected files present; sizes recorded in pre-spec-inspection.yaml as diagnostic evidence; create.md verified read this session (stub-first flow, binding fields remote_issue/remote_url/github_url).
 
-## Compatibility Verdict
+    ## Compatibility Verdict
 
-Interfaces 1, 2, 5, 6, 7: compatible. Interfaces 3, 4: BREAKING within change, mitigated by mandatory sweep (SC-8). Interface 8: COMPATIBLE — task-card structure preserved, number source restructured with fixture evidence (SC-11) and 2241-sc6 regression re-run. No out-of-repo consumers (agent-config repo; corpus consumed only by opencode sessions, tests, skills within this repo).
+    Interfaces 1, 2, 5, 6, 7: compatible. Interfaces 3, 4: BREAKING within change, mitigated by mandatory sweep (SC-8). Interface 8: COMPATIBLE — task-card structure preserved, number source restructured with fixture evidence (SC-11) and 2241-sc6 regression re-run. No out-of-repo consumers (agent-config repo; corpus consumed only by opencode sessions, tests, skills within this repo).

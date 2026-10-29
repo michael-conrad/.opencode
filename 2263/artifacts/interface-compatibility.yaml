@@ -1,71 +1,75 @@
-issue_number: 2263
-artifact: interface-compatibility
-date: 2026-08-10
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    issue_number: 2263
+    artifact: interface-compatibility
+    date: 2026-08-10
 
-## Interface Compatibility Analysis
+    ## Interface Compatibility Analysis
 
-### Interfaces Affected
+    ### Interfaces Affected
 
-| Interface | Type | Change | Compatibility |
-|-----------|------|--------|---------------|
-| 020-go-prohibitions.md "never inline" rule | Instruction-model interface (agent-facing) | Modified: role-purity absolute → allocation-by-context-cost | Backward compatible — the delegation mechanism and which-tasks-are-delegated are unchanged; only the framing changes |
-| 020-go-prohibitions.md carve-out (line 207) | Instruction-model interface | Removed: false carve-out deleted, replaced with truthful justification | Backward compatible — the SKILL.md routing read still happens; only the justification changes |
-| 020-go-prohibitions.md §1.1 result-contract frugality | Instruction-model interface | Modified: re-expressed under context-economy | Backward compatible — substance unchanged, justification re-framed |
-| 000-critical-rules.md critical-rules-XXX | Instruction-model interface | Modified: re-justified under context-economy | Backward compatible — category-error prohibition preserved |
-| 36 skill cards' DISPATCH_GATE sections | Instruction-model interface | Modified: Orchestrator Entry Criteria re-justified | Backward compatible — no-preloaded-context substance unchanged |
-| task() delegation mechanism | Behavioral interface | Unchanged | N/A — explicitly out of scope |
-| skill() mechanism | Behavioral interface | Unchanged | N/A — explicitly out of scope |
-| clean-room sub-agent dispatch | Behavioral interface | Unchanged | N/A — explicitly out of scope |
-| Task cards (tasks/<name>.md) | Sub-agent-facing interface | Unchanged | N/A — not touched |
+    | Interface | Type | Change | Compatibility |
+    |-----------|------|--------|---------------|
+    | 020-go-prohibitions.md "never inline" rule | Instruction-model interface (agent-facing) | Modified: role-purity absolute → allocation-by-context-cost | Backward compatible — the delegation mechanism and which-tasks-are-delegated are unchanged; only the framing changes |
+    | 020-go-prohibitions.md carve-out (line 207) | Instruction-model interface | Removed: false carve-out deleted, replaced with truthful justification | Backward compatible — the SKILL.md routing read still happens; only the justification changes |
+    | 020-go-prohibitions.md §1.1 result-contract frugality | Instruction-model interface | Modified: re-expressed under context-economy | Backward compatible — substance unchanged, justification re-framed |
+    | 000-critical-rules.md critical-rules-XXX | Instruction-model interface | Modified: re-justified under context-economy | Backward compatible — category-error prohibition preserved |
+    | 36 skill cards' DISPATCH_GATE sections | Instruction-model interface | Modified: Orchestrator Entry Criteria re-justified | Backward compatible — no-preloaded-context substance unchanged |
+    | task() delegation mechanism | Behavioral interface | Unchanged | N/A — explicitly out of scope |
+    | skill() mechanism | Behavioral interface | Unchanged | N/A — explicitly out of scope |
+    | clean-room sub-agent dispatch | Behavioral interface | Unchanged | N/A — explicitly out of scope |
+    | Task cards (tasks/<name>.md) | Sub-agent-facing interface | Unchanged | N/A — not touched |
 
-### Compatibility Classification
-- **Unchanged:** task(), skill(), clean-room sub-agents, task cards, pipeline behavior.
-- **Modified (backward compatible):** 020-go-prohibitions.md (rule + carve-out + §1.1), 000-critical-rules.md (critical-rules-XXX), 36 skill cards (DISPATCH_GATE).
-- **New:** None.
-- **Removed:** The false carve-out (line 207) — replaced, not removed from the framework's capability.
+    ### Compatibility Classification
+    - **Unchanged:** task(), skill(), clean-room sub-agents, task cards, pipeline behavior.
+    - **Modified (backward compatible):** 020-go-prohibitions.md (rule + carve-out + §1.1), 000-critical-rules.md (critical-rules-XXX), 36 skill cards (DISPATCH_GATE).
+    - **New:** None.
+    - **Removed:** The false carve-out (line 207) — replaced, not removed from the framework's capability.
 
-### Breaking Change Analysis
-- No breaking changes. The fix is a documentation/instruction-model change. The delegation mechanism, which-tasks-are-delegated, and the no-preloaded-context substance are all preserved.
-- The only "removal" is the false carve-out prose, which is replaced by a truthful justification — the underlying behavior (orchestrator reads SKILL.md routing metadata) is unchanged.
+    ### Breaking Change Analysis
+    - No breaking changes. The fix is a documentation/instruction-model change. The delegation mechanism, which-tasks-are-delegated, and the no-preloaded-context substance are all preserved.
+    - The only "removal" is the false carve-out prose, which is replaced by a truthful justification — the underlying behavior (orchestrator reads SKILL.md routing metadata) is unchanged.
 
-### Internal-Only Interfaces
-- All affected interfaces are internal to the .opencode framework (agent-facing instruction-model). No external/public API is affected.
-- The behavioral enforcement tests (tests-v2/behaviors/) that assert the "never inline" absolute are internal test interfaces — they must be updated to assert the context-economy model (SC-6).
+    ### Internal-Only Interfaces
+    - All affected interfaces are internal to the .opencode framework (agent-facing instruction-model). No external/public API is affected.
+    - The behavioral enforcement tests (tests-v2/behaviors/) that assert the "never inline" absolute are internal test interfaces — they must be updated to assert the context-economy model (SC-6).
 
-## dependency_contract
+    ## dependency_contract
 
-dependency_contract:
-  phase_order:
-    - phase: 1
-      name: Re-scope 020-go-prohibitions.md inline-work rule to allocation-by-context-cost
-      depends_on: []
-      scs: [SC-1]
-    - phase: 2
-      name: Delete false carve-out and replace with truthful context-economy justification
-      depends_on: [1]
-      scs: [SC-2]
-    - phase: 3
-      name: Re-justify mechanisms (result-contract frugality, DISPATCH_GATE, clean-room) under context-economy
-      depends_on: [1]
-      scs: [SC-3]
-    - phase: 4
-      name: Re-justify 000-critical-rules.md critical-rules-XXX under context-economy
-      depends_on: [1, 2, 3]
-      scs: [SC-4]
-    - phase: 5
-      name: Re-justify 36 skill cards' DISPATCH_GATE Orchestrator Entry Criteria
-      depends_on: [4]
-      scs: [SC-5]
-    - phase: 6
-      name: Eliminate self-contradiction (behavioral cross-file check)
-      depends_on: [1, 2, 3, 4, 5]
-      scs: [SC-6]
-    - phase: 7
-      name: Preserve delegation mechanism and distinguish cost-blind from context-cost
-      depends_on: [1, 2, 3, 4, 5, 6]
-      scs: [SC-7]
-  intra_phase_dependencies:
-    - phase: 1
-      order:
-        - "SC-1 (rule re-scope) must precede SC-2/SC-3 within 020-go-prohibitions.md so the carve-out replacement and mechanism re-justification build on the re-scoped rule"
-  notes: "Phases 1-3 edit the same file (020-go-prohibitions.md); SC-1 must precede SC-2 and SC-3 for edit coherence. Phase 4 (000-critical-rules.md) requires the re-scoped 020 (Phases 1-3). Phase 5 (skill cards) aligns DISPATCH_GATE sections to the re-scoped critical-rules-XXX from Phase 4. Phase 6 is the behavioral cross-file contradiction check over all prior phases. Phase 7 is a verification-only guard (delegation preservation) that runs after all file updates."
+    dependency_contract:
+      phase_order:
+        - phase: 1
+          name: Re-scope 020-go-prohibitions.md inline-work rule to allocation-by-context-cost
+          depends_on: []
+          scs: [SC-1]
+        - phase: 2
+          name: Delete false carve-out and replace with truthful context-economy justification
+          depends_on: [1]
+          scs: [SC-2]
+        - phase: 3
+          name: Re-justify mechanisms (result-contract frugality, DISPATCH_GATE, clean-room) under context-economy
+          depends_on: [1]
+          scs: [SC-3]
+        - phase: 4
+          name: Re-justify 000-critical-rules.md critical-rules-XXX under context-economy
+          depends_on: [1, 2, 3]
+          scs: [SC-4]
+        - phase: 5
+          name: Re-justify 36 skill cards' DISPATCH_GATE Orchestrator Entry Criteria
+          depends_on: [4]
+          scs: [SC-5]
+        - phase: 6
+          name: Eliminate self-contradiction (behavioral cross-file check)
+          depends_on: [1, 2, 3, 4, 5]
+          scs: [SC-6]
+        - phase: 7
+          name: Preserve delegation mechanism and distinguish cost-blind from context-cost
+          depends_on: [1, 2, 3, 4, 5, 6]
+          scs: [SC-7]
+      intra_phase_dependencies:
+        - phase: 1
+          order:
+            - "SC-1 (rule re-scope) must precede SC-2/SC-3 within 020-go-prohibitions.md so the carve-out replacement and mechanism re-justification build on the re-scoped rule"
+      notes: "Phases 1-3 edit the same file (020-go-prohibitions.md); SC-1 must precede SC-2 and SC-3 for edit coherence. Phase 4 (000-critical-rules.md) requires the re-scoped 020 (Phases 1-3). Phase 5 (skill cards) aligns DISPATCH_GATE sections to the re-scoped critical-rules-XXX from Phase 4. Phase 6 is the behavioral cross-file contradiction check over all prior phases. Phase 7 is a verification-only guard (delegation preservation) that runs after all file updates."

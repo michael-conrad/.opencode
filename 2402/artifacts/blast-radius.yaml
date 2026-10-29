@@ -1,65 +1,69 @@
-spec_path: .opencode/.issues/2402/spec.md
-issue_number: 2402
-affected_files:
-  - path: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
-    status: exists
-    change_type: modify
-    rationale: Primary source of defect — reclassifies missing trailer/byline findings and adds agent-owned remediation procedure + scope guard.
-  - path: .opencode/skills/finishing-a-development-branch/tasks/prepare.md
-    status: exists
-    change_type: modify
-    rationale: Secondary source of defect — adds agent-owned trailer remediation procedure and footer byline auto-fix verification step.
-  - path: .opencode/skills/finishing-a-development-branch/SKILL.md
-    status: exists
-    change_type: reference
-    rationale: Governing agent-owned remediation mandate; read as authority, not modified.
-  - path: .opencode/skills/git-workflow-commit/tasks/commit-prep.md
-    status: exists
-    change_type: reference
-    rationale: Trailer format authority; read to ensure auto-fix uses repo-standard trailer schema.
-  - path: .opencode/skills/git-workflow-commit/tasks/implementation.md
-    status: exists
-    change_type: reference
-    rationale: Documents that checkpoint commits legitimately lack trailers; read to confirm finishing-time remediation scope.
-  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
-    status: exists
-    change_type: reference
-    rationale: Trailer application via squash at PR time; unchanged, complements finishing-time auto-fix.
-  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
-    status: exists
-    change_type: reference
-    rationale: Force-push carve-out precedent ("Step 7.2.3: Rebase on Stale Base"); reused, not modified.
-  - path: .opencode/guidelines/080-code-standards.md
-    status: exists
-    change_type: reference
-    rationale: Mandatory co-author attribution requirement; unchanged, read as authority the auto-fix satisfies.
-  - path: .opencode/guidelines/000-critical-rules.md
-    status: exists
-    change_type: reference
-    rationale: Generic force-push authorization gate; remains in force for all branches except agent-own unmerged/unshared.
-  - path: .opencode/tmp/2241-finishing-checklist-evidence.md
-    status: exists
-    change_type: reference
-    rationale: Concrete recorded instance of the defect (36 commits with absent trailers flagged as blocker).
-  - path: .opencode/tests-v2/behaviors/finish-checklist-trailer-agent-own-remediation.sh
-    status: missing (RED-phase deliverable, to be created)
-    change_type: create
-    rationale: Behavioral test for SC-1.
-  - path: .opencode/tests-v2/behaviors/finish-trailer-auto-remediation-no-solicitation.sh
-    status: missing (RED-phase deliverable, to be created)
-    change_type: create
-    rationale: Behavioral test for SC-2.
-  - path: .opencode/tests-v2/behaviors/finish-footer-byline-auto-fix.sh
-    status: missing (RED-phase deliverable, to be created)
-    change_type: create
-    rationale: Behavioral test for SC-3.
-  - path: .opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh
-    status: missing (RED-phase deliverable, to be created)
-    change_type: create
-    rationale: Behavioral test for SC-5 (and structural guard assertion for SC-4).
-blast_radius_summary: >
-  Changes are confined to the finishing-a-development-branch skill (checklist.md, prepare.md)
-  and four new behavioral test scripts. All other affected files are read-only references
-  (authority sources and precedent). No shared, merged, or trunk branch behavior is altered;
-  the generic force-push authorization gate remains in force outside the agent-own unmerged
-  unshared branch carve-out.
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    spec_path: .opencode/.issues/2402/spec.md
+    issue_number: 2402
+    affected_files:
+      - path: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+        status: exists
+        change_type: modify
+        rationale: Primary source of defect — reclassifies missing trailer/byline findings and adds agent-owned remediation procedure + scope guard.
+      - path: .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+        status: exists
+        change_type: modify
+        rationale: Secondary source of defect — adds agent-owned trailer remediation procedure and footer byline auto-fix verification step.
+      - path: .opencode/skills/finishing-a-development-branch/SKILL.md
+        status: exists
+        change_type: reference
+        rationale: Governing agent-owned remediation mandate; read as authority, not modified.
+      - path: .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+        status: exists
+        change_type: reference
+        rationale: Trailer format authority; read to ensure auto-fix uses repo-standard trailer schema.
+      - path: .opencode/skills/git-workflow-commit/tasks/implementation.md
+        status: exists
+        change_type: reference
+        rationale: Documents that checkpoint commits legitimately lack trailers; read to confirm finishing-time remediation scope.
+      - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+        status: exists
+        change_type: reference
+        rationale: Trailer application via squash at PR time; unchanged, complements finishing-time auto-fix.
+      - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+        status: exists
+        change_type: reference
+        rationale: Force-push carve-out precedent ("Step 7.2.3: Rebase on Stale Base"); reused, not modified.
+      - path: .opencode/guidelines/080-code-standards.md
+        status: exists
+        change_type: reference
+        rationale: Mandatory co-author attribution requirement; unchanged, read as authority the auto-fix satisfies.
+      - path: .opencode/guidelines/000-critical-rules.md
+        status: exists
+        change_type: reference
+        rationale: Generic force-push authorization gate; remains in force for all branches except agent-own unmerged/unshared.
+      - path: .opencode/tmp/2241-finishing-checklist-evidence.md
+        status: exists
+        change_type: reference
+        rationale: Concrete recorded instance of the defect (36 commits with absent trailers flagged as blocker).
+      - path: .opencode/tests-v2/behaviors/finish-checklist-trailer-agent-own-remediation.sh
+        status: missing (RED-phase deliverable, to be created)
+        change_type: create
+        rationale: Behavioral test for SC-1.
+      - path: .opencode/tests-v2/behaviors/finish-trailer-auto-remediation-no-solicitation.sh
+        status: missing (RED-phase deliverable, to be created)
+        change_type: create
+        rationale: Behavioral test for SC-2.
+      - path: .opencode/tests-v2/behaviors/finish-footer-byline-auto-fix.sh
+        status: missing (RED-phase deliverable, to be created)
+        change_type: create
+        rationale: Behavioral test for SC-3.
+      - path: .opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh
+        status: missing (RED-phase deliverable, to be created)
+        change_type: create
+        rationale: Behavioral test for SC-5 (and structural guard assertion for SC-4).
+    blast_radius_summary: >
+      Changes are confined to the finishing-a-development-branch skill (checklist.md, prepare.md)
+      and four new behavioral test scripts. All other affected files are read-only references
+      (authority sources and precedent). No shared, merged, or trunk branch behavior is altered;
+      the generic force-push authorization gate remains in force outside the agent-own unmerged
+      unshared branch carve-out.

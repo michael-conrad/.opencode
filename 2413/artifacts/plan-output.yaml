@@ -1,25 +1,4 @@
-engine: tamer
-status: SOLVED_SATISFICING
-problem built: interface-compatibility-fix
-  objects: 11
-  fluents: 6
-  actions: 6
-  goals:   4
-[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
-[0m[96m  *** Credits ***
-[0m[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, [0m[96myou are using the following planning engine:
-[0m[96m  * Engine name: Tamer
-  * Developers:  FBK Tamer Development Team
-[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
-  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
-[0m[96m
-[0m
-plan length: 0
-
-
----
-actions: []
-domain: interface-compatibility-fix
-engine: tamer
-plan_length: 0
-status: SOLVED_SATISFICING
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: "engine: tamer\nstatus: SOLVED_SATISFICING\nproblem built: interface-compatibility-fix\n  objects: 11\n  fluents: 6\n  actions: 6\n  goals:   4\n\u001b[96m\u001b[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`\n\u001b[0m\u001b[96m  *** Credits ***\n\u001b[0m\u001b[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, \u001b[0m\u001b[96myou are using the following planning engine:\n\u001b[0m\u001b[96m  * Engine name: Tamer\n  * Developers:  FBK Tamer Development Team\n\u001b[0m\u001b[96m  * Description: \u001b[0m\u001b[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.\n  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.\u001b[0m\u001b[96m\n\u001b[0m\u001b[96m\n\u001b[0m\nplan length: 0\n\n\n---\nactions: []\ndomain: interface-compatibility-fix\nengine: tamer\nplan_length: 0\nstatus: SOLVED_SATISFICING\n"

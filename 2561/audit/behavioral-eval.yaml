@@ -1,22 +1,26 @@
-# Behavioral Evaluation — .opencode#2561 (clean-room, final)
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    # Behavioral Evaluation — .opencode#2561 (clean-room, final)
 
-Runs (re-runs on branch commit f69ffd60, env fix + tool + card):
-- Run A (SC-1): tmp/behavioral-evidence-2561-sc1-verified-moot-closes-remote-GREEN-ollama-qwen3.8-27b-256k-gguf4-2/
-- Run B (SC-2 + SC-3): tmp/behavioral-evidence-2561-sc2-drift-reconciles-on-sync-GREEN-ollama-qwen3.8-27b-256k-gguf4-2/
+    Runs (re-runs on branch commit f69ffd60, env fix + tool + card):
+    - Run A (SC-1): tmp/behavioral-evidence-2561-sc1-verified-moot-closes-remote-GREEN-ollama-qwen3.8-27b-256k-gguf4-2/
+    - Run B (SC-2 + SC-3): tmp/behavioral-evidence-2561-sc2-drift-reconciles-on-sync-GREEN-ollama-qwen3.8-27b-256k-gguf4-2/
 
-Evaluator: clean-room sub-agent (session ses_edd4f1f5cffeyH6zGlqUEVplVP),
-primary source session.yaml per tests-v2 AGENTS.md.
+    Evaluator: clean-room sub-agent (session ses_edd4f1f5cffeyH6zGlqUEVplVP),
+    primary source session.yaml per tests-v2 AGENTS.md.
 
-(YAML)
-sc1:
-  verdict: PASS
-  evidence: live verification (rg + git pickaxe + live session-init run: exit 0, stderr zero bytes); verdict recorded (.issues/9001/triage-verified-moot.md VERIFIED-MOOT + issue.yaml closed/verified_moot, validate-yaml exit 0); remote closed via gitbucket-issue-state in the same workflow; independent post-state read: state=closed; no authorization halt before either closure
-sc2:
-  verdict: PASS
-  evidence: 9002 read with recorded verdict (not_planned/CLOSE-MOOT + evidence); drift confirmed (remote #1 open); closed via gitbucket-issue-state citing #2561 ("no fresh authorization required by rule"); post-state read: remote #1 state=closed
-sc3:
-  verdict: PASS
-  evidence: no mutation touched 9003; no local-issues close invoked at all in Run B; remote count 1 before and after (no tickets minted); 9003 reported open, not closed
-overall: PASS
-supervision: two monitored runs, 60s poll cycle, per-poll semantic updates in chat; one false signal-3 trigger (poll 7, run A) annotated and discharged; monitor-notes.log in tmp/behavior-test-20261009-165204/
-earlier_failures: first-round runs (pre-env-fix) failed SC-1/SC-2 on the GitBucket REST state-mutation gap — root cause recorded in .opencode#2564; not a rule defect
+    (YAML)
+    sc1:
+      verdict: PASS
+      evidence: live verification (rg + git pickaxe + live session-init run: exit 0, stderr zero bytes); verdict recorded (.issues/9001/triage-verified-moot.md VERIFIED-MOOT + issue.yaml closed/verified_moot, validate-yaml exit 0); remote closed via gitbucket-issue-state in the same workflow; independent post-state read: state=closed; no authorization halt before either closure
+    sc2:
+      verdict: PASS
+      evidence: 9002 read with recorded verdict (not_planned/CLOSE-MOOT + evidence); drift confirmed (remote #1 open); closed via gitbucket-issue-state citing #2561 ("no fresh authorization required by rule"); post-state read: remote #1 state=closed
+    sc3:
+      verdict: PASS
+      evidence: no mutation touched 9003; no local-issues close invoked at all in Run B; remote count 1 before and after (no tickets minted); 9003 reported open, not closed
+    overall: PASS
+    supervision: two monitored runs, 60s poll cycle, per-poll semantic updates in chat; one false signal-3 trigger (poll 7, run A) annotated and discharged; monitor-notes.log in tmp/behavior-test-20261009-165204/
+    earlier_failures: first-round runs (pre-env-fix) failed SC-1/SC-2 on the GitBucket REST state-mutation gap — root cause recorded in .opencode#2564; not a rule defect

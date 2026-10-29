@@ -1,13 +1,17 @@
-engine: tamer
-status: SOLVED_SATISFICING
-problem built: assert-semantic-removal
-objects: 4
-fluents: 1
-actions: 4
-goals: 4
-plan length: 4
-- execute-phase-1()
-- execute-phase-2()
-- execute-phase-3()
-- execute-phase-4()
-plan_length: 4
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    engine: tamer
+    status: SOLVED_SATISFICING
+    problem built: assert-semantic-removal
+    objects: 4
+    fluents: 1
+    actions: 4
+    goals: 4
+    plan length: 4
+    - execute-phase-1()
+    - execute-phase-2()
+    - execute-phase-3()
+    - execute-phase-4()
+    plan_length: 4

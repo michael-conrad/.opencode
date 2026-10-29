@@ -1,94 +1,98 @@
-spec: https://github.com/michael-conrad/.opencode/issues/2267
-generated_at: "2026-08-12T02:30:00Z"
-interface_compatibility:
-  interfaces:
-    - name: create-pr.md Step 7.2.4 (mergeability trigger mechanism)
-      status: modified
-      compatibility: breaking_change
-      consumers:
-        - Agents executing the PR-creation procedure in git-workflow-pr
-        - enforcement-gate.md Step 1.5e cross-reference to the post-creation check
-        - Note: github_add_issue_comment no-op trigger and git commit --allow-empty fallback removed; replaced with git merge-base --is-ancestor origin/<target> HEAD
-    - name: create-pr.md Step 7.2.2 (mergeable:null path)
-      status: modified
-      compatibility: backward_compatible
-      consumers:
-        - Agents diagnosing mergeable:null status
-        - Note: Re-routed to report verified-locally instead of proceeding to the removed trigger; conflict detection preserved
-    - name: create-pr.md Step 7.2.5 (mergeability diagnosis output)
-      status: modified
-      compatibility: backward_compatible
-      consumers:
-        - Executive summary report (Step 7.5)
-        - Note: Reports verified-locally, drops "Computation triggered: yes|no" line
-    - name: enforcement-gate.md Step 1.5d (pre-creation None/unknown path)
-      status: modified
-      compatibility: backward_compatible
-      consumers:
-        - Agents running the pre-creation gate
-        - Note: Explicitly names the local merge-base check
-    - name: enforcement-gate.md Step 1.5e (post-creation gate reference)
-      status: modified
-      compatibility: backward_compatible
-      consumers:
-        - Agents running the pre-creation gate
-        - Note: Cross-reference to the post-creation check remains valid
-    - name: review-prep/push-and-cleanup.md:178 (merge-base check)
-      status: unchanged
-      compatibility: backward_compatible
-      consumers:
-        - Agents running review-prep push-and-cleanup
-        - Note: Out of scope — different semantics (base-SHA equality check, not ancestry test)
-    - name: git-workflow-pr/SKILL.md (Trigger Dispatch Table)
-      status: unchanged
-      compatibility: backward_compatible
-      consumers:
-        - All orchestrators dispatching git-workflow-pr tasks
-        - Note: Out of scope — only the two task files change
-dependency_contract:
-  variables:
-    phase_1:
-      type: bool
-      description: "Remove no-op mergeability trigger from create-pr.md Step 7.2.4 and replace with the local merge-base check — SC-1, SC-2, SC-3"
-    phase_2:
-      type: bool
-      description: "Align enforcement-gate.md Step 1.5d/e pre-creation gate with the local merge-base check — SC-4"
-    phase_3:
-      type: bool
-      description: "Add behavioral enforcement tests asserting no trigger comment is posted and verified-locally is reported"
-  preconditions:
-    - "z3.Implies(phase_2, phase_1)"
-    - "z3.Implies(phase_3, phase_1)"
-    - "z3.Implies(phase_3, phase_2)"
-  invariants: []
-  postconditions: []
-  phases:
-    phase_1:
-      files:
-        - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
-      scs:
-        - SC-1
-        - SC-2
-        - SC-3
-    phase_2:
-      files:
-        - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
-      scs:
-        - SC-4
-    phase_3:
-      files:
-        - .opencode/tests-v2/behaviors/git-workflow-pr-no-op-trigger.sh
-      scs: []
-  edges:
-    - from: phase_1
-      to: phase_2
-      rationale: "SC-4 alignment explicitly names the local merge-base check introduced in Phase 1, and Step 1.5e cross-reference validity requires the post-creation check (Step 7.2.4) to be in its final state."
-    - from: phase_1
-      to: phase_3
-      rationale: "Behavioral test asserting no trigger comment requires the Phase 1 removal/replacement to be in place (SC-1/SC-2/SC-3 outputs)."
-    - from: phase_2
-      to: phase_3
-      rationale: "Behavioral test asserting verified-locally reporting across the full gate flow requires the Phase 2 alignment (SC-4 output)."
-  notes:
-    - "No structure.yaml exists for this issue; the 3-phase decomposition is derived from the spec's SC-1..SC-4 and the shared phase model in concern-map.yaml, code-path-inventory.yaml, and state-analysis.yaml."
-    - "Phase 3 has no numbered SC — it is the behavioral enforcement test deliverable from the spec's call to action and depends on both implementation phases."
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    spec: https://github.com/michael-conrad/.opencode/issues/2267
+    generated_at: "2026-08-12T02:30:00Z"
+    interface_compatibility:
+      interfaces:
+        - name: create-pr.md Step 7.2.4 (mergeability trigger mechanism)
+          status: modified
+          compatibility: breaking_change
+          consumers:
+            - Agents executing the PR-creation procedure in git-workflow-pr
+            - enforcement-gate.md Step 1.5e cross-reference to the post-creation check
+            - Note: github_add_issue_comment no-op trigger and git commit --allow-empty fallback removed; replaced with git merge-base --is-ancestor origin/<target> HEAD
+        - name: create-pr.md Step 7.2.2 (mergeable:null path)
+          status: modified
+          compatibility: backward_compatible
+          consumers:
+            - Agents diagnosing mergeable:null status
+            - Note: Re-routed to report verified-locally instead of proceeding to the removed trigger; conflict detection preserved
+        - name: create-pr.md Step 7.2.5 (mergeability diagnosis output)
+          status: modified
+          compatibility: backward_compatible
+          consumers:
+            - Executive summary report (Step 7.5)
+            - Note: Reports verified-locally, drops "Computation triggered: yes|no" line
+        - name: enforcement-gate.md Step 1.5d (pre-creation None/unknown path)
+          status: modified
+          compatibility: backward_compatible
+          consumers:
+            - Agents running the pre-creation gate
+            - Note: Explicitly names the local merge-base check
+        - name: enforcement-gate.md Step 1.5e (post-creation gate reference)
+          status: modified
+          compatibility: backward_compatible
+          consumers:
+            - Agents running the pre-creation gate
+            - Note: Cross-reference to the post-creation check remains valid
+        - name: review-prep/push-and-cleanup.md:178 (merge-base check)
+          status: unchanged
+          compatibility: backward_compatible
+          consumers:
+            - Agents running review-prep push-and-cleanup
+            - Note: Out of scope — different semantics (base-SHA equality check, not ancestry test)
+        - name: git-workflow-pr/SKILL.md (Trigger Dispatch Table)
+          status: unchanged
+          compatibility: backward_compatible
+          consumers:
+            - All orchestrators dispatching git-workflow-pr tasks
+            - Note: Out of scope — only the two task files change
+    dependency_contract:
+      variables:
+        phase_1:
+          type: bool
+          description: "Remove no-op mergeability trigger from create-pr.md Step 7.2.4 and replace with the local merge-base check — SC-1, SC-2, SC-3"
+        phase_2:
+          type: bool
+          description: "Align enforcement-gate.md Step 1.5d/e pre-creation gate with the local merge-base check — SC-4"
+        phase_3:
+          type: bool
+          description: "Add behavioral enforcement tests asserting no trigger comment is posted and verified-locally is reported"
+      preconditions:
+        - "z3.Implies(phase_2, phase_1)"
+        - "z3.Implies(phase_3, phase_1)"
+        - "z3.Implies(phase_3, phase_2)"
+      invariants: []
+      postconditions: []
+      phases:
+        phase_1:
+          files:
+            - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+          scs:
+            - SC-1
+            - SC-2
+            - SC-3
+        phase_2:
+          files:
+            - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+          scs:
+            - SC-4
+        phase_3:
+          files:
+            - .opencode/tests-v2/behaviors/git-workflow-pr-no-op-trigger.sh
+          scs: []
+      edges:
+        - from: phase_1
+          to: phase_2
+          rationale: "SC-4 alignment explicitly names the local merge-base check introduced in Phase 1, and Step 1.5e cross-reference validity requires the post-creation check (Step 7.2.4) to be in its final state."
+        - from: phase_1
+          to: phase_3
+          rationale: "Behavioral test asserting no trigger comment requires the Phase 1 removal/replacement to be in place (SC-1/SC-2/SC-3 outputs)."
+        - from: phase_2
+          to: phase_3
+          rationale: "Behavioral test asserting verified-locally reporting across the full gate flow requires the Phase 2 alignment (SC-4 output)."
+      notes:
+        - "No structure.yaml exists for this issue; the 3-phase decomposition is derived from the spec's SC-1..SC-4 and the shared phase model in concern-map.yaml, code-path-inventory.yaml, and state-analysis.yaml."
+        - "Phase 3 has no numbered SC — it is the behavioral enforcement test deliverable from the spec's call to action and depends on both implementation phases."

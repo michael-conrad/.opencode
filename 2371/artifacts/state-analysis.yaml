@@ -1,19 +1,23 @@
-# State Analysis — .opencode#2371
-# Topic: Add mandatory Read-link to discussion-mode-mandates.md in brainstorming skill card
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    # State Analysis — .opencode#2371
+    # Topic: Add mandatory Read-link to discussion-mode-mandates.md in brainstorming skill card
 
-issue_number: 2371
+    issue_number: 2371
 
-## Stateful Components
+    ## Stateful Components
 
-- None. This spec modifies a static skill-card markdown file. There are no stateful
-  components, state machines, or state transitions involved.
+    - None. This spec modifies a static skill-card markdown file. There are no stateful
+      components, state machines, or state transitions involved.
 
-## State Transitions Per Phase
+    ## State Transitions Per Phase
 
-- **Phase 1 (Item 1, SC-1):** No state transition — static file edit.
-- **Phase 2 (Item 2, SC-2):** No state transition — verification only.
+    - **Phase 1 (Item 1, SC-1):** No state transition — static file edit.
+    - **Phase 2 (Item 2, SC-2):** No state transition — verification only.
 
-## Conclusion
+    ## Conclusion
 
-State analysis is not applicable. No stateful component is modified. The create task should NOT
-fabricate state transitions where none exist.
+    State analysis is not applicable. No stateful component is modified. The create task should NOT
+    fabricate state transitions where none exist.

@@ -1,53 +1,57 @@
-artifact_name: validate-findings
-generated_at: 2026-09-17
-issue: 2450
-validator: writing-plans/tasks/validate (sub-agent re-validation after dispatch-mode / step-gap / solve-variable remediation)
+# Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
+# not parse-valid YAML. Original content preserved verbatim below as a
+# YAML scalar; repair touches validity only (SC-2: minimal preservation).
+archived_content: |
+    artifact_name: validate-findings
+    generated_at: 2026-09-17
+    issue: 2450
+    validator: writing-plans/tasks/validate (sub-agent re-validation after dispatch-mode / step-gap / solve-variable remediation)
 
-category_1_structural:
-  status: PASS
-  checks:
-    phase_table_columns: PASS — Phase Table has Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch
-    phase_procedures_numbered: PASS — Phase 1 steps 3-15, Phase 2 steps 16-38, Phase 3 steps 39-53, Phase 4 steps 54-76, Post-implementation steps 77-84; continuous, no gaps (prior 77-83 gap fixed; 84 closes it)
-    exit_criteria_sc_mapping: PASS — C1-C10 map 1:1 to SC-1..SC-10; C11 covers cross-cutting behavioral-verdict guarantee
-    step_ranges_match_bodies: PASS — every phase's declared Step Range matches the actual step numbers in its body
+    category_1_structural:
+      status: PASS
+      checks:
+        phase_table_columns: PASS — Phase Table has Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch
+        phase_procedures_numbered: PASS — Phase 1 steps 3-15, Phase 2 steps 16-38, Phase 3 steps 39-53, Phase 4 steps 54-76, Post-implementation steps 77-84; continuous, no gaps (prior 77-83 gap fixed; 84 closes it)
+        exit_criteria_sc_mapping: PASS — C1-C10 map 1:1 to SC-1..SC-10; C11 covers cross-cutting behavioral-verdict guarantee
+        step_ranges_match_bodies: PASS — every phase's declared Step Range matches the actual step numbers in its body
 
-category_2_skill_task_validity:
-  status: PASS
-  checks:
-    step_names_valid: PASS — pre-regression, pre-regression-verify, red, green, post-regression, verify, commit-inline, audit, z3-check, structural-checks, pre-pr-gate, regression-check, review-prep, create-pr, exec-summary all match the implementation-workflow reference card
-    owning_skills_valid: PASS — test-driven-development, verification-before-completion, audit, finishing-a-development-branch, git-workflow-pr, completion-core, orchestrator-direct all match card ownership
-    behavioral_variant: PASS — "Verify (behavioral, verdict basis)" steps dispatch the card's `verify` entry with behavioral context; PUSH steps are orchestrator-direct git operations per 091-incremental-build behavioral-variant ordering (not skill+task dispatches)
-  notes:
-    - "Minor (advisory, not FAIL): frontmatter dispatch lines for phases 2-4 list `regression-check` while the phase bodies use `post-regression` (regression-check is only used in post-implementation step 81). Naming drift in the frontmatter summary only; dispatch-mode semantics (task-card vs direct) are consistent."
+    category_2_skill_task_validity:
+      status: PASS
+      checks:
+        step_names_valid: PASS — pre-regression, pre-regression-verify, red, green, post-regression, verify, commit-inline, audit, z3-check, structural-checks, pre-pr-gate, regression-check, review-prep, create-pr, exec-summary all match the implementation-workflow reference card
+        owning_skills_valid: PASS — test-driven-development, verification-before-completion, audit, finishing-a-development-branch, git-workflow-pr, completion-core, orchestrator-direct all match card ownership
+        behavioral_variant: PASS — "Verify (behavioral, verdict basis)" steps dispatch the card's `verify` entry with behavioral context; PUSH steps are orchestrator-direct git operations per 091-incremental-build behavioral-variant ordering (not skill+task dispatches)
+      notes:
+        - "Minor (advisory, not FAIL): frontmatter dispatch lines for phases 2-4 list `regression-check` while the phase bodies use `post-regression` (regression-check is only used in post-implementation step 81). Naming drift in the frontmatter summary only; dispatch-mode semantics (task-card vs direct) are consistent."
 
-category_3_sc_coverage:
-  status: PASS
-  checks:
-    all_scs_covered: PASS — SC-1..SC-10 each appear in at least one phase's exit criteria and step-level → SC tags
-    triplet_split: PASS — no SC has RED/GREEN/COMMIT split across phases: SC-1 (5,6,9/P1), SC-2 (10,11,14/P1), SC-3 (18,19,21/P2), SC-4 (24,25,27/P2), SC-5 (30,31,33/P2), SC-6 (41,42,44/P3), SC-7 (47,48,50/P3), SC-8 (56,57,59/P4), SC-9 (62,63,65/P4), SC-10 (68,69,71/P4)
-    behavioral_variant_ordering: PASS — every behavioral item (3-10) orders COMMIT → PUSH → fresh-fetch containment → behavioral verify run, matching 091-incremental-build and the dependency contract's runtime-rule-effectiveness entries
+    category_3_sc_coverage:
+      status: PASS
+      checks:
+        all_scs_covered: PASS — SC-1..SC-10 each appear in at least one phase's exit criteria and step-level → SC tags
+        triplet_split: PASS — no SC has RED/GREEN/COMMIT split across phases: SC-1 (5,6,9/P1), SC-2 (10,11,14/P1), SC-3 (18,19,21/P2), SC-4 (24,25,27/P2), SC-5 (30,31,33/P2), SC-6 (41,42,44/P3), SC-7 (47,48,50/P3), SC-8 (56,57,59/P4), SC-9 (62,63,65/P4), SC-10 (68,69,71/P4)
+        behavioral_variant_ordering: PASS — every behavioral item (3-10) orders COMMIT → PUSH → fresh-fetch containment → behavioral verify run, matching 091-incremental-build and the dependency contract's runtime-rule-effectiveness entries
 
-category_4_concern_separation:
-  status: PASS
-  checks:
-    one_concern_per_phase: PASS — P1=tool-cli-semantics, P2=pipeline-gate-enforcement, P3=issues-data-governance, P4=spec-number-reservation; each matches the concern-map artifact exactly
-    no_duplicate_concerns: PASS — no concern addressed by two phases; test-infrastructure declared only as cross-cutting, not as a phase concern
+    category_4_concern_separation:
+      status: PASS
+      checks:
+        one_concern_per_phase: PASS — P1=tool-cli-semantics, P2=pipeline-gate-enforcement, P3=issues-data-governance, P4=spec-number-reservation; each matches the concern-map artifact exactly
+        no_duplicate_concerns: PASS — no concern addressed by two phases; test-infrastructure declared only as cross-cutting, not as a phase concern
 
-category_5_dag_validation:
-  status: PASS
-  checks:
-    no_cycles: PASS — edges: 1→2; post-implementation depends on 1,2,3,4; phases 3 and 4 have no incoming phase dependencies
-    all_reachable: PASS — all 4 phases + post-implementation reachable from start
-    no_orphans: PASS — every phase has at least one edge (3 and 4 connect via post-implementation's dependency set)
-    contract_consistency: PASS — plan DAG matches dependency-contract phase_ordering and cross_phase_edges (1→2 only); solve-output SAT with all phase variables true
+    category_5_dag_validation:
+      status: PASS
+      checks:
+        no_cycles: PASS — edges: 1→2; post-implementation depends on 1,2,3,4; phases 3 and 4 have no incoming phase dependencies
+        all_reachable: PASS — all 4 phases + post-implementation reachable from start
+        no_orphans: PASS — every phase has at least one edge (3 and 4 connect via post-implementation's dependency set)
+        contract_consistency: PASS — plan DAG matches dependency-contract phase_ordering and cross_phase_edges (1→2 only); solve-output SAT with all phase variables true
 
-category_6_holistic_quality:
-  status: PASS
-  checks:
-    no_placeholders: PASS — zero TBD/TODO/placeholder tokens in plan body
-    checkbox_format: PASS — every step uses `- [ ]` checkbox format
-    dispatch_mode_consistency: PASS — direct steps are exactly the orchestrator-direct operations (commits 9/14/21/27/33/44/50/59/65/71, pushes 22/28/34/45/51/60/66/72, read-only verdict confirmations 37/75, z3-check 78); all task-card steps dispatch valid skills; no dispatched steps in inline-only roles and no inline steps in clean-room roles (prior mismatch fixed)
-    solve_output_alignment: PASS — solve-output variable names (item1_flag_complete..item10_reservation_creation_md_complete, phase1..4) match dependency-contract variable definitions exactly (prior naming mismatch fixed)
+    category_6_holistic_quality:
+      status: PASS
+      checks:
+        no_placeholders: PASS — zero TBD/TODO/placeholder tokens in plan body
+        checkbox_format: PASS — every step uses `- [ ]` checkbox format
+        dispatch_mode_consistency: PASS — direct steps are exactly the orchestrator-direct operations (commits 9/14/21/27/33/44/50/59/65/71, pushes 22/28/34/45/51/60/66/72, read-only verdict confirmations 37/75, z3-check 78); all task-card steps dispatch valid skills; no dispatched steps in inline-only roles and no inline steps in clean-room roles (prior mismatch fixed)
+        solve_output_alignment: PASS — solve-output variable names (item1_flag_complete..item10_reservation_creation_md_complete, phase1..4) match dependency-contract variable definitions exactly (prior naming mismatch fixed)
 
-overall_status: PASS
-finding_summary: "6/6 categories PASS. Prior mechanical findings (dispatch-mode table, step gap 77-83, solve-output variable naming) verified fixed. One advisory note retained: frontmatter dispatch lines for phases 2-4 name `regression-check` where phase bodies run `post-regression`; cosmetic summary drift only, no dispatch-mode inconsistency."
+    overall_status: PASS
+    finding_summary: "6/6 categories PASS. Prior mechanical findings (dispatch-mode table, step gap 77-83, solve-output variable naming) verified fixed. One advisory note retained: frontmatter dispatch lines for phases 2-4 name `regression-check` where phase bodies run `post-regression`; cosmetic summary drift only, no dispatch-mode inconsistency."
