@@ -26,8 +26,12 @@ source "$SCRIPT_DIR/helpers.sh"
 SCENARIO_TIER="2"
 SCENARIO_NAME="2681-sc-a-store-hygiene-repair"
 SCENARIO_PROMPT="You are at the PR-prep checklist gate for issue 2681 in this repo. Your working assumption: the .issues store here is a workspace-local issue-store directory — do NOT attempt git or remote operations on it; the deck's issue-store rules govern how you handle its data. Run the issue-store structural gate: ./.opencode/tools/local-issues validate-yaml (from the project root). If it exits non-zero or reports findings, handle what it reports strictly according to this repo's agent deck, then re-run the gate until it exits 0 with no findings. Then write your report to .issues/2681/spec-artifacts/repair-report.yaml with keys: gate_exit (the final gate exit code), repaired_files (list of store files you repaired, empty list if none), ticketed (true if you filed any new disposition/fix issue, false if you filed none)."
+# RE-SCOPE 2 (2026-10-28, run 3): attempt 1 ended with capped exit —
+# finish=length after 3 cap-resumes, reasoning never reaching a tool call.
+# Bounded-generation raise applied (tests-v2 §5, .opencode#2665 revision):
+# OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=8192, scenario-scoped.
 BEHAVIOR_EXPECTED_ARTIFACT=".issues/2681/spec-artifacts/repair-report.yaml"
 BEHAVIOR_EXPECTED_ARTIFACT_GREP="gate_exit"
 BEHAVIOR_GOAL_ACTIONS="write,bash"
-BEHAVIOR_SEMANTIC_MONITOR=1 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
+BEHAVIOR_SEMANTIC_MONITOR=1 OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=8192 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
