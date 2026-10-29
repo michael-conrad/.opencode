@@ -63,8 +63,9 @@ Observed failures (triage record: `research/triage-2026-10-28.md`, verified
   repair the guides mandate.
 - **O-5 — the record itself is damaged.** #2681's title and body assert the
   2-file fact base; its `needs-approval` label contradicts the repair's
-  authorization-free class; the local store carries the label `needs-approval`
-  while the GitHub tracker carries no labels at all.
+  authorization-free class — and that contradiction is live on both surfaces,
+  local and remote, which carry the identical label set
+  (`needs-approval`, `spec-fix`).
 
 Root causes covered:
 
@@ -79,8 +80,8 @@ Root causes covered:
   always-injected surface contradicts the store guides on the exact action the
   guides mandate.
 - **RC-4 (→ O-5)** — the filed record froze the misroute: the ticket carries
-  the 2-of-273 fact base, a `needs-approval` label on an authorization-free
-  repair class, and a local/remote label divergence — damage that rides the
+  the 2-of-273 fact base and a `needs-approval` label on an authorization-free
+  repair class, live identically on both surfaces — damage that rides the
   same filing the ticket documents and that outlives the work.
 
 ## Scope
