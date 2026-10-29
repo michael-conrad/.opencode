@@ -1,6 +1,6 @@
 labels:
 - spec-fix
-updated_at: '2026-10-29T15:00:04+00:00'
+updated_at: '2026-10-29T15:44:42+00:00'
 body: '<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 
   <!-- SPDX-License-Identifier: MIT -->
@@ -115,3 +115,6 @@ body: '<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 
   '
 title: '[SPEC] Default test model is qwen3.8:27b-128k-gguf4'
+status: closed
+closed_at: '2026-10-29T15:44:42+00:00'
+close_reason: completed
