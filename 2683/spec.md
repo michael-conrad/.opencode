@@ -56,6 +56,15 @@ Deck surfaces in the `michael-conrad/.opencode` repository, plus the parent repo
 - `michael-conrad/opencode-config` git state only: one backfill tag on the currently recorded pointer and the push of local-only tags (R-6) — no file changes in the parent repository.
 
 Untouched: `floor.md` (progressive-disclosure constraint — the floor gains nothing), the parent repo's `AGENTS.md` and `guidelines/`, `hooks/`, `tools/`, the `local-issues` tool, every other card, `attic/` (the reference store the restoration reads from), the `release-promoter` clean-room gate mechanics, and any script surface beyond the two deletions named above.
+Session amendment (2026-10-29, developer-directed): the supervision poll
+reporting defect observed during this work's behavioral runs (per-poll reports
+delivered inside tool-call turns never surfaced in the UI — the #2557
+mechanism) produced a mid-session developer directive ("fix the cards to
+enforce this as needed"). It adds a one-update-per-poll clause to
+`skills/behavioral-testing/SKILL.md` §9 and rides this work's open branch and
+PR under the `work` card's scope-boundary (later directive extends the open
+scope); the fifth-card untouched guarantee above excludes this named,
+developer-directed edit.
 
 ## Requirements
 
