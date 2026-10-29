@@ -123,8 +123,6 @@ Self-contained modules with YAML frontmatter for self-discovery:
 | Script | Purpose |
 |--------|---------|
 | `session_context_triggers.py` | Trigger warning generation |
-| `validate-release-tags.sh` | Release tag validation |
-| `validate-submodule-refs.sh` | Submodule reference validation |
 
 ## Configuration
 

@@ -2,12 +2,12 @@
 name: git-workflow-commit
 description: "Always load before staging files or creating ANY commit — however small — in any repo, including when the developer says \"commit this\" or \"save my work\". Atomic commits stage only intended files; messages follow the repo convention; secrets never enter history. Submodule pointer updates ride with real parent-repo changes in the same commit."
 license: MIT
-provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; tagged-SHA pointer discipline, .opencode#2683
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; tagged-SHA pointer discipline, .opencode#2683 -->
 
 # git-workflow-commit
 
@@ -27,5 +27,11 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
      tag-prep content is the real content). The ride-along invariant governs
      the squashed review surface: the pointer rides with real changes in the
      same per-issue commit — never a standalone parent PR.
+   - **Staging-time tagged-SHA duty (restored, .opencode#2683):** a staged
+     submodule pointer is a pushed tagged SHA — annotated
+     `<parent-repo>/<issue-number>-<submodule-dir>` on the commit the gitlink
+     records, created if untagged, pushed to the submodule's remote, verified
+     there (`git ls-remote --tags`) — never staged while unreachable by a
+     pushed tag. Idempotent: a present tag is verified, not re-created.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

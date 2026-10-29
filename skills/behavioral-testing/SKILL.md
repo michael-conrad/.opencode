@@ -2,12 +2,12 @@
 name: behavioral-testing
 description: "Load for ANY opencode behavior testing — running a behavioral SC, verifying agent behavior, executing or monitoring an `opencode run`, evaluating session evidence, or deciding how to produce behavioral evidence at all. Also load when a spec SC is classified behavioral, when a test scenario script under tests-v2/ is authored or run, when a behavioral test needs a real remote API (the harness provisions a self-contained GitBucket container — §12), or when a behavioral run stalls, times out, or fails. Routes to the tests-v2 behavioral harness — never an ad-hoc `opencode run`."
 license: MIT
-provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator contract restored from pre-rip deck; #2570 supervision-cycle absoluteness + no-output-filtering
+provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator contract restored from pre-rip deck; #2570 supervision-cycle absoluteness + no-output-filtering; one-update-per-poll no-gaps clause, .opencode#2683
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2517; #2538 clean-room isolation mandate and evaluator contract restored from pre-rip verification-before-completion; #2557 supervision poll discipline (≤60s, semantic check per poll, per-poll report) -->
+<!-- Provenance: AI-authored, .opencode#2517; #2538 clean-room isolation mandate and evaluator contract restored from pre-rip verification-before-completion; #2557 supervision poll discipline (≤60s, semantic check per poll, per-poll report); one-update-per-poll no-gaps clause (POLL<n> header, aborted-poll coverage), .opencode#2683 developer directive -->
 
 # behavioral-testing — the tests-v2 harness gate
 
@@ -138,9 +138,27 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    collapses Shell calls to bare command lines, so tool results, echo-carried
    updates, and text riding in tool-call turns all fail to surface (verified
    live, #2557; the standalone text turn is the only delivery that works). The
-   update states: what the run agent is doing right now, what it intends next,
-   whether that serves the scenario's goal, and which hard-abort signals (§14)
-   have fired — read from the agent's actual words and work, not counters.
+    update states: what the run agent is doing right now, what it intends next,
+    whether that serves the scenario's goal, and which hard-abort signals (§14)
+    have fired — read from the agent's actual words and work, not counters.
+    **One update per poll — hard mandate, gap = boundary violation (.opencode#2683
+    developer directive, 2026-10-29, strengthened ×2 after repeated
+    regressions):** every poll invocation — natural, empty, errored, or
+    aborted mid-call (including a developer interrupt killing the sleep/poll
+    call) — is followed by its own standalone in-chat text update before ANY
+    next tool call, opening with `POLL <n>`. On interruption, the
+    interrupted poll's update is reconstructed in the SAME turn from the
+    live session DB (a direct sqlite/timeline read) and delivered first —
+    the supervisor never leaves a poll number unaccounted for: the
+    transcript must read poll(1) report(1) … report(N-1) report(N) for every
+    N dispatched. This is not a style preference: a poll tool call followed
+    by another tool call with no intervening text update is a boundary
+    violation in the supervision record, self-observable in the
+    transcript's shape, to be reported even when discovered after the
+    fact. The update text comes BEFORE the next poll call, never chained
+    inside a tool call, never folded into tool output; filtering or
+    truncating poll output (which suppresses the update trigger) is itself
+    a supervision defect (#2570).
    **The loop is CONTINUOUS until conclusive (#2561 developer correction):
    never yield to the developer mid-cycle — a poll cycle ends only when the
    run is conclusive (run completion, a fired hard-abort signal handled, the
