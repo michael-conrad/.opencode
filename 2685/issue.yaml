@@ -1,3 +1,117 @@
 labels:
 - spec-fix
-updated_at: '2026-10-29T14:59:46+00:00'
+updated_at: '2026-10-29T15:00:04+00:00'
+body: '<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+
+  <!-- SPDX-License-Identifier: MIT -->
+
+
+  # [SPEC] Default test model is qwen3.8:27b-128k-gguf4
+
+
+  ## Problem
+
+
+  The #2681 behavioral runs repeatedly hit the bounded-generation ceiling on `ollama/qwen3.8:27b-256k-gguf4`
+  (truncated reasoning, capped-exit attempts, ~1h per scenario). Smoke measurement
+  showed the deployment''s `qwen3.8:27b-128k-gguf4` fits 100% in VRAM (21 GB vs a
+  24 GB card, no PCIe spill) and runs ~1.6×–5× faster. The developer directed the
+  switch (2026-10-29) and the 2-line `tests-v2/default-model.sh` change merged via
+  #2684 — but it rode that PR unenumerated, so no spec named it. This spec is that
+  record (the #2681 record pattern: change merged, spec formalizes and verifies it),
+  and it covers the leftover staleness: two inline fallback literals in `tests-v2/with-test-home`
+  (lines 281, 393) and four model-value references in `tests-v2/AGENTS.md` (lines
+  349, 543, 672, 766) still carry the superseded default.
+
+
+  ## Scope
+
+
+  - `tests-v2/default-model.sh` — single-source `DEFAULT_TEST_MODEL` default is `ollama/qwen3.8:27b-128k-gguf4`
+  (merged in #2684; acceptance defined here).
+
+  - `tests-v2/with-test-home` — the two inline fallback literals retire: they route
+  through `default-model.sh` (no hardcoded model string remains in the wrapper).
+
+  - `tests-v2/AGENTS.md` — the four stale model-value references (349 §5 fallback
+  desc, 543 Invocation Example, 672 §9 R-20 clause, 766 §10.4 evidence) update to
+  the new default; rule text unchanged.
+
+
+  Out of scope: model-selection policy (R-20 stands — failures remediate through defect
+  classes or spec re-scope, never model-shopping); the self-contained 256k PROMPT
+  fixture in `behaviors/2557-sc17-supervised-polling.sh`; per-run `DEFAULT_TEST_MODEL`
+  overrides; harness behavior/tiers/fixtures beyond the fallback alignment.
+
+
+  ## Requirements
+
+
+  - **R-1** — `tests-v2/default-model.sh` defaults to `ollama/qwen3.8:27b-128k-gguf4`;
+  caller override (`${DEFAULT_TEST_MODEL:-…}`) preserved.
+
+  - **R-2** — single source of truth: `with-test-home`''s fallbacks route through
+  `default-model.sh`; no other deck file defaults the model string.
+
+  - **R-3** — `tests-v2/AGENTS.md` carries no stale default-model value at lines 349/543/672/766;
+  rule text unchanged, values current.
+
+
+  ## Success criteria
+
+
+  | ID | Criterion | Class | Instrument |
+
+  |---|---|---|---|
+
+  | SC-1 | default-model.sh default = 128k-gguf4, override honored | structural |
+  executed `bash -c` sourcing, both ways, captured output |
+
+  | SC-2 | superseded literal only at the sanctioned 2557-sc17 PROMPT fixture; fallbacks
+  sourced via default-model.sh | structural | `grep -rn qwen3.8:27b-256k-gguf4 tests-v2/`
+  hits only at the fixture + fallback-site read-back |
+
+  | SC-3 | harness runs select the new default | behavioral (provenance on file) |
+  #2681 GREEN harness manifests record `model: ollama/qwen3.8:27b-128k-gguf4` (model
+  recorded by the harness, not asserted) |
+
+  | SC-4 | AGENTS.md model values current at 349/543/672/766 | structural | grep zero-hit
+  for the superseded literal + read-back |
+
+
+  ## Approach
+
+
+  The default switch is merged (#2684) and verified by SC-1 evidence (executed this
+  session) and SC-3 provenance (the two #2681 GREEN behavioral manifests). Remaining:
+  the fallback/doc alignment in `with-test-home` and `AGENTS.md`, verified by SC-2/SC-4
+  instruments.
+
+
+  ## Impact
+
+
+  - **Consumers:** every `behavior_run` invocation, `with-test-home`''s classifier/warmup
+  fallback, any process sourcing `default-model.sh`.
+
+  - **Risk:** 131072-token runtime `num_ctx` is half the 256k tag''s — a scenario
+  legitimately needing 262k context re-scopes at its own spec.
+
+  - **Blast radius:** `tests-v2/default-model.sh` (merged), two `with-test-home` fallback
+  sites, four `AGENTS.md` references. No behavioral logic changes.
+
+  - **Recovery:** same-line edit reverses the default; on-file behavioral evidence
+  remains valid (manifests record the model actually used).
+
+
+  Basis: developer directive 2026-10-29; observed failure record in `.issues/` (trage
+  evidence in the #2681 session record and smoke measurements of 2026-10-28/29).
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2685/
+
+
+  Artifacts for agents: `.issues/2685/`.
+
+  '
+title: '[SPEC] Default test model is qwen3.8:27b-128k-gguf4'
