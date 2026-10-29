@@ -2,12 +2,12 @@
 name: git-workflow-branch
 description: "Always load before creating any git branch or starting any work on a task in any repo — however small the task seems. Branch naming, trunk-freshness checks, submodule sync, provenance recording. Never commit directly to the trunk-identified primary branch; the feature branch exists before the first file modification."
 license: MIT
-provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; scope-boundary provision, .opencode#2639
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; scope-boundary provision, .opencode#2639; tagged-SHA pointer discipline, .opencode#2683
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; scope-boundary provision, .opencode#2639 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; scope-boundary provision, .opencode#2639; tagged-SHA pointer discipline, .opencode#2683 -->
 
 # git-workflow-branch
 
@@ -35,7 +35,8 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    scope:** this sync applies to *registered* submodules — entries git's own
    submodule mechanism tracks. A checkout the workspace root does not track
    (a gitignored or otherwise unregistered sub-repository) is not a
-   submodule: it has no pointer to sync.
+   submodule: it has no pointer to sync. A tip this step stages for pointer
+   capture follows the tagged-SHA pointer discipline (rule 3).
    **Bounded verification.** Trunk-freshness verification is bounded and
    read-only: verify the working repo's trunk tip against its remote (fetch
    and compare) and proceed to the branch decision on that evidence. A
@@ -51,7 +52,22 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    commits** — and only then commence work. At the review surface the
    pointer-only prohibition applies (see `git-workflow-commit` #5 and
    `git-workflow-pr`): the pointer rides with real changes in the squashed
-   per-issue commit, never as a standalone parent PR. **Registration scope:**
+   per-issue commit, never as a standalone parent PR.
+   **Tagged-SHA pointer discipline (restored, .opencode#2683).** Before a
+   parent commit records a submodule pointer, the recorded SHA carries a
+   pushed annotated hash-permanence tag `<parent-repo>/<issue-number>-<submodule-dir>`
+   in the submodule repository: create the tag if the commit is untagged
+   (idempotent — a present tag is verified, never re-created; a name that
+   exists pointing elsewhere is reported, never silently re-created),
+   push it to the submodule's remote, and verify it on the remote
+   (`git ls-remote --tags`). The tag targets the commit the gitlink records —
+   not the submodule working tree's HEAD when the two differ. Every recorded
+   pointer stays name-reachable through branch cleanups and release flows;
+   `git-workflow-pr` §2 blocks a PR whose bumps carry unverified pointers,
+   and `git-workflow-cleanup` runs the idempotent tag-if-untagged backstop
+   before branch deletion. Push failure on a pull-only origin (#2667) is
+   reported per that rule — no silent omission.
+   **Registration scope:**
    the pointer-capture commit applies to *registered* submodules only; a
    checkout the workspace root does not track is not a submodule — it has no
    pointer to capture, and the agent does not move its HEAD to a remote trunk
