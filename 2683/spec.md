@@ -52,7 +52,7 @@ Deck surfaces in the `michael-conrad/.opencode` repository, plus the parent repo
 - `skills/git-workflow-cleanup/SKILL.md` — the idempotent tag-if-untagged backstop and push reconciliation before feature-branch deletion.
 - `skills/release-promoter/SKILL.md` — the hash-permanence/release-tag carve-out wording, so the release-artifact rule reads correctly against discipline tags.
 - `scripts/validate-release-tags.sh`, `scripts/validate-submodule-refs.sh` — deleted; `README.md` rows 126–127 removed.
-- `tests-v2/` — two behavioral scenarios (R-8, R-9 of the criteria below) on the existing harness.
+- `tests-v2/` — two behavioral scenarios (SC-5, SC-6 below) on the existing harness.
 - `michael-conrad/opencode-config` git state only: one backfill tag on the currently recorded pointer and the push of local-only tags (R-6) — no file changes in the parent repository.
 
 Untouched: `floor.md` (progressive-disclosure constraint — the floor gains nothing), the parent repo's `AGENTS.md` and `guidelines/`, `hooks/`, `tools/`, the `local-issues` tool, every other card, `attic/` (the reference store the restoration reads from), the `release-promoter` clean-room gate mechanics, and any script surface beyond the two deletions named above.
@@ -82,7 +82,7 @@ Constraint frame (developer-stated, this session):
 | SC-4 | structural | Both validator scripts and their README rows are gone; no other file under `scripts/`, `tools/`, or `hooks/` is added or modified; `floor.md`, `guidelines/`, the parent `AGENTS.md`, and the parent's tracked files other than the submodule pointer are untouched by the work | worktree diff (changed-file list of the deliverable) + file-tree check |
 | SC-5 | behavioral | A supervised run that performs a parent-repo pointer capture: the submodule commit is tagged, the tag is pushed to the submodule's remote, the recorded pointer is the tagged SHA, and the pre-PR gate verifies tag presence on the remote | a real harness run of a new scenario under `tests-v2/` (the `opencode run` instrument, per the `behavioral-testing` card — no grep or static-analysis substitute); evidence is the run transcript and its verdict |
 | SC-6 | behavioral (negative) | A pointer capture lacking the pushed tag is caught at the pre-PR gate and remediated (tag created and pushed) before PR creation | the same harness, scenario with the tagged-packet withheld; verdict from the run transcript |
-| SC-7 | structural | The recorded pointer's tag is on the submodule's remote, and the live remote's local-only tag count for the work's tags is zero from the work onward | `git ls-remote --tags` on `michael-conrad/.opencode` compared with the local tag list |
+| SC-7 | structural | The backfill tag R-6 names and each of the seven F-6 tags are on the submodule's remote — none of the eight remains local-only | `git ls-remote --tags` on the submodule origin compared against the local tag list for those eight names |
 
 ## Traceability
 
