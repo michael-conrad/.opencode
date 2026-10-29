@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; issues-data remediation-first clause, .opencode#2681 -->
 
 # git-workflow-pr
 
@@ -28,7 +28,16 @@ authorization has an implementation commit or an explicit N/A; (b) the full
 test suite ran **green** this session with captured output — red output
 blocks PR creation until every failure is remediated or dispositioned via a
 filed fix issue; "the failures pre-existed" is a defect to file, never a
-   pass-through (#2553); (c) fresh-context
+   pass-through (#2553). A failure whose remedy is issue-store hygiene
+   (workspace-local repair of issue-store data on the store's `issues-data`
+   branch — YAML validity, record fields, store metadata; the store's
+   workspace guide authorizes it agent-owned and authorization-free) routes
+   remediate-in-place: repair the store in the same working session via the
+   store's own tooling, and the blocked gate proceeds on that repair. Filing
+   a fix issue never substitutes for an available, in-scope hygiene repair.
+   The filed-fix-issue branch stays the route for failures whose remedy
+   requires implementation authorization — any change outside the issue
+   stores; (c) fresh-context
    `verify` PASS recorded against the issue's spec. Any failure → halt and
    report the gap — never create the PR anyway.
    (d) **Submodule pointer inclusion:** a parent-repo PR includes pending

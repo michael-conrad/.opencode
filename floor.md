@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2518/#2525 authorization anchors; #1011 dispatch-scope containment; decision-loop counterweight clauses, .opencode#2670; agent-owned scoped branch rewrite + whole-card discipline conversion, .opencode#2665 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2518/#2525 authorization anchors; #1011 dispatch-scope containment; decision-loop counterweight clauses, .opencode#2670; agent-owned scoped branch rewrite + whole-card discipline conversion, .opencode#2665; issues-data exception, .opencode#2681 -->
 
 # Agent Floor
 
@@ -97,7 +97,15 @@ never authorization.)
 
 **Default scope.** A session carrying no scope-bearing token operates at
 read-only scope: reading, searching, and reporting only — no branch creation,
-no file modification, no PR creation, no issue closure.
+no file modification, no PR creation, no issue closure. Exception —
+issue-store workspace maintenance: operations an issue store's own workspace
+guide authorizes — reading, writing, and repairing workspace-local issue-store
+data on the store's `issues-data` branch via the store's own tooling,
+including hygiene repairs and the session-start `init`/`sync` sequence — are
+agent-owned workspace maintenance: they sit outside this blocklist and
+outside a dispatched session's scope-bounding, and they require no
+scope-bearing token. The exception covers issue-store data only; source code,
+deck content, feature branches, and PRs stay inside the existing gates.
 
 **Closed token set.** An utterance matching no token in this vocabulary
 carries no authorization and routes to the default scope; default agent
@@ -114,7 +122,10 @@ authorization is exactly its dispatch prompt:
 - No action beyond those the dispatch prompt requests; referencing a skill,
   card, or named task does not authorize the referenced artifact's other
   steps (where the prompt enumerates narrower actions, the enumeration
-  governs).
+  governs). The dispatch bound excludes issue-store workspace maintenance
+  only in the sense above: store-guided operations on the store's
+  `issues-data` branch sit outside this bound — issue-store data is not a
+  dispatch prompt's surface.
 - Loaded instructions mandating more than the prompt requests: perform none,
   report the conflict, request direction (open-ended, per the standing
   formula) — never report completion over unrequested work.
