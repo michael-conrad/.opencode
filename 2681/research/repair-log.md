@@ -7,7 +7,7 @@ Generated 2026-10-28.
 
 | file | chosen reading | ground |
 |---|---|---|
-| 1057/spec-artifacts/links.yaml | block scalar (verbatim, tabs→spaces) | preserves original text verbatim; original schema unguessable, no restructuring (R-1); unambiguous single reading |
+| 1057/spec-artifacts/links.yaml | block scalar (verbatim, tabs→spaces) + top-level `links: []` key | content preserved verbatim as archived_content; the links:[] key was added as a second, distinct choice because the store's validator schema-checks any file named links.yaml (dict with a links list) — logged retroactively per SC-2 (filed in commit 2e84ff0a6) |
 | 1223/sc-summary.yaml | block scalar (verbatim, tabs→spaces) | preserves original text verbatim; original schema unguessable, no restructuring (R-1); unambiguous single reading |
 | 1260/artifacts/timeline.yaml | block scalar (verbatim, tabs→spaces) | preserves original text verbatim; original schema unguessable, no restructuring (R-1); unambiguous single reading |
 | 1260/tmp/artifacts/timeline.yaml | block scalar (verbatim, tabs→spaces) | preserves original text verbatim; original schema unguessable, no restructuring (R-1); unambiguous single reading |
