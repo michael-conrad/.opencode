@@ -1,6 +1,8 @@
 # Repair (2026-10-28, michael-conrad/.opencode#2681, R-1): this file was
 # not parse-valid YAML. Original content preserved verbatim below as a
 # YAML scalar; repair touches validity only (SC-2: minimal preservation).
+# `links: []` added to satisfy the store's links.yaml schema check (SC-2).
+links: []
 archived_content: |
     # Issue 1057 — Links
 
