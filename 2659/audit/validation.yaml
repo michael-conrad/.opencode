@@ -1,3 +1,4 @@
+issue: .opencode#2659
 spec:
   artifact: spec.md
   rounds:
@@ -6,17 +7,22 @@ spec:
     validator: fresh-context sub-agent dispatch (general)
     verdict: PASS
     findings: []
-    classes_adjudicated:
-    - class: invented requirement
-      classification: checked, no finding
-    - class: untestable criterion
-      classification: checked, no finding
-    - class: incapable instrument
-      classification: checked, no finding
-    - class: fabricated claims
-      classification: checked, no finding (all quoted text, commit SHAs, and cited measurement claims verified against the live artifacts)
-    - class: traceability/cross-reference sufficiency
-      classification: checked, no finding (SC-1..SC-4 trace one-to-one to R-1..R-4; cited artifact sections support the claims)
-    writer_self_check:
-      remediated: 3 mechanical defects (two typos, one imprecise line span 98-99 -> 98-100) before dispatch
-    record: zero-finding round; spec stands at the approval gate (issue remains needs-approval)
+    record: zero-finding round pre-authorization (approval gate)
+plan:
+  artifact: plan.md
+  rounds:
+  - round: 1
+    date: '2026-10-30'
+    validator: fresh-context sub-agent dispatch (general)
+    verdict: PASS
+    findings: []
+    record: zero-finding round; surface-grouped SC-2/3/4 item adjudicated acceptable (audit/plan-validation.yaml)
+implementation:
+  artifact: store-record repair commit 9bcd360cf
+  rounds:
+  - round: 1
+    date: '2026-10-30'
+    validator: fresh-context sub-agent dispatch (general)
+    verdict: PASS
+    findings: []
+    record: SC-1..SC-4 verified by full reads and greps against the spec; scope clean — store-local only; master hits confined to the upstream-source reference and the refuted-deck-claim citation
