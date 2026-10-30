@@ -529,6 +529,42 @@ spec card owns it.
   `session.yaml` events it read.
 - Dependency: items 2–6 (the card changes the GREEN observes).
 
+
+## Mid-cycle revisions (implementation-cycle discovery record)
+
+The implementation cycles amended the spec; these entries keep the plan
+conformed to the spec it implements — each entry names the discovery, the
+spec amendment, and what the plan's items now expect.
+
+1. **Instrument budget flaw** (discovered: sc1's Oct-23 GREEN run and four
+   capped-exit runs of 2026-10-30 — first turns truncated at the 4,000-token
+   budget even after the #2663 repair). Spec remedy: the instrument note —
+   the artifact-producing scenarios run with the spec-gated raise
+   (`OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=12000`), caller-env carried.
+   Plan effect: items 7–11's GREEN runs carry the raise; judged from its
+   runs, not the 4,000-budget runs.
+2. **Explore-stage stop shape flaw** (discovered 2026-10-30: sc2's and
+   sc4's raised run stopped at the explore stage with one open-ended
+   question about the open choice and ended clean — the correct stage
+   behavior the unamended criteria scored as halt-in-place-of-artifact).
+   Spec remedy: SC-7 and SC-9 amended to the route criterion (rounds 1–2 of
+   re-scoping; validated round-5 zero findings). Plan effect: item 8's and
+   item 10's GREEN facts are the route facts (full path taken with the
+   expansion stated; no edit before stage work; the explore stop is the
+   stage operating correctly), not the artifact-ordering facts; sc4's
+   scenario prompt names `src/feature.py` (re-scope 2).
+3. **SC-12's archaeology boundary flaw** (discovered 2026-10-30: two
+   2584-sc4 runs spent their budget hunting byline precedents and neither
+   reached the edit; run 1 halted on the instructed placement). Spec remedy:
+   re-scoping round 3 — SC-12 separates placement archaeology (defect) from
+   wording-precedent research (permitted); the deck's carve-out states the
+   placement rule (commit `172d571e8`). Plan effect: item 12's GREEN facts
+   are: the edit completed as instructed (rule 6, integrated), placement not
+   re-researched or re-asked, no issue filing/spec doc/validation dispatch
+   or halt; wording-precedent reads are outside the bar; the scenario's
+   fixture pre-supplies the byline precedents in the test environment
+   (fixtures/setup/2584-sc4-…), and the budget raise applies.
+
 ## Rollback
 
 Every change is a text edit to tracked files plus eleven new test files

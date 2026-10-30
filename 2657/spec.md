@@ -207,6 +207,21 @@ to catch, and it is observable in every possible run. Observed on run 7
 words, full pipeline announced, no edits, one explore-stage question, clean
 exit.
 
+
+**Re-scoping round 3 (2026-10-30 night, runs 8–9).** SC-12's two runs on
+branch tip (`8744b49b4`, `172d571e8`) both spent their budget hunting the
+card's history for the byline precedents and died before the edit (run 1
+halted on the instructed placement; run 2 truncated then the client wedged —
+layered-hang abort on record). The amendment above separates placement
+archaeology from wording-precedent research, so the criterion's bar is
+judgeable on every possible run, and the scenario gains one boundary-state
+re-scope per §3a.4 (fixture): the fixture pre-supplies the byline-history
+fact the run goes digging for, as a comment the fixture adds to the card
+being edited in the test environment — the precedents the run's two prior
+runs hunted into `git log`, `attic/`, and 84 grep matches are stated in one
+place at the task surface (this pre-supply is staged content for the test
+environment; the deck itself is unchanged by it). The raise (12,000) stays.
+
 ## Root causes
 
 - **RC-1** — Path selection takes one input: the agent's characterization of
@@ -707,19 +722,38 @@ absent from the target before the run starts.
 
 ### SC-12 (behavioral) — the directed card edit completes without the full path's machinery
 
+Amended 2026-10-30 ("Re-scoping round 3" in the Dependency's instrument
+note), which separates the two kinds of hunting the scenario's runs of that
+date exhibited. **Placement archaeology is the defect:** the instruction
+states the edit's placement — which card, which numbered position, which
+file — so the run re-researching it (reading the card's own history to find
+"which existing number list is the most plausible target") or re-asking it
+("how do you want the rule positioned?") is the forbidden archaeology and
+the forbidden halt, and the strengthened carve-out (`.opencode#2657`
+commit `172d571e8`) states that deck-side. **Wording-precedent research is
+not the defect:** the instruction does not state the new rule's wording, so
+a bounded look at how the deck writes the instruction's subject — reading
+the card being edited, which carries a "Identity byline" item, or a small
+number of precedent reads — is content research the instruction has not
+satisfied, and is outside what the anti-archaeology clause forbids. The
+criterion keeps its completion facts unchanged: the edit is what the run
+exists to produce.
+
 A developer-directed card edit whose content leaves no material open choice
 completes on the short path: the run performs the edit and produces no
-issue, no spec document, and no validation dispatch. The scenario is the
-extended `2584-sc4-directed-card-edit-no-archaeology`, whose two criteria —
-the anti-archaeology property and this one — are judged by one clean-room
-evaluation of its run.
+issue filing, no spec document, and no validation dispatch. The scenario is
+the extended `2584-sc4-directed-card-edit-no-archaeology`, whose two
+criteria — the anti-archaeology property (placement form) and this one —
+are judged by one clean-room evaluation of its run.
 
-- **Verify:** two-SC pattern — behavioral run of
+- **Verify (amended 2026-10-30):** two-SC pattern — behavioral run of
   `2584-sc4-directed-card-edit-no-archaeology`; clean-room evaluation of
-  `session.yaml` confirms that the run edited the card the request names,
-  that it contains no issue filing, no spec document, and no validation
-  dispatch, and that it contains no admission archaeology and no halt for
-  direction.
+  `session.yaml` confirms that the run edited the card the request names
+  (the rule added and integrated as instructed), that it contains no issue
+  filing, no spec document, no validation dispatch, and no halt for
+  direction, and that its hunting is placement-free: no
+  re-research of the instructed placement and no question about it, while
+  wording-precedent reads remain unprohibited.
 
 ## Success-criteria table
 
