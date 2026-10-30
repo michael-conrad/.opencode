@@ -312,6 +312,78 @@ spec:
       2026-10-30 table), fabricated claims / cross-reference sufficiency, factual
       kind mis-scoped run attribution (instrument note binds the 4,000-budget
       truncation characterization to the enumerated four runs, whose fourth —
-      sc3, 12,000 budget — recorded no finish:length truncation and is recorded
+      sc3, 12,000 budget — recorded no finish:length       truncation and is recorded
       by the table as a 12,000-budget early-exit run)]
+    verdict: FAIL
+  - round: 4
+    date: 2026-10-30
+    artifact_state: REVISED spec at store commit "validation round-3 remediation" —
+      evidence.md item 1's count corrected to five capped-exit sc1/sc3 runs; the
+      instrument note's 4,000-budget truncation characterization scoped to the
+      branch tip's 4,000-budget runs (sc1/128k + sc3/4k, plus the Oct-23 sc1/sc3
+      runs noted as pre-repair), with sc2's 4,000 run and the sc3/sc4 12,000 runs
+      stated as exceptions.
+    scope: |
+      Same criteria set as rounds 1-3 (spec card validation standards). Round-4
+      check: the two remediated passages verified against evidence.md's run
+      tables and, where the claim names a run property (finish:length,
+      never-written/never-edited), against the named runs' exports; remaining
+      criteria unchanged from rounds 1-3. Finding bar: factual defects and
+      enumerated classes only, never preferences.
+    adjudications:
+      - class: fabricated claims / cross-reference sufficiency (factual kind:
+          mis-scoped run attribution — wrong count)
+        classification: finding
+        detail: >-
+          Evidence item 1's remediated parenthetical reads "five capped-exit runs
+          across sc1/sc3 (three on the branch tip, two from 2026-10-23)" — the
+          distribution is swapped. The record supports three capped-exit
+          sc1/sc3 runs from 2026-10-23 (sc1 RED, sc1 GREEN, sc3 RED, all on the
+          256k model with recorded length finishes per the "Runs completed"
+          table and its cause analysis) and two on the branch tip (the
+          2026-10-30 sc1 4k and sc3 4k rows). The spec's own instrument note
+          states the same distribution the item inverts ("one sc1 run and one
+          sc3 run" on the branch tip, "plus, before the repair, the Oct-23
+          sc1/sc3 runs"). The total of five is correct; the per-table split
+          misstates the record.
+        outcome: remediation required — swap the parenthetical's distribution
+          (two on the branch tip, three from 2026-10-23).
+    factual_accuracy_checked:
+      - Remediated passage 2 (instrument note budget scoping) vs the exports:
+        verified. sc1-4k export (session.yaml, 128k dir) records finish:length
+        truncations (12 message-level, output 4,000 ×20) and zero
+        write/edit/patch tool calls — "docs/upload-retry-spec.md is never
+        written" holds. sc3-4k's export is the shared directory's
+        session-preexile-stale.yaml (12 finish:length truncations; zero
+        write/edit/patch calls — the trivial heading edit never happened,
+        holds). The sc3 12,000-budget re-export (session.yaml,
+        test-home-20261030-151223, the round-3 finding-B source) records no
+        finish:length anywhere and contains the Support edit — correctly moved
+        into the never-truncated exceptions. Both sc4 12,000-budget exports
+        (aborted run and run-7 `-1`) record zero finish:length — the "never
+        truncated" exception holds. sc2's 4,000 run's export ends with
+        step-finish reason "stop" and exit_code 0 — its "ended cleanly on the
+        amended route" exception is accurate (the note claims no truncation
+        facts for it). The Oct-23 slug reference (256k) matches the directories.
+      - Remediated passage 1 (evidence item 1): total count five is correct;
+        the per-table split is swapped — see the finding above.
+      - Prior-round remediations re-checked for survival: SC-7's amended Verify,
+        SC-9's rewritten body/Verify, SC-11's anchor-role statement, and the
+        round-3 note conformance remain in place at the store commit.
+    testability: Unchanged from round 3 — the amended criteria's facts are judged
+      from session.yaml alone in the recorded evaluations; no new criterion was
+      introduced this round.
+    weakening: No — the remediations narrow run-fact claims to what the exports
+      record; no developer-stated property is touched.
+    reevaluation_ran: false
+    spin_judgment: Not spinning — round 3's findings genuinely resolved (budget
+      scoping now matches the exports; count corrected six→five), and this
+      round's finding is a residual mis-scoped split inside the sentence the
+      last remediation touched, not a reshuffled or recurring finding in kind.
+      Revisions used: the count trigger has not fired; convergence is
+      incremental and genuine.
+    findings: [fabricated claims / cross-reference sufficiency, factual kind
+      mis-scoped run attribution / wrong count (evidence item 1's parenthetical
+      swaps the per-table distribution — three capped runs are the 2026-10-23
+      set and two are the branch-tip set, stated reversed)]
     verdict: FAIL
