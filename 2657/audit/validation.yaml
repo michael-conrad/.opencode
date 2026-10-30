@@ -1,0 +1,317 @@
+# Validation record — .opencode/.issues/2657/spec.md
+# Per spec card validation standards §Loop. One section per artifact under validation.
+
+spec:
+  - round: 1
+    date: 2026-10-30
+    artifact_state: REVISED spec — instrument note "bounded-generation raise (re-scope record,
+      2026-10-30)" with its two amendments (SC-6 composition-reach clarification; SC-7
+      "halt in place" clause replacement), plus the appended "Re-scoping round 2
+      (2026-10-30 evening, runs 6–7)" SC-9 route-criterion amendment.
+    scope: |
+      Audit bar (spec-audit criteria set): (1) revision's factual accuracy against the
+      recorded run evaluations (SC-6 GREEN evaluation-20261030183856 PASS; SC-7 GREEN
+      evaluation-20261030183943 PASS under the amended bar; SC-9 FAIL
+      evaluation-20261030193637; sc4 abort-diagnosis-20261030; five capped-exit runs
+      in evidence.md); (2) testability of the amended criteria from session.yaml alone;
+      (3) no weakening of the underlying developer-stated properties; (4) internal
+      consistency with unamended criteria; (5) amend-the-criteria-set path per verify
+      card rule 8.
+    adjudications:
+      - class: cross-reference sufficiency / fabricated claims
+        classification: finding
+        detail: >-
+          The instrument note states "The five capped runs are recorded in the issue's
+          evidence.md with their artifact directories" and catalogs them (sc1 ×2, sc2,
+          sc3 ×2; the 17,529-character reasoning block; docs/upload-retry-spec.md never
+          written). evidence.md records no such runs: its "Runs completed" table lists
+          four runs on commits a1fb61c6 (pre-change) and 85c525e3 (new) with the 256k
+          model; no 2026-10-30 branch-tip 128k-GGUF4 capped-GREEN run rows, no run-6/run-7
+          sc4 entries, and no artifact directories matching the cited evaluation
+          directories (…-128k-gguf4-1 etc.). The claim cites a source that does not
+          support it.
+        outcome: remediation required — record the five capped runs (and the runs 6–7
+          re-runs) in evidence.md with their artifact directories before the claim can
+          stand, or rest the note's run-fact claims on the directories it actually cites.
+      - class: self-containment violation (superseded text survives alongside its replacement)
+        classification: finding
+        detail: >-
+          SC-7's Verify clause still reads "and that the run does not halt in place of
+          that artifact" (spec.md:563), while the instrument note states that exact
+          clause is replaced (the explore stage's one open-ended question is legitimate
+          full-path behavior). A clean-room evaluator reading the criterion body meets
+          both bars and can fail a run the amendment legitimizes. The amendment is
+          recorded but the superseded body text was not conformed.
+        outcome: remediation required — edit SC-7's Verify clause in place per the note's
+          replacement statement (keeping the "if the artifact appears, the original
+          ordering binds" condition inside the criterion text).
+      - class: self-containment violation / internal contradiction
+        classification: finding
+        detail: >-
+          The round-2 SC-9 amendment restates the criterion's facts as the four route
+          facts and legitimizes a stop at the explore stage, but SC-9's criterion body
+          and Verify (spec.md:588–609) are untouched and still require "produces the
+          full path's earliest missing stage's artifact before it edits that second
+          file" and the three-event ordering "expanded scope statement, then a full-path
+          spec artifact, then the second file's edit." The amendment never names the
+          clauses it supersedes (unlike the SC-7 amendment, which does). Effectively
+          contradictory requirements survive in force together; SC-11's declaration that
+          SC-9's scenario declares a spec-artifact goal anchor compounds the tension.
+        outcome: remediation required — conform SC-9's body and Verify in place to the
+          four route facts (with the "if the run reaches the spec stage's artifact, the
+          original ordering binds" condition), and reconcile SC-11's SC-9 anchor
+          declaration with the amended criterion.
+    factual_accuracy_checked:
+      - SC-6 amendment vs evaluation-20261030183856.yaml: PASS verdict and all three
+        amended facts (spec file written with retry content; no implementation edit;
+        composition reached) match the recorded evaluation. Confirmed.
+      - SC-7 amendment vs evaluation-20261030183943.yaml: PASS under the amended
+        route bar matches the recorded evaluation (full path announced before any edit;
+        no edit to src/search.py; one explore-stage question). Confirmed.
+      - SC-9 route facts vs evaluation-20261030193637.yaml: the run-7 observed facts
+        the note records (second-file need identified; full path announced; no edits;
+        one explore-stage question; run ended exit 0) match the FAIL evaluation's
+        per-fact resolutions. Confirmed (the run's FAIL was on the unamended artifact
+        bar, consistent with the amendment's purpose).
+      - Abort diagnosis cited for sc4 GREEN run 1 exists and reads as summarized.
+    testability: Amended SC-6, SC-7, SC-9 facts are each observable from session.yaml
+      alone — class-2 untestable-criterion and class-8 state-undecidable adjudicated
+      and not present.
+    weakening: No — the underlying properties (stage request runs its stage; complicated
+      change does not ride the short path; no implementation edit before full-path
+      stage work; no second-file edit before the full path's route) are preserved in
+      all three amendments.
+    reevaluation_ran: false
+    findings: [cross-reference sufficiency / fabricated claims (evidence.md does not
+      record the five capped runs; run-6/7 catalog absent), self-containment violation
+      (SC-7 superseded Verify clause survives), self-containment violation / internal
+      contradiction (SC-9 unamended body/Verify conflict with round-2 amendment)]
+    verdict: FAIL
+  - round: 2
+    date: 2026-10-30
+    artifact_state: REVISED spec at store commit 90d4d0571 — instrument note's SC-7
+      amendment conformed in place (Verify header now carries "the instrument note's
+      SC-7 bullet governs where it differs" plus the amended route bar with the
+      artifact-appears conditional); SC-9 body and Verify rewritten to the amended
+      four-fact route criterion naming the superseded three-event ordering; SC table
+      row updated; evidence.md gained the "Runs of 2026-10-30" section and the 2026-10-30
+      run evaluations cited by the spec (evaluation-20261030183856, evaluation-20261030183943,
+      evaluation-20261030193637) now exist in the named artifact directories.
+    scope: |
+      Same criteria set as round 1: (1) factual accuracy of the run-evidence claims
+      against evidence.md's "Runs of 2026-10-30" table and the named evaluation files
+      under tmp/behavioral-evidence-*/; (2) testability of the amended criteria from
+      session.yaml alone; (3) no weakening of the developer's underlying properties;
+      (4) internal consistency incl. SC-11's anchors vs the amended criteria;
+      (5) amend-the-criteria-set path per verify card rule 8 Finding bar: factual
+      defects and enumerated defect classes only.
+    adjudications:
+      - class: cross-reference sufficiency / fabricated claims
+        classification: finding
+        detail: >-
+          (Recurring from round 1 — partially remediated, core mismatch survives.)
+          The instrument note's run-fact claim "five GREEN runs ... (2026-10-30;
+          sc1 ×2, sc2, sc3 ×2, model qwen3.8:27b-128k-gguf4) show the run agent's
+          first turn exceeding the 4,000-token output budget ... docs/upload-retry-spec.md
+          is never written; sc3's trivial heading edit never happened" is not supported
+          by evidence.md's "Runs of 2026-10-30" table: the table records one capped
+          sc1 row (not two), one capped sc3 row ("never edited") plus a second sc3
+          row whose outcome is "supervisor early exit once the goal artifact
+          appeared" (contradicting "heading edit never happened" for a sc3 ×2
+          enumeration), no capped-exit characterization for the sc2 row, and no row
+          at all for the raised SC-6 run whose directory
+          (tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-128k-gguf4-1)
+          and evaluation (evaluation-20261030183856.yaml: PASS, spec written ~53 min)
+          the spec's own SC-6 amendment and evidence item 1 cite. Evidence item 1's
+          "six capped-exit runs across sc1/sc3" also contradicts the same section's
+          table (three sc1/sc3 rows, two capped-labeled). The claim cites a source
+          that does not support it.
+        outcome: remediation required — conform the instrument note's run enumeration
+          and facts to the runs evidence.md actually records (or record the missing
+          runs, including the raised SC-6 run row and the sc2/sc3-run counts, so the
+          note's parenthetical and its never-written/never-edited facts are each
+          traceable to a table row), and reconcile evidence item 1's "six capped-exit
+          runs across sc1/sc3" with the table.
+      - class: internal contradiction
+        classification: finding
+        detail: >-
+          (Recurring from round 1; the round-1 remediation outcome for the SC-9
+          amendment explicitly required reconciling SC-11's SC-9 anchor declaration,
+          and SC-11 is unchanged.) SC-11 (spec.md §SC-11 Verify) still classes
+          SC-9's scenario among "the four whose criterion's artifact has a known path
+          — SC-6, SC-8, SC-9, and 2584-sc4" declaring BEHAVIOR_EXPECTED_ARTIFACT and
+          BEHAVIOR_EXPECTED_ARTIFACT_GREP with a pattern "absent from the target
+          before the run and present after it". The amended SC-9 legitimizes a
+          compliant run that ends at the explore stage with no spec artifact (and
+          run 7's record shows no issue reserved and no work record written), so a
+          run satisfying SC-9 as amended can leave the declared present-after anchor
+          unsatisfied — the two criteria contradict each other in effect.
+        outcome: remediation required — reconcile SC-11's SC-9 anchor declaration
+          with the amended route criterion (either move SC-9's scenario to the
+          no-artifact anchor group with its stated grounds, or restate SC-9's
+          declared anchor to an observable that is present in every criterion-compliant
+          run).
+    factual_accuracy_checked:
+      - SC-7 amended Verify vs directory content: coherent in place — the Verify
+        header's "the instrument note's SC-7 bullet governs where it differs" plus
+        the appended amended bar with "if the spec artifact does appear, the original
+        ordering still binds" scopes each clause to a case; no conflicting two-bar
+        reading survives. Adjudicated not defective (class 6 examined, not present).
+      - SC-9 rewritten body/Verify vs evaluation-20261030193637.yaml: every amended
+        route fact matches the recorded per-fact resolutions (second-file need at
+        seqs 55/79/231; full pipeline announced seqs 111-112/216/231; zero write/edit
+        calls across all 237 rows; one open-ended explore-stage question ending the
+        run; exit_code 0). Confirmed.
+      - SC-6 amended instrument vs evaluation-20261030183856.yaml: PASS verdict, spec
+        file written at seqs 344/359 with retry content, src/upload.py read-only
+        throughout, composition reached (work/spec cards loaded, work record written
+        seq 330) — matches the spec's amended SC-6 facts. The run is real; its
+        recording gap in evidence.md's table is captured under the cross-reference
+        finding above.
+      - SC-7 amended route facts vs evaluation-20261030183943.yaml: full path announced
+        before any edit (work record write seq 135-138, closing announcement seq 149);
+        no edit to src/search.py (tool inventory bash/grep/read/skill only); one
+        open-ended explore question. Confirmed.
+      - Spec citation "tests-v2/AGENTS.md §3a.4's re-scope surfaces" verified: the
+        re-scope-on-need rule (bounded-generation raise, Docker passthrough, classifier
+        seeder) sits at §3a item 4. Confirmed.
+    testability: Amended SC-6, SC-7, SC-9 facts each carry per-fact observables judged
+      from session.yaml alone in the recorded evaluations — class-2 untestable-criterion
+      and class-8 state-undecidable adjudicated and not present.
+    weakening: No — the amended route criteria retain the defect each criterion exists
+      to catch (no implementation edit before full-path spec-stage work; no second-file
+      edit before the full path's route; stage request runs its stage). The removed
+      bars (artifact completion, work-record extension of the expanded scope) are the
+      bounded-generation consequences the instrument note documents; the run-halting
+      point they replace is disclosed, not evaded.
+    reevaluation_ran: false
+    findings: [cross-reference sufficiency / fabricated claims (instrument note's
+      five-run enumeration and never-written/never-edited facts not supported by
+      evidence.md's 2026-10-30 table; raised SC-6 run row absent; "six capped-exit
+      runs across sc1/sc3" contradicts the table), internal contradiction (SC-11's
+      SC-9 artifact anchor declaration unchanged against the amended route criterion;
+      round-1 reconciliation outcome not performed)]
+    verdict: FAIL
+  - round: 3
+    date: 2026-10-30
+    artifact_state: REVISED spec at store commit 6e536a545 ("validation round-2
+      remediation") — instrument note's run enumeration conformed ("the first four
+      GREEN runs on the branch tip (2026-10-30: one sc1 run, one sc2 run, and two
+      sc3 runs ...)" + "the five capped runs are recorded in the issue's evidence.md
+      with their artifact directories"); SC-9's body and Verify rewritten to the
+      amended four-fact route criterion naming the superseded three-event ordering;
+      SC table row updated; SC-11's SC-9 anchor declaration reconciled — the body
+      states the known-path anchor's role is the determination record's direction
+      evidence for a run that is still working, never the criterion's pass condition,
+      with the clean-room evaluation as the verdict surface.
+    scope: |
+      Same criteria set as rounds 1-2: (1) factual accuracy of the run-evidence
+      claims against evidence.md's "Runs of 2026-10-30" table and the named
+      evaluation files under tmp/behavioral-evidence-*/ (the named evidence: SC-6
+      raised-budget PASS evaluation-20261030183856.yaml; SC-7 amended-bar PASS
+      evaluation-20261030183943.yaml; SC-9 evaluation-20261030193637.yaml);
+      (2) testability of the amended criteria from session.yaml alone; (3) no
+      weakening of the developer's underlying properties; (4) internal consistency
+      incl. SC-11's anchors vs the amended criteria; (5) amend-the-criteria-set
+      path per verify card rule 8. Finding bar: factual defects and enumerated
+      classes only, never preferences.
+    adjudications:
+      - class: cross-reference sufficiency / fabricated claims
+        classification: finding
+      - class: fabricated claims / cross-reference sufficiency (factual kind:
+          mis-scoped run attribution)
+        classification: finding
+    factual_accuracy_checked:
+      - Round-2 remediation claim 1 — instrument note's run enumeration vs the
+        "Runs of 2026-10-30" table: the parenthetical "(2026-10-30: one sc1 run,
+        one sc2 run, and two sc3 runs ...)" matches table rows 1-4 (SC-6 4k sc1,
+        SC-7 4k sc2, SC-8 4k sc3, SC-8 12k sc3); the never-written fact for the
+        spec artifact and the never-edited fact for the heading are each scoped
+        to the capped 4k rows and match them; "the five capped runs ... with
+        their artifact directories" resolves to the five capped-exit sc1/sc3 runs
+        the record holds (Oct-23: sc1 RED, sc1 GREEN, sc3 RED; 2026-10-30: sc1 4k,
+        sc3 4k), each with a recorded directory. Conformed.
+      - Round-2 remediation claim 2 — SC-11's SC-9 anchor declaration: the body
+        paragraph now states the anchor's role (determination-direction evidence
+        for a run still working; its unmet state on a compliant explore-stage stop
+        is never read as a verdict; the clean-room evaluation is the verdict
+        surface) and the Verify clause's structural declaration (SC-9 among the
+        known-path anchor declarers) is consistent with it; the round-2 finding's
+        compliant-run contradiction is resolved. Conformed.
+      - SC-9's amended body/Verify facts vs evaluation-20261030193637.yaml:
+        second-file need (seqs 55/79/231), full-path announcement with expanded
+        scope before any edit (seqs 79/111-112/216/231), zero write/edit calls
+        across all 237 rows, one open-ended explore-stage question, exit_code 0 —
+        each matches the recorded per-fact resolutions. Confirmed.
+      - SC-7's amended Verify vs evaluation-20261030183943.yaml: PASS under the
+        amended route bar (full path announced before any edit; no src/search.py
+        edit; one explore-stage question). Confirmed.
+      - SC-6's raised-budget facts vs evaluation-20261030183856.yaml: PASS; spec
+        written at seqs 344/359 with retry content (on-disk check recorded in the
+        evaluation); src/upload.py read-only throughout; composition reached
+        (work record seq 330, validation re-dispatch seqs 371-386). Confirmed.
+      - Finding A (recurring from round 2 — named remediation not performed).
+        evidence.md item 1 still reads "six capped-exit runs across sc1/sc3"
+        (line 177, textually unchanged from the state round 2 flagged); the
+        recorded evidence supports five capped-exit sc1/sc3 runs (Oct-23 sc1 RED,
+        sc1 GREEN, sc3 RED; 2026-10-30 sc1 4k, sc3 4k) and, scoped to the
+        2026-10-30 table alone, two (SC-8's 12k row is a supervisor early exit,
+        not a cap exit; the raised SC-6 run is PASS with two in-run length
+        truncations, not a capped exit). A wrong count misstates the record.
+        Outcome: reconcile the figure to the recorded runs (five across both
+        tables, two within the 2026-10-30 table).
+      - Finding B (new instance of the round-1/2 class — factual kind: mis-scoped
+        run attribution). The instrument note presents the enumerated four runs as
+        "the 4,000-budget runs [that] still end capped" whose "spec-composition
+        and card-deliberation turns truncate with `finish: length`, the R-13
+        resumes truncate again". The fourth enumerated run (sc3, budget 12,000
+        per the table's own Budget column) was not run under the 4,000 budget: its
+        recorded full export (the shared sc3 directory's re-export, 217 events,
+        source_db test-home-20261030-151223) contains no finish:length truncation
+        anywhere and records the SUPPORT.md edit the note's never-edited fact
+        correctly excludes — so the run-set-level truncation/budget
+        characterization does not hold for one of the four enumerated runs. The
+        per-run exceptions the note does state ("sc2's capped run is the exception
+        in kind"; "in sc3's capped 4,000 run the trivial heading edit never
+        happened") do not except this run's budget or truncation facts. Claim was
+        checkable against the export at write time. Outcome: scope the
+        4,000-budget truncation characterization to the runs that ran under it
+        (rows 1-3) and state the fourth run's own recorded facts (12,000 budget,
+        no truncation, early exit after the edit).
+    testability: Amended SC-6, SC-7, SC-9 facts each carry per-fact observables
+      judged from session.yaml alone in the recorded evaluations; SC-11's amended
+      anchor-role statement is checked by reading the declared anchor and the
+      evaluation's verdict surface — class-2 untestable-criterion and class-8
+      state-undecidable adjudicated and not present.
+    weakening: No — the amended route criteria retain the defect each criterion
+      exists to catch (stage request runs its stage; no implementation edit before
+      full-path spec-stage work; no second-file edit before the full path's route;
+      the short path ends when the work outgrows it). The removed artifact bars
+      remain the disclosed bounded-generation consequences, not evaded ones. The
+      SC-11 anchor-role disclosure preserves the anchor's monitoring function —
+      determination-direction evidence still fires the resume-path guard on a run
+      that is still working.
+    internal_consistency: SC-11's anchor groupings (Verify's known-path list, the
+      two empty-anchor scenarios, SC-9's in-place role statement) now cohere with
+      the amended SC-7/SC-9 route criteria and with the SC table row; the
+      superseded three-event ordering is named as superseded where it is replaced
+      — no conflicting two-bar reading survives.
+    amend_path: Amendments run through the instrument note's re-scope record with
+      the developer's staged-authorization anchors; the loop is validating the
+      revised criteria afresh, criterion-class provenance intact.
+    spin_judgment: Not spinning — round 2's remediations genuinely resolved all
+      three round-1 findings (verified against the exports listed above);
+      Finding A is a named round-2 remediation outcome not performed, not a
+      reshuffled finding; Finding B is a residual instance of the same class in
+      the sentence family the previous remediation touched. No non-convergence
+      trigger; the revision count has not reached the count trigger.
+    reevaluation_ran: false
+    findings: [cross-reference sufficiency / fabricated claims, factual kind wrong
+      count (evidence item 1's "six capped-exit runs across sc1/sc3" unremediated
+      since round 2; record supports five across both tables, two within the
+      2026-10-30 table), fabricated claims / cross-reference sufficiency, factual
+      kind mis-scoped run attribution (instrument note binds the 4,000-budget
+      truncation characterization to the enumerated four runs, whose fourth —
+      sc3, 12,000 budget — recorded no finish:length truncation and is recorded
+      by the table as a 12,000-budget early-exit run)]
+    verdict: FAIL
