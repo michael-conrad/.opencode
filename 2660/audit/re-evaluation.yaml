@@ -164,13 +164,50 @@ runs:
     dropped the content while a follow-up pass landed its mapping — the artifact's own known lost-patch
     failure mode recurring, now recorded here; the pass was re-applied and verified before re-validation.
   loop_state: The addition is recorded; the loop resumes under run 5's findings for SC-11's validation.
+  validation_dispatch:
+    reviewed_at: '2026-10-29'
+    scope: one fresh-context dispatch validating the current artifact content (revisions
+      to 21+) against the validation-standards reference — criteria restated verbatim,
+      churn-rule text included verbatim, no prior context; this is the SC-11 validation
+      run 5's loop_state deferred to, and the first validation of the R-9/SC-11 content.
+    verdict: FAIL
+    findings: 1
+    finding: 'class — cross-reference sufficiency / fabricated claims; location — spec §6
+      ''Why judgment, not a count alone'' (spec.md line 93), final clause "and whose content
+      the deck''s work card now carries in its provenance"; defect — false current-state
+      claim: #2657''s provenance is not on the deck''s merged work card (skills/work/SKILL.md
+      provenance line carries #2490, #2525, and the deck(2584)→#2618→#2664→#2661 line, #2661
+      merged 2026-10-29 as PR #2690, 43f119550) and a deck-wide grep over skills/, floor.md,
+      guidelines/ for 2657 returns zero hits; the #2657 provenance exists only on the unmerged
+      branch feature/2657-path-selection-short-path (77a65dfd2, 2026-10-23/24, not contained
+      by main). Ground: a supporting-corroboration claim inside the evidence section — factual
+      accuracy is the spec/plan prong, a finding regardless of effect size.'
+    note: 'dispatch report also records that round 1''s spec-validation-20261023.yaml
+      confirmatory line ("the work card''s #2657 provenance") and this clause''s authoring
+      diverge from the merged state in the same direction — consistent, per the dispatch,
+      with both having been checked against the unmerged #2657 branch worktree (its commits
+      dated 2026-10-23 13:20 and 2026-10-24 01:48, the spec''s own drafting window).'
+    evidence_note: all other load-bearing anchors re-checked clean — the six §2.1 surfaces'
+      current state (spin-only Loop sections, the plan reference's missing observation-is-a-finding
+      line, the "one bounded review" residue as exactly one deck-wide surface), #2582's five
+      audit records and the tier1-dispatch model, the #2657/#2658 audit-record absence, the
+      2658 store history (round subjects, duplicate pairs, fifteen non-automated commits,
+      c81089a5 subject and date, the 221→122 recomposition figures), #2606's amendment list
+      not reaching implementation-workflow.md, #2662's re-evaluation record, #2661's existence
+      with today's protocol merge (the R-3 transitional clause self-defusing by design — no
+      finding), and this loop's own records against which §6 restates no contents; the
+      Field-6 chat quotes remain locally uncorroborated (checked, no finding, as in round 1).
+    loop_state: in-place revision of the spec §6 clause is the loop's next step; it awaits
+      the remediate directive — loop not exited.
 totals:
   spec_validation_dispatches: 10 pre-recompose (9 with findings) + 2 empty/interrupted + 10 post-recompose
-    (8 with findings, one PASS)
+    (8 with findings, one PASS) + 1 (2026-10-29, run-5 R-9/SC-11 validation, 1 finding)
   findings:
     pre_recompose: 28
-    post_recompose: 15
-    total: 43
-  revisions: 20 revision commits plus the recomposition rewrite
+    post_recompose: 16 (15 + the 2026-10-29 run-5 validation finding)
+    total: 44
+  revisions: 21 revision commits plus the recomposition rewrite (totals previously
+    counted 20; revision 21 entered under run 5)
   re_evaluations_run: 4
-  final_state: PASS (dispatch 11, zero findings)
+  final_state: open — FAIL (2026-10-29 run-5 validation, one finding: the §6 provenance
+    clause); in-place revision pending the remediate directive
