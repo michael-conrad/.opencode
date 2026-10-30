@@ -2,7 +2,7 @@
 name: behavioral-testing
 description: "Load for ANY opencode behavior testing — running a behavioral SC, verifying agent behavior, executing or monitoring an `opencode run`, evaluating session evidence, or deciding how to produce behavioral evidence at all. Also load when a spec SC is classified behavioral, when a test scenario script under tests-v2/ is authored or run, when a behavioral test needs a real remote API (the harness provisions a self-contained GitBucket container — §12), or when a behavioral run stalls, times out, or fails. Routes to the tests-v2 behavioral harness — never an ad-hoc `opencode run`."
 license: MIT
-provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator contract restored from pre-rip deck; #2570 supervision-cycle absoluteness + no-output-filtering; one-update-per-poll no-gaps clause, .opencode#2683
+provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator contract restored from pre-rip deck; #2570 supervision-cycle absoluteness + no-output-filtering; one-update-per-poll no-gaps clause, .opencode#2683; standalone-update-turn rule, developer directive 2026-10-30
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
@@ -121,6 +121,13 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    intervening text update in between, is the defect in the supervisor's own
    transcript, regardless of what the analysis concluded and regardless of
    content; the skipped-update failure is self-observable in that shape.
+   **The update is a STANDALONE turn (developer directive 2026-10-30):** the analysis text is issued in a turn with no tool call
+   attached — never as prose preceding the next poll call in the same
+   message. Tool-call turns collapse in the developer's UI to the bare
+   command line, so an analysis riding in the same message as a tool call
+   never reaches the developer; an update delivered inside a tool-call turn
+   is an undelivered update, whatever the supervisor's own transcript shows
+   — this riding form is the recurring regression the rule names.
    **Never kill by name pattern.** Run cleanup and abort kill only the PIDs the
    agent itself launched — record the PID at launch and re-verify survivors by
    PID (`kill -9 <pid>`, `ps -p <pid>`), never by a name match. A pattern kill

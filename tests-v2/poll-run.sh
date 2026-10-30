@@ -51,7 +51,7 @@ PYEOF
 
 cat <<'REMINDER' >&2
 
-=== ORCHESTRATOR REMINDER (card §9, .opencode#2561; #2570) ===
+=== ORCHESTRATOR REMINDER (card §9, .opencode#2561; ; #2570; directive 2026-10-30) ===
 This poll's evidence now requires YOUR semantic analysis. Deliver it NOW as
 an in-chat text update (plain text, no tool call attached to the analysis),
 stating:
@@ -61,10 +61,18 @@ stating:
   4. which hard-abort signals (tests-v2 AGENTS.md §14) have fired, if any.
 The update is MID-FLOW, never terminal: after delivering it, immediately
 issue the next poll cycle (sleep 60 + poll-run.sh) in the same working
-session. Do NOT end the turn, do NOT yield to the operator, do NOT wait for
-input — stopping after the update is itself the supervision defect this
+session. Do NOT end the workflow, do NOT yield to the operator, do NOT wait
+for input — stopping after the update is itself the supervision defect this
 reminder exists to prevent. Ordering rule stands: the update text comes
 before the next poll call — never chain a tool call before delivering it.
+Delivery rule (developer directive 2026-10-30): the update
+is a STANDALONE TURN — a turn whose entire content is the analysis text,
+with NO tool call attached. Tool-call turns collapse in the developer's UI
+to the bare command line, so an analysis riding in the same message as a
+tool call never reaches the developer — an update delivered in a tool-call
+turn is an undelivered update, whatever the supervisor's transcript shows.
+The cycle is therefore: poll tool call (alone in its turn) → text-only
+update turn → next poll tool call.
 This reminder is emitted on stderr as well as stdout so it survives output
 filtering — filtering or truncating poll output is itself a supervision
 defect; never pipe poll output through grep/head/tail.
@@ -73,7 +81,7 @@ REMINDER
 
 cat <<'REMINDER'
 
-=== ORCHESTRATOR REMINDER (card §9, .opencode#2561; #2570) ===
+=== ORCHESTRATOR REMINDER (card §9, .opencode#2561; ; #2570; directive 2026-10-30) ===
 This poll's evidence now requires YOUR semantic analysis. Deliver it NOW as
 an in-chat text update (plain text, no tool call attached to the analysis),
 stating:
@@ -83,10 +91,18 @@ stating:
   4. which hard-abort signals (tests-v2 AGENTS.md §14) have fired, if any.
 The update is MID-FLOW, never terminal: after delivering it, immediately
 issue the next poll cycle (sleep 60 + poll-run.sh) in the same working
-session. Do NOT end the turn, do NOT yield to the operator, do NOT wait for
-input — stopping after the update is itself the supervision defect this
+session. Do NOT end the workflow, do NOT yield to the operator, do NOT wait
+for input — stopping after the update is itself the supervision defect this
 reminder exists to prevent. Ordering rule stands: the update text comes
 before the next poll call — never chain a tool call before delivering it.
+Delivery rule (developer directive 2026-10-30): the update
+is a STANDALONE TURN — a turn whose entire content is the analysis text,
+with NO tool call attached. Tool-call turns collapse in the developer's UI
+to the bare command line, so an analysis riding in the same message as a
+tool call never reaches the developer — an update delivered in a tool-call
+turn is an undelivered update, whatever the supervisor's transcript shows.
+The cycle is therefore: poll tool call (alone in its turn) → text-only
+update turn → next poll tool call.
 This reminder is emitted on stderr as well as stdout so it survives output
 filtering — filtering or truncating poll output is itself a supervision
 defect; never pipe poll output through grep/head/tail.
