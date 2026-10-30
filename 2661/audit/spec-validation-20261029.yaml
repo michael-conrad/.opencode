@@ -1,0 +1,32 @@
+# Spec audit — .opencode#2661 (on-demand, 2026-10-29)
+
+Criteria set: `.opencode/skills/spec/references/validation-standards.md`
+(criteria-set ownership: spec card; re-audits run on this same declared set —
+criteria invariance). Churn rule included verbatim in every reviewer dispatch.
+
+## Loop record
+
+| Round | Outcome | Finding |
+|---|---|---|
+| Fresh review | FAIL | F1 — spec cited the `work` card's authorization check as `skills/work/SKILL.md` §3; the authorization check is **rule 2** in that card. Same stale citation class live in the local mirror (`issue.yaml`) and remote body. |
+| Re-review 1 | FAIL | F1 unremediated in one surface — the remote GitHub body still carried the two stale `§3` citations. Ground: `update` is local-store-only; remote-body edits go through `gh`. |
+| Re-review 2 | PASS | Zero findings across spec, local mirror, and remote body (verified live via GitHub API). |
+
+## Remediation
+
+- Spec: `§3` work-card citations → "rule 2 (Authorization check)" (4 sites).
+- Mirror `issue.yaml`: same correction (2 sites; `git-workflow-pr` §3 citations
+  left untouched — they resolve correctly to the Shape rule).
+- Remote body: corrected via `gh issue edit` (the `local-issues update`
+  command is local-store-only per `local-issues-cli.md`).
+- Cause fixed: remote-body edit path now known to flow through gh, not
+  `local-issues update`. No recurrence risk identified.
+
+State-decidable resolution: the historical finding's cause is fixed; the
+criterion holds in the post-remediation continuation (re-review 2, zero
+findings). No spin — each loop cycle produced a genuine surface remediation.
+
+## Verdict
+
+**PASS** — zero findings at re-review 2; criterion verdicts follow from the
+current evidence (requirement in force, holding).
