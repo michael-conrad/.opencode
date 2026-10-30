@@ -1,0 +1,21 @@
+# Validation record — .opencode#2660 (one file per issue; one top-level section per artifact)
+# Spec-loop history lives in re-evaluation.yaml and spec-validation-20261023.yaml (pre-record-rule, untouched).
+plan:
+- cycle: 1
+  date: '2026-10-30'
+  artifact: 2660/plan.md (revisions 1)
+  reviewer: fresh-context dispatch #1
+  findings:
+  - class: internal inconsistency (plan-validation-standards class "Internal inconsistency")
+    classification: finding
+    detail: the preamble asserted one-item-per-SC while items group SCs by surface; stale remnant, not a content defect
+    remediation: preamble rewritten to name the surface-grouped decomposition and the carry-each-SC rule
+  verdict: FAIL (1 finding) → remediated → cycle 2
+- cycle: 2
+  date: '2026-10-30'
+  artifact: 2660/plan.md (revision 2)
+  reviewer: fresh-context dispatch #2
+  findings: []
+  verdict: PASS — zero findings
+re_evaluations:
+- none — no trigger fired (cycles did not exceed the count threshold and converged)
