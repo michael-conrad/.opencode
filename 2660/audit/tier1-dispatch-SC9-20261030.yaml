@@ -1,0 +1,229 @@
+# Tier-1 behavioral dispatch record — SC-9 (.opencode#2660)
+# Clean-room sub-agent ran the revised validation-standards §Loop rule
+# (rule-under-test.md extracted verbatim from the implemented file, lines
+# "Beside the spin judgment..." through "...cites the record.") against two
+# engineered artifacts through five revision cycles each, with per-cycle
+# reviewer finds scripted in the dispatch prompt. The production validation
+# record was not written by this run (R-5 carve-out — the engineered artifacts
+# belong to no issue in a store).
+
+dispatched_at: 2026-10-30
+criterion_judged: >
+  SC-9: the loop behaves — the judgment fires on genuinely new shallow
+  findings, the count fires independently of the judgment, and the behavioral
+  test writes nothing into the production validation record.
+
+dispatch_prompt: >
+  "You are a clean-room test operator with NO prior context. Do NOT read any
+  files in /home/muksihs/git/opencode-config or any repository files — read
+  ONLY the three files named below (under /tmp/opencode/2660-sc9/) and work
+  only there. 1. Read /tmp/opencode/2660-sc9/rule-under-test.md — this is the
+  rule that governs the revise→re-validate loop you will run; treat it as
+  binding. 2. Run the loop rule twice against two candidate artifacts,
+  simulating each cycle's fresh-context reviewer by emitting the reviewer's
+  finding set scripted below. For each cycle: state the reviewer's findings
+  for that cycle (exactly the scripted ones), state which trigger(s) of the
+  rule you evaluated before proceeding (spin judgment? non-convergence
+  judgment? count trigger?) and why in one sentence, then perform the
+  remediation step, then state whether the rule requires a structural
+  re-evaluation this cycle and, if so, run it and record the outcome (Sound,
+  Recompose, or Intent-unreachable — per the rule) and the outcome's grounds.
+  SCENARIO A — artifact artifact-A.md, scripted findings per cycle (five
+  cycles, each genuinely new and shallow, remediating one produces no others,
+  no obvious convergence): [cycle 1..5 findings as scripted]. SCENARIO B —
+  artifact artifact-B.md, scripted findings per cycle (five cycles, each
+  remediation genuinely and fully fixes its finding, prior findings do not
+  recur, the loop visibly converges, cycle 5 is the last and its verdict after
+  remediation is zero findings); at every cycle also evaluate the count
+  trigger against the fact-decidable threshold. After both scenarios: write
+  the evidence record to /tmp/opencode/2660-sc9/dispatch-output.yaml and
+  return it as the final message. Be strictly faithful to the rule's
+  thresholds — e.g. the count threshold is 'more than four revisions to
+  address findings'."
+
+verdict: PASS
+verdict_record: >
+  run_A_nonconvergence_fired_by_judgment: yes — at cycle 3 the
+    non-convergence judgment opened the re-evaluation (findings genuinely new
+    each cycle, no obvious convergence); outcome Intent-unreachable with
+    recorded grounds; count fired independently at cycle 5.
+  run_B_count_fired_after_fifth_revision: yes — the count trigger fired at
+    cycle 5 on 'more than four revisions' alone, while the non-convergence
+    judgment correctly did not fire (each remediation fully fixed its finding,
+    prior findings did not recur, the loop visibly converged); outcome Sound
+    with recorded grounds ('the artifact's structure stands ... the loop
+    closes on the unchanged artifact'), demonstrating a re-evaluation may
+    conclude the artifact stands.
+  outcome_and_grounds_carried: yes — both re-evaluations recorded outcome and
+    grounds in the dispatch evidence record.
+  production_record_untouched: yes — the run wrote only into
+    /tmp/opencode/2660-sc9/dispatch-output.yaml; no entry in any
+    .issues/{N}/audit/validation.yaml.
+
+observed_output: |
+  (the sub-agent's full returned record follows)
+# Clean-room loop-rule test — rule: /tmp/opencode/2660-sc9/rule-under-test.md
+# Threshold note: count trigger = "more than four revisions to address findings"
+# (fact-decidable); fires after the 5th revision, never at 4.
+
+scenario_A:
+  artifact: artifact-A.md
+  loop:
+    - cycle: 1
+      findings:
+        - "SC-1 says 'gzip archives' but never states who owns the cron entry — the intent says nothing about ownership."
+      trigger_evaluation:
+        spin_judgment_fired: false
+        spin_why: "Finding is a real, specific ownership gap, not a restatement of the criteria in different words."
+        non_convergence_judgment_fired: false
+        non_convergence_why: "One genuinely new finding alone does not establish the loop's round pattern."
+        count_fired: false
+        count_why: "0 revisions so far; threshold is more than four."
+      remediation: "SC-1 amended: rotation runs weekly via a cron entry owned by root's system crontab; verification names the owning crontab file plus archive presence."
+      structural_reevaluation:
+        ran: false
+    - cycle: 2
+      findings:
+        - "The intent says 'weekly' but SC-1's verification checks archives, not the schedule."
+      trigger_evaluation:
+        spin_judgment_fired: false
+        spin_why: "Real instrument-coverage gap, genuinely new topic."
+        non_convergence_judgment_fired: false
+        non_convergence_why: "Two findings across distinct defect classes still fits an in-place pattern."
+        count_fired: false
+        count_why: "1 revision so far; below the more-than-four threshold."
+      remediation: "SC-1 verification amended: cron listing asserting a weekly schedule field, plus archive presence."
+      structural_reevaluation:
+        ran: false
+    - cycle: 3
+      findings:
+        - "'Compacts after rotation' and SC-2's 'merges archives older than thirty days' are two different compression ideas — clarify which the utility performs."
+      trigger_evaluation:
+        spin_judgment_fired: false
+        spin_why: "Genuine ambiguity, not recycled material."
+        non_convergence_judgment_fired: true
+        non_convergence_why: "Three consecutive cycles each remediated their findings yet produced genuinely new ones across different defect classes (ownership, instrument coverage, intent-wording ambiguity) with no visible convergence, so in-place revision stopped and the structural re-evaluation ran before any further revision."
+        count_fired: false
+        count_why: "2 revisions so far; below the more-than-four threshold."
+      structural_reevaluation:
+        ran: true
+        at_cycle: 3
+        opened_by: non-convergence judgment
+        examined: "repo boundaries (clean); separation of concerns (rotation vs compaction separable, not the defect); atomic decomposition (two atomic SCs); fatness (none); intent wording/reachability (defective — 'compacts after rotation' ambiguous; intent repeatedly failed to reach the criteria: ownership surfaced as an intent-level omission in cycle 1)."
+        outcome: Intent-unreachable
+        grounds: "The intent statement's wording, not the artifact's structure, is the recurring defect — the criteria keep exposing what the intent never said; the intent is rewritten and the loop continues on the revised artifact."
+      post_reevaluation_action:
+        - "Intent rewritten: weekly gzip-compression of rotated archives from root's system crontab; consolidation/retention defined by SC-2."
+        - "SC-2 clarified: consolidation merges gzip archives older than thirty days; no per-archive re-compression."
+    - cycle: 4
+      findings:
+        - "SC-2's verification instrument cannot observe the merge happening over time — it checks one listing."
+      trigger_evaluation:
+        spin_judgment_fired: false
+        spin_why: "Real instrument-observability gap."
+        non_convergence_judgment_fired: false
+        non_convergence_why: "The cycle-3 re-evaluation already redirected the loop onto the revised artifact; a shallow instrument gap in the resumed loop is remediable in place, and a second examination without new trigger grounds would be examination churn."
+        count_fired: false
+        count_why: "3 revisions so far; below the more-than-four threshold."
+      remediation: "SC-2 verification amended: staged archives aged beyond the thirty-day window, one compaction run, then verify the merged archive exists and aged archives are gone."
+      structural_reevaluation:
+        ran: false
+    - cycle: 5
+      findings:
+        - "The intent statement does not mention log deletion at all, yet rotating usually implies retention — state the retention intent."
+      trigger_evaluation:
+        spin_judgment_fired: false
+        spin_why: "Genuine intent-level gap, not a preference."
+        non_convergence_judgment_fired: false
+        non_convergence_why: "Not needed as grounds — the count trigger mandates the examination this cycle regardless; the pattern also persisted, but the mandated run is attributed to the count trigger."
+        count_fired: true
+        count_why: "5 revisions were needed to address findings (cycles 1–5), exceeding the fact-decidable 'more than four' threshold; the count mandates only the examination, never its verdict."
+      structural_reevaluation:
+        ran: true
+        at_cycle: 5
+        opened_by: count trigger (second examination)
+        examined: "repo boundaries (clean); separation of concerns (coherent); atomic decomposition (two atomic SCs); fatness (none); intent wording/reachability (still defective — the cycle-3 rewrite cured compression ambiguity and ownership, yet cycle 5 again surfaced an intent-level omission, retention)."
+        outcome: Intent-unreachable
+        grounds: "After one rewrite the intent still fails to reach the criteria the reviewer keeps finding; the structure stands (no boundary, decomposition, concern, or fatness defect), so the intent is the defect again — rewritten, loop continues."
+      post_reevaluation_action:
+        - "Intent gains retention: consolidated archives deleted after the ninety-day retention window defined in SC-2; SC-2 gains the retention clause."
+      loop_state: "Convergence not reached — no zero-finding verdict; per the rule's closing paragraph this examination is one of the higher-level fixing attempts the escalation rule counts, and escalation still fires when convergence remains unreachable after it."
+
+scenario_B:
+  artifact: artifact-B.md
+  loop:
+    - cycle: 1
+      findings:
+        - "SC-1's verification instrument (sample runs over fixture configs) cannot observe exit-zero AND non-zero behavior in one sentence — split the instrument."
+      trigger_evaluation:
+        spin_judgment_fired: false
+        spin_why: "Real, specific instrument-coverage finding."
+        non_convergence_judgment_fired: false
+        non_convergence_why: "A single split-the-instrument remediation plausibly converges."
+        count_fired: false
+        count_why: "0 revisions so far; threshold is more than four."
+      remediation: "SC-1 verification split: (a) conforming fixtures assert exit zero; (b) violating fixtures assert non-zero plus named field."
+      structural_reevaluation:
+        ran: false
+    - cycle: 2
+      findings:
+        - "SC-2's wrap log assertion is fine, but the intent never says what happens on pass — service starts normally."
+      trigger_evaluation:
+        spin_judgment_fired: false
+        spin_why: "Genuine intent-completeness gap, new topic."
+        non_convergence_judgment_fired: false
+        non_convergence_why: "Prior finding fully fixed and not recurring — the loop is progressing, not circling."
+        count_fired: false
+        count_why: "1 revision so far; below the more-than-four threshold."
+      remediation: "Intent amended: on pass, the service starts normally."
+      structural_reevaluation:
+        ran: false
+    - cycle: 3
+      findings:
+        - "SC-1 names 'a named field' on violations but never says the field's value must quote the offending value — state it."
+      trigger_evaluation:
+        spin_judgment_fired: false
+        spin_why: "Real precision gap."
+        non_convergence_judgment_fired: false
+        non_convergence_why: "Each cycle's finding is fully fixed and none recur — the loop is visibly converging, the opposite of the non-convergence condition."
+        count_fired: false
+        count_why: "2 revisions so far; below the more-than-four threshold."
+      remediation: "SC-1 amended: named field's value quotes the offending value."
+      structural_reevaluation:
+        ran: false
+    - cycle: 4
+      findings:
+        - "The intent says 'documented ranges' — state where the ranges are documented."
+      trigger_evaluation:
+        spin_judgment_fired: false
+        spin_why: "Genuine reference-grounding gap."
+        non_convergence_judgment_fired: false
+        non_convergence_why: "The loop remains convergent."
+        count_fired: false
+        count_why: "3 revisions so far; still not more than four."
+      remediation: "Intent amended: ranges documented in docs/config-ranges.md."
+      structural_reevaluation:
+        ran: false
+    - cycle: 5
+      findings:
+        - "SC-2's verification says 'wrapper log assertion' but never names the log file — name it."
+      trigger_evaluation:
+        spin_judgment_fired: false
+        spin_why: "Real specificity gap, the last finding."
+        non_convergence_judgment_fired: false
+        non_convergence_why: "The loop converges — the reviewer's verdict after remediating this cycle is zero findings."
+        count_fired: true
+        count_why: "5 revisions were needed to address findings, factually exceeding the 'more than four' threshold regardless of convergence; the mandate is the count, never the verdict."
+      remediation: "SC-2 verification amended: wrapper log assertion on /var/log/service/startup-wrapper.log."
+      verdict_after_remediation: "Zero findings — a zero-finding round."
+      structural_reevaluation:
+        ran: true
+        at_cycle: 5
+        opened_by: count trigger
+        examined: "repo boundaries (clean); separation of concerns (validator / startup-wrapper split coherent); atomic decomposition (two atomic SCs); fatness (none); intent wording/reachability (intent reaches all criteria after the cycle-2 and cycle-4 amendments, confirmed by the zero-finding round)."
+        outcome: Sound
+        grounds: "The artifact's structure stands — no boundary, decomposition, concern-separation, or fatness defect, and the intent now reaches every criterion, confirmed by the zero-finding round; findings are recorded and the loop closes on the unchanged artifact. The count mandated the examination; the verdict that the artifact stands is the judgment, and a revision count never satisfied the findings-are-fixed requirement on its own."
+
+summary:
+  scenario_A_reevaluations: 2 (cycle 3 non-convergence → Intent-unreachable; cycle 5 count → Intent-unreachable; convergence still unreachable — escalation counted per the rule's closing paragraph)
+  scenario_B_reevaluations: 1 (cycle 5 count → Sound; loop closes on a zero-finding verdict)
