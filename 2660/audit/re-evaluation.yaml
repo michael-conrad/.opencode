@@ -199,16 +199,43 @@ runs:
       restates no contents; the Field-6 chat quotes remain locally uncorroborated (checked,
       no finding, as in round 1).'
     loop_state: in-place revision of the spec §6 clause is the loop's next step; it awaits
-      the remediate directive — loop not exited.
+      the remediate directive — loop not exited. Remediated same day (see remediation/rereview
+      below); loop closed at the clean PASS re-review.
+    remediation:
+      revised_at: '2026-10-29'
+      revision: '23'
+      subject: 'spec revision 23 — the §6 provenance clause corrected to its verified state,
+        the work card carrying the #2657 provenance on the unmerged branch
+        feature/2657-path-selection-short-path ("#2657 path selection, criteria set, and
+        work record"), not on the merged line'
+      store_commit: e0a10b004d32ee4c8292c51e49f4e07f3e165eef
+    rereview:
+      reviewed_at: '2026-10-29'
+      scope: one fresh-context re-review of the revised artifact; the same criteria set
+        restated verbatim; churn-rule text included verbatim; no prior context
+      verdict: PASS
+      findings: 0
+      evidence_note: 'the full anchor ledger re-run clean — the six §2.1 surfaces, #2582''s
+        five audit records and tier-1 dispatch model, the 2658 store history (round subjects,
+        duplicate pairs, fifteen non-automated commits, c81089a5, the 221→122 figures),
+        #2606''s retirement commit and amendment list, #2662''s 40-finding ledger, #2661''s
+        protocol now merged to main (PR #2690, 43f119550 — the R-3 transitional clause
+        re-adjudicated under it, self-defusing, no finding); the revised clause checked
+        against the branch line verbatim and the branch''s unmerged state; the Field-6
+        trigger quote and the "minor defects compound into serious flaws" ruling corroborated
+        verbatim in the remote issue, the two correction quotes chat-only with their substance
+        carried in R-1/R-3 — no checkable claim or requirement hinges on their literal form'
+      loop_state: clean PASS — the loop exits; the artifact awaits the developer's approval gate.
 totals:
   spec_validation_dispatches: 10 pre-recompose (9 with findings) + 2 empty/interrupted + 10 post-recompose
-    (8 with findings, one PASS) + 1 (2026-10-29, run-5 R-9/SC-11 validation, 1 finding)
+    (8 with findings, one PASS) + 1 (2026-10-29, run-5 R-9/SC-11 validation, 1 finding) + 1 (2026-10-29 re-audit, zero findings)
   findings:
     pre_recompose: 28
     post_recompose: 16 (15 + the 2026-10-29 run-5 validation finding)
     total: 44
-  revisions: 21 revision commits plus the recomposition rewrite (totals previously
-    counted 20; revision 21 entered under run 5)
+  revisions: 23 revision commits plus the recomposition rewrite (totals previously
+    counted 20; revision 21 entered under run 5; revision 23 is the run-5 validation's
+    §6-clause remediation)
   re_evaluations_run: 4
-  final_state: 'open — FAIL (2026-10-29 run-5 validation, one finding: the §6 provenance
-    clause); in-place revision pending the remediate directive'
+  final_state: 'clean PASS (2026-10-29 re-audit, zero findings) — loop closed; the artifact
+    awaits the developer''s approval gate'
