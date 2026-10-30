@@ -2,12 +2,12 @@
 name: git-workflow-pr
 description: "Load before opening any pull request, preparing work for review, or updating an existing PR — in any repo, whenever PR-boundary authorization arrives or the work reaches the review boundary. PRs are for completed and fully tested work; partial PRs require explicit special authorization. Squash the branch's work to one reviewable commit per issue, write a PR body with summary and executed-test evidence, then HALT — humans merge, never the agent."
 license: MIT
-provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; tag-pushed gate + bump tag naming + release carve-out, .opencode#2683
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; tag-pushed gate + bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; issues-data remediation-first clause, .opencode#2681; tag-pushed gate + Submodule-bump tag naming + release carve-out, .opencode#2683 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; issues-data remediation-first clause, .opencode#2681; tag-pushed gate + Submodule-bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658 -->
 
 # git-workflow-pr
 
@@ -120,15 +120,22 @@ filed fix issue; "the failures pre-existed" is a defect to file, never a
 4. **Body.** A fixed contract — closing lines at the top, then the sections
    below; no other sections are added (release PR bodies follow the release
    composition the `release-promoter` card states).
-   - **Closing lines (body top).** Uniform keyword `Closes` — same-repo
-     `Closes #N`, cross-repo `Closes owner/repo#N`. `Refs #N` for references
-     that must not auto-close. Prohibited: a bare `#N` with no keyword, and
-     the deck-qualified `repo#N` form in a closing-keyword position —
-     neither closes anything. Closing keywords auto-close the remote issue
-     at default-branch merge on platforms that support it: GitHub confirmed
-     for both forms; GitBucket has no closing-keyword auto-close — cleanup
-     performs closure there. Cleanup verifies and syncs from the closure
-     state the keywords produced.
+   - **Closing lines (body top).** Uniform keyword `Closes`. Form selection
+     follows where the referenced issue lives: same repository as the pull
+     request → `Closes #N`; a different repository → `Closes owner/repo#N`,
+     always owner-qualified. `Refs #N` for references that must not
+     auto-close. Prohibited: a bare `#N` reference carrying no closing
+     keyword, and the owner-less qualified `repo#N` form in a
+     closing-keyword position — neither closes anything; the owner-qualified
+     `owner/repo#N` form is a distinct form that closes on GitHub. Closing
+     keywords close the referenced issue when the pull request is merged
+     into the repository's default branch — the developer's merge, per this
+     card's human merge gate, is what fires the close. Per (platform ×
+     form): GitHub closes both forms; GitBucket closes the same-repo form
+     only — the cross-repo form on GitBucket closes nothing. Read [the
+     cases the keywords leave open, and where closure happens, in the
+     git-workflow-cleanup skill](../git-workflow-cleanup/SKILL.md). Cleanup
+     verifies and syncs from the closure state the keywords produced.
    - `## Summary` (required) — 2–4 sentences, executive voice, sourced from
      the authorizing spec/issue intent; implementation-detail narration is
      the defect form.
