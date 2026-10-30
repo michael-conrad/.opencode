@@ -387,3 +387,167 @@ spec:
       swaps the per-table distribution — three capped runs are the 2026-10-23
       set and two are the branch-tip set, stated reversed)]
     verdict: FAIL
+  - round: 5
+    date: 2026-10-30
+    artifact_state: REVISED evidence.md (round-4 remediation) — item 1's parenthetical
+      now "five capped-exit runs across sc1/sc3 (three from 2026-10-23, two on the
+      branch tip)"; spec.md unchanged from the round-4-verified state.
+    scope: |
+      Round-5 check only, same criteria set and finding bar as rounds 1-4:
+      (a) the remediated sentence against the record's tables; (b) that the
+      previously-verified passages remain untouched (instrument note).
+    adjudications: []
+    factual_accuracy_checked:
+      - Remediated passage (evidence item 1's parenthetical) vs the tables:
+        verified. Three capped-exit sc1/sc3 runs from 2026-10-23 (sc1 RED, sc1
+        GREEN, sc3 RED — "Runs completed" table and its cause analysis) and two
+        on the branch tip (SC-6 4k sc1 and SC-8 4k sc3 rows — "Runs of
+        2026-10-30" table; the SC-8 12k row is a supervisor early exit and the
+        raised SC-6 run is PASS, both correctly outside the count). The
+        distribution now matches the instrument note's own statement (one sc1
+        plus one sc3 on the branch tip; Oct-23 runs pre-repair). Conformed.
+      - Previously-verified passages re-checked for survival at the current
+        state: the instrument note's budget scoping (4,000-budget truncation
+        scoped to the branch tip's sc1/sc3 4k runs, Oct-23 runs noted as
+        pre-repair, sc2/sc3/sc4 exceptions), the "five capped runs ... with
+        their artifact directories" claim, SC-7's amended Verify, SC-9's
+        rewritten body/Verify, and SC-11's anchor-role statement all remain in
+        place, textually unchanged. No regressions.
+    testability: No new criterion introduced this round; unchanged from round 4.
+    weakening: Not applicable — the remediation is a count-scope correction to an
+      evidence claim; no criterion text touched.
+    reevaluation_ran: false
+    spin_judgment: Not spinning — round 4's single finding is genuinely resolved
+      (the swapped distribution corrected to match the tables and the
+      instrument note); no new instance of any defect class in the checked
+      surface.
+    verdict: PASS
+  - round: 6
+    date: 2026-10-30
+    artifact_state: REVISED spec at store commit "validation round-3 re-scope
+      amendment" era — the new surface this round adds: SC-12's rewritten
+      body/Verify (placement-archaeology vs wording-precedent split, naming
+      .opencode#2657 commit 172d571e8), the instrument note's "Re-scoping
+      round 3 (2026-10-30 night, runs 8–9)" paragraph (boundary-state fixture
+      re-scope, raise stays at 12,000), and SC-11's anchor-role statement
+      (already adjudicated rounds 3–5; re-checked for survival only).
+    scope: |
+      Round-6 scope — this round's additions only, same criteria set as
+      rounds 1-5 and the same finding bar (factual defects and enumerated
+      defect classes only, never preferences). (a) factual accuracy of the
+      run claims against the cited evaluations: runs 8–9 = the 2584-sc4
+      evaluation-20261030T212058Z.yaml (run 1) and the abort diagnosis in
+      ...-128k-gguf4-1/ (run 2, abort-diagnosis-20261030.yaml with the
+      partial-evidence evaluation-20261030T215500Z.yaml); run 3 =
+      evaluation-20261030224534.yaml supporting the PASS; (b) testability of
+      the amended SC-12 from session.yaml alone; (c) no contradiction with
+      the unamended criteria or the deck text the amendment cites
+      (.opencode/skills/skill-creator/SKILL.md as of commit 172d571e8); (d)
+      no weakening of the developer's underlying properties.
+    adjudications:
+      - class: fabricated claims / cross-reference sufficiency (factual kind:
+          misquote — quoted fragments not matching the recorded sources)
+        classification: finding
+        detail: >-
+          SC-12's rewritten body quotes two fragments as what the runs said.
+          Neither fragment is verbatim in its recorded source. (1) "which
+          existing number list is the most plausible target" — the recorded
+          text (run-2 reasoning, quoted in
+          tmp/behavioral-evidence-2584-sc4-directed-card-edit-no-archaeology-GREEN-ollama-qwen3.8-27b-128k-gguf4-1/evaluation-20261030T215500Z.yaml,
+          run-2 reasoning at seq 59) reads "which existing numbered list is
+          the most plausible target", and it is reasoning re-examining the
+          instructed placement (the card at hand), not a finding produced "by
+          reading the card's own history" as the spec's framing places it
+          (the card-history reading is run 1's git-log excavation, and
+          "plausible" appears nowhere in run 1's session.yaml). (2) "how do
+          you want the rule positioned?" — the recorded run-1 halting
+          question (evaluation-20261030T212058Z.yaml, seq 114) reads "how do
+          you want the new 'every outgoing message carries the agent
+          identity byline' rule positioned relative to the four rules already
+          in that list?"; no contiguous substring of that matches the quoted
+          fragment. The facts the sentences assert are real (both runs did
+          re-research/re-ask placement); the quotation marks misstate what
+          the record carries, and the first quote is misattributed to
+          card-history reading across runs.
+        outcome: remediation required — conform both quoted fragments to the
+          recorded wording (or remove the quotation marks and present them
+          as paraphrase), and scope the history-reading framing to the run
+          whose record shows it.
+    factual_accuracy_checked:
+      - Round-3 paragraph, run identification: run 1 = the 2584-sc4 base
+        artifact directory's evaluation-20261030T212058Z.yaml (BLOCKED; no
+        edit/write call anywhere; card's numbered list still ends at rule 4;
+        skill-creator loaded + history archaeology seqs 28-39/66-103; final
+        text seq 114 asks the placement question, session ends there) —
+        exactly the run the paragraph's "run 1 halted on the instructed
+        placement" asserts. Confirmed.
+      - Run 2 = the "-1" directory: abort-diagnosis-20261030.yaml records the
+        §14 layered-hang abort (event stream flat, client wedged after last
+        completed generation) on commit 172d571e8; session-aborted.yaml
+        records finish:length with output 12,000 (the truncation claim holds)
+        plus the hunting record (git log over the card, attic/ exploration,
+        one grep whose output reports "Found 84 matches") — the paragraph's
+        "run 2 truncated then the client wedged — layered-hang abort on
+        record" and the "git log / attic/ / 84 grep matches" precedent-fact
+        claim hold. Commit identification (runs on 8744b49b4 then
+        172d571e8) verified: 172d571e8's parent is 8744b49b4, and run 1's
+        manifest timestamp (21:18:48Z) precedes the 172d571e8 commit time
+        (21:21:50Z). Confirmed.
+      - Run 3 = evaluation-20261030224534.yaml in the "-2" directory: verdict
+        PASS, 323 event rows, exit 0, rule 6 added via editor_edit_text with
+        the instructed placement executed, no issue filing / spec document /
+        validation dispatch / halt, placement-free hunting recorded (git
+        reads classed as branch checks, "attribution" grep and card read
+        classed as permitted wording-precedent reads), fixture comment
+        present and correctly self-reported. It supports SC-12's amended
+        Verify. Confirmed.
+      - Amplifying artifact surfaces match the paragraph: the scenario file's
+        re-scope record (runs 8–9 = commits 8744b49b4, 172d571e8; run 1
+        halted on placement, run 2 wedged after a truncated turn) and the
+        fixture script pre-supplying the byline-precedent facts as a comment
+        on the card in the test environment — both exist and match the
+        paragraph's claims. Confirmed.
+      - SC-12's citation of the strengthened carve-out (commit 172d571e8)
+        verified — the commit edits skills/skill-creator/SKILL.md to state
+        that an instruction-stated detail ("which card, which numbered
+        position, which file, which form") is executed, not questioned, and
+        a question about it is the forbidden halt. The spec's
+        wording-precedent carve-out ("Identity byline" item present in the
+        card; precedent reads unprohibited) is consistent with it. Confirmed.
+    testability: SC-12's amended facts — edit executed as instructed, no
+      issue filing, no spec document, no validation dispatch, no halt for
+      direction, placement-free hunting, wording-precedent reads present —
+      are each judged from session.yaml alone, and the recorded run-3
+      evaluation demonstrates exactly that judgment. Class-2
+      untestable-criterion and class-8 state-undecidable adjudicated and not
+      present.
+    weakening: No — the split preserves the anti-archaeology property in its
+      placement form (re-research of an instructed placement and a question
+      about it remain the forbidden archaeology and halt) and the no-halt
+      clause's bounded question (a genuine material open choice still gets
+      one open-ended question); what is unprohibited is only hunting for
+      content the instruction does not state, which the instruction never
+      covered. The completion facts (the edit is the run's product) are
+      unchanged.
+    internal_consistency: The amended SC-12 is consistent with SC-11's
+      2584-sc4 anchor declaration (the rule-number pattern the prompt names)
+      and with the deck text it cites (the placement rule is stated
+      deck-side at 172d571e8; the wording-research carve-out adds nothing
+      the deck clause contradicts); no conflicting two-bar reading survives
+      in the checked surface.
+    reevaluation_ran: false
+    spin_judgment: Not spinning — this round checked a previously
+      unvalidated addition; the single finding is a quotation-accuracy
+      defect in a new sentence family (SC-12's rewritten body), not a
+      reshuffled or recurring round-1–5 finding; rounds 1–5's remediated
+      passages remain in place. Count of revisions addressing findings: the
+      count trigger's judgment remains with the loop runner, and
+      convergence on the artifact's run-fact surface has been incremental
+      and genuine.
+    findings: [fabricated claims / cross-reference sufficiency, factual kind
+      misquote (SC-12's two quoted run phrases — "which existing number list
+      is the most plausible target" and "how do you want the rule
+      positioned?" — are not verbatim in their recorded sources, and the
+      first is framed as card-history reading where the record places it in
+      run-2 reasoning)]
+    verdict: FAIL
