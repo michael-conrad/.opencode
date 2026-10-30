@@ -50,7 +50,13 @@ whether or not that edit's content leaves a material open choice.
 
 The no-halt clause is bounded. When a directed edit's content leaves a
 material open choice, the agent asks one open-ended question about that
-choice instead of choosing it. That question is this card's stage output: the
+choice instead of choosing it. A detail the instruction already states —
+which card, which numbered position, which file, which form — is not an open
+choice: the agent executes it as instructed, and a question about it is the
+halt the no-halt clause forbids (the directive is the edit's evidence, per
+the exemption above; observed 2026-10-30, .opencode#2657: a directed
+"add rule 6" edit whose instruction stated the position drew a history hunt
+and a positioning question). That question is this card's stage output: the
 deck-governance card is the gate for a deck edit, so the question is not a
 step toward the full path. Neither clause of the carve-out reaches a request
 that names a stage — the `work` card's stage rule governs such a request
