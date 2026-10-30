@@ -23,7 +23,7 @@ Resolves `.opencode#2661`.
 | Surface | Change |
 |---|---|
 | `skills/issues/SKILL.md` §4 (Relationships) | The recomposition protocol: trigger, part creation and sub-issue registration, umbrella spec, same-action deletion, authorization void, notification, review shape, closure order |
-| `skills/work/SKILL.md` §3 (Authorization check) | The check names the recomposition void and routes to the protocol |
+| `skills/work/SKILL.md` rule 2 (Authorization check) | The check names the recomposition void and routes to the protocol |
 | `skills/plan/SKILL.md` | The plan-supersession rule at recomposition |
 
 ### 2.2 Surfaces deliberately untouched
@@ -52,7 +52,7 @@ Resolves `.opencode#2661`.
 |----|-----------|---------------|---------------------|
 | SC-1 | The `issues` card carries the recomposition protocol: the Recompose-outcome trigger, part creation as issues registered as sub-issues via the `local-issues` tool's `link`, and standalone part specs recording their seam sides | structural | Read `skills/issues/SKILL.md`; assert each element present in the protocol text |
 | SC-2 | The umbrella rule is stated: parts, seams, and grounds recorded; redistributed content deleted in the same action; no superseded-content pointers | structural | Read the protocol text; assert the three elements and the same-action clause |
-| SC-3 | The void-on-split is stated in both the protocol and the `work` card's authorization check; delivered work stays delivered; the parts await the stated authorization | structural | Read `skills/issues/SKILL.md` and `skills/work/SKILL.md` §3; assert the void, the delivery carve-out, and the parts-await clause |
+| SC-3 | The void-on-split is stated in both the protocol and the `work` card's authorization check; delivered work stays delivered; the parts await the stated authorization | structural | Read `skills/issues/SKILL.md` and `skills/work/SKILL.md` rule 2 (Authorization check); assert the void, the delivery carve-out, and the parts-await clause |
 | SC-4 | The `plan` card states plan supersession at recomposition: new plans derive from the parts' specs, and delivered items keep their state while plan state never migrates | structural | Read `skills/plan/SKILL.md`; assert the supersession rule and its two consequences |
 | SC-5 | The notification is stated as a stakeholder comment on the recomposed issue per the comment gate, carrying the recomposed and parts URLs and the authorization consequence, with chat accompanying and not replacing | structural | Read the protocol text; assert the channel, the two content elements, and the accompanies-not-replaces clause |
 | SC-6 | The parts' PR shape matches the `git-workflow-pr` card's §3 — one branch and one PR per authorization scope, one squashed commit per part — and the protocol states no second PR rule | structural | Read the protocol text against `skills/git-workflow-pr/SKILL.md` §3; assert consistency |
@@ -74,7 +74,7 @@ Resolves `.opencode#2661`.
 
 ## 6. Evidence
 
-**The deck gap.** The `issues` card's §4 sentence — *"Link sub-issues to parents; the hierarchy carries the authorization cascade and closure order"* — is the deck's only hierarchy text as of 2026-10-23, and no card states what the cascade or the closure order concretely is. The `plan` card's derivation guard (§4) covers traceability to a spec but has no rule for the spec ceasing to exist as such. The `work` card's authorization check (§3) tests whether authorization exists at the required scope and says nothing about a scope that is redistributed underneath a held authorization.
+**The deck gap.** The `issues` card's §4 sentence — *"Link sub-issues to parents; the hierarchy carries the authorization cascade and closure order"* — is the deck's only hierarchy text as of 2026-10-23, and no card states what the cascade or the closure order concretely is. The `plan` card's derivation guard (§4) covers traceability to a spec but has no rule for the spec ceasing to exist as such. The `work` card's authorization check (rule 2) tests whether authorization exists at the required scope and says nothing about a scope that is redistributed underneath a held authorization.
 
 **The measured instances are ad hoc.** Every split and sibling pair in the store this deck governs — `.opencode#2210/#2211`, `.opencode#2622/#2623`, `.opencode#2658/#2659` — carries an empty link record (`links: []`, checked 2026-10-23): none registered its parent/sub relationship. `.opencode#2658`'s recomposition (store commit `c81089a5`, 2026-10-23, *"evidence moved to a research artifact, store-record repairs split out to #2659, normative spec reduced to ten requirements on three cards"*) redistributed content across the two surfaces with no registration and no protocol; the extraction kept the parent's own deliverable and left no open authorization, plan, or closure question — a spec-phase recomposition with nothing yet to void. The first post-approval recomposition will face those questions with no rule; this spec exists so the protocol is in place before that happens.
 
@@ -85,7 +85,7 @@ Resolves `.opencode#2661`.
 - Spec: `.opencode/.issues/2661/spec.md`.
 - Remote issue: https://github.com/michael-conrad/.opencode/issues/2661
 - Sibling spec: `.opencode#2660` — the loop rule whose Recompose outcome this protocol executes around; peer spec, one PR, no parent/link relationship between the two.
-- Anchors: `skills/issues/SKILL.md` §4 (the hierarchy sentence), `skills/work/SKILL.md` §3 (the authorization check), `skills/plan/SKILL.md` (the derivation guard), `skills/git-workflow-pr/SKILL.md` §3 (the deferred PR shape), `.opencode/.issues/2658/` (the measured recomposition), `.opencode/.issues/2582/audit/tier1-dispatch-SC15-20261013.yaml` (the behavioral instrument model).
+- Anchors: `skills/issues/SKILL.md` §4 (the hierarchy sentence), `skills/work/SKILL.md` rule 2 (the authorization check), `skills/plan/SKILL.md` (the derivation guard), `skills/git-workflow-pr/SKILL.md` §3 (the deferred PR shape), `.opencode/.issues/2658/` (the measured recomposition), `.opencode/.issues/2582/audit/tier1-dispatch-SC15-20261013.yaml` (the behavioral instrument model).
 - Design converged with the developer in the session of 2026-10-23; the split was performed per the developer's directive, not proposed.
 
 🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)

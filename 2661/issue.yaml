@@ -37,7 +37,8 @@ body: '## Problem
   in the same action), the authorization void, the stakeholder notification, the review
   shape, and the closure order.
 
-  - `skills/work/SKILL.md` §3 — the authorization check names the recomposition void.
+  - `skills/work/SKILL.md` rule 2 — the authorization check names the recomposition
+  void.
 
   - `skills/plan/SKILL.md` — plan supersession at recomposition.
 
@@ -119,9 +120,9 @@ body: '## Problem
   content deleted in the same action; no superseded-content pointers | structural
   | Read the protocol; assert each element |
 
-  | SC-3 | The void-on-split is stated in both the protocol and `work/SKILL.md` §3;
-  delivered work stays; parts await the stated authorization | structural | Read `skills/issues/SKILL.md`
-  and `skills/work/SKILL.md` §3; assert |
+  | SC-3 | The void-on-split is stated in both the protocol and `work/SKILL.md` rule
+  2; delivered work stays; parts await the stated authorization | structural | Read
+  `skills/issues/SKILL.md` and `skills/work/SKILL.md` rule 2; assert |
 
   | SC-4 | `plan/SKILL.md` states plan supersession at recomposition; new plans derive
   from the parts'' specs; delivered items keep their state | structural | Read `skills/plan/SKILL.md`;
@@ -184,7 +185,9 @@ body: '## Problem
   > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2661/
 
 
-  Artifacts for agents: `.opencode/.issues/2661/`.'
+  Artifacts for agents: `.opencode/.issues/2661/`.
+
+  '
 created_at: '2026-10-24T02:47:26+00:00'
-updated_at: '2026-10-24T03:02:24+00:00'
+updated_at: '2026-10-30T03:10:15+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2661
