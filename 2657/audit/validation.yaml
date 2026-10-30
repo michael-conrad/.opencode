@@ -551,3 +551,91 @@ spec:
       first is framed as card-history reading where the record places it in
       run-2 reasoning)]
     verdict: FAIL
+  - round: 7
+    date: 2026-10-30
+    artifact_state: REVISED spec at store commit a6f095cdb ("2657: validation
+      round-6 remediation — SC-12 quotes verbatim and correctly attributed
+      (run 2's numbered-list reasoning; run 1's full halt question)").
+    scope: |
+      Round-7 scope — verification against round 6's single finding ONLY,
+      same finding bar (factual defects only, never preferences). Three
+      checks: (1) fragment 1 verbatim from run 2's reasoning at seq 59 as
+      recorded in
+      tmp/behavioral-evidence-2584-sc4-directed-card-edit-no-archaeology-GREEN-ollama-qwen3.8-27b-128k-gguf4-1/evaluation-20261030T215500Z.yaml
+      (and its session-aborted.yaml), attributed to run 2's reasoning; (2)
+      fragment 2 (the halt question) verbatim from run 1's halt at seq 114
+      (evaluation-20261030T212058Z.yaml / session.yaml), attributed to run
+      1; (3) no new misquote or factual defect in the surrounding paragraph,
+      compared with round 6's confirmed-accurate list.
+    adjudications:
+      - class: fabricated claims / cross-reference sufficiency (factual kind:
+          misquote — checked for recurrence after remediation)
+        classification: no-finding
+        detail: >-
+          (1) Fragment 1 — the spec now attributes the quote to run 2
+          ("run 2's reasoning asking \"which existing numbered list\" is the
+          target") instead of the card-history framing round 6 flagged.
+          Source verified: run 2's session-aborted.yaml seq 59 (run-2 turn-3
+          reasoning, per evaluation-20261030T215500Z.yaml's run narrative
+          line "reasoning (seq 59) re-examining the instructed placement")
+          reads "Which existing numbered list is the most plausible target?"
+          — the spec's quoted span "which existing numbered list" is a
+          contiguous substring of that sentence, differing only in the
+          sentence-initial capital integrated into a mid-sentence quote;
+          no word of the source is altered and the attribution is to run 2's
+          reasoning, not run 1's history reading. Remediation achieved. (2)
+          Fragment 2 — the spec quotes run 1's halt as "how do you want the
+          new 'every outgoing message carries the agent identity byline' rule
+          positioned relative to the four rules already in that list?". Source
+          verified: run 1's final text at seq 114
+          (evaluation-20261030T212058Z.yaml's recorded quote, confirmed
+          against session.yaml's halting text) reads "So: how do you want the
+          new \"every outgoing message carries the agent identity byline\"
+          rule positioned relative to the four rules already in that list?" —
+          the spec's quoted span is a contiguous verbatim substring (only
+          quote-nesting applied to carry the inner quotation). Attributed to
+          run 1. Remediation achieved. (3) Surrounding paragraph — every
+          run-fact claim re-checked against the round-6 confirmed-accurate
+          list: run 1 = the base artifact directory's
+          evaluation-20261030T212058Z.yaml (halted on the instructed
+          placement, seq 114, no edit); run 2 = the -1 directory (truncated
+          turn then layered-hang wedge, on commit 172d571e8); the
+          git-log/attic/84-grep-matches precedent hunting — run 2's record
+          shows the grep reporting "Found 84 matches" and the
+          evaluation-20261030T215500Z.yaml narrative names the git log over
+          the card, the issue-store bash, and the 84-match "attribution"
+          grep; the commit identification (8744b49b4, 172d571e8 with
+          172d571e8's parent = 8744b49b4); the carve-out attribution to
+          commit 172d571e8; the card's "Identity byline" item at list
+          position 4 (confirmed in run 1's recorded card read); the
+          boundary-state fixture re-scope and the raise staying at 12,000.
+          All confirmed; no new misquote or factual defect introduced by the
+          remediation diff (the diff touches only the two quote framings).
+    factual_accuracy_checked:
+      - Fragment 1 attribution and wording: run 2's reasoning at seq 59,
+        session-aborted.yaml — verbatim substring modulo sentence-initial
+        capital. Confirmed.
+      - Fragment 2 attribution and wording: run 1's halt at seq 114,
+        evaluation-20261030T212058Z.yaml and session.yaml — verbatim
+        substring modulo quote-nesting. Confirmed.
+      - Remediation diff scope (a6f095cdb, 5+/3-): only the two quoted
+        framings in SC-12's body; no other paragraph content changed.
+        Confirmed.
+      - Round-6 confirmed-accurate run-fact list re-verified in the current
+        text; no drift. Confirmed.
+    testability: Not re-opened this round — round 6 re-checked SC-12's
+      testability in scope (b) and found it judged from session.yaml alone;
+      the remediation changed no criterion wording.
+    weakening: Not applicable — quotation-accuracy remediation only; the
+      amended criterion's bars are unchanged.
+    internal_consistency: The corrected attribution removes the round-6
+      cross-run framing defect; the paragraph's two-kinds-of-hunting split
+      now rests on quotes the records carry, with no residual
+      contradiction.
+    reevaluation_ran: false
+    spin_judgment: Not spinning — this round verified a single
+      quotation-accuracy finding's remediation by direct comparison to the
+      recorded sources; zero findings, and no previously remediated passage
+      regressed.
+    findings: []
+    verdict: PASS
