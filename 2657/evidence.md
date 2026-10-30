@@ -204,5 +204,9 @@ Branch tip: `faa527ee3` → `d609887d9` (re-scopes pushed mid-session); model
    remediation attempts that motivated the round-3 amendment and the
    fixture pre-supply; their exports and diagnoses are
    `tmp/behavioral-evidence-2584-sc4-…/` (run 1) and `…-1/` (run 2).
+   SC-12 run 3 was re-confirmed by a second complete run at the same tip
+   (`…-gguf4-3`, exit 0, 203 events, one #2646 R-4 cap-hit resume;
+   evaluation-20261030233822.yaml: PASS on all five prongs) — corroboration
+   recorded before the PR's verify pass, not a criterion change.
    All six behavioral criteria are PASS; the branch's work is complete
    pending the PR's verify pass.
