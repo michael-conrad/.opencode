@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 (restructured from the pre-rip reference, tag pre-rip); #2557 build-verification row + language/toolchain row; submodule execution boundary, .opencode#2563; #2551 test-value gate at the RED step; test-quality rows, .opencode#2601; docs-currentness step, .opencode#2670; issues-data remediation-first clause in suite-green, .opencode#2681 -->
+<!-- Provenance: AI-authored, .opencode#2490 (restructured from the pre-rip reference, tag pre-rip); #2557 build-verification row + language/toolchain row; submodule execution boundary, .opencode#2563; #2551 test-value gate at the RED step; test-quality rows, .opencode#2601; docs-currentness step, .opencode#2670; issues-data remediation-first clause in suite-green, .opencode#2681; verify-pass gloss retirement, .opencode#2660 -->
 
 # Implementation Workflow Reference
 
@@ -62,7 +62,7 @@ regression covers. No script decides scope.
 | structural | project-local lint/typecheck commands | cheap mechanical facts first |
 | build verification | when the change affects build configuration or packaging (or the deliverable is a build artifact): a shallow temp-copy checkout (`git clone --depth 1`) of the tree; the repo's canonical build command sourced from the repo's declared build manifest (ask rather than guess when the manifest does not declare one, and record the confirmed command); assertion that the final outputs exist and are sound (e.g. the built artifact present, its contents inspected) | "lint passed" is not "build works" — the built artifact is the deliverable, verified in a pristine checkout, never asserted from the working tree alone |
 | suite-green | run the affected tiers (smoke + regression); every failure is remediated or dispositioned via a filed fix — never passed through as "pre-existing" (#2553). A failure whose remedy is issue-store hygiene (workspace-local repair of issue-store data on the store's `issues-data` branch — YAML validity, record fields, store metadata; agent-owned and authorization-free per the store's workspace guide) routes remediate-in-place: the producing agent repairs the store in the same working session via the store's own tooling, and the gate proceeds on that repair. The filed-fix route stays for failures whose remedy requires implementation authorization — any change outside the issue stores. Full suite only at release boundaries or explicit developer request | a red suite at the PR boundary ships the regression forward |
-| verify pass | dispatch the `verify` card's single fresh-context reviewer | one bounded review; churn rule applies |
+| verify pass | dispatch the `verify` card's single fresh-context reviewer | zero-finding verdict under the verify card's FAIL path; churn rule applies |
 | PR prep | `git-workflow-pr` conventions | review context for the human gate |
 
 Escalation: any step that cannot complete honestly stops the cycle — report

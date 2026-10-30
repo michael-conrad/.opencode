@@ -2,12 +2,12 @@
 name: spec
 description: "Load when creating or revising a specification document — success criteria, evidence types, traceability. Also load when a spec needs revision from review findings. Success criteria come from the developer's stated requirements and observed failures only — inventing extra criteria is scope creep. Every criterion is classified behavioral (runtime effect) or structural by its nature, and carries a verification instrument."
 license: MIT
-provenance: AI-authored, .opencode#2490
+provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2660
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2550 validate step, validation-standards reference; #2557 language/tool call out; pointer-resolution guarantee, .opencode#2597; producer-side self-check, .opencode#2601 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2550 validate step, validation-standards reference; #2557 language/tool call out; pointer-resolution guarantee, .opencode#2597; producer-side self-check, .opencode#2601; single-sourcing discipline in self-containment, .opencode#2660 -->
 
 # spec — specification creation and revision
 
@@ -42,7 +42,14 @@ provenance: AI-authored, .opencode#2490
    superseded criteria are removed, never accumulated. **Self-containment
    (normative):** the artifact is the single source of truth and must read
    standalone — revisions edit the artifact in place, superseded text is
-   deleted in the same action, and spec content never lives in comments. The
+   deleted in the same action, and spec content never lives in comments.
+   Self-containment carries the single-sourcing discipline: the artifact
+   states each operative fact once, in the section that owns it — surfaces in
+   the scope table, rules in the requirements, checks as mappings whose
+   element lists the mapped requirement owns, measured history in the
+   evidence, the artifact's own loop history in the issue's validation record
+   where the record rule applies — and every other mention points at its
+   owner. The
    body footer allowlist is normative: only spec content (behavior, analysis,
    SCs, fixes, evidence) plus the byline footer — no process or tracking
    indicators of any kind (no revision-history blocks, approval-state

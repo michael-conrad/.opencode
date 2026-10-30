@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2601; spin-bounded loop, .opencode#2606 -->
+<!-- Provenance: AI-authored, .opencode#2601; spin-bounded loop, .opencode#2606; non-convergence judgment, count trigger, re-evaluation outcomes, finding bar, validation record, .opencode#2660 -->
 
 # Plan Validation Standards
 
@@ -90,7 +90,19 @@ A plan is defective when it exhibits any of the following:
 - The reviewer reports only findings affecting correctness or the stated
   requirements — the same anti-churn binding as the verify card's reviewer.
   Style preferences, phrasing taste, and hypothetical improvements are not
-  findings.
+  findings. Where the audited artifact is a plan, that "correctness" prong
+  means the plan's factual accuracy and the completeness of its impact
+  enumeration.
+- **The finding bar is class-determined.** A defect this page enumerates —
+  any of its defect classes above, whether or not it misstates fact — is a
+  finding, and within that bucket a factual defect (a statement that
+  misstates fact) is a finding regardless of how small its effect is. A
+  preference — style, phrasing taste, a hypothetical improvement — is never a
+  finding. No third category exists: a substantive observation is reported as
+  a finding, and nothing is recorded as an observation without being a
+  finding. The same defect class is classified the same way in every round of
+  a loop — the validation record's per-round classification of each
+  adjudicated class is what makes that checkable.
 
 ## Loop
 
@@ -115,6 +127,33 @@ zero-finding verdict by revision. The escalation carries the specific
 findings, the suspected cause class(es), the root cause, what was tried, and
 what is needed to resolve them. Escalation and the clean PASS are the loop's
 only exits.
+
+Beside the spin judgment sit two further triggers. Both are judgments stated
+as such — never a script — and both open the same structural re-evaluation
+of the plan before any further in-place revision:
+
+- **The non-convergence judgment.** When the loop's rounds are incrementally
+  progressing — each cycle remediating its findings yet producing genuinely
+  new ones, with no obvious convergence — the agent running the loop stops
+  in-place revision and runs the structural re-evaluation.
+- **The count trigger.** When the plan has needed more than four revisions to
+  address findings, the loop runs the structural re-evaluation. The count
+  mandates the examination and never decides its outcome — the
+  re-evaluation's verdict is the judgment, and a re-evaluation may conclude
+  that the plan stands. The findings-are-fixed requirement and criteria
+  invariance are never satisfied by a revision count.
+
+The structural re-evaluation and its outcomes, and the validation record,
+are the spec card's validation standards' canonical statement —
+[validation standards](../spec/references/validation-standards.md) §Loop:
+the factor set the examination covers at minimum; the three recorded
+outcomes (Sound, Recompose, Intent-unreachable) with their resume and
+redirect behaviors; and the per-issue validation record `(YAML)` at
+`.issues/{N}/audit/validation.yaml`, one entry appended per completed cycle
+per that canonical rule, never a second copy of the verdict and never inside
+the plan body. A re-evaluation is one of the higher-level fixing attempts
+the escalation rule counts; escalation still fires when convergence remains
+unreachable after it.
 
 ## Criteria invariance
 
