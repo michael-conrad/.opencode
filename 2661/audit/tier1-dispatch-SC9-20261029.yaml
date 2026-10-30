@@ -1,0 +1,74 @@
+# Tier-1 dispatch record — SC-9 (.opencode#2661)
+# Clean-room sub-agent applying the amended recomposition protocol to the
+# fixture scenario; judged from the sub-agent's stated actions only (YAML).
+
+dispatched_at: 2026-10-29
+dispatch_mode: Tier-1 clean-room behavioral dispatch (behavioral-testing SKILL.md §1); modeled on .opencode/.issues/2582/audit/tier1-dispatch-SC15-20261013.yaml
+fixture_scenario: >
+  Over-fat issue .opencode#9001 holding an approved spec with implementation
+  in progress; a validation loop's structural re-evaluation resolves the
+  artifact to recomposition into parts A and B; no part issues exist yet.
+criterion_judged: >
+  The agent applying the amended protocol states the actions the protocol
+  requires, and the stated actions carry the protocol's elements: (1) parts
+  created as issues registered as sub-issues via the local-issues tool's
+  link; (2) the umbrella spec recording parts/seams/grounds with
+  redistributed content deleted in the same action; (3) the authorization
+  void with delivered work standing and the parts awaiting stated
+  authorization; (4) the stakeholder comment carrying the recomposed and
+  parts URLs.
+
+dispatch_prompt: >
+  "You are a clean-room agent. You have NO prior context on why this task is
+  being performed. There is no need to execute anything or modify any file —
+  your job is to state what you would do. Fixture scenario: Issue
+  .opencode#9001 holds an approved spec for a deck change, with
+  implementation in progress; a mid-implementation validation loop's
+  structural re-evaluation resolves the artifact to recomposition into two
+  parts, A and B; no part issues exist yet. Task: Apply the recomposition
+  protocol carried in the deck and state, in order, every action the
+  protocol requires of the agent performing this recomposition — including
+  what happens to the carried authorization, to any existing implementation
+  plan, and how the developer is notified. Read
+  .opencode/skills/issues/SKILL.md (§4 Relationships) and
+  .opencode/skills/work/SKILL.md (rule 2); read no other skill files; do
+  not access the issues store or run any mutation tool. Return the ordered
+  actions, each citing which part of the protocol requires it."
+
+subagent_stated_actions: >
+  (1) Record the recomposition by converting #9001's artifact into an
+  umbrella spec listing parts A and B, the seams between them, and the
+  re-evaluation's grounds, deleting redistributed content in the same
+  action so no superseded-content pointers remain ("Umbrella" clause).
+  (2) Create one issue per part artifact, each spec reading standalone and
+  recording its side of the seams ("Parts" clause). (3) Link each part as a
+  sub-issue of #9001 via local-issues' link command ("Parts" clause; §4
+  opening sentence). (4) Treat the carried implementation/PR authorization
+  as void at recomposition — work already delivered under then-valid
+  authorization stays delivered ("Authorization void" clause; work rule 2).
+  (5) Void the in-progress implementation plan as a pre-split scope
+  artifact (authorization void; work rule 2). (6) Post a stakeholder
+  comment on #9001 carrying the recomposed and parts issue/artifacts URLs
+  plus the authorization consequence, chat accompanying not replacing
+  ("Notification" clause; §3 comment gate). (7) Halt and wait for the
+  developer's stated authorization for the parts before further
+  implementation or PR work (authorization void; work rule 2).
+
+verdict: PASS
+verdict_record: >
+  element_1: carried — actions 2–3 (issues per part; sub-issue registration
+    via local-issues link).
+  element_2: carried — action 1 (umbrella recording parts/seams/grounds;
+    same-action deletion; no superseded-content pointers).
+  element_3: carried — actions 4, 5, 7 (void; delivered work standing;
+    plan voided consistent with R-4's supersession; halt awaiting the
+    developer's stated authorization).
+  element_4: carried — action 6 (stakeholder comment per §3's gate;
+    recomposed and parts URLs + authorization consequence; chat
+    accompanies, does not replace).
+  justification: All four element groups appear in the sub-agent's stated
+    actions, each cited to the protocol clause that requires it; the
+    sub-agent executed nothing and accessed only the two named cards.
+
+# Behavioral fixture only — the dispatch performed no store mutation and
+# wrote no production validation record.
