@@ -141,14 +141,18 @@ spec's own change does not reach the harness.
 
 ### Instrument note — bounded-generation raise (re-scope record, 2026-10-30)
 
-The harness repair landed and the runs still end capped: five GREEN runs of
-this spec's scenarios on the branch tip (2026-10-30; sc1 ×2, sc2, sc3 ×2,
-model `qwen3.8:27b-128k-gguf4`) show the run agent's first turn exceeding the
-4,000-token output budget — the spec-composition and card-deliberation turns
-truncate with `finish: length`, the R-13 resumes truncate again, and
-`docs/upload-retry-spec.md` is never written; sc3's trivial heading edit
-never happened either (the agent's 17,529-character reasoning block was cut
-at every turn). The runs' routing facts, by contrast, are observable and
+The harness repair landed and the 4,000-budget runs still end capped: the
+first four GREEN runs on the branch tip (2026-10-30: one sc1 run, one sc2
+run, and two sc3 runs of this spec's scenarios — plus the sc1/sc3 runs of
+2026-10-23 before the repair, recorded above — model `qwen3.8:27b-128k-gguf4`
+and the Oct-23 `256k` slug alike) show the run agent's first turn exceeding
+the 4,000-token output budget — the spec-composition and card-deliberation
+turns truncate with `finish: length`, the R-13 resumes truncate again, and
+`docs/upload-retry-spec.md` is never written; in sc3's capped 4,000 run the
+trivial heading edit never happened either (the agent's 17,529-character
+reasoning block was cut at every turn). sc2's capped run is the exception in
+kind, not in budget: its criterion needs no artifact, and the run ended
+cleanly on the amended route with the artifact never exercised. The runs' routing facts, by contrast, are observable and
 correct: the stage request routed to the spec stage in two polls with the
 approval gate identified; the underspecified caching request announced FULL
 path and wrote the work record that says so. This matches
@@ -656,10 +660,20 @@ discriminating: it is absent from the target before the run and present
 after it, so the anchor is a condition the run can miss; and it is a pattern
 the harness's content check can match, so the condition is one the run can
 meet. Two of the six name
-no artifact: SC-7's scenario, because the full-path spec artifact's path
-depends on the issue number the run creates, and SC-10's, because its
-criterion turns on a question in the transcript rather than on a file — naming
-one would declare as the goal the very edit the criterion forbids. The
+an empty artifact anchor with their goal actions carrying the direction:
+SC-7's scenario — the full-path spec artifact's path depends on the issue
+number the run creates, and the amended criterion legitimizes a run that
+stops at the explore stage's one question — and SC-10's, because its
+criterion turns on a question in the transcript rather than on a file.
+SC-9's scenario keeps its known-path anchor by the same reasoning as its
+criterion's amendment: the anchor's path is the second file's edit, the fact
+that exists only on a violation — a compliant run that stops at the explore
+stage's question leaves the anchor unmet, and the anchor's role is the
+determination record's direction evidence for a run that is still working,
+not the criterion's pass condition; the clean-room evaluation, which judges
+the amended route criterion alone, is the verdict surface, and the
+determination record's non-verdict role is stated here so the anchor's
+unmet state on a compliant run is never read as a verdict. The
 extended `2584-sc4` scenario's pattern is the rule number its prompt names
 (rule 6 of the card the prompt names), not the word the rule carries: the
 prompt's word — the identity byline — appears elsewhere in that card (its
