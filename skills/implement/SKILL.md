@@ -2,7 +2,7 @@
 name: implement
 description: "Load when executing an approved plan or making any change during the implementation work cycle — before starting work and before every mid-cycle change. Loads the implementation-workflow reference first (pre-implementation checklist, RED/GREEN chain, post-implementation gates). Run tests and show real output as evidence; use the project's connectors, libraries, and test frameworks from the floor inventory — bespoke reimplementation of what a library provides is a defect. Also load when implementation effort balloons into deep verification of a consumed framework's internals, verification tests of what the build system already guarantees, or methodology-only narration."
 license: MIT
-provenance: AI-authored, .opencode#2490; short-path inline default, .opencode#2645; docs-currentness pointer, .opencode#2670
+provenance: AI-authored, .opencode#2490; short-path inline default, .opencode#2645; docs-currentness pointer, .opencode#2670; mid-cycle spec/plan revision duty, developer directive 2026-10-30
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
@@ -35,7 +35,16 @@ provenance: AI-authored, .opencode#2490; short-path inline default, .opencode#26
      developer request.
 4. **Mid-cycle changes.** Re-consult the workflow reference first. A change
    beyond the current plan item's scope stops the cycle: report and get
-   direction rather than expand silently.
+   direction rather than expand silently. A discovered flaw in the spec or
+   plan itself — a criterion the implementation cannot meet as written, an
+   ordering the deck's or the harness's own behavior makes unobservable, an
+   instrument capability the evidence layer lacks — is never absorbed
+   silently either way: the agent revises the flawed artifact in place, per
+   its owning card's rules (the spec card holds the spec's revision rules,
+   the plan card the plan's), records the discovery and the amendment, and
+   the cycle continues against the revised artifact (developer directive,
+   2026-10-30: agents were skipping needed spec and plan revisions during
+   implementation cycles).
 5. **Library-first.** Check the floor's external-access inventory and the
    project's own frameworks before writing anything bespoke — connectors,
    official clients, and built-in credential handling replace hand-rolled

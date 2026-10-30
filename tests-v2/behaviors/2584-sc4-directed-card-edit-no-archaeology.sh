@@ -13,6 +13,18 @@
 # no spec document, no validation dispatch. Clean-room evaluation over
 # session.yaml (orchestrator side).
 
+#
+# RE-SCOPE RECORD 2 (2026-10-30, re-scoping round 3; runs 8-9 = commits
+# 8744b49b4 and 172d571e8): both runs spent their budget on byline-precedent
+# hunting (git history / attic / grep) and neither reached the edit; run 1
+# additionally halted on the instructed placement, run 2 wedged after a
+# truncated turn (abort-diagnosis-20261030.yaml in its evidence dir).
+# Spec amendment: SC-12 separates placement archaeology (defect) from
+# wording-precedent research (permitted); fixture re-scope: the run's
+# byline-precedent facts are pre-supplied in the test environment by
+# fixtures/setup/<scenario>.sh (a staged comment on the card being edited).
+# Budget: OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=12000 (caller env).
+#
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
