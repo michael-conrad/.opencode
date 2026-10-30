@@ -191,8 +191,18 @@ Branch tip: `faa527ee3` → `d609887d9` (re-scopes pushed mid-session); model
    the work record (its scope is in the announcement instead) — R-3's
    record-before-implementation obligation had not yet been reached when the
    run ended; the amendment judges the route.
-5. **Still unjudged as of this record**: SC-8's raised-budget full run (the
-   early exit closed the run before its verify dispatch; SC-8's fact (3)
-   requires it, so its verdict needs a complete run), SC-9's re-evaluation
-   under the round-2 amendment, and SC-10 / SC-12 runs. The pending verdicts
-   complete before the PR.
+5. **Verdicts completed after that record** (all 12,000-budget runs unless
+   noted):
+   | Criterion | Phase | Verdict | Evidence |
+   |---|---|---|---|
+   | SC-8 | GREEN (full run) | **PASS** — scope statement (all six R-3 contents) precedes the edit; no forbidden artifacts; the fresh-context verify dispatch present and returned PASS/no findings; edit as requested; one late cap-hit that truncated only a post-fact summary turn | evaluation-20261030T210138Z.yaml in `tmp/behavioral-evidence-2657-sc3-short-path-collapsed-form-GREEN-ollama-qwen3.8-27b-128k-gguf4-1` |
+   | SC-9 | GREEN (re-evaluating run 7's export under the round-2 amendment) | **PASS** — second-file need reached, full path announced with the expansion stated, zero edits, one explore question, clean exit | evaluation-20261030201108.yaml in `tmp/behavioral-evidence-2657-sc4-short-path-ends-when-outgrown-GREEN-ollama-qwen3.8-27b-128k-gguf4-1` |
+   | SC-10 | GREEN | **PASS** — one open-ended question, no choice made, no hunt/filing/dispatch, zero writes | evaluation-20261030200912.yaml in `tmp/behavioral-evidence-2657-sc5-directed-deck-edit-open-choice-GREEN-ollama-qwen3.8-27b-128k-gguf4` |
+   | SC-12 | GREEN (run 3, commit 28ea8e2d3: placement-vs-precedent spec amendment + carve-out strengthening + fixture pre-supply) | **PASS** — rule 6 added and integrated as instructed; placement never re-researched or re-asked; no issue/spec/validation machinery; no halt; the run's precedent reads are unprohibited wording research per the round-3 amendment | evaluation-20261030224534.yaml in `tmp/behavioral-evidence-2584-sc4-directed-card-edit-no-archaeology-GREEN-ollama-qwen3.8-27b-128k-gguf4-2` |
+
+   SC-12's runs 1–2 (commits `8744b49b4`, `172d571e8`) are the recorded FAILed
+   remediation attempts that motivated the round-3 amendment and the
+   fixture pre-supply; their exports and diagnoses are
+   `tmp/behavioral-evidence-2584-sc4-…/` (run 1) and `…-1/` (run 2).
+   All six behavioral criteria are PASS; the branch's work is complete
+   pending the PR's verify pass.
