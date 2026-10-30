@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2550; criteria-depth restoration, .opencode#2601; spin-bounded loop, .opencode#2606; state-decidability class, .opencode#2646 -->
+<!-- Provenance: AI-authored, .opencode#2550; criteria-depth restoration, .opencode#2601; spin-bounded loop, .opencode#2606; state-decidability class, .opencode#2646; non-convergence judgment, count trigger, re-evaluation outcomes, finding bar, validation record, .opencode#2660 -->
 
 # Validation Standards
 
@@ -25,7 +25,22 @@ lexical check is gamed by rephrasing; judgment is not.
 - The reviewer reports only findings affecting correctness or the stated
   requirements — the same anti-churn binding as the verify card's reviewer.
   Style preferences, phrasing taste, and hypothetical improvements are not
-  findings.
+  findings. Where the audited artifact is a spec or a plan, that
+  "correctness" prong means the artifact's factual accuracy and the
+  completeness of its impact enumeration; where the audited artifact is a
+  code deliverable, the prong keeps its existing meaning — the deliverable's
+  behavior, and the defects that affect correctness or the stated
+  requirements.
+- **The finding bar is class-determined.** A defect this page enumerates —
+  any of its defect classes or analysis families, whether or not it misstates
+  fact — is a finding, and within that bucket a factual defect (a statement
+  that misstates fact) is a finding regardless of how small its effect is. A
+  preference — style, phrasing taste, a hypothetical improvement — is never a
+  finding. No third category exists: a substantive observation is reported as
+  a finding, and nothing is recorded as an observation without being a
+  finding. The same defect class is classified the same way in every round of
+  a loop — the validation record's per-round classification of each
+  adjudicated class is what makes that checkable.
 
 ## Defect classes
 
@@ -187,6 +202,68 @@ zero-finding verdict by revision. The escalation carries the specific
 findings, the suspected cause class(es), the root cause, what was tried, and
 what is needed to resolve them. Escalation and the clean PASS are the loop's
 only exits.
+
+Beside the spin judgment sit two further triggers. Both are judgments stated
+as such — never a script — and both open the same structural re-evaluation
+of the artifact before any further in-place revision:
+
+- **The non-convergence judgment.** When the loop's rounds are incrementally
+  progressing — each cycle remediating its findings yet producing genuinely
+  new ones, with no obvious convergence — the agent running the loop stops
+  in-place revision and runs the structural re-evaluation.
+- **The count trigger.** When the artifact has needed more than four
+  revisions to address findings, the loop runs the structural re-evaluation.
+  The count mandates the examination and never decides its outcome — the
+  re-evaluation's verdict is the judgment, and a re-evaluation may conclude
+  that the artifact stands. The findings-are-fixed requirement and criteria
+  invariance are never satisfied by a revision count.
+
+The structural re-evaluation examines, at minimum: repo boundaries;
+separation of concerns; atomic work-unit decomposition; fatness; and intent
+wording/reachability. The factors are the minimum the examination covers —
+exemplary and open, never a closed checklist — and the examination and its
+verdict are judgment. It resolves to one of three outcomes, each recorded in
+the owning issue's validation record, from which the loop resumes or
+redirects:
+
+- **Sound** — the artifact's structure stands: the findings are recorded and
+  the loop resumes on the unchanged artifact.
+- **Recompose** — the artifact's shape is the defect: the split is performed
+  per the recomposition protocol the issues card carries, and in-place
+  revision of the pre-split artifact is superseded. Until that protocol is
+  implemented on a consuming surface, the Recompose outcome records its
+  grounds and escalates to the developer for the split.
+- **Intent-unreachable** — the intent statement is the defect: it is
+  rewritten, and the loop continues on the revised artifact.
+
+A re-evaluation is one of the higher-level fixing attempts the escalation
+rule counts; escalation still fires when convergence remains unreachable
+after it.
+
+Every completed validation cycle — one fresh-context review of the artifact
+as it then stood, its verdict, its findings, and the remediation or loop
+state they produced — appends one entry to the owning issue's validation
+record (YAML) at `.issues/{N}/audit/validation.yaml`. One record file per
+issue — the owning issue being the issue whose artifact the loop validates —
+with one top-level section per artifact under validation (spec, plan,
+implementation). Each entry carries the round's findings; every defect class
+the round adjudicated, with its classification — a finding or a preference —
+and, for a finding, the remediation performed or the outcome reached,
+including the terminal cycle; and, when a cycle ran the structural
+re-evaluation, the re-evaluation's outcome and its grounds. The recorded
+class is the criteria source's enumerated defect class or analysis family
+wherever one applies; the recorded factual kinds (a stale citation, a wrong
+count, a mis-scoped claim) are the entry's detail — exemplars of the class,
+not a closed list; an adjudicated preference records the class or family it
+was adjudicated under with its classification; and the same defect carries
+the same label in every round, so that two rounds' entries for one defect
+compare. A round whose entry lists no finding is a zero-finding round. The
+record lives beside the artifact in the issue store and never inside the
+spec or plan body, and it is never a second copy of the verdict — the
+verdict is recorded once per the verify card's recording rule, and the
+record is the loop's history. A cycle whose artifact belongs to no issue in
+a store records its verdict per the verify card's own recording rule and
+appends no store record. A cycle's judgment cites the record.
 
 ## Criteria invariance
 

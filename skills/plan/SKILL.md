@@ -2,7 +2,7 @@
 name: plan
 description: "Load when writing an implementation plan from an approved spec — per-SC items with RED/GREEN cycles, dependency ordering, verification instruments. Plans derive entirely from the spec: a plan item without a spec source is scope creep. Plans state how to implement; implementation status lives in pipeline state, never in the plan body."
 license: MIT
-provenance: AI-authored, .opencode#2490; recomposition supersession, .opencode#2661
+provenance: AI-authored, .opencode#2490; recomposition supersession, .opencode#2661; single-sourcing discipline, .opencode#2660
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
@@ -24,7 +24,13 @@ provenance: AI-authored, .opencode#2490; recomposition supersession, .opencode#2
 4. **Derivation guard.** Every item traces to an SC. Untraceable items are
    removed, not justified.
 5. **No status tracking in the body** — no STATUS fields, completion markers,
-   or progress indicators. State lives in the pipeline, not the plan.
+   or progress indicators. State lives in the pipeline, not the plan. The
+   plan's artifact discipline holds the single-sourcing parallel: the plan
+   states each operative fact once, in the item or section that owns it —
+   ordering facts in the dependency order, rules in the items, checks in the
+   instruments, measured history deferred to the issue's validation record
+   where the record rule applies — and every other mention points at its
+   owner.
 6. **Consume validated specs only.** Plan items trace to the spec's SCs.
    Before planning, judge each SC against
    [the validation standards](../spec/references/validation-standards.md)

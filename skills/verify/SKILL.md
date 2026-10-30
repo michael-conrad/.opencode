@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance; externally-d
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar; behavioral-testing dispatch fix, .opencode#2578; artifact-presence gate, .opencode#2597; instrument-capability rule + criteria-set ownership, .opencode#2601; spin-bounded review loop, .opencode#2606; state-decidable verdict resolution, .opencode#2646; externally-documented-surface examination, .opencode#2670 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar; behavioral-testing dispatch fix, .opencode#2578; artifact-presence gate, .opencode#2597; instrument-capability rule + criteria-set ownership, .opencode#2601; spin-bounded review loop, .opencode#2606; state-decidable verdict resolution, .opencode#2646; externally-documented-surface examination, .opencode#2670; finding bar, triggers, validation record, .opencode#2660 -->
 
 # verify — the single verification pass
 
@@ -19,8 +19,23 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance; externally-d
    prompted to find gaps will always report some — do not chase style,
    ceremony, or imagined requirements.*
 3. **Verdict.** PASS / FAIL per SC, grounded in the reviewer's findings and
-   the executed evidence. Record it once — chat or PR description. No YAML
-   artifact chains.
+   the executed evidence. A PASS is a verdict with no findings — a verdict
+   with any finding is a FAIL, and findings are never negotiated away. The
+   finding bar is class-determined: a defect the audited artifact's criteria
+   source enumerates — any of its enumerated defect classes or analysis
+   families, whether or not it misstates fact — is a finding, and within that
+   bucket a factual defect (a statement that misstates fact) is a finding
+   regardless of how small its effect is; a preference — style, phrasing
+   taste, a hypothetical improvement — is never a finding, and no third
+   category exists: a substantive observation is reported as a finding. The
+   same defect class is classified the same way in every round — the
+   validation record's per-round classification of each adjudicated class is
+   what makes that checkable. Where the audited artifact is a spec or a plan,
+   the churn rule's "correctness" prong means the artifact's factual accuracy
+   and the completeness of its impact enumeration; a code deliverable's prong
+   keeps its existing meaning — the deliverable's behavior, and the defects
+   that affect correctness or the stated requirements. Record it once — chat
+   or PR description. No YAML artifact chains.
 4. **FAIL path.** Remediate → fresh re-review → repeat until a zero-finding
    verdict. A finding whose ground is an append-only record — a recorded
    historical event in a supervision ledger, determination record, or audit
@@ -39,11 +54,35 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance; externally-d
    a level: diagnose the cause and attempt higher-level fixing of it —
    artifact-level structural revision such as breaking up a composite SC,
    splitting an over-fat spec, resolving a spec conflict, restructuring into
-   atomic work units, or re-evaluating the approach — and the loop continues
-   on the revised artifact. Escalation to the developer fires when spin
-   persists after genuine higher-level fixing attempts, carrying the specific
-   failing SCs, the suspected cause class(es), the root cause, what was tried,
-   and what is needed.
+    atomic work units, or re-evaluating the approach — and the loop continues
+    on the revised artifact. Escalation to the developer fires when spin
+    persists after genuine higher-level fixing attempts, carrying the specific
+    failing SCs, the suspected cause class(es), the root cause, what was
+    tried, and what is needed.
+
+    Beside the spin judgment sit two further triggers. Both are judgments
+    stated as such — never a script — and both open the same structural
+    re-evaluation of the artifact before any further in-place remediation:
+    the **non-convergence judgment** — when the loop's rounds are
+    incrementally progressing, each cycle remediating its findings yet
+    producing genuinely new ones, with no obvious convergence, the agent
+    running the loop stops in-place remediation and runs the re-evaluation —
+    and the **count trigger** — when the artifact has needed more than four
+    revisions to address findings, the loop runs the re-evaluation; the count
+    mandates the examination and never decides its outcome, and the
+    findings-are-fixed requirement and criteria invariance are never
+    satisfied by a revision count. The structural re-evaluation and its three
+    recorded outcomes (Sound, Recompose, Intent-unreachable), and the
+    per-cycle validation record `(YAML)` at `.issues/{N}/audit/validation.yaml`,
+    are the spec card's validation standards' canonical statement —
+    [validation standards](../spec/references/validation-standards.md) §Loop:
+    each review cycle appends its entry per that rule, never a second copy of
+    this card's verdict and never inside the audited artifact — the verdict
+    itself is recorded once, above; a cycle whose artifact belongs to no
+    issue in a store records the verdict per this card's own recording rule
+    and appends no store record. A re-evaluation is one of the higher-level
+    fixing attempts this rule counts; escalation still fires when convergence
+    remains unreachable after it.
 5. **Own-test execution stays with the implementor.** Running tests and showing
    output is fact work, not review — it happens in `implement`, and the
    reviewer consumes its output.
