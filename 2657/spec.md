@@ -726,9 +726,11 @@ Amended 2026-10-30 ("Re-scoping round 3" in the Dependency's instrument
 note), which separates the two kinds of hunting the scenario's runs of that
 date exhibited. **Placement archaeology is the defect:** the instruction
 states the edit's placement — which card, which numbered position, which
-file — so the run re-researching it (reading the card's own history to find
-"which existing number list is the most plausible target") or re-asking it
-("how do you want the rule positioned?") is the forbidden archaeology and
+file — so the run re-researching it — run 2's reasoning asking "which existing
+numbered list" is the target — or re-asking it — run 1's halt ending "how do
+you want the new 'every outgoing message carries the agent identity byline'
+rule positioned relative to the four rules already in that list?" — is the
+forbidden archaeology and
 the forbidden halt, and the strengthened carve-out (`.opencode#2657`
 commit `172d571e8`) states that deck-side. **Wording-precedent research is
 not the defect:** the instruction does not state the new rule's wording, so
