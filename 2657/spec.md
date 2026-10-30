@@ -26,8 +26,14 @@ coherent short path to restore.
 single-file, developer-specified changes, that "a developer's direct request
 is the spec", and that "machinery beyond the short path (extra card loads,
 evidence hunts, approval-seeking) requires a reason visible in the work
-record. Excess ceremony on a direct order is a defect signal, never
-thoroughness."
+record" followed by a ceremony-pricing sentence. The ceremony-pricing
+sentence has been reworded since `.opencode#2584` added it: at
+spec-authoring time it read "Excess ceremony on a direct order is a defect
+signal, never thoroughness"; `.opencode#2664` (2026-10-28) amended it to
+"Excess ceremony is a within-stage defect signal, never thoroughness — it
+never licenses crossing the authorization boundary". Both wordings price
+ceremony against the developer's request and name stages; the second is
+what the tree this change stacks onto carries.
 
 A developer's request naming a stage — "create a spec", "for a spec",
 "brainstorm spec" — asks for the pipeline. The card gives the agent no way to
@@ -384,18 +390,24 @@ change's need by agent judgment, never a size threshold, survives.
 
 `skills/work/SKILL.md` states R-1 through R-5 and R-7, and its frontmatter
 description names the stage-request trigger so the platform routes a
-stage-naming request to the card. R-2's criteria are stated once, in rule 1's
+stage-naming request to that card. R-2's criteria are stated once, in rule 1's
 body, and the card's frontmatter description, its bullet list, and its
 paragraph each refer to those criteria rather than stating a predicate of
 their own, so the three cannot disagree. Its two uncertainty rules — the
-frontmatter's and the closing line's — are qualified per R-2. The phrases
-"a developer's direct request is the spec" and "Excess ceremony on a direct
-order is a defect signal" appear nowhere in the deck's live surfaces — the
+frontmatter's and the closing line's — are qualified per R-2. The deck's live
+surfaces carry no text that prices a stage or full-path machinery against the
+developer's request: no statement that pursuing a stage, extra card loads,
+evidence hunts, or approval-seeking requires a justification visible in a
+record, is excess, or is a defect signal — the removal R-7 states, applied by
+property rather than by a quoted phrase, so the criterion holds against the
+reworded text `.opencode#2664` introduced as well. The phrase "a developer's
+direct request is the spec" appears nowhere in the deck's live surfaces — the
 cards under `skills/`, the guidelines under `guidelines/`, and `floor.md`.
 
 - **Verify:** read the card; each element present. A deck-wide search of
-  `skills/`, `guidelines/`, and `floor.md` returns no occurrence of either
-  phrase.
+  `skills/`, `guidelines/`, and `floor.md` returns no occurrence of "a
+  developer's direct request is the spec" and no statement of the
+  ceremony-pricing property above.
 
 ### SC-3 (structural) — the carve-out is bounded
 
@@ -570,8 +582,13 @@ depends on the issue number the run creates, and SC-10's, because its
 criterion turns on a question in the transcript rather than on a file — naming
 one would declare as the goal the very edit the criterion forbids. The
 extended `2584-sc4` scenario's pattern is the rule number its prompt names
-rather than the word the rule carries: the target card's rule 5 already
-contains that word, so a pattern on it is satisfied before the run starts.
+(rule 6 of the card the prompt names), not the word the rule carries: the
+prompt's word — the identity byline — appears elsewhere in that card (its
+stakeholder-notice-format list carries "Identity byline" at item 4), so a
+pattern on the word would be satisfied before the run starts, while the
+numbered-rules list the prompt directs the run to integrate into has no item
+6 before the run, so a pattern on the new item's number and content is
+absent from the target before the run starts.
 
 - **Verify:** read `tests-v2/behaviors/`; each named file is present or absent
   as stated, each new scenario's header states its criterion, each new
@@ -614,7 +631,7 @@ evaluation of its run.
 | ID | Criterion | Class | Instrument |
 |----|-----------|-------|------------|
 | SC-1 | Floor carries the stage invariant and the stage-request rule | structural | read `floor.md` |
-| SC-2 | Work card carries R-1..R-5 and R-7; the criteria are stated once in rule 1's body and the card's three forms refer to them; both uncertainty rules qualified; removed phrases absent deck-wide | structural | read the card; deck-wide search |
+| SC-2 | Work card carries R-1..R-5 and R-7; the criteria are stated once in rule 1's body and the card's three forms refer to them; both uncertainty rules qualified; stage-pricing text removed by property and "a developer's direct request is the spec" absent deck-wide | structural | read the card; deck-wide search |
 | SC-3 | `skill-creator` carve-out bounded: the evidence-hunt exemption reaches every directed edit, the no-halt clause stops at a material open choice, neither reaches a stage request | structural | read the card |
 | SC-4 | One "short path" definition; the two routing cards point at it and the two consuming cards name its artifact; every record reference names the work record; each card that owns the record states where and when it is written | structural | read the seven cards |
 | SC-5 | The verify and PR-readiness gates read the scope statement | structural | read both cards |
