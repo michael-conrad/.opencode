@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-generated -->
+<!-- Provenance: AI-generated — written by a prior session on 2026-10-23; entered the issue store in commit `fcf67465` ("auto: create #.opencode#2658"). Not part of the .opencode#2615 implementation. In-place factual corrections by the .opencode#2659 repair, 2026-10-30. -->
 <!-- Co-authored with AI: OpenCode (minimax-m3.1-flash) -->
 
 # Research Card: GitBucket closing-keyword auto-close on PR merge
@@ -22,7 +22,7 @@ false. Measured against GitBucket 4.48.0 (the release the deck's own
 `tests-v2` harness provisions — `__ensure_gitbucket` resolves the latest
 release WAR) on the harness's self-contained container.
 
-### Empirical matrix (all cases: base branch = repo default branch = `master`)
+### Empirical matrix (all cases: base branch = repo default branch = `main`)
 
 | # | PR-body marker (or source) | Issue state after merge | Closes? |
 |---|---|---|---|
@@ -52,7 +52,7 @@ Two guards bound the behavior:
 | Location | Fact |
 |---|---|
 | `core/service/MergeService.scala` `mergePullRequest` | On merge: closes from each commit's full message, from the PR **title + body** (`issue.title + " " + issue.content`), and from the merge message — all inside `if (pullRequest.branch == defaultBranch)` |
-| `core/service/IssuesService.scala` `closeIssuesFromMessage` | `extractCloseId(message)` → for each id, `getIssue(owner, repository, id)` — **same repository only**, so a qualified `owner/repo#N` never resolves |
+| `core/service/IssuesService.scala` `closeIssuesFromMessage` | `extractCloseId(message)` → for each id, `getIssue(owner, repository, id)` — `getIssue` resolves in the pull request's own owner and repository, governing the **bare** form; a qualified `owner/repo#N` is rejected **earlier, by the parser** — the pattern requires whitespace immediately before `#`, so a keyword followed by `owner/repo#N` yields no id and never reaches this lookup (discriminating probe: `.opencode#2658` artifact §1) |
 | `core/util/StringUtil.scala` `extractCloseId` | Regex `(?i)(?<!\w)(?:fix(?:e[sd])?\|resolve[sd]?\|close[sd]?)\s+#(\d+)(,\s?#(\d+))*(?!\w)` — keyword then whitespace then `#N`; **no colon tolerated** |
 | `core/model/PullRequest.scala` | `branch` = the PR's **base/target** branch; `requestBranch` = the source branch — so the guard compares the base branch to the repo default |
 
@@ -95,16 +95,21 @@ keyword.**
 
 ## Reproduce
 
-The deck's own harness provisions the instance; the merge must go through the
-GitBucket **web form** (the API v3 has no PR create/merge endpoint), and the
-PR's base branch must be the repository's default branch:
+The deck's own harness provisions the instance; the merge goes through the
+GitHub-compatible **API v3** — both the create and merge endpoints exist and
+work (measured 2026-10-30: `POST /api/v3/repos/{owner}/{repo}/pulls` → HTTP
+200, PR created; `PUT /api/v3/repos/{owner}/{repo}/pulls/{n}/merge` → HTTP
+200, `{"merged":true}`; the `gb pr create` / `gb pr merge` CLI path uses them)
+— and the PR's base branch must be the repository's default branch:
 
 ```bash
 PARENT_REPO_DIR=<repo> TESTS_V2_DOCKER_DIR=<repo>/.opencode/tests-v2/docker \
   source <repo>/.opencode/tests-v2/docker/docker-harness.sh
 __ensure_gitbucket          # or __reset_gitbucket for a clean instance
-# then: create issue -> push branch -> create PR via POST /root/test-repo/pulls/new
-#       -> merge via POST /root/test-repo/pull/<n>/merge -> read issue state
+# then: create issue -> push branch
+#       -> create PR via POST /api/v3/repos/root/test-repo/pulls
+#       -> merge via PUT /api/v3/repos/root/test-repo/pulls/<n>/merge
+#       -> read issue state
 ```
 
 ## References

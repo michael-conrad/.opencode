@@ -11,7 +11,16 @@ Spec: `spec.md` (this store). All SCs structural — full-card reads are the ins
 1. **GitBucket closing-keyword behavior:** disposable container (image
    `gitbucket/gitbucket:latest`), disposable repo/issue/PR — PR body carried
    `Closes #1`; merge via API returned 200; issue stayed `state: open`.
-   **Outcome: GitBucket has no closing-keyword auto-close → cleanup class.**
+   **Correction (recorded 2026-10-30, `.opencode#2659`):** this step recorded
+   the outcome without recording the operation that produced it. The recorded
+   outcome (HTTP 200, issue still open) does not discriminate between a close
+   and a merge into a non-default branch — both produce it — so this record
+   establishes no platform fact; a platform fact was nonetheless concluded
+   from it and written forward. **Corrected finding:** GitBucket closes the
+   same-repo `Closes #N` when the pull request is merged into the
+   repository's default branch (measured on GitBucket 4.48.0;
+   `.opencode#2658` artifact §1 of
+   `.opencode/.issues/2658/research/closing-keyword-measurement.md`).
 2. **GitHub cross-repo form:** disposable issue
    `test-submodule-1#3`, disposable PR `test-submodule-2#1` with body
    `Closes michael-conrad/test-submodule-1#3`; PR merged 03:27:51Z, issue

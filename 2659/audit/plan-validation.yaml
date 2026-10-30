@@ -1,0 +1,19 @@
+issue: .opencode#2659
+plan:
+  artifact: plan.md
+  rounds:
+  - round: 1
+    date: '2026-10-30'
+    validator: fresh-context sub-agent dispatch (general)
+    verdict: PASS
+    findings: []
+    classes_adjudicated:
+    - class: item coverage both directions
+      classification: checked, no finding
+    - class: item atomicity (surface-grouped SC-2/3/4)
+      classification: checked, no finding — one record, one concern; RED and instrument separate the four corrections
+    - class: untestable item / escape hatches
+      classification: checked, no finding (all RED assertions verified to fail today against the live records)
+    writer_self_check:
+      remediated: none — draft passed the standards pass unchanged
+    record: zero-finding round; plan stands at implement
