@@ -1,0 +1,33 @@
+# Validation record for .opencode#2658 — one top-level section per artifact
+# under validation (spec, plan, implementation); one entry per completed
+# validation cycle. Criteria set (criteria-invariant across all rounds):
+#   .opencode/skills/spec/references/validation-standards.md
+# Churn rule in force every round: flag only gaps affecting correctness or
+# the stated requirements; preferences are never findings.
+spec:
+  - round: 1
+    cycle: 2026-10-30
+    reviewer: fresh-context subagent (general), one reviewer per the verify card
+    artifact: .opencode/.issues/2658/spec.md
+    verdict: FAIL
+    findings:
+      - id: F1
+        class: fabricated-claims
+        classification: finding
+        location: spec.md §2.2 "Surfaces deliberately untouched", first bullet
+        description: >-
+          The bullet stated that git-workflow-pr, git-workflow-cleanup, and
+          gb-cli are single-SKILL.md cards with no references/ directory and
+          that there is no level two. git-workflow-pr gained
+          references/human-only-merge-deny-patterns.md on 2026-10-27
+          (commit 308b40ce9, .opencode#2668) — after the spec was written on
+          2026-10-23 — so the current-state negation is false against the deck
+          as it stands, and the blast-radius sweep it fed is incomplete.
+    remediation: >-
+      Bullet revised in place before re-validation: the change creates no
+      reference document and moves no detail into one; the two cards with no
+      references/ directory keep the original "no level two" rationale;
+      git-workflow-pr's reference document is named with its provenance
+      (#2668) and deliberately-unmodified status; the subject-adjacency is
+      acknowledged with the ground for leaving it untouched.
+    reevaluation: none
