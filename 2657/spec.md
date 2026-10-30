@@ -556,11 +556,17 @@ the request has decided, and this request is neither. R-2's precedence
 governs: this request takes the full path, and the work card's halt rule does
 not reach it, because the request says what to build.
 
-- **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
-  `session.yaml` confirms that the run's first edit to an implementation file
-  comes after a full-path spec artifact appears in the run — a spec carrying
-  success criteria, not the work record's scope statement — and that the run
-  does not halt in place of that artifact.
+- **Verify (amended 2026-10-30; the instrument note's SC-7 bullet governs
+  where it differs):** two-SC pattern — behavioral run; clean-room evaluation
+  of `session.yaml` confirms that the run's first edit to an implementation
+  file, if one occurs, comes after a full-path spec artifact appears in the
+  run — a spec carrying success criteria, not the work record's scope
+  statement — and that the run does not halt in place of that artifact.
+  Amended: the explore stage's one open-ended question about the open choice
+  is legitimate full-path behavior; the criterion judges the route — full
+  path taken, no implementation edit before spec-stage work — and not the
+  artifact's completion; if the spec artifact does appear, the original
+  ordering still binds.
 
 ### SC-8 (behavioral) — the short path is taken in collapsed form, without ceremony
 
@@ -587,9 +593,21 @@ artifacts: the short route requires it.
 
 ### SC-9 (behavioral) — the short path ends when the work outgrows it
 
-An agent whose short-path change acquires a second file states the expanded
-scope, and produces the full path's earliest missing stage's artifact, before
-it edits that second file.
+Amended 2026-10-30 ("Re-scoping round 2" in the Dependency's instrument
+note), which supersedes the three-event ordering this criterion first
+stated — the expanded-scope statement, then a full-path spec artifact, then
+the second file's edit — because the deck's explore stage legitimately stops
+for one open-ended question about an open choice, and the runs show that
+stop is where a correct full-path run ends. The criterion judges the route:
+
+An agent whose short-path change acquires a second file reaches the second
+file's need through the request's own work, takes or announces the full path
+with the expanded scope stated, makes no edit to either file before the full
+path's stage work has begun, and never completes the change on the short
+path once the second file is in it. If the run reaches the spec stage's
+artifact, the original ordering binds above it. A stop at the explore stage
+for one open-ended question about the open choice is that stage operating
+correctly, not a halt-in-place-of-the-artifact defect.
 
 The scenario induces the acquisition rather than assuming it. The request
 names one file — the feature script — and the fixture makes that file
@@ -601,12 +619,11 @@ presence is never an environment discovery. The criterion is void if the run
 never acquires a second file, so the evaluation checks that it did.
 
 - **Verify:** two-SC pattern — behavioral run; clean-room evaluation of
-  `session.yaml` confirms that the run reached the second file, and that
-  three events appear in this order: the expanded scope statement, then a
-  full-path spec artifact — a spec carrying success criteria, not the work
-  record's scope statement — then the second file's edit. Each event is
-  identified by its own observable, and no event's position relative to
-  another is left to the evaluator's reading.
+  `session.yaml` confirms that the run reached the second file, that the
+  full-path route is taken or announced with the expanded scope in it before
+  any edit to either file, that no edit to either file precedes the full
+  path's stage work, and that no second-file edit ever precedes the full
+  path's route. Each fact is identified by its own observable.
 
 ### SC-10 (behavioral) — a directed deck edit with an open choice gets one question
 
@@ -700,7 +717,7 @@ evaluation of its run.
 | SC-6 | A stated stage request produces the stage, no implementation | behavioral | run → clean-room read of `session.yaml` |
 | SC-7 | A complicated change does not ride the short path | behavioral | run → clean-room read of `session.yaml` |
 | SC-8 | The short path is taken in collapsed form, without ceremony, and the verify dispatch is present | behavioral | run → clean-room read of `session.yaml` |
-| SC-9 | The short path ends when the work outgrows it: expanded scope, then a full-path spec artifact, then the second file's edit | behavioral | run → clean-room read of `session.yaml` |
+| SC-9 | The short path ends when the work outgrows it (amended route criterion): second file's need reached, full path taken with the expanded scope stated, no edit precedes the full path's route | behavioral | run → clean-room read of `session.yaml` |
 | SC-10 | A directed deck edit with an open choice gets one question | behavioral | run → clean-room read of `session.yaml` |
 | SC-11 | Scenario set aligned; every scenario's goal condition declares a content pattern absent from its target before the run and matchable by the harness's content check | structural | read `tests-v2/behaviors/` |
 | SC-12 | A directed card edit completes without the full path's machinery | behavioral | run → clean-room read of `session.yaml` |

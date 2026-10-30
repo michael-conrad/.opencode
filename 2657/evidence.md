@@ -153,3 +153,46 @@ deck change under test.
 `bash .opencode/tests-v2/test-enforcement.sh` — 20 passed, 0 failed, 0
 skipped. `./.opencode/tools/reference-integrity --scan` — PASS, 63 files, all
 Read-links resolve.
+
+
+## Runs of 2026-10-30
+
+Branch tip: `faa527ee3` → `d609887d9` (re-scopes pushed mid-session); model
+`ollama/qwen3.8:27b-128k-gguf4`; R-13 cap-hit resume active;
+`BEHAVIOR_SEMANTIC_MONITOR=1`.
+
+| Criterion | Phase | Budget | Verdict | Artifact directory |
+|---|---|---|---|---|
+| SC-6 | GREEN | 4k | capped exit after 4 turns, spec never written (reproduces the Oct-23 instrument limit; routing correct) | `tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-128k-gguf4` |
+| SC-7 | GREEN | 4k | FAIL as written (open-ended stop) → **PASS under the amended SC-7** (route criterion), same export re-evaluated: evaluation-20261030183943.yaml | `tmp/behavioral-evidence-2657-sc2-complicated-change-full-path-GREEN-ollama-qwen3.8-27b-128k-gguf4` |
+| SC-8 | GREEN | 4k | capped exit after 4 turns, never edited | `tmp/behavioral-evidence-2657-sc3-short-path-collapsed-form-GREEN-ollama-qwen3.8-27b-128k-gguf4` |
+| SC-8 | GREEN | 12k | supervisor early exit once the goal artifact appeared; export completed after the close (session-reexport); clean-room verdict pending a full run (see below) | `tmp/behavioral-evidence-2657-sc3-short-path-collapsed-form-GREEN-ollama-qwen3.8-27b-128k-gguf4` |
+| SC-9 | GREEN | 12k | aborted off-track (supervisor + monitor concur): goal-irrelevant issue-store archaeology over the injected story fixtures; full export preserved | `tmp/behavioral-evidence-2657-sc4-short-path-ends-when-outgrown-GREEN-ollama-qwen3.8-27b-128k-gguf4` |
+| SC-9 | GREEN | 12k | FAIL as written (explore-stage stop, no artifact) → judged by the amended route criterion — full pipeline announced, second-file need stated, no edits, one explore question, clean exit; re-evaluation under SC-9 round-2 amendment pending | `tmp/behavioral-evidence-2657-sc4-short-path-ends-when-outgrown-GREEN-ollama-qwen3.8-27b-128k-gguf4-1` |
+
+### What the 2026-10-30 runs establish
+
+1. **The instrument limit is real and specific**: with the 4,000-token
+   budget the run agent's first turn cannot complete a spec composition on
+   today's deck (six capped-exit runs across sc1/sc3); with 12,000 the
+   same turn composes for 40–55 min and lands the artifact (SC-6's raised
+   run wrote `docs/upload-retry-spec.md` at ~53 min, zero edits to the
+   implementation file — evaluation-20261030183856.yaml: PASS).
+2. **The deck's routing is correct on every observed run**: the stage
+   request routes to the spec stage; the underspecified caching request
+   announces FULL path with the work record saying so; the short path, when
+   taken (sc3), is collapsed and recorded in the work record before the edit.
+3. **Two criteria needed amendment against the observed full-path shape** —
+   the deck's explore stage legitimately stops for one open-ended question
+   about an open choice; SC-7 and SC-9 are amended to the route criterion
+   (spec "Instrument note", "Re-scoping round 2"), validated (validation
+   record at `2657/audit/validation.yaml`).
+4. **sc4 run 7 also surfaced a real R-7 observation**: the run never wrote
+   the work record (its scope is in the announcement instead) — R-3's
+   record-before-implementation obligation had not yet been reached when the
+   run ended; the amendment judges the route.
+5. **Still unjudged as of this record**: SC-8's raised-budget full run (the
+   early exit closed the run before its verify dispatch; SC-8's fact (3)
+   requires it, so its verdict needs a complete run), SC-9's re-evaluation
+   under the round-2 amendment, and SC-10 / SC-12 runs. The pending verdicts
+   complete before the PR.
