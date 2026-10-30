@@ -31,3 +31,9 @@ spec:
       (#2668) and deliberately-unmodified status; the subject-adjacency is
       acknowledged with the ground for leaving it untouched.
     reevaluation: none
+  - round: 2
+    cycle: 2026-10-30
+    reviewer: fresh-context subagent (general), one reviewer per the verify card
+    artifact: .opencode/.issues/2658/spec.md
+    verdict: PASS
+    findings: []
