@@ -139,6 +139,68 @@ criterion here is judged. A criterion is not judged from a run the harness
 could not complete; the capability is repaired where it belongs, and this
 spec's own change does not reach the harness.
 
+### Instrument note — bounded-generation raise (re-scope record, 2026-10-30)
+
+The harness repair landed and the runs still end capped: five GREEN runs of
+this spec's scenarios on the branch tip (2026-10-30; sc1 ×2, sc2, sc3 ×2,
+model `qwen3.8:27b-128k-gguf4`) show the run agent's first turn exceeding the
+4,000-token output budget — the spec-composition and card-deliberation turns
+truncate with `finish: length`, the R-13 resumes truncate again, and
+`docs/upload-retry-spec.md` is never written; sc3's trivial heading edit
+never happened either (the agent's 17,529-character reasoning block was cut
+at every turn). The runs' routing facts, by contrast, are observable and
+correct: the stage request routed to the spec stage in two polls with the
+approval gate identified; the underspecified caching request announced FULL
+path and wrote the work record that says so. This matches
+`tests-v2/AGENTS.md` §3a.4's re-scope surfaces, and its sanctioned remedy —
+the bounded-generation raise — applies: an artifact-producing scenario may
+run with `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` raised (this spec
+authorizes 12,000) as a spec-gated, scenario-scoped re-scope, carried through
+the Docker env passthrough and the classifier seeder as an explicit caller
+value. The raise does not re-open `#2646`'s unbounded-turn failure: it bounds
+each turn below the smallest degenerate-turn sizes §5 records for the raise
+decision, and the monitor still judges directionality per poll. The raise
+does not touch the harness's committed surfaces — the caller's env value is
+the mechanism §5 already carries. Two criteria are amended against the
+observed runs at the same time (both are the spec's own words, not new
+bars):
+
+- **SC-6** keeps its artifact fact (`docs/upload-retry-spec.md` written with
+  the retry content) and keeps the no-implementation-edit fact; the run must
+  also reach the spec stage's composition rather than halting earlier — the
+  artifact fact is what the raised budget makes observable.
+- **SC-7** replaces its "does not halt in place of that artifact" clause:
+  the explore stage's one open-ended question about the open choice is
+  legitimate full-path behavior (the request is materially underspecified),
+  and a run that asks it and stops there has run the stage it could — the
+  criterion judges the route (full path taken, no implementation edit before
+  spec-stage work) and not the artifact's completion, which the raised
+  budget is expected to make observable on the re-run. If the spec artifact
+  does appear, the criterion's original ordering still binds.
+
+The five capped runs are recorded in the issue's `evidence.md` with their
+artifact directories; the criteria's verdicts are judged from the
+raised-budget runs and their clean-room evaluations.
+
+**Re-scoping round 2 (2026-10-30 evening, runs 6–7).** The raised-budget runs
+correct the artifact observability, and the run agents' full-path behavior
+then surfaces the same explore-stage shape SC-7's amendment already
+legitimized — consistently, SC-9 gets the same amendment: the criterion
+judges the route, not the artifact's completion. Its facts become: (1) the
+run reaches the second file's need through the request's own work (the
+delegated parser the fixture pre-supplies); (2) the run takes/announces the
+full path — with the expanded scope (the second file) stated in the
+announcement — before any edit to either file; (3) the run makes no edit to
+either file before the full path's stage work has begun; (4) if the run
+reaches the spec stage's artifact, the original ordering binds — and a stop
+at the explore stage for one open-ended question about the open choice is
+that stage operating correctly, not a halt-in-place-of-the-artifact defect.
+No second-file edit before the full path's route is the defect SC-9 exists
+to catch, and it is observable in every possible run. Observed on run 7
+(sc4's raised-budget re-run): second-file need identified in the run's own
+words, full pipeline announced, no edits, one explore-stage question, clean
+exit.
+
 ## Root causes
 
 - **RC-1** — Path selection takes one input: the agent's characterization of
