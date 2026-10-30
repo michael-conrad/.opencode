@@ -405,11 +405,30 @@ __docker_launch_run() {
 # resolves the image binary (no host binary required in the home).
 __docker_launch_resume() {
     local scenario_name="$1" home="$2" model="$3" output_file="$4" err_file="$5"
+    # The run's artifact directory — where the determination record is written.
+    # Optional: a caller that does not know it keeps the scan roots it had.
+    local artifact_dir="${7:-}"
     # Optional resume message: the cap-resume path uses the #2646 R-4 form;
     # the two-SC scenarios pass their turn directive (.opencode#2646 docker-
     # resume fix — observed 2026-10-20: tier-2 turn-2 launches cannot exec
     # the home's bin/opencode host-side, docker homes are bare of it).
-    local message="${6:-Continue the task from where you left off.}"
+    #
+    # The default is NOT the anchorless "Continue the task from where you left
+    # off.": that form gives the model no state anchor, so it re-derives the
+    # session's history, spends the whole per-turn budget re-deriving, and
+    # issues no tool call — the resume makes no progress and the run exhausts
+    # the cap-resume ceiling with no artifact
+    # (lessons-learned/session-2026-10-20 LL-3). The default is the recorded
+    # tail instead, composed from the home's own session database.
+    local message="${6:-}"
+    if [ -z "$message" ]; then
+        if command -v __recorded_tail_message >/dev/null 2>&1; then
+            message=$(__recorded_tail_message "$home/.local/share/opencode/opencode.db")
+        fi
+        if [ -z "$message" ]; then
+            message="Your previous turn was cut off by the per-turn output cap. Continue the task from exactly the point your last recorded step left it; do not re-plan or re-derive the task history."
+        fi
+    fi
 
     __docker_available || return 1
     __stage_harness_scripts || return 1
@@ -433,7 +452,13 @@ __docker_launch_resume() {
     # is the staging root there and never contains the record (.opencode#2646
     # docker-resume fix; tmp/ is mounted at the same absolute path, so the
     # host-side evidence dir path is valid in-container).
-    docker_env+=(-e "BEHAVIOR_DETERMINATION_SCAN_DIR=$(dirname "$err_file")")
+    # Both roots: the run's own evidence dir and the run's artifact directory,
+    # which is where the determination record is written (.opencode#2663 — the
+    # gate scanned only these two and never the artifact dir, so it refused
+    # every cap-hit resume with "determination.yaml not found").
+    local scan_list="$(dirname "$err_file")"
+    [ -n "$artifact_dir" ] && scan_list="$scan_list:$artifact_dir"
+    docker_env+=(-e "BEHAVIOR_DETERMINATION_SCAN_DIR=$scan_list")
 
     local -a cmd=(bash "$staged_wth" --resume-home "$home" opencode run --continue "$message" --model "$model" --log-level INFO --print-logs)
 

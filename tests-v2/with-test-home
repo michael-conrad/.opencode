@@ -166,6 +166,21 @@ do_clean_all() {
 # a FATAL-class message naming the missing determination — no inference is
 # dispatched. A valid record permits the resume pass-through. Plain scenario
 # invocations (fresh runs) never call this gate — it is inert there.
+#
+# The gate's rule, as the code implements it: a resume is permitted when the
+# home's determination record carries a non-undetermined classification
+# (progressing-directionally or off-track) OR a valid recorded orchestrator
+# decision (continue-new-dispatch, or terminate-with-root-cause carrying a
+# root cause). A record carrying neither is refused; a home with no record
+# is refused. The cap-hit resume is NOT an exception to this rule: the
+# monitored post-run block writes the determination record, appends the
+# decision when the poll log carries the MONITOR-HALTED marker, and only
+# then attempts the resume (.opencode#2663) — so the record this rule reads
+# already exists when the resume is attempted. (An earlier comment here
+# claimed the opposite — that the record "cannot exist yet" and that the
+# gate therefore permitted a resume whose home's last assistant turn ended
+# with finish=length. The code had no such exemption, and the premise
+# contradicted the harness's own ordering.)
 __sc8_determination_gate() {
     local home="$1"
     local det="" cand="" tup=""
@@ -178,7 +193,24 @@ __sc8_determination_gate() {
     # docker-resume fix — observed 2026-10-20: the SC-8 cap-resume FATAL'd
     # scanning only the staging tree).
     local -a scan_roots=("$TMP_DIR")
-    [ -n "${BEHAVIOR_DETERMINATION_SCAN_DIR:-}" ] && scan_roots+=("$BEHAVIOR_DETERMINATION_SCAN_DIR")
+    # BEHAVIOR_DETERMINATION_SCAN_DIR is a colon-separated list of roots: the
+    # run's own evidence dir AND the run's artifact directory, which is where
+    # the determination record is written (.opencode#2663 — the gate scanned
+    # only the staging root and the behaviour-test dir, so it never saw the
+    # record and refused every cap-hit resume with "determination.yaml not
+    # found in any scenario evidence dir"). Every named root is scanned: the
+    # list is printed with a trailing newline, because `read` returns
+    # non-zero on a final line that has none — and the loop body then never
+    # runs for that element. The artifact directory is the LAST element of
+    # the list the launcher builds, so the root the repair added was the one
+    # root the parser dropped (verified 2026-10-23: with the list "a:b" only
+    # "a" was scanned).
+    local scan_dir
+    if [ -n "${BEHAVIOR_DETERMINATION_SCAN_DIR:-}" ]; then
+        while IFS= read -r scan_dir; do
+            [ -n "$scan_dir" ] && scan_roots+=("$scan_dir")
+        done < <(printf '%s\n' "$BEHAVIOR_DETERMINATION_SCAN_DIR" | tr ':' '\n')
+    fi
     local root mindepth
     for root in "${scan_roots[@]}"; do
         mindepth=2
