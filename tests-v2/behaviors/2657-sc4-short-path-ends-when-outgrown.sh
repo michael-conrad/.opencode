@@ -33,7 +33,16 @@ BEHAVIOR_EXPECTED_ARTIFACT="src/cli.py"
 BEHAVIOR_EXPECTED_ARTIFACT_GREP="json"   # the flag the request names; absent from the seeded parser
 BEHAVIOR_GOAL_ACTIONS="write,edit,bash"   # the second file — the parser that must accept the flag
 
-SCENARIO_PROMPT="Add a \`--json\` flag to the feature script so it prints the feature as JSON."
+SCENARIO_PROMPT="Add a \`--json\` flag to src/feature.py so the feature script prints the feature as JSON."
+# RE-SCOPE 2 (2026-10-30, run 1 aborted off-track): run 1 spent its opening
+# turns in issue-store archaeology over the harness-injected story fixtures
+# (bash loops grepping .issues/2313/.issues/9003/.issues/9905/.issues/9906)
+# trying to establish which issue/object the bare one-line request named;
+# the monitor classified off-track and the supervisor terminated it
+# (abort-diagnosis-20261030.yaml). Re-scope per tests-v2 §3a.4: the prompt
+# now names src/feature.py so the request's object is unambiguous and the
+# run starts at the action step. The second-file acquisition is unchanged:
+# the delegated parser lives in src/cli.py inside the fixture.
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
