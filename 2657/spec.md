@@ -142,17 +142,19 @@ spec's own change does not reach the harness.
 ### Instrument note — bounded-generation raise (re-scope record, 2026-10-30)
 
 The harness repair landed and the 4,000-budget runs still end capped: the
-first four GREEN runs on the branch tip (2026-10-30: one sc1 run, one sc2
-run, and two sc3 runs of this spec's scenarios — plus the sc1/sc3 runs of
-2026-10-23 before the repair, recorded above — model `qwen3.8:27b-128k-gguf4`
-and the Oct-23 `256k` slug alike) show the run agent's first turn exceeding
-the 4,000-token output budget — the spec-composition and card-deliberation
+branch tip's 4,000-budget runs of 2026-10-30 — one sc1 run and one sc3 run
+of this spec's scenarios (plus, before the repair, the sc1/sc3 runs of
+2026-10-23 recorded above; the model slug `qwen3.8:27b-128k-gguf4` and the
+Oct-23 `256k` slug behave alike) — show the run agent's first turn exceeding
+the 4,000-token output budget: the spec-composition and card-deliberation
 turns truncate with `finish: length`, the R-13 resumes truncate again, and
 `docs/upload-retry-spec.md` is never written; in sc3's capped 4,000 run the
 trivial heading edit never happened either (the agent's 17,529-character
-reasoning block was cut at every turn). sc2's capped run is the exception in
-kind, not in budget: its criterion needs no artifact, and the run ended
-cleanly on the amended route with the artifact never exercised. The runs' routing facts, by contrast, are observable and
+reasoning block was cut at every turn). The branch tip's other 2026-10-30
+runs are the exceptions that scope the claim: sc2's 4,000-budget run ended
+cleanly on the amended route (its criterion needs no artifact), and sc3's
+12,000-budget re-run and sc4's 12,000-budget runs never truncated (their
+turns carry full compositions inside the raised budget). The runs' routing facts, by contrast, are observable and
 correct: the stage request routed to the spec stage in two polls with the
 approval gate identified; the underspecified caching request announced FULL
 path and wrote the work record that says so. This matches

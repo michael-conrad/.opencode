@@ -174,7 +174,7 @@ Branch tip: `faa527ee3` → `d609887d9` (re-scopes pushed mid-session); model
 
 1. **The instrument limit is real and specific**: with the 4,000-token
    budget the run agent's first turn cannot complete a spec composition on
-   today's deck (six capped-exit runs across sc1/sc3); with 12,000 the
+   today's deck (five capped-exit runs across sc1/sc3 (three on the branch tip, two from 2026-10-23)); with 12,000 the
    same turn composes for 40–55 min and lands the artifact (SC-6's raised
    run wrote `docs/upload-retry-spec.md` at ~53 min, zero edits to the
    implementation file — evaluation-20261030183856.yaml: PASS).
