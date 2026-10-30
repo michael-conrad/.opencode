@@ -17,6 +17,18 @@
 # FIXTURES: per-scenario setup script seeds SUPPORT.md (tests-v2 AGENTS.md
 # §3 Step 0b).
 
+#
+# RE-SCOPE RECORD (2026-10-30, .opencode#2657 instrument note): five GREEN runs
+# of the spec's scenarios on branch tip faa527ee3 ended at the 4,000-token
+# cap-resume ceiling (runs: sc1 GREEN gguf4-256k/GREEN gguf4-128k
+# tmp/behavioral-evidence-2657-sc1…-GREEN-*/, sc2 GREEN gguf4-128k, sc3 GREEN
+# gguf4-128k ×2) — routing facts observable, artifact-producing turns
+# truncated every time. Remedy per tests-v2 AGENTS.md §3a.4 (#2665): scenario-
+# scoped bounded-generation raise to OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=
+# 12000, spec-gated in .opencode/.issues/2657/spec.md "Instrument note
+# (2026-10-30)"; the caller's env value reaches the Docker passthrough and
+# the §14 classifier seeder. Run this scenario with that env value set.
+#
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
