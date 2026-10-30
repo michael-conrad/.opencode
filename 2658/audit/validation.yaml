@@ -36,4 +36,52 @@ spec:
     reviewer: fresh-context subagent (general), one reviewer per the verify card
     artifact: .opencode/.issues/2658/spec.md
     verdict: PASS
+    findings: []plan:
+  - round: 1
+    cycle: 2026-10-30
+    reviewer: fresh-context subagent (general), one reviewer per the verify card
+    artifact: .opencode/.issues/2658/plan.md
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class: instrument-nature mismatch
+        location: P-3 Verify
+        description: SC-9's third class phrase ("which platforms fall in which class") never asserted absent; pointer presence asserted only through reference-integrity, which passes vacuously without a link.
+      - id: F-2
+        class: instrument-nature mismatch
+        location: P-2 Verify
+        description: Blanket "full-card read asserts SC-5" — no stated assertion for the merge-state-not-flag half.
+    remediation: P-2 Verify states three explicit sub-part assertions; P-3 Verify gives five numbered mechanical steps (three phrase-absence greps, pointer presence via grep, reference-integrity exit 0).
+  - round: 2
+    cycle: 2026-10-30
+    reviewer: fresh-context subagent (general)
+    artifact: .opencode/.issues/2658/plan.md
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class: unreal instrument
+        location: P-6 Verify
+        description: reference-integrity invocation not runnable as written (tool takes a file/dir list or bare --scan).
+      - id: F-2
+        class: factual error in RED
+        location: P-1 RED
+        description: RED keyed to "default branch", already present hyphenated at SKILL.md — cannot flip post-GREEN.
+      - id: F-3
+        class: unreal instrument
+        location: P-1 Verify
+        description: no-merge grep named no pattern or target.
+    remediation: P-1 RED re-keyed to the absent false clause ("GitBucket has no closing-keyword auto-close", 1→0); P-1 Verify defers no-merge to P-6; P-6 names runnable --scan and a stated added-lines hand-check for the no-merge assertion.
+  - round: 3
+    cycle: 2026-10-30
+    reviewer: fresh-context subagent (general)
+    artifact: .opencode/.issues/2658/plan.md
+    verdict: PASS
     findings: []
+implementation:
+  - round: 1
+    cycle: 2026-10-30
+    reviewer: fresh-context subagent (general), one reviewer per the verify card
+    artifact: .opencode diff main on feature/2658-closing-keyword-contract (three-card diff + store artifacts)
+    verdict: PASS
+    findings: []
+    note: reviewer independently re-ran phrase-absence greps (0), anchor counts (2/card), reference-integrity --scan (0); diff read in full, no merge instruction added, human-merge-gate statements unmodified; verdict recorded verbatim as 通过 (= PASS).
