@@ -5,9 +5,10 @@
 
 Sources: `.opencode/.issues/2660/spec.md` (approved for PR by the developer,
 2026-10-30; validation loop closed at revision 23, clean PASS per
-`2660/audit/re-evaluation.yaml` run 5's re-review). One item per SC; items
-trace to the spec's SCs (SC-ID carried on each item); no padding items.
-Validation-standards check consumed each SC against the spec card's
+`2660/audit/re-evaluation.yaml` run 5's re-review). Items are grouped by
+surface (the spec's §2.1 scope table is the decomposition), and every item
+names the SCs it carries; every SC is carried by at least one item; no
+padding items. Validation-standards check consumed each SC against the spec
 validation-standards reference — reviewer judgment: every SC is
 assert-by-read or the SC-9 behavioral dispatch; no criterion reinterprets
 its instrument; no BLOCKED. Design decision (7) governs the item shapes:
