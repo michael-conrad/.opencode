@@ -2,12 +2,12 @@
 name: plan
 description: "Load when writing an implementation plan from an approved spec — per-SC items with RED/GREEN cycles, dependency ordering, verification instruments. Plans derive entirely from the spec: a plan item without a spec source is scope creep. Plans state how to implement; implementation status lives in pipeline state, never in the plan body."
 license: MIT
-provenance: AI-authored, .opencode#2490
+provenance: AI-authored, .opencode#2490; recomposition supersession, .opencode#2661
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2550 consume-validated-specs mandate; #2557 language/tool call out; route-to-repair clause, .opencode#2597; validation dispatch, .opencode#2601 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2550 consume-validated-specs mandate; #2557 language/tool call out; route-to-repair clause, .opencode#2597; validation dispatch, .opencode#2601; recomposition supersession, .opencode#2661 -->
 
 # plan — implementation planning
 
@@ -59,5 +59,10 @@ provenance: AI-authored, .opencode#2490
    swap rides inside the item it already belongs to; a load-bearing
    deprecation surfaces as the spec's temporary-use exception — the plan's
    implementable content is unchanged, and an encounter never adds plan items.
+10. **Recomposition supersession.** At a recomposition (the issues card's
+    protocol) a plan derived from the pre-split spec is superseded: new
+    plans derive from the parts' specs; delivered items keep their delivered
+    state in the work's implementation history, and plan state never
+    migrates to the parts.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

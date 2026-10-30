@@ -2,12 +2,12 @@
 name: work
 description: "Load before any file modification, branch creation, or implementation start in any repo. Routes every change through spec → plan → implement → PR scaled to the change's need — trivial fixes take the short path, multi-part features take the full path — and checks authorization at each stage boundary. Also load when unsure which stage applies: halt with an open-ended clarification request rather than guess."
 license: MIT
-provenance: AI-authored, .opencode#2490; #2525 pipeline continuation
+provenance: AI-authored, .opencode#2490; #2525 pipeline continuation; recomposition void, .opencode#2661
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2525 pipeline continuation on terminal authorization -->
+<!-- Provenance: AI-authored, .opencode#2490; #2525 pipeline continuation on terminal authorization; recomposition void in the authorization check, .opencode#2661 -->
 
 # work — the change gate
 
@@ -27,6 +27,9 @@ Consult before touching files.
 2. **Authorization check.** The vocabulary in `floor.md` defines authorization.
    No authorization at the required scope → prepare the spec/proposal and stop
    at the boundary. A question, complaint, or confirmation is not authorization.
+   A recomposition voids any implementation or PR authorization carried for
+   the pre-split scope — the parts wait for the authorization the developer
+   states at split time; Read [the issues skill](../issues/SKILL.md).
 3. **Route.**
    - Short: `git-workflow-branch` → `implement` → `verify` → `git-workflow-pr`
    - Full: `explore` → `spec` → developer approval → `plan` → `implement` →

@@ -2,12 +2,12 @@
 name: issues
 description: "Load when creating, reading, updating, commenting on, linking, or closing any issue — local .issues/ stores, GitHub, or GitBucket. Covers qualified issue names, platform routing via the authenticated CLIs, the local-issues tool, and the comment gate: a remote comment is posted only when the correspondence card's channel rule qualifies it as a stakeholder notice, and the gate is evaluated before the agent commits to posting."
 license: MIT
-provenance: AI-authored, .opencode#2490; tooling contract consolidated per .opencode#2543; .opencode#2382
+provenance: AI-authored, .opencode#2490; tooling contract consolidated per .opencode#2543; .opencode#2382; recomposition protocol, .opencode#2661
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382; recomposition protocol, .opencode#2661 -->
 
 # issues — issue operations
 
@@ -49,6 +49,52 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    never route to comments.
 4. **Relationships.** Link sub-issues to parents; the hierarchy carries the
    authorization cascade and closure order.
+
+   **Recomposition protocol** — when a validation loop's structural
+   re-evaluation (the sibling loop rule `.opencode#2660` carries) resolves an
+   artifact to recomposition, its **Recompose** outcome, the agent running
+   that loop performs the split:
+
+   - **Parts.** One issue per part artifact; each part is registered as a
+     sub-issue of the recomposed issue via the `local-issues` tool's `link`
+     command. Each part's spec reads standalone under the spec card's own
+     discipline and records its side of the seams the umbrella names.
+   - **Umbrella.** The recomposed issue's spec becomes the umbrella: it
+     records the parts, the seams between them (the shared conventions,
+     interfaces, and ordering constraints a part builds on), and the
+     re-evaluation's grounds; the redistributed content is deleted from it
+     in the same action that records the recomposition — no
+     superseded-content pointers remain.
+   - **Authorization void.** Implementation or PR authorization carried for
+     the pre-split scope is void at recomposition and does not authorize the
+     parts; work already delivered under a then-valid authorization stays
+     delivered; the parts' further implementation and PR work proceeds only
+     under the authorization the developer states after the notification. A
+     recomposition reached during the spec phase — before any implementation
+     or PR authorization exists — has nothing to void, and the notification
+     still applies. The work card's authorization check carries the same
+     void.
+   - **Notification.** The developer is notified at split time by a
+     stakeholder comment on the recomposed issue per §3's comment gate,
+     carrying the recomposed issue's and each part's issue and artifacts
+     URLs plus the authorization consequence; chat reporting accompanies
+     the comment and does not replace it.
+   - **Review shape.** The parts' review shape follows the PR contract —
+     Read [the git-workflow-pr card](../git-workflow-pr/SKILL.md): issues the
+     developer authorizes together share one branch and one PR carrying one
+     squashed commit per part; a part never opens its own branch or PR
+     outside the authorization scope that names it. This protocol states no
+     second PR rule.
+   - **Closure order.** Each part closes by its own delivered work or triage
+     verdict (§5); the recomposed issue closes only after every part has
+     closed, as a verdict-backed closure whose record states the
+     redistribution — the pre-split scope was superseded by the parts. This
+     is the closure order the hierarchy sentence above carries.
+   - **No thresholds.** The protocol states no part count and no size
+     threshold: which parts an over-fat artifact decomposes into, and when,
+     is the loop rule's structural re-evaluation's judgment; this protocol
+     governs the split's mechanics, recording, authorization, notification,
+     review shape, and closure.
 5. **Closure.** Issue closure follows delivered work (post-merge cleanup), an
    evidence-backed verified-resolved/moot triage verdict, or explicit
    developer instruction — never closure to tidy up. A verdict-backed closure
