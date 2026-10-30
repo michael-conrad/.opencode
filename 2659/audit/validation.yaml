@@ -1,0 +1,22 @@
+spec:
+  artifact: spec.md
+  rounds:
+  - round: 1
+    date: '2026-10-30'
+    validator: fresh-context sub-agent dispatch (general)
+    verdict: PASS
+    findings: []
+    classes_adjudicated:
+    - class: invented requirement
+      classification: checked, no finding
+    - class: untestable criterion
+      classification: checked, no finding
+    - class: incapable instrument
+      classification: checked, no finding
+    - class: fabricated claims
+      classification: checked, no finding (all quoted text, commit SHAs, and cited measurement claims verified against the live artifacts)
+    - class: traceability/cross-reference sufficiency
+      classification: checked, no finding (SC-1..SC-4 trace one-to-one to R-1..R-4; cited artifact sections support the claims)
+    writer_self_check:
+      remediated: 3 mechanical defects (two typos, one imprecise line span 98-99 -> 98-100) before dispatch
+    record: zero-finding round; spec stands at the approval gate (issue remains needs-approval)
