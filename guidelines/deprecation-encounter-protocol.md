@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2618 (Deprecation Encounter Protocol, spec .opencode#2618) -->
+<!-- Provenance: AI-authored, .opencode#2618 (Deprecation Encounter Protocol, spec .opencode#2618); encounter-evidence routing to the store record, .opencode#2662 -->
 
 # Deprecation Encounter Protocol
 
@@ -49,9 +49,13 @@ Any encountered deprecated usage that R-2 does not already resolve SHALL be
 recorded as a light `[BITROT]` initial spec in the module that owns the
 deprecated item, filed via a sub-agent for minimal interruption.
 
-- **Search before POST.** Search the tracker for an existing `[BITROT]` ticket
-  on that deprecation before creating one. Found → append the encounter
-  evidence as a comment. Not found → create with the `[BITROT]` title prefix
+- **Search before POST.** The agent searches the tracker for an existing
+  `[BITROT]` ticket on that deprecation before creating one. Found → the
+  encounter evidence goes to the existing ticket's local store record,
+  through the
+  `.opencode/tools/local-issues comment --number <repo>#<N> --type internal`
+  command — it is never appended as a tracker comment. Not found → the agent
+  creates the ticket with the `[BITROT]` title prefix
   and the bitrot label (the bitrot label is created with the first filing if
   the platform does not yet carry it).
 - **Ownership.** Resolve the item's owning module from encounter context (file
@@ -61,9 +65,11 @@ deprecated item, filed via a sub-agent for minimal interruption.
   witnessed evidence with its live source, proximity/mechanical-ness metadata,
   and a stated promotion path (developer triage → full spec via the normal
   pipeline).
-- **Duplicates.** A duplicate `[BITROT]` ticket on the same deprecation SHALL
-  be consolidated by appending its encounter evidence to the first ticket and
-  closing the duplicate.
+- **Duplicates.** The agent consolidates a duplicate `[BITROT]` ticket on
+  the same deprecation by appending the duplicate's encounter evidence to
+  the first ticket's local store record — through the
+  `.opencode/tools/local-issues comment --number <repo>#<N> --type internal`
+  command, never as a tracker comment — and closing the duplicate.
 
 ## R-5 — Not-in-use observations
 

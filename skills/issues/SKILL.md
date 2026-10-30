@@ -1,6 +1,6 @@
 ---
 name: issues
-description: "Load when creating, reading, updating, commenting on, linking, or closing any issue — local .issues/ stores, GitHub, or GitBucket. Covers qualified issue names, platform routing via the authenticated CLIs, the local-issues tool, and the comment substantiveness gate: non-substantive progress updates stay in chat and never become issue comments."
+description: "Load when creating, reading, updating, commenting on, linking, or closing any issue — local .issues/ stores, GitHub, or GitBucket. Covers qualified issue names, platform routing via the authenticated CLIs, the local-issues tool, and the comment gate: a remote comment is posted only when the correspondence card's channel rule qualifies it as a stakeholder notice, and the gate is evaluated before the agent commits to posting."
 license: MIT
 provenance: AI-authored, .opencode#2490; tooling contract consolidated per .opencode#2543; .opencode#2382
 ---
@@ -15,8 +15,10 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    qualified names (`repo#N`) on every command that takes a number — bare
    numbers are rejected; remote operations go through the platform CLI
    (`gh` / `gb`) — authenticated tools, never raw API scripts. The script's
-   `--help` is the flag-level source of truth; detail cards under
-   `references/` carry the CLI and sync mechanics. **Pull-only repositories
+   `--help` is the flag-level source of truth; the CLI mechanics are Read
+   [the local-issues CLI reference](references/local-issues-cli.md), and the
+   sync mechanics are Read
+   [the local-issues sync and worktree mechanics](references/sync-mirroring.md). **Pull-only repositories
    (#2667):** a repository the tool classifies pull-only (its effective
    origin is `http`/`https`) holds no local issue store; the local store's
    operations never target it, and its issues are read and written through
@@ -30,20 +32,21 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    The local-artifacts pointer written into the remote body must resolve to
    the actual local folder at write time — an unresolvable pointer is a flow
    defect to fix in the same action, not a formatting choice.
-   The remote body follows
-   [the remote-body-format reference](../spec/references/remote-body-format.md)
+   The remote body follows Read
+   [the remote body format](../spec/references/remote-body-format.md)
    — sizing doctrine, required sections, and the closing blockquoted
    artifacts link, reconciled on every remote-body edit; the full
    spec and artifacts live locally and stay local-authoritative. Title states the work; labels describe
    pipeline state. Never derive the number by listing remote issues and never
    hand-create the `{N}/` folder — register it via
    `local-issues create --number repo#N`.
-3. **Comment gate.** A remote comment is posted only for a major substantive
-   change that needs special attention — findings or decisions a stakeholder
-   must see. Progress narration ("working on it", "halfway done"), internal
-   reasoning, and routine status stay in chat or the local store. Spec and
-   plan corrections always edit the artifact in place — never route to
-   comments.
+3. **Comment gate.** The gate defers to Read
+   [the channel rule](../correspondence/SKILL.md):
+   a remote comment is posted only when the channel rule qualifies the
+   content as a stakeholder notice, and the gate is evaluated only by the
+   agent, before the agent commits to posting — posting is not the default
+   outcome. Spec and plan corrections always edit the artifact in place —
+   never route to comments.
 4. **Relationships.** Link sub-issues to parents; the hierarchy carries the
    authorization cascade and closure order.
 5. **Closure.** Issue closure follows delivered work (post-merge cleanup), an
@@ -63,8 +66,9 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    the local folder it names, repair instead of reporting: create the local
    record at the remote-assigned number via `local-issues create --number
    repo#N`, mirror the remote-tracked content into `{N}/`, and correct the
-   remote body's pointer through the platform-appropriate card (gh-cli /
-   gb-cli) per §1. Boundary: local-issues commands manage only the local
+   remote body's pointer through the platform skill — Read
+   [the gh-cli skill](../gh-cli/SKILL.md) or Read
+   [the gb-cli skill](../gb-cli/SKILL.md) — per §1. Boundary: local-issues commands manage only the local
    issues-data store — they never contact or update any remote issues-system
    API on any platform; `update --github` writes the local store's
    `github_url` field only and is never the mechanism for a remote-body
