@@ -2,12 +2,12 @@
 name: work
 description: "Load before any file modification, branch creation, or implementation start in any repo. Routes every change through spec → plan → implement → PR — the short path when the change meets the short-path criteria stated in this card, the full path otherwise — and checks authorization at each stage boundary. Load when the developer's request names a stage — a spec, a plan, a discussion, or approval before implementation: that stage runs before implementing. Also load when unsure which stage applies: halt with an open-ended clarification request rather than guess — that is, when the request does not say what to build at all."
 license: MIT
-provenance: AI-authored, .opencode#2490; #2525 pipeline continuation; recomposition void, .opencode#2661; #2657 path selection, criteria set, and work record
+provenance: AI-authored, .opencode#2490; #2525 pipeline continuation; recomposition void, .opencode#2661; #2657 path selection, criteria set, and work record; criterion-assessment binding, #2657 (RC-2 self-certification observed in two runs of 2026-10-31)
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2525 pipeline continuation on terminal authorization; recomposition void in the authorization check, .opencode#2661; #2657 path selection, criteria set, and work record -->
+<!-- Provenance: AI-authored, .opencode#2490; #2525 pipeline continuation on terminal authorization; recomposition void in the authorization check, .opencode#2661; #2657 path selection, criteria set, and work record; criterion-assessment binding, #2657 (RC-2 observed in two runs of 2026-10-31) -->
 
 # work — the change gate
 
@@ -38,7 +38,12 @@ Consult before touching files.
    6. the change touches no surface the developer did not name.
 
    A failed criterion — and the agent's uncertainty about one — sends the
-   change to the full path. These criteria are the definition of the short
+   change to the full path. The assessment binds: once the work's own facts
+   have established a criterion's outcome — a second file the change needs, a
+   second concern, an unnamed surface — the finding stands; redefining the
+   change (restricting its files, concerns, or scope) so a found failure
+   reads as a pass is self-certification, and takes the full path the same
+   as the failure does. These criteria are the definition of the short
    path; no other card states a competing one. One exception: for a
    developer-directed edit to this deck whose content leaves a material open
    choice, the agent asks one question in the deck-governance card instead of
