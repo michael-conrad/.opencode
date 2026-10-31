@@ -62,7 +62,7 @@ NEXTCYCLE
 
 cat <<'REMINDER' >&2
 
-=== ORCHESTRATOR REMINDER (card §9, .opencode#2561; ; #2570; directive 2026-10-30) ===
+=== ORCHESTRATOR REMINDER (card §9, .opencode#2561; #2570; directive 2026-10-30; wording r2+r3 2026-10-31) ===
 TURN STRUCTURE, FIRST (the rule most often violated):
   BAD:  analysis prose riding in the same turn as the next tool call.
   GOOD: turn A — poll tool call (sleep 60 SECONDS, never longer;
@@ -101,7 +101,7 @@ REMINDER
 
 cat <<'REMINDER'
 
-=== ORCHESTRATOR REMINDER (card §9, .opencode#2561; ; #2570; directive 2026-10-30) ===
+=== ORCHESTRATOR REMINDER (card §9, .opencode#2561; #2570; directive 2026-10-30; wording r2+r3 2026-10-31) ===
 TURN STRUCTURE, FIRST (the rule most often violated):
   BAD:  analysis prose riding in the same turn as the next tool call.
   GOOD: turn A — poll tool call (sleep 60 SECONDS, never longer;
