@@ -565,6 +565,18 @@ spec amendment, and what the plan's items now expect.
    fixture pre-supplies the byline precedents in the test environment
    (fixtures/setup/2584-sc4-…), and the budget raise applies.
 
+4. **SC-9's bindingness flaw (RC-2 self-certification)** (discovered
+   2026-10-31: two identical sc4 regen runs announced the full path on the
+   second-file fact, then reversed to the short path by redefining "the
+   change" as one file — the work record asserting "all six criteria HOLD"
+   against the run's own finding). Spec remedy: none needed — SC-9's route
+   criterion already scores this as the defect; the deck text was the
+   implementation defect: the work card's criteria statement now carries the
+   assessment-binding clause (the finding stands; redefining the change so a
+   found failure reads as a pass is self-certification). Plan effect: item
+   10's GREEN facts unchanged — the route criterion judges the same facts;
+   the re-run carries the amended card text.
+
 ## Rollback
 
 Every change is a text edit to tracked files plus eleven new test files
