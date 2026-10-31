@@ -49,6 +49,17 @@ if texts:
     print("  " + texts[-1].replace("\n", "\n  ")[:600])
 PYEOF
 
+cat <<'NEXTCYCLE'
+=== BEFORE YOUR NEXT POLLING CYCLE — DO THIS FIRST, IN THIS ORDER ===
+  1. NOW: report THIS poll's analysis to the developer in a STANDALONE
+     text-only turn (opens "POLL <n>"; NO tool call in that turn).
+  2. THEN: launch the next polling cycle (sleep 60 + this script) as its
+     own turn. Text first, tool call second — never bundled.
+  Order and unbundled turns are enforced by the developer directive
+  2026-10-31: an analysis bundled with a tool call is undelivered.
+===============================================================
+NEXTCYCLE
+
 cat <<'REMINDER' >&2
 
 === ORCHESTRATOR REMINDER (card §9, .opencode#2561; ; #2570; directive 2026-10-30) ===
