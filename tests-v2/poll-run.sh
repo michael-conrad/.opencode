@@ -54,9 +54,10 @@ cat <<'REMINDER' >&2
 === ORCHESTRATOR REMINDER (card §9, .opencode#2561; ; #2570; directive 2026-10-30) ===
 TURN STRUCTURE, FIRST (the rule most often violated):
   BAD:  analysis prose riding in the same turn as the next tool call.
-  GOOD: turn A — poll tool call, nothing else in the message;
+  GOOD: turn A — poll tool call (sleep 60 SECONDS, never longer;
+        the ≤60s floor is .opencode#2557), nothing else in the message;
         turn B — ONLY the analysis text, opening "POLL <n>", no tool call;
-        turn C — next poll tool call.
+        turn C — next poll tool call (sleep 60 again).
   A tool-call turn collapses in the developer's UI to the bare command line,
   so analysis attached to any tool call is UNDELIVERED. Every poll's
   analysis is turn B: text only. The cycle: poll → text turn → poll.
@@ -92,9 +93,10 @@ cat <<'REMINDER'
 === ORCHESTRATOR REMINDER (card §9, .opencode#2561; ; #2570; directive 2026-10-30) ===
 TURN STRUCTURE, FIRST (the rule most often violated):
   BAD:  analysis prose riding in the same turn as the next tool call.
-  GOOD: turn A — poll tool call, nothing else in the message;
+  GOOD: turn A — poll tool call (sleep 60 SECONDS, never longer;
+        the ≤60s floor is .opencode#2557), nothing else in the message;
         turn B — ONLY the analysis text, opening "POLL <n>", no tool call;
-        turn C — next poll tool call.
+        turn C — next poll tool call (sleep 60 again).
   A tool-call turn collapses in the developer's UI to the bare command line,
   so analysis attached to any tool call is UNDELIVERED. Every poll's
   analysis is turn B: text only. The cycle: poll → text turn → poll.
