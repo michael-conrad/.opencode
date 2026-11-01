@@ -1,8 +1,11 @@
-title: 'BUG: agent left dirty submodule pointers out of root-repo PRs — pointers must
-  ALWAYS be included'
+title: '[SPEC] Root-repo PRs include every dirty submodule pointer — pre-create disposition
+  gate'
 status: open
 labels:
 - needs-approval
+- spec
+- regression
+- skills
 body: '## Symptom (regression observed 2026-10-22)
 
 
@@ -81,4 +84,5 @@ body: '## Symptom (regression observed 2026-10-22)
 
   '
 created_at: '2026-11-01T02:49:26+00:00'
-updated_at: '2026-11-01T02:50:09+00:00'
+updated_at: '2026-11-01T03:09:47+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2656

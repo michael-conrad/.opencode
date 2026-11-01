@@ -1,0 +1,88 @@
+# Validation record — .opencode/.issues/2656/spec.md
+# Per spec card validation standards §Loop. One section per artifact under validation.
+
+spec:
+  - round: 1
+    date: 2026-10-31
+    artifact_state: Initial draft — spec.md complete (Problem with verified deck-side
+      mechanisms M-1..M-3, Scope with constraint frame, R-1..R-4, SC-1..SC-6, Traceability,
+      Approach, Edge cases, Impact, Out of scope); store commit pending.
+    scope: |
+      First full validation of the converted spec against the deck's single criteria
+      source (spec card validation standards). Reviewer was dispatched fresh-context
+      with instructions to verify factual claims against the live deck cards, deck
+      git history, the issue record, and cited sibling specs; scratch-verification
+      of git observable-output claims authorized.
+    adjudications:
+      - class: fabricated claims (analysis family; observable-output assertion never checked)
+        classification: finding
+        detail: >-
+          Edge case "Content-dirty submodules (` m` rows)" states: "a submodule whose
+          checked-out files differ from its own recorded commit (` m` rows in the
+          status listing) is not a pointer fact". "The status listing" binds by
+          definite-article antecedent to R-1's instrument ("each `+` row of
+          `git submodule status`") — and `git submodule status` prints no ` m`
+          marker at all; its prefixes are only `-`, `+`, `U`, and it does not report
+          work-tree changes. The ` m` marker exists only in `git status --short`, a
+          listing the artifact never names. Verified empirically by the reviewer
+          (scratch git 2.53 repo; `git help submodule`). Under R-1's instrument
+          vocabulary the distinguishing cue points at a source where the marker
+          cannot appear; under the unnamed `status --short` reading the same sentence
+          is true — the artifact resolves neither reading.
+        outcome: remediation performed — the edge case rewritten in place to state both
+          listings' observable output: `git submodule status` reports pointer state
+          only (`+` prefix is the whole difference fact, no content-dirt annotation);
+          the ` M`/` m` distinction lives on the `git status --short` cross-check
+          listing; content modification stays out of the enumeration; in-submodule
+          hygiene belongs to the session working inside that submodule per its own
+          cards.
+    factual_accuracy_checked:
+      - Deck-text quotes (§2(d) inclusion sentence, (d-2) tag gate, (e), (f), (g),
+        branch rule 2(c) deferral sentence, commit card rule 5 duty, 2(b) #2553 gate)
+        — all verified verbatim against the live cards.
+      - "§2(d) provenance: landed 2026-10-11 via #2563 (`4d51d8731`), pre-dating the
+        2026-10-22 incident — verified in deck git history."
+      - Issue-recorded evidence (21/2/19 counts, the correction quote, #385 precedent,
+        `Butter/NN` lineage, in-session BUILD SUCCESSFUL correction) — matches
+        issue.yaml exactly and is labeled issue-recorded, not independently verified
+        (no Butter checkout in this workspace — the spec's hedge verified true).
+      - The #2664 standing ruling citation (via #2683's constraint frame), the
+        whole-card-on-touch adoption rule in the writing-discipline guideline, and
+        the two named 2683 fixture scripts — all verified present.
+      - M-2/M-3 negation claims (no residue-classification or checkout-away
+        prohibition on the loaded deck surface) — held under scoped grep.
+    testability: SC-1..SC-4 carry card-text/diff instruments answering the criterion's
+      question; SC-5/SC-6 carry the real-harness-run instrument per the behavioral-testing
+      card; class-2-untestable and class-5-incapable-instrument adjudicated not present.
+    reevaluation_ran: false
+    findings: ["fabricated claims — ` m` marker attributed to a listing (`git submodule
+      status`) that produces no such marker; true only under the unnamed
+      `git status --short` reading"]
+    verdict: FAIL
+  - round: 2
+    date: 2026-10-31
+    artifact_state: REVISED spec — the single round-1 finding remediated (edge case
+      "Pointer facts vs content dirt" rewritten to state both listings' observable
+      output); no other section touched.
+    scope: |
+      Round-2 full re-validation of the revised spec against the same criteria set
+      (the deck's single validation criteria source), fresh-context reviewer,
+      same verification facilities (deck cards, git history, issue record, sibling
+      specs, scratch-verification authorized).
+    adjudications: []
+    factual_accuracy_checked:
+      - All load-bearing quotes re-verified verbatim against the live cards; the
+        #2563 provenance claim and the issue-recorded evidence re-confirmed; the two
+        2683 fixture scripts, the #2664 ruling, the whole-card-on-touch rule, and
+        both negation claims re-confirmed; the listing-output claims scratch-verified
+        in a throwaway repo — `git submodule status` emits `+` only on
+        HEAD≠recorded-gitlink with no content-dirt annotation, and `status --short`
+        distinguishes ` M` (pointer change) from ` m` (content-only dirt). The
+        remediated edge case now states both facts accurately.
+    testability: Unchanged from round 1 — no criterion reworded; instruments re-adjudicated
+      in place.
+    reevaluation_ran: false
+    spin_judgment: Not spinning — one round, one genuine factual remediation, zero
+      findings on re-validation.
+    findings: []
+    verdict: PASS
