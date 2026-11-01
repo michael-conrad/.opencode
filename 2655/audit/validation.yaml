@@ -1,0 +1,41 @@
+# Validation record — .opencode#2655
+
+spec:
+  artifact: spec.md
+  criteria_source: .opencode/skills/spec/references/validation-standards.md
+  rounds:
+    - round: 1
+      date: '2026-11-01'
+      reviewer_context: fresh
+      verdict: FAIL
+      findings:
+        - class: fabricated-claims (analysis family) / incapable-instrument (class 5)
+          location: SC-1 instrument + Approach step 5 — fixture-establishment recipe
+          ground: >
+            Recipe claimed the tool's own `init` bootstraps stores in fixture
+            repos with no origin. Misstates fact: `_bootstrap_from_remote`
+            treats a failed fetch/ls-remote as "existence cannot be verified"
+            and exits fatally (_fail_worktree, #2548 C4); an originless
+            fixture cannot establish stores. The deck's own fixture practice
+            (tests/test_local_issues/test_pull_only.py) wires reachable local
+            bare origins before running `init` for exactly this reason.
+          remediation: >
+            SC-1 instrument and Approach step 5 rewritten in place: each
+            fixture repository is wired a reachable local bare origin before
+            `init`; the "no origin → pushes are skipped" phrase removed
+            (fixture pushes land on the local bare origins). The accurate
+            half of the original claim (push skipped without origin in
+            _sync_file_in_worktree) was never load-bearing for the instrument.
+          classification: finding
+      outcome: remediated — re-validation dispatched (round 2)
+    - round: 2
+      date: '2026-11-01'
+      reviewer_context: fresh
+      verdict: PASS
+      findings: []
+      outcome: >
+        Zero-findings verdict. Reviewer verified every factual-accuracy claim
+        against .opencode/tools/local-issues at c5c46686f (line citations,
+        call-site survey of the qualifier machinery, live failing-form
+        reproductions, remote issue traceability, CLI-reference claims) and
+        judged all defect classes and analysis families clean.

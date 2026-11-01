@@ -3,6 +3,124 @@ title: local-issues sync-file resolves only two worktree prefixes — unusable f
 status: open
 labels:
 - needs-approval
-body: ''
+- spec
+body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-Identifier:\
+  \ MIT -->\n\n# [SPEC] local-issues sync-file resolves every issues worktree — submodule\
+  \ paths, repo#N qualification, accurate mismatch reporting\n\n## Problem\n\n`local-issues\
+  \ sync-file` cannot sync any submodule repo's issue store.\n`_resolve_worktree_from_path()`\
+  \ (`.opencode/tools/local-issues`; verified at\n`c5c46686f`, lines 2172–2198) recognizes\
+  \ exactly two cwd-pinned path shapes —\n`<workspace>/.opencode/.issues/…` and `<workspace>/.issues/…`\
+  \ — and returns\n`None` for everything else, so every other invocation exits with\n\
+  `Error: file path '<path>' does not match any known issues worktree (.issues/ or\
+  \ .opencode/.issues/)`.\n\nThe deck's tool ships into every mounting workspace,\
+  \ so every workspace with\nsubmodule issue stores (~40 per the filing session's\
+  \ inventory — ButterApi,\nButterShared, SHARED-*, xBaseJ, …) loses the single-file\
+  \ commit-and-push path;\nonly the umbrella `sync` still works, coarser and slower.\
+  \ Operators following\nthe `repo#N` convention every other `local-issues` command\
+  \ takes get a\nmisleading error naming only the two hardcoded prefixes, and the\
+  \ `--file` help\n(\"Path to the file to sync\") describes none of the conventions.\
+  \ Triaged\n2026-11-01: all three invocation forms (`ButterApi/.issues/21/spec.md`,\n\
+  `ButterApi#21`, `ButterApi#21/spec.md`) re-demonstrated exiting 1 with the\nsame\
+  \ error; code survey confirmed no `repo#N` path reaches `cmd_sync_file`\n(the qualifier\
+  \ machinery `_parse_qualified`/`_resolve_repo_path` serves only\n`--number` commands).\n\
+  \nRoot causes: **RC-1** the resolver hardcodes one environment's layout instead\n\
+  of using the tool's own repo enumeration; **RC-2** `sync-file` lacks the\nqualified-name\
+  \ convention; **RC-3** the mismatch stderr and `--file` help\nneither match nor\
+  \ state the actual grammar.\n\n## Scope\n\n`.opencode/tools/local-issues` only:\
+  \ `_resolve_worktree_from_path()` (generalized\nresolution), `cmd_sync_file()` (error\
+  \ message), `_add_sync_file_parser()`\n(`--file` help), one shared grammar statement\
+  \ feeding both texts, plus a\ntest fixture for verification. Out of scope: umbrella\
+  \ `sync` behavior; store\nbootstrap from `sync-file` (an unestablished store reports\
+  \ the existing\n`no_worktree` status); any remote issues-system call from the tool\
+  \ (#2382\nlocal-store boundary); deck skill-reference edits (deck-governance surface;\n\
+  the CLI reference delegates flag-level truth to `--help`, which this change\nmakes\
+  \ accurate); commit/push machinery (`_sync_file_in_worktree` unchanged).\n\n## Requirements\n\
+  \n- **R-1 — qualified forms.** `sync-file` SHALL accept the qualified\n  `repo-folder#NNNN`\
+  \ form (consistent with the tool's other commands), in two\n  shapes: `<repo>#<N>`\
+  \ syncs all files under the issue's folder `{N}/`; \n  `<repo>#<N>/<relpath>` syncs\
+  \ exactly the single file. Unknown qualifier →\n  the standard repo-not-found error\
+  \ with the available-qualifier list.\n- **R-2 — enumerated path resolution.** `sync-file`\
+  \ SHALL additionally resolve\n  any repo's issues worktree from a repo-root-relative\
+  \ path prefix\n  (`<submodule>/.issues/…`), not just the two hardcoded shapes. Candidates\n\
+  \  SHALL be the tool's own enumerated repos (current repo first, then\n  registered\
+  \ store hosts — the #2667 mechanism), first match wins; no\n  cwd-pinned hardcoded\
+  \ branch remains; a non-enumerated directory is not a\n  store and is rejected per\
+  \ R-3.\n- **R-3 — accurate mismatch reporting.** The mismatch error message SHALL\n\
+  \  enumerate the accepted form classes (qualified issue-folder form, qualified\n\
+  \  issue-file form, repo-root-relative issues-worktree paths), and the `--file`\n\
+  \  help SHALL state the same forms — both from the one shared grammar\n  statement.\n\
+  \n## Success criteria\n\nClassified behavioral (runtime instrument) / structural\
+  \ (fact-decidable\ncheck); full instrument detail in the local spec.\n\n- **SC-1\
+  \ (behavioral → R-1):** `--file ButterApi#21` syncs the whole issue\n  folder `21/`\
+  \ in the ButterApi store — YAML `status: ok` + `commit_sha`,\n  commit covers the\
+  \ folder's files. *Instrument:* throwaway fixture workspace\n  (script copy under\
+  \ `<fixture>/.opencode/tools/local-issues`; every fixture\n  repo wired a reachable\
+  \ local bare origin — the tool's bootstrap is fatal on\n  an unverifiable origin\
+  \ (#2548 C4); stores bootstrapped by the tool's own\n  `init`); YAML + commit contents\
+  \ asserted in-fixture only.\n- **SC-2 (behavioral → R-1):** `--file ButterApi#21/spec.md`\
+  \ syncs exactly\n  that file. *Instrument:* same fixture.\n- **SC-3 (behavioral\
+  \ → R-1):** unknown qualifier exits non-zero with the\n  standard repo-not-found\
+  \ diagnostic + qualifier list. *Instrument:* fixture\n  run; stderr + exit code.\n\
+  - **SC-4 (behavioral → R-1):** known qualifier, store not established →\n  existing\
+  \ `no_worktree` status; no store is created. *Instrument:* fixture\n  run on a repo\
+  \ whose `.issues` worktree was removed.\n- **SC-5 (behavioral → R-1/R-2):** pull-only\
+  \ refusal (`_reject_pull_only`)\n  fires on every form resolving to an http(s)-origin\
+  \ repo, before any store\n  mutation. *Instrument:* fixture variant with an https\
+  \ origin (no credential\n  helper); refusal stderr + exit code.\n- **SC-6 (behavioral\
+  \ → R-2):** `--file ButterApi/.issues/21/spec.md` resolves\n  the registered submodule\
+  \ store and syncs the file. *Instrument:* fixture.\n- **SC-7 (behavioral → R-2):**\
+  \ the two established shapes still resolve —\n  `.issues/<file>` to the root store\
+  \ and `.opencode/.issues/<file>` to the\n  `.opencode` store (registered submodule).\
+  \ *Instrument:* fixture, both forms.\n- **SC-8 (behavioral → R-2):** a path under\
+  \ a non-enumerated directory\n  (`RandomDir/.issues/…`) exits 1 with the R-3 error\
+  \ — enumeration is the\n  sync-target basis. *Instrument:* fixture; stderr + exit\
+  \ code, no commit.\n- **SC-9 (structural → R-3):** the mismatch stderr enumerates\
+  \ all three\n  accepted form classes, not only the two legacy prefixes. *Instrument:*\n\
+  \  run with an unresolvable path; assert stderr content.\n- **SC-10 (structural\
+  \ → R-3):** `--file` help text states the accepted forms.\n  *Instrument:* `sync-file\
+  \ --help` output check.\n- **SC-11 (structural → R-2):** the resolver builds candidates\
+  \ from the\n  tool's repo enumeration (current first, then `_discover_all_repos()`),\
+  \ with\n  no cwd-pinned prefix branch, and every form routes through the existing\n\
+  \  `_reject_pull_only` guard. *Instrument:* read-back at the merged commit.\n\n\
+  ## Success-criteria table\n\n| ID | Criterion | Class | Instrument |\n|---|---|---|---|\n\
+  | SC-1 | qualform folder form syncs `{N}/` | behavioral | fixture CLI run, YAML\
+  \ + commit |\n| SC-2 | qualform file form syncs `{N}/<file>` | behavioral | fixture\
+  \ CLI run, YAML |\n| SC-3 | unknown qualifier → standard error | behavioral | fixture\
+  \ stderr + exit code |\n| SC-4 | unestablished store → `no_worktree`, no bootstrap\
+  \ | behavioral | fixture run, YAML + fs check |\n| SC-5 | pull-only refusal on all\
+  \ forms | behavioral | https-origin fixture variant |\n| SC-6 | submodule path prefix\
+  \ resolves + syncs | behavioral | fixture CLI run, YAML |\n| SC-7 | two legacy shapes\
+  \ still resolve | behavioral | fixture runs, both forms |\n| SC-8 | non-enumerated\
+  \ directory rejected | behavioral | fixture stderr + exit code |\n| SC-9 | mismatch\
+  \ stderr enumerates all forms | structural | unresolvable-path run, stderr match\
+  \ |\n| SC-10 | `--file` help states the forms | structural | `sync-file --help`\
+  \ output check |\n| SC-11 | enumeration-derived resolver, guard preserved | structural\
+  \ | code read-back |\n\n## Impact\n\n- **Consumers:** every workspace with submodule\
+  \ issue stores — the exact\n  `repo#N` convention the tool teaches elsewhere arrives\
+  \ in `sync-file`, and\n  the single-file sync path is restored without the umbrella\
+  \ `sync`'s\n  commit-all/pull-all/push-all round trip.\n- **Risk:** low — resolution\
+  \ and user-facing text only; store-data semantics,\n  commit/push machinery, and\
+  \ the local-store/remote boundary untouched. Write\n  additions bounded by enumeration\
+  \ (SC-8) and the preserved pull-only refusal\n  (SC-5).\n- **Blast radius:** one\
+  \ file, `.opencode/tools/local-issues`, plus a fixture\n  test artifact. Tool `--help`\
+  \ updated in scope; the deck CLI-reference row\n  remains true of the path form\
+  \ (its flag-level truth is delegated to\n  `--help`); any deck-row rewording goes\
+  \ through deck governance on its own\n  ticket.\n- **Recovery:** single-file revert;\
+  \ no store migration, data rewrite, or\n  branch/tag effect.\n\n## Approach\n\n\
+  In `_resolve_worktree_from_path()`: (1) attempt a qualified-form parse\n(grammar\
+  \ derived from `_parse_qualified`, extended with an optional\n`/<relpath>` tail);\
+  \ on match resolve the repo via `_resolve_repo_path()`\n(unknown repo → standard\
+  \ repo-not-found error, exit non-zero); rel path is\n`N` (folder) or `N/<relpath>`\
+  \ (file); qualified match takes precedence over\npath resolution. (2) Otherwise\
+  \ resolve against candidates = current repo, then\n`_discover_all_repos()` children\
+  \ (the `_collect_repos()` ordering), matching\n`path.relative_to(candidate/.issues)`;\
+  \ first match wins — subsuming both\nlegacy shapes as instances of the general rule.\
+  \ The alternative — filesystem\nglobbing of `*/.issues` — is rejected: it makes\
+  \ unregistered sibling\ndirectories sync targets and abandons the #2667 store-host\
+  \ mechanism.\n(3) One shared grammar statement feeds the mismatch message and the\
+  \ `--file`\nhelp. (4) `_sync_file_in_worktree()` and the `_reject_pull_only` call\
+  \ site\nstay unchanged — every form inherits the refusal.\n\n> Full spec and plan\
+  \ artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2655/\n\
+  \nAI-facing artifacts pointer: `.opencode/.issues/2655/`"
 created_at: '2026-11-01T17:26:25+00:00'
-updated_at: '2026-11-01T17:26:25+00:00'
+updated_at: '2026-11-01T17:40:54+00:00'
