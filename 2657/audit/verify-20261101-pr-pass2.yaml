@@ -1,0 +1,38 @@
+# Verify record — .opencode#2657, re-review pass 2 (2026-11-01)
+review: fresh-context reviewer; re-check scope = pass-1 findings F1, F2 + regression scan of pass-1 held checks
+tip: 496a696b4
+diff: 2ac8441cb..496a696b4
+
+f1_blast_radius:
+  status: RESOLVED
+  checks:
+    - spec.md 2026-11-01 rides amendment present: YES — spec.md "Amended 2026-11-01 (verify F1 record…)" names tests-v2/poll-run.sh, skills/behavioral-testing/SKILL.md, work criterion-assessment binding, skill-creator sourcing clause, implement mid-cycle revision-duty clause; SCs stated unchanged (spec.md:142-156)
+    - plan.md Mid-cycle revision 5 present: YES (plan.md:580-599), enumerating the same rides with commit hashes
+    - commit-to-file accuracy vs actual diff: VERIFIED —
+        eb045464b → skills/behavioral-testing/SKILL.md + tests-v2/poll-run.sh
+        dcd8eeafc → skills/behavioral-testing/SKILL.md + tests-v2/poll-run.sh
+        1596766c7 → skills/behavioral-testing/SKILL.md + tests-v2/poll-run.sh
+        5050d1593 → skills/work/SKILL.md
+        496a696b4 → skills/skill-creator/SKILL.md
+        28ea8e2d3 → skills/implement/SKILL.md
+      each named commit touches the named file; no extra undeclared source surfaces in the revision-5 ride set
+    - SCs unchanged by the rides: YES — amendment statement and text confirm; SC list untouched
+
+f2_rollback:
+  status: RESOLVED
+  checks:
+    - stated count "twelve stacked commits" vs `git rev-list --count 2ac8441cb..496a696b4` = 12: MATCH, no new finding
+    - per-commit revert guidance present (plan.md Rollback, reset --hard 2ac8441cb restored, stacked #2663 noted)
+
+regression_scan_pass1_held:
+  sc_traceability_2026_10_31_table:
+    status: HELD
+    - evidence.md "Runs of 2026-10-31" table rows SC-6..SC-12 each cite a named evaluation yaml under tmp/behavioral-evidence-*/; named directories and evaluation files verified present on disk (incl. evaluation-20261101T023932Z.yaml, evaluation-20261031071219.yaml)
+    - all six behavioral criteria PASS at tip with regenerated artifacts per table
+  spec_deck_coherence_at_tip:
+    status: HELD
+    - floor.md carries the stage-request rule and "never a size threshold" wording per SC-1 (floor.md:52)
+    - work/skill-creator/implement clauses landed per revision-5 commit inspection
+
+findings: []
+verdict: PASS
