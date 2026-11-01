@@ -6,16 +6,14 @@ labels:
 - spec
 - regression
 - skills
-body: '## Symptom (regression observed 2026-10-22)
+body: '## Problem
 
 
-  Creating a root-repo PR in **Butter** (PR #386, branch `feature/flyway-pin-conflict-note`),
-  the agent staged only the 2 submodule pointers it had intentionally changed (`ButterApi`
+  On 2026-10-22, in parent repo **Butter** (PR #386, branch `feature/flyway-pin-conflict-note`),
+  the agent staged only the two submodule pointers its own work intended (`ButterApi`
   → `c7e5c95`, `DaoCore2` → `64f75e4`) and left **19 other dirty submodule pointers
-  unstaged**, classifying them as "pre-existing workspace residue, untouched". `git
-  status --short` showed 21 modified submodule paths; the PR carried 2.
-
-
+  unstaged**, narrating them as "pre-existing workspace residue, untouched". `git
+  status --short` at PR time showed 21 modified submodule paths; the PR carried 2.
   The developer''s correction:
 
 
@@ -23,66 +21,219 @@ body: '## Symptom (regression observed 2026-10-22)
   supposed to be included. This is a regression.
 
 
-  ## Expected behavior
+  Expected behavior per the correction: a parent-repo PR (a PR in the repository that
+  consumes submodules — the one whose PRs record submodule gitlinks) includes **all**
+  currently-dirty submodule pointers — the recorded pointer state equals the workspace
+  state at PR time; a root PR is never filed while any submodule pointer is left dirty;
+  leaving them is a regression regardless of which session or sub-agent introduced
+  the dirty state. The prior parent PR (#385, `feature/56-pointer-promotion-playwright-doc`)
+  was itself a pointer-promotion PR (issue-recorded evidence), and the sampled drift
+  pointers sat on the tagged deployment lineage (`Butter/NN…`). Corrected in-session
+  after filing (issue-recorded): all pointers staged, `./gradlew build -xtest` → BUILD
+  SUCCESSFUL (236 tasks), body re-edited.
 
 
-  When creating a **root-repo (parent) PR**, ALL currently-dirty submodule pointers
-  are included in the PR — the recorded pointer state must always equal the workspace
-  state at PR time. A root PR must never be filed while any submodule pointer is left
-  dirty; leaving them is a regression regardless of which session/sub-agent introduced
-  the dirty state.
+  **Why it survived the deck''s rule.** `git-workflow-pr` §2(d) already mandates inclusion
+  (landed 2026-10-11, #2563 — pre-dating the incident; verified in deck git history)
+  and defines a bump factually (checked-out HEAD ≠ recorded gitlink). The requirement
+  did not bind, three mechanisms (verified against the live deck text on deck main,
+  2026-10-31):
 
 
-  The repo''s own history confirms this is the established pattern: the prior parent
-  PR (#385, `feature/56-pointer-promotion-playwright-doc`) was itself a pointer-promotion
-  PR carrying multiple submodule pointer bumps; the recorded pointers reference the
-  tagged deployment lineage (`Butter/NN-…`).
+  - **M-1 — no stated instrument.** Every sibling §2 checklist item has a concrete
+  check ((d-2): `git ls-remote --tags`; (f): pending-submodule-PR facts; (g): pointer
+  movement). (d) names no way to check itself; the dirty-pointer enumeration was left
+  to inference.
+
+  - **M-2 — the residue loophole.** No deck text defines or forbids a "pre-existing
+  residue" class. `git-workflow-branch` rule 2(c) defers drift ("the drift rides with
+  the next real parent change") without naming the collection moment — an agent standing
+  at PR creation reads deferral as exemption, so the drift never rides. The incident''s
+  residue narration is this loophole executed.
+
+  - **M-3 — no disposition semantics.** For a dirty pointer with unknown lineage the
+  deck directs nothing (include or halt); and no text forbids checkout-away cleanup
+  — a session "tidying" submodules back to recorded SHAs, destroying the promotions
+  the workspace carries.
 
 
-  ## Root cause (hypothesis)
+  (Whether the incident session loaded the deck version already carrying (d) is not
+  established by available evidence — no Butter checkout exists in this workspace;
+  the failure mechanism is the subject either way.)
 
 
-  The agent treated "stage only intended files" (commit hygiene) as overriding the
-  pointer-completeness invariant for parent repos. Pointer hygiene for root repos
-  is not per-change file hygiene — the pointer set is holistic: every dirty pointer
-  is either (a) this work''s bump, (b) a prior promotion awaiting its PR, or (c) an
-  accidental workspace drift to be reconciled — and (b) is the ordinary case per the
-  promotion workflow.
+  ## Scope
 
 
-  ## Suggested fix (deck/agent guidance)
+  Deck surfaces in `michael-conrad/.opencode`:
 
 
-  1. Add to the PR-prep card (git-workflow-pr): a pre-PR **dirty-pointer check** for
-  parent repos — `git status --short` filtered to submodule paths; non-empty ⇒ include
-  them in the PR (after a build gate) or halt with an open-ended clarification if
-  a dirty pointer''s lineage is unknown.
+  - `skills/git-workflow-pr/SKILL.md` — §2(d) strengthened into a **pre-create dirty-pointer
+  disposition gate**: enumeration instrument, zero-unaccounted-at-creation requirement,
+  the dispositions, the no-residue statement, the ride-along collection clause. Composes
+  with (d-2), (e), (f), (g) and the commit card''s staged-pointer duties — none change
+  in operative content.
 
-  2. After any submodule pointer change in a session, the root repo''s pointer state
-  is inherently dirty for ALL submodules whose checked-out state differs from the
-  recorded pointer — sessions must not "clean up" or leave residual pointer drift
-  behind.
-
-
-  ## Evidence
+  - `tests-v2/behaviors/` — two behavioral scenarios (positive inclusion; negative
+  gate-catch) on the existing harness.
 
 
-  - `git status --short` at PR time: 19 dirty submodule paths (BB-LatexUtils, ButterShared,
-  CharsetUtils, DailiesShared, DbfShared, NewsRxUI, PdfUploader, ProcessFinishedNotify,
-  SHARED-DAO, SHARED-JSON, SHARED-POJOS, SHARED-SERVER, SHARED-STRIPE, SharedInterfaces,
-  SharedPojos, WeekliesPDFs, xBaseJ, xBaseJ-annotations, xBaseJ-annotations-processor)
-  — all on the tagged deployment lineage (`Butter/72-N` describe output verified for
-  sampled modules).
-
-  - PR #386 fix applied after the correction: all pointers staged, `./gradlew build
-  -xtest` → BUILD SUCCESSFUL (236 tasks), body re-edited via `gb pr edit --web`.
+  Constraint frame: **no scripted enforcement** (standing developer ruling recorded
+  in #2664 §Approach, applied by #2683 — script gates get routed around; rule text
+  at the decision surface + behavioral evidence); **single-card rule work** (confined
+  to §2 — every extra touched card multiplies whole-card-on-touch conversion cost);
+  **compose, don''t rewrite**.
 
 
-  ---
+  ## Requirements
 
-  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  - **R-1** — §2(d) SHALL require, for every parent-repo PR, a pre-create dirty-pointer
+  enumeration with a stated fact check: every registered submodule whose checkout
+  state differs from its recorded gitlink — observed on the parent''s submodule status
+  listing (each `+` row of `git submodule status`) — and SHALL require zero unaccounted
+  dirty pointers at PR creation (staged-and-recorded pointer set = workspace dirty
+  set at create time).
+
+  - **R-2** — The rule SHALL state that a dirty pointer left out of a parent-repo
+  PR is a regression regardless of which session or sub-agent introduced the dirty
+  state, and that "pre-existing" names no disposition and no deck category.
+
+  - **R-3** — The rule SHALL state the two dispositions: (a) **include** — default;
+  staged and recorded into the PR''s per-issue commit content, satisfying the existing
+  staged-pointer machinery ((d-2) tag gate, commit card''s tagged-SHA duty) and the
+  composed-state verification; (b) **halt for developer clarification** — open-ended
+  per the floor''s standing formula, when the pointer''s lineage cannot be established
+  from the session''s record and the submodules'' recorded state; doubt establishes
+  nothing and routes here; no third disposition. Drift is never resolved by checkout-away
+  cleanup.
+
+  - **R-4** — The rule SHALL state its composition with the 2(c) deferral: deferred
+  drift lands in the next real parent change''s PR — the session preparing that PR
+  performs the inclusion at creation time under this gate; the deferral is a destination,
+  never an exemption. Zero-unaccounted holds over the set assembled at creation; movement
+  between capture and creation stays (g)''s window. No other card rule''s operative
+  content changes.
+
+
+  ## Success criteria
+
+
+  | ID | Class | Criterion | Instrument |
+
+  |----|-------|-----------|------------|
+
+  | SC-1 | structural | §2(d) states the enumeration instrument, the zero-unaccounted
+  requirement, the inclusion default (R-1) | card-text inspection against R-1 |
+
+  | SC-2 | structural | §2 states the regression naming and the no-residue statement
+  with attribution independence; no exemption language survives elsewhere on the loaded
+  deck surface (R-2) | card-text inspection + scoped absence check (grep of `skills/`,
+  `guidelines/`, `floor.md`) |
+
+  | SC-3 | structural | §2 states the two dispositions post-verification and the no-checkout-away-cleanup
+  rule (R-3) | card-text inspection against R-3 |
+
+  | SC-4 | structural | The strengthened rule states the 2(c) collection clause; (d-2),(e),(f),(g)
+  and all other card rules keep their operative content (R-4) | change-diff confinement
+  (§2 submodule block) + read-back of the four items |
+
+  | SC-5 | behavioral | Supervised run, workspace carrying both the session''s own
+  bump and pre-seeded pre-existing drift (drift SHA covered by a pushed tag): the
+  created PR''s recorded gitlinks carry **all** dirty pointers — zero unaccounted
+  | real harness run under `tests-v2/` (the `opencode run` instrument per the behavioral-testing
+  card); transcript + verdict evidence |
+
+  | SC-6 | behavioral (negative) | A dirty pointer the run agent leaves unaccounted
+  is caught at the pre-create gate — the PR is not created until every enumerated
+  pointer carries a disposition | same harness, same fixture class; evaluated from
+  the transcript''s disposition enumeration + the PR''s pointer set |
+
+
+  ## Approach
+
+
+  1. `git-workflow-pr` §2(d) rewritten as the disposition gate, keeping (d)''s inclusion
+  duty as the strengthened rule''s head; every composed existing rule referenced,
+  not restated. The §4 per-bump body contract covers the enlarged pointer set as it
+  stands (one line per bump).
+
+  2. **Whole-card-on-touch duty** honored: the substantive §2 write obligates returning
+  the entire card''s normative prose under the writing-discipline guideline — inside
+  this work''s cost, not deferred.
+
+  3. The card edit passes the skill-creator card''s deck-governance gates.
+
+  4. `tests-v2/behaviors/` scenarios follow the established fixture patterns (`2683-sc5-pointer-capture-tagged-sha.sh`,
+  `2683-sc6-untagged-pointer-caught-at-gate.sh`): parent with registered submodules,
+  pre-seeded drift, real parent change in flight; assertions read the created PR''s
+  gitlinks and the transcript''s disposition record.
+
+
+  Discarded alternative: a pre-PR hook/validator script — disposed by the #2664 standing
+  ruling (as #2683 applied it).
+
+
+  ## Key edge cases
+
+
+  - Promotion-pointer whose submodule PR is pending → (f) already blocks parent creation
+  until it merges; the parent PR waits; nothing is excluded.
+
+  - Dirty pointer failing composed verification → a state question, not an exclusion
+  licence: halt-clarify (unestablished lineage) or in-scope remediation; a pointer
+  is never unrecorded to make a red build green.
+
+  - Untagged drift SHA → the (d-2) tag duty creates/pushes/verifies before PR creation;
+  tag naming per the existing format; unestablishable owner routes to halt-clarify
+  first.
+
+  - Pull-only origin (#2667) → reported per that rule; no silent omission.
+
+  - Post-creation discovery → (g)''s window, not this gate''s.
+
+  - Content-dirty submodule (` m` row) → not a pointer fact; out of this gate''s enumeration.
+
+
+  ## Impact
+
+
+  - **Consumers:** every parent-repo PR in every parent/submodule family the git-workflow
+  cards serve (multi-submodule families like Butter directly).
+
+  - **Cost:** one enumeration + disposition pass per parent-PR prep; staged-set machinery
+  (tags, per-bump body section) already exists and now receives the full workspace
+  set.
+
+  - **Risk:** capped by existing gates — (f) holds submodule PRs ahead of parent PRs;
+  (d-2) makes every carried SHA name-reachable; halt-clarify handles unestablishable
+  lineage.
+
+  - **Blast radius:** one rule of one card + two test scenarios; no other deck file''s
+  operative content changes.
+
+
+  ## Out of scope
+
+
+  - `git-workflow-branch` rule 2(c) / `git-workflow-commit` — unchanged; the strengthened
+  (d) is their collection point.
+
+  - The open-PR window — governed by (g) as it stands.
+
+  - Scripted enforcement of any kind.
+
+  - Butter-family follow-up work — the incident''s PR was corrected in-session (issue-recorded).
+
+  - Any threshold or part count for the disposition loop.
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2656/
+
+
+  Artifacts for agents: `.opencode/.issues/2656/`.
 
   '
 created_at: '2026-11-01T02:49:26+00:00'
-updated_at: '2026-11-01T03:09:47+00:00'
+updated_at: '2026-11-01T03:10:33+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2656
