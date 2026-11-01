@@ -55,3 +55,69 @@ spec:
             statement; the §12 citation removed. Mirrored in the remote body.
           classification: finding
       outcome: remediated — re-validation dispatched (round 2)
+    - round: 2
+      date: '2026-11-01'
+      reviewer_context: fresh
+      verdict: FAIL
+      findings:
+        - class: cross-reference sufficiency (analysis family)
+          location: Approach step 2 (§Canonical-command sourcing attribution)
+          ground: >
+            Spec attributed the no-manifest routing ("ask when the manifest
+            does not declare it; never guess") to §Canonical-command sourcing.
+            That quote lives in §Wrapper discipline's second bullet (gradle
+            card lines 24–26); §Canonical-command sourcing (lines 28–32)
+            carries only the manifest-sourcing rule ("run them as declared; do
+            not substitute task lists of your own invention") — no "ask", no
+            "never guess". The spec's own Problem table row places the quote
+            correctly, making the artifact self-contradictory on the
+            attribution.
+          remediation: >
+            Approach step 2 reworded in place: the no-manifest routing named
+            in its true surface (§Wrapper discipline's second bullet, which
+            the new bullets resolve beside) and §Canonical-command sourcing
+            stated as composing unchanged, consistent with both. Mirrored in
+            the remote body.
+          classification: finding
+        - class: cross-reference sufficiency (analysis family)
+          location: Problem table row 3 (implement surface, boundary attribution)
+          ground: >
+            Spec attributed the §Submodule execution boundary paragraph to
+            "#2318/#2313". Store records: #2318 is "[SPEC] Root-repo-only
+            tooling in multi-module checkouts" — the boundary's origin;
+            #2313 is "[SPEC] Submodule merged-commit verification gate"
+            (pointer-reachability gates) and contributed nothing to the
+            boundary paragraph. The live boundary's provenance is #2563's
+            re-admission (implementation-workflow.md provenance line 3:
+            "submodule execution boundary, .opencode#2563"; #2563's evidence
+            names #2318, never #2313). Both #2313 and #2318 record
+            sweep CLOSE-MOOT — the current boundary holds via #2563's
+            re-admission, not the direct records.
+          remediation: >
+            Problem table row 3 corrected in place: "the root-repo-only-tooling
+            boundary (#2318's subject, re-admitted into the live deck by
+            #2563)".
+          classification: finding
+      outcome: remediated — re-validation dispatched (round 3)
+    - round: 3
+      date: '2026-11-01'
+      reviewer_context: fresh
+      verdict: PASS
+      findings: []
+      outcome: >
+        Zero-findings verdict; no caveats attached to any criterion's verdict.
+        Reviewer verified both prior rounds' remediations genuine and complete
+        (.tools/node/ attribution per skills/playwright-cli/references/install.md;
+        harness default local provisioning §5 + §3 Step 0b with
+        BEHAVIOR_NEEDS_REMOTE opted out; no-manifest routing placed in
+        §Wrapper discipline's second bullet; the execution-boundary provenance
+        #2318-origin/#2563-re-admission) and re-checked the whole artifact
+        fresh: traceability both directions (SC-1..SC-6 ↔ R-1..R-3, RC-1..RC-4
+        covered, no orphans), instruments capable (read-backs at merged
+        commit; SC-6 session.yaml timeline via tools/session-to-timeline), no
+        invented requirements, no either/or masking (SC-5/SC-6's disjunction
+        is R-3's own developer-given shape), no escape hatches, feasible,
+        atomic, decidable. Filing-body claims verified against the recovered
+        2026-10-22 original body via GitHub issue edit-history; Butter
+        repository non-visibility re-confirmed live.
+      classification: verdict-record
