@@ -29,7 +29,8 @@ spec:
           vocabulary the distinguishing cue points at a source where the marker
           cannot appear; under the unnamed `status --short` reading the same sentence
           is true — the artifact resolves neither reading.
-        outcome: remediation performed — the edge case rewritten in place to state both
+        outcome: >-
+          remediation performed — the edge case rewritten in place to state both
           listings' observable output: `git submodule status` reports pointer state
           only (`+` prefix is the whole difference fact, no content-dirt annotation);
           the ` M`/` m` distinction lives on the `git status --short` cross-check
@@ -37,19 +38,24 @@ spec:
           hygiene belongs to the session working inside that submodule per its own
           cards.
     factual_accuracy_checked:
-      - Deck-text quotes (§2(d) inclusion sentence, (d-2) tag gate, (e), (f), (g),
+      - >-
+        Deck-text quotes (§2(d) inclusion sentence, (d-2) tag gate, (e), (f), (g),
         branch rule 2(c) deferral sentence, commit card rule 5 duty, 2(b) #2553 gate)
         — all verified verbatim against the live cards.
-      - "§2(d) provenance: landed 2026-10-11 via #2563 (`4d51d8731`), pre-dating the
-        2026-10-22 incident — verified in deck git history."
-      - Issue-recorded evidence (21/2/19 counts, the correction quote, #385 precedent,
+      - >-
+        §2(d) provenance: landed 2026-10-11 via #2563 (`4d51d8731`), pre-dating the
+        2026-10-22 incident — verified in deck git history.
+      - >-
+        Issue-recorded evidence (21/2/19 counts, the correction quote, #385 precedent,
         `Butter/NN` lineage, in-session BUILD SUCCESSFUL correction) — matches
         issue.yaml exactly and is labeled issue-recorded, not independently verified
         (no Butter checkout in this workspace — the spec's hedge verified true).
-      - The #2664 standing ruling citation (via #2683's constraint frame), the
+      - >-
+        The #2664 standing ruling citation (via #2683's constraint frame), the
         whole-card-on-touch adoption rule in the writing-discipline guideline, and
         the two named 2683 fixture scripts — all verified present.
-      - M-2/M-3 negation claims (no residue-classification or checkout-away
+      - >-
+        M-2/M-3 negation claims (no residue-classification or checkout-away
         prohibition on the loaded deck surface) — held under scoped grep.
     testability: SC-1..SC-4 carry card-text/diff instruments answering the criterion's
       question; SC-5/SC-6 carry the real-harness-run instrument per the behavioral-testing
@@ -71,7 +77,8 @@ spec:
       specs, scratch-verification authorized).
     adjudications: []
     factual_accuracy_checked:
-      - All load-bearing quotes re-verified verbatim against the live cards; the
+      - >-
+        All load-bearing quotes re-verified verbatim against the live cards; the
         #2563 provenance claim and the issue-recorded evidence re-confirmed; the two
         2683 fixture scripts, the #2664 ruling, the whole-card-on-touch rule, and
         both negation claims re-confirmed; the listing-output claims scratch-verified
