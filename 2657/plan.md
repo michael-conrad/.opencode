@@ -577,11 +577,34 @@ spec amendment, and what the plan's items now expect.
    10's GREEN facts unchanged — the route criterion judges the same facts;
    the re-run carries the amended card text.
 
+5. **Supervision-wording rides and deck clauses found by the behavioral
+   runs** (discovered across the 2026-10-30/31 runs and remediated
+   mid-cycle). Rides on this branch that the plan's original surfaces table
+   did not enumerate: `tests-v2/poll-run.sh` and
+   `skills/behavioral-testing/SKILL.md` (poll-report delivery wordings:
+   standalone turn shapes, 60-second cadence, NEXT-CYCLE banner — developer
+   directives 2026-10-30/31, commits `eb045464b`, `dcd8eeafc`,
+   `1596766c7`); the work card's criterion-assessment binding clause
+   (`5050d1593`, SC-9's observed self-certification); skill-creator's
+   instruction-stated-detail sourcing clause (`496a696b4`, SC-12's observed
+   harness-as-placement-ground-truth); the implement card's mid-cycle
+   revision-duty clause (`28ea8e2d3`). Spec amendment record:
+   spec.md's stated SCs are unchanged; the blast-radius statement's
+   "reaches no harness file" sentence now carries the 2026-11-01 rides
+   amendment. These are developer-directed mid-cycle rides with provenance
+   in the affected files — recorded here as revision 5 rather than as new
+   plan items.
 ## Rollback
 
 Every change is a text edit to tracked files plus eleven new test files
-(five scenarios and six fixtures) and one deletion; this change is one commit
-on top of the harness branch, whose base is the verified trunk tip `a1fb61c6`.
+(five scenarios and six fixtures) and one deletion; the change opened as one
+commit on top of the harness branch (base `a1fb61c6`) and grew into twelve
+stacked commits through the implementation cycle's recorded fixes
+(evidence-regression diagnostics, the supervision-wording rides, and two
+clauses found by the behavioral runs — see the mid-cycle revisions above).
+Resetting is per-commit (`git revert` range) rather than one hard reset to a
+restoration point: `git reset --hard 2ac8441cb` restores the trunk without
+this change.
 `git reset --hard feature/2663-harness-cap-hit-resume` restores the
 pre-change state of *this* change — resetting to `a1fb61c6` instead would
 also drop the stacked harness repair, which belongs to `.opencode#2663`. No
@@ -589,9 +612,9 @@ change touches a credential, a deployment surface, or a remote's contents.
 The harness's own artifacts live under `tmp/` and are disposable.
 
 The two changes are separate branches, so each is reviewed on its own:
-`feature/2663-harness-cap-hit-resume` (the harness repair, four commits
-above the trunk tip) and `feature/2657-path-selection-short-path` (this
-change, one commit on top of it). The pre-split history of this work is
+`feature/2663-harness-cap-hit-resume` (the harness repair, merged to the
+trunk) and `feature/2657-path-selection-short-path` (this change, twelve
+commits rebased on the trunk tip `2ac8441cb`). The pre-split history of this work is
 preserved in the local branch `backup/2657-monolithic`; its tree holds the
 monolithic state before the harness repair's later fixes landed, so it
 differs from the two branches' combined tree in the ten files those fixes

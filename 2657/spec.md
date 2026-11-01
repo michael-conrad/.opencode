@@ -139,6 +139,20 @@ criterion here is judged. A criterion is not judged from a run the harness
 could not complete; the capability is repaired where it belongs, and this
 spec's own change does not reach the harness.
 
+Amended 2026-11-01 (verify F1 record — developer-directed mid-cycle rides):
+that "reaches no harness file" statement held for the change as planned, but
+the implementation cycle's supervision defects drove developer-directed
+fixes to two harness-bearing surfaces that ride this branch as recorded
+rides — `tests-v2/poll-run.sh` (the poll reminder + NEXT-CYCLE banner wordings
+of 2026-10-30/31: standalone-turn delivery rule, turn shapes, 60-second
+cadence) and `tests-v2/behaviors`-adjacent supervision wordings in
+`skills/behavioral-testing/SKILL.md` — plus two deck clauses found by the
+behavioral runs themselves and fixed mid-cycle (the work card's
+criterion-assessment binding; skill-creator's instruction-stated-detail
+sourcing clause), and the implement card's mid-cycle revision-duty clause.
+These rides carry their provenance in the affected files and in plan.md's
+mid-cycle revision record; the spec's stated SCs are unchanged by them.
+
 ### Instrument note — bounded-generation raise (re-scope record, 2026-10-30)
 
 The harness repair landed and the 4,000-budget runs still end capped: the
