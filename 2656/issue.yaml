@@ -1,0 +1,8 @@
+title: 'BUG: agent left dirty submodule pointers out of root-repo PRs — pointers must
+  ALWAYS be included'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-11-01T02:49:26+00:00'
+updated_at: '2026-11-01T02:49:26+00:00'
