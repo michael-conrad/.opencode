@@ -3,6 +3,82 @@ title: 'BUG: agent left dirty submodule pointers out of root-repo PRs — pointe
 status: open
 labels:
 - needs-approval
-body: ''
+body: '## Symptom (regression observed 2026-10-22)
+
+
+  Creating a root-repo PR in **Butter** (PR #386, branch `feature/flyway-pin-conflict-note`),
+  the agent staged only the 2 submodule pointers it had intentionally changed (`ButterApi`
+  → `c7e5c95`, `DaoCore2` → `64f75e4`) and left **19 other dirty submodule pointers
+  unstaged**, classifying them as "pre-existing workspace residue, untouched". `git
+  status --short` showed 21 modified submodule paths; the PR carried 2.
+
+
+  The developer''s correction:
+
+
+  > dirty pointers are NOT allowed when create a root repo PR, the pointers are always
+  supposed to be included. This is a regression.
+
+
+  ## Expected behavior
+
+
+  When creating a **root-repo (parent) PR**, ALL currently-dirty submodule pointers
+  are included in the PR — the recorded pointer state must always equal the workspace
+  state at PR time. A root PR must never be filed while any submodule pointer is left
+  dirty; leaving them is a regression regardless of which session/sub-agent introduced
+  the dirty state.
+
+
+  The repo''s own history confirms this is the established pattern: the prior parent
+  PR (#385, `feature/56-pointer-promotion-playwright-doc`) was itself a pointer-promotion
+  PR carrying multiple submodule pointer bumps; the recorded pointers reference the
+  tagged deployment lineage (`Butter/NN-…`).
+
+
+  ## Root cause (hypothesis)
+
+
+  The agent treated "stage only intended files" (commit hygiene) as overriding the
+  pointer-completeness invariant for parent repos. Pointer hygiene for root repos
+  is not per-change file hygiene — the pointer set is holistic: every dirty pointer
+  is either (a) this work''s bump, (b) a prior promotion awaiting its PR, or (c) an
+  accidental workspace drift to be reconciled — and (b) is the ordinary case per the
+  promotion workflow.
+
+
+  ## Suggested fix (deck/agent guidance)
+
+
+  1. Add to the PR-prep card (git-workflow-pr): a pre-PR **dirty-pointer check** for
+  parent repos — `git status --short` filtered to submodule paths; non-empty ⇒ include
+  them in the PR (after a build gate) or halt with an open-ended clarification if
+  a dirty pointer''s lineage is unknown.
+
+  2. After any submodule pointer change in a session, the root repo''s pointer state
+  is inherently dirty for ALL submodules whose checked-out state differs from the
+  recorded pointer — sessions must not "clean up" or leave residual pointer drift
+  behind.
+
+
+  ## Evidence
+
+
+  - `git status --short` at PR time: 19 dirty submodule paths (BB-LatexUtils, ButterShared,
+  CharsetUtils, DailiesShared, DbfShared, NewsRxUI, PdfUploader, ProcessFinishedNotify,
+  SHARED-DAO, SHARED-JSON, SHARED-POJOS, SHARED-SERVER, SHARED-STRIPE, SharedInterfaces,
+  SharedPojos, WeekliesPDFs, xBaseJ, xBaseJ-annotations, xBaseJ-annotations-processor)
+  — all on the tagged deployment lineage (`Butter/72-N` describe output verified for
+  sampled modules).
+
+  - PR #386 fix applied after the correction: all pointers staged, `./gradlew build
+  -xtest` → BUILD SUCCESSFUL (236 tasks), body re-edited via `gb pr edit --web`.
+
+
+  ---
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
 created_at: '2026-11-01T02:49:26+00:00'
-updated_at: '2026-11-01T02:49:26+00:00'
+updated_at: '2026-11-01T02:50:09+00:00'
