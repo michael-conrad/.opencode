@@ -1,6 +1,6 @@
 title: '[SPEC] Root-repo PRs include every dirty submodule pointer — pre-create disposition
   gate'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec
@@ -235,5 +235,5 @@ body: '## Problem
 
   '
 created_at: '2026-11-01T02:49:26+00:00'
-updated_at: '2026-11-01T03:10:33+00:00'
+updated_at: '2026-11-01T17:25:15+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2656
