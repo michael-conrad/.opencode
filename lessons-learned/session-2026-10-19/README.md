@@ -14,6 +14,8 @@
 
 **Artifacts:** the BLOCKED report and the model-proposal exchange are in the session record; run evidence under `tmp/issue-2639/artifacts/` (project root).
 
+**Consumed:** 2026-10-31 — conduct-only lesson; filed as `.opencode#2644` at occurrence time, the rules it cites (R-20, floor standing formula) already bind, no deck defect to file. Marker added at the 2026-10-31 lessons review.
+
 ---
 
 ## LL-2: Supervisor poll-interval escalation past the 60s ceiling during SC-8 supervision (.opencode#2647)

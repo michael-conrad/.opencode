@@ -12,6 +12,8 @@ Scope: the #2639 SC-8 recovery passes 7–9 and their harness fixes (commits `5d
 
 **Remediation target:** agent conduct — harness-fix commit+push cycles happen BETWEEN passes, never during a live run; if a fix cannot wait, the run is killed + exported + relaunched rather than edited under. No deck text change required (the §4 cycle already encodes the correct window); recording here so the pattern is searchable.
 
+**Consumed:** 2026-10-31 — conduct-only lesson; no deck defect exists to file (the §4 cycle already encodes the window). Marker added at the 2026-10-31 lessons review.
+
 ## LL-2: Recovery launches must re-state the scenario's environment-class flags (`BEHAVIOR_NEEDS_REMOTE`)
 
 **Classification:** systemic (recovery paths silently degrade environment provisioning that the fresh path sets up; the recurring "stored token emptying" observations were this defect misread as gb state loss)
