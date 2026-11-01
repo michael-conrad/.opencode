@@ -1,0 +1,187 @@
+# Verify record — .opencode#2657, PR-boundary verification (2026-11-01)
+# Fresh-context reviewer; the implementor did not run this review.
+# criteria set: spec card validation standards + plan validation standards + spec SCs
+# audited artifact: .opencode branch feature/2657-path-selection-short-path @ 496a696b4
+#   (diff 2ac8441cb..496a696b4) + the issue record set (spec.md, plan.md, evidence.md,
+#   audit/validation.yaml)
+
+verdict: FAIL
+
+traceability:
+  method: |
+    Every SC traced spec.md ↔ evidence.md's "Runs of 2026-10-31" table (the
+    citable source) ↔ the named evaluation file, read for its own verdict.
+  sc_1:
+    criterion: floor carries the stage invariant and the stage-request rule
+    checked: floor.md tip — Pipeline section invariant present ("scaling changes a
+      stage's form, never its presence", "agent judgment, never a size threshold");
+      authorization-vocabulary stage-request bullet present
+    verdict: PASS
+  sc_2:
+    criterion: work card carries R-1..R-5, R-7; criteria stated once; removals deck-wide
+    checked: skills/work/SKILL.md tip — six numbered criteria in rule 1's body;
+      frontmatter/bullet/paragraph refer to them; both uncertainty rules qualified;
+      missing-artifact clause qualified; "short path ends when outgrown" + "no
+      ceremony, no waived stage" clauses present; criterion-assessment binding
+      clause present (5050d1593). Deck-wide grep: "a developer's direct request is
+      the spec" 0 hits; ceremony-pricing property absent (floor.md's "never excess
+      ceremony" is the permitted form on the stage-request rule)
+    verdict: PASS
+  sc_3:
+    criterion: skill-creator carve-out bounded
+    checked: skills/skill-creator/SKILL.md tip — evidence-hunt exemption reaches
+      every directed edit; no-halt clause stops at a material open choice; question
+      is the deck-governance card's stage output; neither clause reaches a stage
+      request; plus the instruction-stated-detail sourcing clause (496a696b4)
+    verdict: PASS
+  sc_4:
+    criterion: one short-path definition; record references resolve
+    checked: grep "short path" over skills/ → work (the definition), plan rules
+      7–8 and implement rule 9 (each "the path the change gate defines", pointing
+      at work/SKILL.md), verify + git-workflow-pr (name the scope statement).
+      "work record"/"work state" references in work, git-workflow-branch (rule 2
+      trunk-freshness write point, rule 5 provenance step), implement rule 9,
+      git-workflow-cleanup (frontmatter + rule 5, work record among scratch files)
+      each name the work record
+    verdict: PASS
+  sc_5:
+    criterion: verify and PR-readiness gates read the scope statement
+    checked: skills/verify/SKILL.md rule 1 (scope statement primary artifact,
+      dispatch names the work record's path), rule 3 (short-path verdict unit),
+      rule 9 (work card is the owning card); skills/git-workflow-pr/SKILL.md
+      rule 1, rule 2(a), rule 2(c), rule 4 Provenance each read the scope
+      statement, not the transient record's path
+    verdict: PASS
+  sc_6:
+    criterion: stage request produces the stage, no implementation
+    row: evidence.md 2026-10-31 SC-6 PASS
+    artifact: tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-128k-gguf4/evaluation-20261031071219.yaml
+    file_verdict: PASS (present, matches row)
+    verdict: PASS
+  sc_7:
+    criterion: complicated change does not ride the short path
+    row: evidence.md 2026-10-31 SC-7 PASS
+    artifact: tmp/behavioral-evidence-2657-sc2-complicated-change-full-path-GREEN-ollama-qwen3.8-27b-128k-gguf4/evaluation-20261031081307.yaml
+    file_verdict: PASS (present, matches row)
+    verdict: PASS
+  sc_8:
+    criterion: short path taken in collapsed form, without ceremony
+    row: evidence.md 2026-10-31 run 1 FAIL, run 2 PASS
+    artifact_a: tmp/behavioral-evidence-2657-sc3-short-path-collapsed-form-GREEN-ollama-qwen3.8-27b-128k-gguf4/evaluation-20261031084849.yaml → blocker FAIL as stated
+    artifact_b: tmp/behavioral-evidence-2657-sc3-short-path-collapsed-form-GREEN-ollama-qwen3.8-27b-128k-gguf4-1/evaluation-20261031093426.yaml → PASS
+    verdict: PASS
+  sc_9:
+    criterion: short path ends when the work outgrows it (route criterion)
+    rows: evidence.md 2026-10-31 — pre-clause runs 1–2 FAIL, post-clause PASS
+    artifacts:
+      - tmp/behavioral-evidence-2657-sc4-short-path-ends-when-outgrown-GREEN-ollama-qwen3.8-27b-128k-gguf4/evaluation-20261031111522.yaml → BLOCKED/FAIL as stated
+      - tmp/behavioral-evidence-2657-sc4-short-path-ends-when-outgrown-GREEN-ollama-qwen3.8-27b-128k-gguf4-1/evaluation-20261031T134530Z.yaml → FAIL as stated
+      - tmp/behavioral-evidence-2657-sc4-short-path-ends-when-outgrown-GREEN-ollama-qwen3.8-27b-128k-gguf4-2/evaluation-20261031T154344Z.yaml → PASS
+    verdict: PASS
+  sc_10:
+    criterion: directed deck edit with an open choice gets one question
+    row: evidence.md 2026-10-31 SC-10 PASS
+    artifact: tmp/behavioral-evidence-2657-sc5-directed-deck-edit-open-choice-GREEN-ollama-qwen3.8-27b-128k-gguf4/evaluation-20261031T160112Z.yaml → PASS (present, matches row)
+    verdict: PASS
+  sc_12:
+    criterion: directed card edit completes without the full path's machinery
+    rows: evidence.md 2026-10-31 — run 1 FAIL, run 2 FAIL (motivated the sourcing
+      clause), run 3 PASS
+    artifacts:
+      - tmp/behavioral-evidence-2584-sc4-directed-card-edit-no-archaeology-GREEN-ollama-qwen3.8-27b-128k-gguf4/evaluation-20261031171616.yaml → FAIL as stated
+      - tmp/behavioral-evidence-2584-sc4-directed-card-edit-no-archaeology-GREEN-ollama-qwen3.8-27b-128k-gguf4-1/evaluation-20261031183218.yaml → FAIL as stated
+      - tmp/behavioral-evidence-2584-sc4-directed-card-edit-no-archaeology-GREEN-ollama-qwen3.8-27b-128k-gguf4-2/evaluation-20261101T023932Z.yaml → PASS (present, matches row)
+    verdict: PASS
+  sc_11:
+    criterion: scenario set aligned
+    checked: tests-v2/behaviors/ — 2657-sc5-short-path-single-file.sh absent;
+      2584-sc4 present with both criteria in its header and the re-scope record;
+      five new scenarios each with the " # .opencode#2657 SC-N" header naming its
+      own criterion; five per-scenario fixtures + 2657-common.sh, each per-scenario
+      fixture sourcing the common helper; anchors declared — known-path artifacts
+      for sc1 (docs/upload-retry-spec.md/grep "retry"), sc3 (SUPPORT.md/## Support),
+      sc4 (src/cli.py/grep "json"), 2584-sc4 (.opencode/skills/correspondence/SKILL.md,
+      grep "6\."); empty anchors for sc2 and sc5; all six declare
+      BEHAVIOR_GOAL_ACTIONS; the 2584-sc4 pattern is the rule number, not "byline";
+      common fixture settles main to origin/main and drops legacy open/ and
+      closed/ in the store bootstrap
+    verdict: PASS
+  structural_gates:
+    criterion: test-enforcement 20/20 PASS at the final tip (evidence row)
+    artifact: tmp/enforcement-test-20261031-094822/
+    observed: >
+      20 per-scenario logs present. The six standalone tests carry PASSED/FAILED
+      totals in-log: cleanroom-eval-contract 8/0, isolation 191/0,
+      sc2-assert-semantic-removed 93/0, sc4-exit0-artifact 93/0,
+      skill-deck-completeness 3/0, trunk-hook 7/0. The 14 model-probe logs
+      contain no PASSED/FAILED totals and the runner's results.md (the script's
+      stated output file) is absent from the directory — the runner's PASS for
+      model probes is completion-based by its own design ("artifact-only
+      generation; evaluation is the clean-room sub-agent's job"), so the row's
+      "20/20 PASS" is a completion-evidence claim. The deliverable's structural
+      SCs were re-verified directly above, so this weaker instrument does not
+      block any SC; noted for evidence-claim accuracy only.
+  spec_sc_deck_coherence:
+    checked: no contradiction found between spec.md SCs (SC-1..SC-5 structural
+      statements) and the deck text at tip 496a696b4
+    verdict: PASS
+  mid_cycle_revisions:
+    checked: plan.md mid-cycle revisions 1–4 ↔ spec.md instrument-note amendments
+      (rounds 1–3) ↔ deck clauses — revisions 1–3 coherent (raise / route criteria
+      / placement split + 172d571e8 carve-out + fixture pre-supply 28ea8e2d3);
+      revision 4's binding clause present in the work card (5050d1593). The
+      validation record's round-7 PASS (zero findings) covers the spec artifact.
+    verdict: PASS with one gap — see findings[1]
+
+findings:
+  - id: F1
+    class: surface coverage (undeclared blast radius) — plan validation standard 14
+    ground: >
+      The branch diff 2ac8441cb..496a696b4 modifies skills/behavioral-testing/SKILL.md
+      and tests-v2/poll-run.sh across five commits (eb045464b, dcd8eeafc,
+      1596766c7, 09a69da93, 7577c54cb — poll-report delivery, the per-poll
+      standalone-turn rule, the 60-second poll cadence anchoring, and the
+      next-cycle banner). Neither file is in the spec's declared blast radius
+      (spec.md Impact: "floor.md; the work, plan, implement, skill-creator,
+      verify, git-workflow-pr, git-workflow-branch, and git-workflow-cleanup
+      cards; tests-v2/behaviors/") and the spec's Dependency states the change
+      "reaches no harness file"; the plan's surfaces-touched table and its
+      "No harness file is in this change" paragraph contradict the diff. The
+      changes carry developer-directive attribution in their commit messages
+      and respond to harness-record defects logged in evidence.md, but they are
+      recorded in no spec amendment and no plan mid-cycle revision entry — the
+      record that conformance duty (implement card's mid-cycle revision duty;
+      plan.md's own opening) requires. The skill-creator sourcing clause
+      (496a696b4) and the implement card's mid-cycle-spec/plan-revision-duty
+      clause (28ea8e2d3) are likewise deck changes on surfaces whose plan items
+      (item 4, item 5) enumerate exact clause sets and no plan record admits the
+      additions.
+    outcome: remediation required — amend plan.md's surfaces-touched table and a
+      mid-cycle revision entry (and, where the spec's blast-radius/Dependency
+      statements are read strictly, the spec's Impact/Dependency wording) to
+      account for the poll-run.sh, behavioral-testing-card, sourcing-clause, and
+      mid-cycle-duty additions; or re-home the harness-record fixes in a record
+      the spec accounts for.
+  - id: F2
+    class: internal inconsistency (stale plan statement) — plan validation standard 5
+    ground: >
+      plan.md's Rollback section states "this change is one commit on top of the
+      harness branch" (plus eleven new test files and one deletion). The branch's
+      diff is twelve commits (faa527ee3 … 496a696b4), the fixtures now total six
+      including the later 2584-sc4 fixture re-scope and the mid-cycle commits, and
+      the plan's own mid-cycle revision list records cycles that produced those
+      commits — the rollback sentence and the branch it describes tell different
+      stories. A factual defect in the plan's rollback procedure (the stated
+      reset target no longer describes the branch shape it rolls back).
+    outcome: remediation required — conform the Rollback section to the branch's
+      actual commit set (or scope the sentence to the base commit faa527ee3 and
+      name the mid-cycle commits the reset-to-base would discard).
+
+notes:
+  - The 2026-10-30 evidence rows cite wiped directories and are labeled as wiped by
+    the 2026-10-31 regeneration section; that labeling is the record and carries no
+    finding.
+  - The SC-9/SC-12 mid-cycle deck hardenings (criterion-assessment binding;
+    instruction-stated-detail sourcing) are present in the deck and consistent with
+    the plan's revision-4 record for the former; the latter lacks a plan record
+    entry — captured under F1.
