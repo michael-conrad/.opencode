@@ -42,7 +42,7 @@ The prohibition is nowhere written — triage re-verified every surface 2026-11-
 | `skills/gradle/SKILL.md` §Wrapper discipline | "Invoke builds through the wrapper (`./gradlew`) when the repository ships one — the wrapper pins the distribution version the project was built to work with; a bare `gradle` uses whatever the machine has." Second bullet: no-wrapper repos source the canonical command from the declared build manifest, "ask when the manifest does not declare it; never guess." | A routing preference. It licenses nothing about toolchain substitution, and it also does not prohibit one: nothing in the card, its Wrapper discipline, or §Canonical-command sourcing names alternative distributions, sibling wrappers, or ad-hoc binary gradle invocations as prohibited, or states the disposition when the wrapper's build fails |
 | `skills/implement` (its loaded reference `references/implementation-workflow.md`) §Submodule execution boundary | "In a parent repo with submodules, build, test, and verification runs through the parent repo's own build framework. The agent does not execute a submodule's own build tooling … directly" — the #2318/#2313 submodule-vs-parent boundary | Addresses only running *a submodule's* tooling in isolation; silent on substituting a foreign toolchain for the parent framework when the parent framework itself fails, in any repo shape |
 | Escalation path (nearest) | `implementation-workflow.md` post-implementation escalation: "any step that cannot complete honestly stops the cycle — report the state, the blocker, and what is needed; never fabricate a pass" | Names honesty, not toolchain substitution: the prohibited workaround class is unwired. No "verified failure of the sanctioned workflow" route exists anywhere in the deck (grep, 2026-11-01: no framework-failure disposition text in any loaded card or the floor) |
-| The vendored-tooling precedent | Sanctioned vendored non-build tooling exists: `.tools/z3` (formal-tooling card: "vendored at runtime, not committed"; the `tools/formal` adapter runs it) and `.opencode/.node/` (ensure-node; playwright-cli's browser toolchain) | Nothing locates that precedent relative to *build* tooling — an agent can misread the sanctioned-vendoring precedent as licensing vendored *build* tooling too |
+| The vendored-tooling precedent | Sanctioned vendored non-build tooling: `.tools/z3` (formal-tooling card: "vendored at runtime, not committed"; the `tools/formal` adapter runs it) and `<project-root>/.tools/node/` (playwright-cli's vendored browser toolchain: official Node tarball unpacked per project, `@playwright/cli` installed into it, PATH-prefixed — `skills/playwright-cli/references/install.md`); a third vendored surface, ensure-node's deck-local `.opencode/.node/` Node/tsc toolchain, is referenced by no live card | Nothing locates that precedent relative to *build* tooling — an agent can misread the sanctioned-vendoring precedent as licensing vendored *build* tooling too; and the closest-in-shape sanctioned surface (a downloaded official *distribution* unpacked into a scratch path — `.tools/node/` itself) makes the unbounded precedent the incident's plausible misread shape |
 
 The incident's exact loophole: nothing in the deck marks "the sanctioned build
 workflow failed" as a case the framework-exclusivity rule survives. The nearest
@@ -60,8 +60,11 @@ sanctioned shape for downloading a binary into a scratch directory.
   routing and a submodule-vs-parent boundary, but never assert framework
   exclusivity and never state the failure disposition.
 - **RC-3** — the sanctioned vendored-tooling precedent (`.tools/z3`,
-  `.opencode/.node/`) covers analysis/browser/CLI tools; no deck text bounds
-  that precedent away from build tooling, leaving the misread vector open.
+  `.tools/node/`) covers analysis/browser/CLI tools; no deck text bounds
+  that precedent away from build tooling, leaving the misread vector open —
+  and the playwright-cli surface (a downloaded official distribution
+  unpacked into a per-project scratch path) is the sanctioned surface
+  closest in shape to the incident's substitution.
 - **RC-4** — the deck's failure-path language (the escalation row's
   "never fabricate a pass", the floor's halt vocabulary) names honesty and
   reporting but never names toolchain substitution as a prohibited workaround
@@ -98,9 +101,10 @@ Out of scope:
   to build", but the filed R-2 requires restatements only in the `gradle` and
   `implement` cards; the floor rule (R-1) is what binds every other card,
   including `work`. Deliberate exclusion, not an oversight.
-- The vendored-tooling surfaces themselves (`.tools/z3`, `.opencode/.node/`,
-  `tools/formal`, ensure-node) — unchanged in behavior and sanction; only the
-  deck text that locates them relative to build tooling is added.
+- The vendored-tooling surfaces themselves (`.tools/z3`, the per-project
+  `.tools/node/` the playwright-cli card vendors, `tools/formal`,
+  ensure-node) — unchanged in behavior and sanction; only the deck text that
+  locates them relative to build tooling is added.
 - Harness machinery under `tests-v2/` (poll-run, isolation, docker, formal
   directories) — the scenario rides the existing harness unchanged.
 
@@ -142,9 +146,10 @@ Developer-stated requirements, carried verbatim from the filing (2026-10-22):
   framework is not prohibited by the rule's wording).
 - **SC-2 (structural) (→ R-1, RC-3).** The rule or the card restatements
   resolve the vendored-tooling misread vector: the deck text states that the
-  sanctioned vendored-tooling precedent (`.tools/z3` for formal tooling,
-  `.opencode/.node/` for playwright-cli's browser toolchain) covers
-  analysis/browser/CLI tooling classes and does not extend to build tooling.
+  sanctioned vendored-tooling precedent (`.tools/z3` for formal tooling, the
+  per-project `.tools/node/` the playwright-cli card vendors for its browser
+  toolchain) covers analysis/browser/CLI tooling classes and does not extend
+  to build tooling.
   *Instrument:* read-back of the surface(s) carrying the boundary statement;
   assert the statement exists and binds the named vendored surfaces to
   non-build tooling only.
@@ -230,9 +235,10 @@ criteria.
    > work; no utterance authorizes them. A verified failure of the sanctioned
    > workflow is handled by report-with-evidence-and-halt (cannot-continue
    > state) or routing to the owning ticket — never by invoking a different
-   > build toolchain. Vendored non-build tooling (`.tools/z3`,
-   > `.opencode/.node/`) is the sanctioned analysis/browser/CLI class and is
-   > not a build framework; its precedent does not license vendored build
+   > build toolchain. Vendored non-build tooling (`.tools/z3` for formal
+   > tooling, the per-project `.tools/node/` the playwright-cli card
+   > vendors) is the sanctioned analysis/browser/CLI class and is not a
+   > build framework; its precedent does not license vendored build
    > tooling.
 
    A wrapper-failing invocation is the rule's live trigger, not its exception
@@ -258,8 +264,11 @@ criteria.
    for the negative (no substitute toolchain: no distribution download/unpack,
    no wrapper-external build-tool invocation) and the positive (the
    disposition in exactly one sanctioned form). The scenario rides the
-   existing harness (remote-API provisioning per the harness spec's §12
-   contract); no harness changes.
+   existing harness's default local provisioning (local `git init` test
+   project per the harness spec §5) plus a per-scenario fixture setup script
+   creating the failing wrapper framework (harness spec §3 Step 0b); no
+   remote-API path is involved — no `BEHAVIOR_NEEDS_REMOTE` opt-in, no origin
+   required, no harness changes.
 
 ## Impact
 
@@ -297,7 +306,8 @@ criteria.
   framework* inside a temp checkout (release-promoter's clean-room gate) is
   compliant and unchanged — the rule constrains which toolchain binary is
   invoked, not the checkout location it is invoked within.
-- **Vendored non-build tooling.** `.tools/z3` and `.opencode/.node/` remain
+- **Vendored non-build tooling.** `.tools/z3` and the per-project
+  `.tools/node/` (playwright-cli's vendored browser toolchain) remain
   sanctioned for their classes; SC-2's boundary statement preserves them
   from being read as build-tooling sanction.
 - **The incident shape itself.** A distribution downloaded into a scratch
