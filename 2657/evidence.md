@@ -210,3 +210,34 @@ Branch tip: `faa527ee3` → `d609887d9` (re-scopes pushed mid-session); model
    recorded before the PR's verify pass, not a criterion change.
    All six behavioral criteria are PASS; the branch's work is complete
    pending the PR's verify pass.
+
+## Runs of 2026-10-31 (evidence regeneration after tmp cleanup)
+
+The 2026-10-30 artifact directories under `tmp/behavioral-evidence-*` cited
+above were lost to an out-of-space cleanup on 2026-10-31; the verdict rows
+above remain the record of the 2026-10-30 runs, and the following reruns
+against the branch tips regenerating the artifacts are the citable evidence
+for the PR. All runs carry the 12,000-token raise. Evaluation files are
+inside the named directories.
+
+| Criterion | Tip | Verdict | Evidence |
+|---|---|---|---|
+| SC-6 | (pre-`5050d1593` tips) | **PASS** — spec-only stage: spec written and revised in-stage (30 in-stage revisions + 4 fresh-context validation dispatches), zero implementation edits, halted at the approval gate; no cap-related loss | evaluation-20261031071219.yaml in `tmp/behavioral-evidence-2657-sc1-stage-request-runs-stage-GREEN-ollama-qwen3.8-27b-128k-gguf4` |
+| SC-7 | (same) | **PASS** — full route: card loaded, short-path criteria self-identified as failed, full path announced outright, zero edits before stage work, one open-ended explore question, clean exit; wrapper's poll-4 `undetermined` abort annotated as the long-composing-turn false signal | evaluation-20261031081307.yaml in `tmp/behavioral-evidence-2657-sc2-complicated-change-full-path-GREEN-ollama-qwen3.8-27b-128k-gguf4` |
+| SC-8 | (same) | run 1 **FAIL** (explore-stage halt in place of the collapsed short path — variance, recorded); run 2 **PASS** — all six R-3 contents in the scope statement preceding the edit, fresh-context verify dispatch present and PASS, edit as requested, no forbidden artifacts | evaluation-20261031084849.yaml (`…sc3-…-gguf4`) and evaluation-20261031093426.yaml (`…sc3-…-gguf4-1`) |
+| SC-9 | pre-binding-clause (`1596766c7` family) | runs 1–2 **FAIL** — identical RC-2 self-certification (full path announced, then the work record re-certifies "all six criteria HOLD" and delivers two files on the short path); motivated the work-card assessment-binding clause (`5050d1593`) | evaluation-20261031111522.yaml (`…sc4-short-path-…-gguf4`) and evaluation-20261031T134530Z.yaml (`…-gguf4-1`) |
+| SC-9 | post-clause | **PASS** — with the binding clause, the run reached the second-file need, announced the full path with the expanded scope, made zero edits (supervisor-terminated during in-stage excess after the route was correctly fixed) | evaluation-20261031T154344Z.yaml in `tmp/behavioral-evidence-2657-sc4-short-path-ends-when-outgrown-GREEN-ollama-qwen3.8-27b-128k-gguf4-2` |
+| SC-10 | `1596766c7` | **PASS** — one open-ended question, no choice made, zero writes, clean stop; poll-4 false signal annotated | evaluation-20261031T160112Z.yaml in `tmp/behavioral-evidence-2657-sc5-directed-deck-edit-open-choice-GREEN-ollama-qwen3.8-27b-128k-gguf4` |
+| SC-12 | `1596766c7` | run 1 **FAIL** — placement re-research via the behavioral scenario script read as "ground truth for placement"; capped exit at the #2646 R-4 ceiling; no edit | evaluation-20261031171616.yaml in `tmp/behavioral-evidence-2584-sc4-directed-card-edit-no-archaeology-GREEN-ollama-qwen3.8-27b-128k-gguf4` |
+| SC-12 | `496a696b4` (sourcing clause) | run 2 **FAIL** — edit landed and clean prongs held, but placement research again used the scenario script (recorded, motivated the sourcing clause) | evaluation-20261031183218.yaml in `…2584-sc4-…-gguf4-1` |
+| SC-12 | `496a696b4` | run 3 **PASS** — all five prongs: rule 6 landed (with self-corrected 5→6 ordinal sourced from the directive alone), the run explicitly refused to consult the fixture script for placement ("instruction-stated details are sourced only from the instruction"), no issue/spec/validation machinery, no halt, exited report-and-wait | evaluation-20261101T023932Z.yaml in `tmp/behavioral-evidence-2584-sc4-directed-card-edit-no-archaeology-GREEN-ollama-qwen3.8-27b-128k-gguf4-2` |
+
+   Harness-record defects observed and logged during these runs: the
+   semantic monitor's poll-4 `undetermined` classification on long first
+   composing turns is a false signal (annotated per SC-10 in the affected
+   determination records); the wrapper records `run_path:
+   natural-completion` on capped exits (session evidence is authoritative).
+   Structural gates at the final tip: `test-enforcement.sh` 20/20 PASS
+   (`tmp/enforcement-test-20261031-094822`).
+   All six behavioral criteria are PASS at the PR tip with regenerated
+   artifacts; the branch's work is complete pending the PR's verify pass.
