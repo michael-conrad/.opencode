@@ -1,1 +1,7 @@
-comments: []
+comments:
+- type: internal
+  body: 'authorization: approved for pr — developer directive, 2026-11-01 02:45 EST
+    session. Authorizes the full pipeline through the PR boundary (spec complete;
+    implementation, tests, verify, PR). Scope: this issue''s assigned scope only (git-workflow-pr
+    §2(d) disposition gate + two behavioral scenarios). Recorded by OpenCode (huggingface/zai-org/GLM-5.3-Flash).'
+  timestamp: '2026-11-01T07:45:44+00:00'
