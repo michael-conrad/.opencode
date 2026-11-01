@@ -1,0 +1,11 @@
+title: root-build-framework prohibition missing from floor and build cards — agent
+  ran an out-of-repo Gradle distribution during Butter triage (deck regression)
+status: open
+labels:
+- needs-approval
+- spec
+- regression
+- skills
+body: ''
+created_at: '2026-11-01T22:35:14+00:00'
+updated_at: '2026-11-01T22:35:14+00:00'
