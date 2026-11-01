@@ -40,7 +40,8 @@ The prohibition is nowhere written — triage re-verified every surface 2026-11-
 |---|---|---|
 | `floor.md` Environment | States per-root build/test commands arrive as session-init data and the glob traversal caveat — nothing else about build tooling | No framework-exclusivity prohibition, no failure-path rule |
 | `skills/gradle/SKILL.md` §Wrapper discipline | "Invoke builds through the wrapper (`./gradlew`) when the repository ships one — the wrapper pins the distribution version the project was built to work with; a bare `gradle` uses whatever the machine has." Second bullet: no-wrapper repos source the canonical command from the declared build manifest, "ask when the manifest does not declare it; never guess." | A routing preference. It licenses nothing about toolchain substitution, and it also does not prohibit one: nothing in the card, its Wrapper discipline, or §Canonical-command sourcing names alternative distributions, sibling wrappers, or ad-hoc binary gradle invocations as prohibited, or states the disposition when the wrapper's build fails |
-| `skills/implement` (its loaded reference `references/implementation-workflow.md`) §Submodule execution boundary | "In a parent repo with submodules, build, test, and verification runs through the parent repo's own build framework. The agent does not execute a submodule's own build tooling … directly" — the #2318/#2313 submodule-vs-parent boundary | Addresses only running *a submodule's* tooling in isolation; silent on substituting a foreign toolchain for the parent framework when the parent framework itself fails, in any repo shape |
+| `skills/implement` (its loaded reference `references/implementation-workflow.md`) §Submodule execution boundary | "In a parent repo with submodules, build, test, and verification runs through the parent repo's own build framework. The agent does not execute a submodule's own build tooling … directly" — the root-repo-only-tooling boundary (#2318's subject, re-admitted
+into the live deck by #2563) | Addresses only running *a submodule's* tooling in isolation; silent on substituting a foreign toolchain for the parent framework when the parent framework itself fails, in any repo shape |
 | Escalation path (nearest) | `implementation-workflow.md` post-implementation escalation: "any step that cannot complete honestly stops the cycle — report the state, the blocker, and what is needed; never fabricate a pass" | Names honesty, not toolchain substitution: the prohibited workaround class is unwired. No "verified failure of the sanctioned workflow" route exists anywhere in the deck (grep, 2026-11-01: no framework-failure disposition text in any loaded card or the floor) |
 | The vendored-tooling precedent | Sanctioned vendored non-build tooling: `.tools/z3` (formal-tooling card: "vendored at runtime, not committed"; the `tools/formal` adapter runs it) and `<project-root>/.tools/node/` (playwright-cli's vendored browser toolchain: official Node tarball unpacked per project, `@playwright/cli` installed into it, PATH-prefixed — `skills/playwright-cli/references/install.md`); a third vendored surface, ensure-node's deck-local `.opencode/.node/` Node/tsc toolchain, is referenced by no live card | Nothing locates that precedent relative to *build* tooling — an agent can misread the sanctioned-vendoring precedent as licensing vendored *build* tooling too; and the closest-in-shape sanctioned surface (a downloaded official *distribution* unpacked into a scratch path — `.tools/node/` itself) makes the unbounded precedent the incident's plausible misread shape |
 
@@ -248,9 +249,10 @@ criteria.
    restatement (through-the-wrapper/declared-framework only; the named
    substitution classes prohibited, the failed-invocation case included) and
    the failure disposition (report-with-evidence-and-halt or route to the
-   owning ticket; never a different toolchain). §Canonical-command sourcing
-   already carries the no-manifest routing ("ask … never guess") and composes
-   unchanged.
+   owning ticket; never a different toolchain). §Wrapper discipline's second
+   bullet already carries the no-manifest routing ("ask … never guess"), and
+   the new bullets resolve beside it; §Canonical-command sourcing composes
+   unchanged, with the new bullets consistent with both.
 3. **Implement card.** `implementation-workflow.md`'s §Submodule execution
    boundary gains the restatement sentences scoped to the general work cycle:
    the parent repo's framework is the exclusive toolchain also when it

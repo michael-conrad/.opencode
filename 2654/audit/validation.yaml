@@ -1,0 +1,57 @@
+# Validation record — .opencode#2654
+
+spec:
+  artifact: spec.md
+  criteria_source: .opencode/skills/spec/references/validation-standards.md
+  rounds:
+    - round: 1
+      date: '2026-11-01'
+      reviewer_context: fresh
+      verdict: FAIL
+      findings:
+        - class: fabricated-claims (analysis family)
+          location: >
+            Problem table row 5 (vendored-tooling precedent row); RC-3; scope
+            out-of-scope list; SC-2; Approach step 1 (proposed floor rule
+            text); Edge cases
+          ground: >
+            Spec attributed `.opencode/.node/` to "ensure-node; playwright-cli's
+            browser toolchain". Misstates fact: playwright-cli vendors its CLI
+            per-project at `<project-root>/.tools/node/` (official Node tarball
+            unpacked there, `@playwright/cli` installed into it —
+            skills/playwright-cli/references/install.md lines 7, 23–40;
+            `<root>/.tools/node/bin/playwright-cli` present in the checkout).
+            `.opencode/.node/` is instead ensure-node's deck-local Node/tsc
+            toolchain (bin: corepack, node, npm, npx, tsc, tsserver),
+            referenced by no live card. Effect: SC-2's instrument would have
+            written a false attribution into the always-injected floor text and
+            omitted the actual playwright surface — which, being a downloaded
+            official distribution unpacked into a scratch path, is the
+            closest-in-shape sanctioned surface to the incident's substitution.
+          remediation: >
+            All six surfaces corrected in place: the precedent named as
+            `.tools/z3` + `<project-root>/.tools/node/`
+            (`skills/playwright-cli/references/install.md` cited), RC-3
+            extended with the closest-in-shape observation, SC-2 and the
+            proposed floor rule reworded to the correct surfaces, edge case
+            corrected. `.opencode/.node/` retained only in the Problem table's
+            factual row with its true character (ensure-node's deck-local
+            Node/tsc toolchain, referenced by no live card).
+          classification: finding
+        - class: cross-reference sufficiency (analysis family)
+          location: Approach step 4 (behavioral scenario, harness contract)
+          ground: >
+            Spec cited "remote-API provisioning per the harness spec's §12
+            contract". §12 of tests-v2/AGENTS.md is the opt-in
+            BEHAVIOR_NEEDS_REMOTE=1 self-contained GitBucket container for
+            tests that need remote-API behavior; SC-6's scenario requires no
+            remote API — harness default provisioning is a local `git init`
+            test project (§5) plus the per-scenario fixture setup script
+            (§3 Step 0b); nothing in SC-6 needs an origin.
+          remediation: >
+            Approach step 4 reworded in place: harness default local
+            provisioning (§5 local `git init` test project + §3 Step 0b
+            fixture setup), explicit no-BEHAVIOR_NEEDS_REMOTE/no-origin
+            statement; the §12 citation removed. Mirrored in the remote body.
+          classification: finding
+      outcome: remediated — re-validation dispatched (round 2)
