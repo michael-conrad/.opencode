@@ -1,1 +1,9 @@
-comments: []
+comments:
+- type: stakeholder
+  body: 'verified-resolved triage verdict (2026-11-02): deliverable already on trunk
+    — R-1 recovery-default present at tests-v2/behaviors/2639-sc8-second-directive-rides-open-pr.sh:56
+    (delivered b71a8c1c4, authored e85ca39bd906); spec round-3 validation PASS recorded
+    in audit/validation.yaml; executed evidence: #2639 SC-8 pass-9 recovery run succeeded
+    with fix in force (gb pr create -> root/test-repo#1, clean-room PASS, live container
+    state verified). Closing completed; remote tracker reconciled same workflow.'
+  timestamp: '2026-11-02T15:11:59+00:00'
