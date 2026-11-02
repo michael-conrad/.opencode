@@ -100,3 +100,359 @@ rounds:
       remediation is the spec-creation stage, which is outside an audit
       dispatch's scope. Post-cycle ticket state: open, intake-mirrored,
       spec stage pending developer authorization.
+  - round: 2
+    date: "2026-11-02"
+    artifact_state: >-
+      revised spec — the developer's "revise to become spec" directive
+      ran the spec stage; the intake mirror was revised in place (superseded
+      intake prose deleted same action) into a full spec: Problem/root causes,
+      Scope, R-1..R-6, Impact, SC-1..SC-5 with instruments, SC table, Out of
+      scope, Approach, Traceability; duty-of-care pass applied before dispatch
+    verdict: FAIL
+    findings:
+      - class: fabricated claims
+        classification: finding
+        defect: >-
+          Out-of-scope's doctor/validate-yaml decline stated "both commands
+          carry no flags and mutate nothing by design" — factual misstatement:
+          validate-yaml carries --number (parser 2509-2514); only doctor is
+          flagless (2497-2501). The read-only half holds for both.
+        remediation: >-
+          rephrased in place to "both commands mutate nothing by
+          design; doctor additionally takes no flags".
+      - class: incapable instrument
+        classification: finding
+        defect: >-
+          SC-3's instrument (before/after store-tree manifest) cannot detect
+          the criterion's "no new commit" clause — an empty commit leaves the
+          tree unchanged, so the named check passes on a violating deliverable.
+        remediation: >-
+          the issues-data log check added for the commit clause (the
+          instrument SC-1 uses for the same question).
+      - class: incapable instrument
+        classification: finding
+        defect: >-
+          SC-5's instrument (fixture run + exit status) contained no instrument
+          for the criterion's "no store mutation" clause — exit status observes
+          no store state.
+        remediation: >-
+          a before/after store-tree manifest added to SC-5's instrument (also
+          reflected in the SC table).
+    adjudicated_preferences:
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          the Problem's opening sentence still omits the --description
+          short-circuit from "every invocation except doctor/validate-yaml"
+          (the code's pre-parse return, 2659-2661) — same defect, same class
+          as round 1's identical adjudication; nothing requirement-bearing
+          hinges on it.
+    re-evaluation: none
+    loop_state: >-
+      Two cycles, three findings, all remediated. No spin (findings materially
+      new and mechanically resolvable), no non-convergence, no count trigger.
+  - round: 3
+    date: "2026-11-02"
+    artifact_state: post-round-2-remediation
+    verdict: FAIL
+    findings:
+      - class: gap analysis
+        classification: finding
+        defect: >-
+          The {N}-slug residue shape is exercised by no success criterion —
+          R-1/R-2 enumerate top-level {N}-slug directories as
+          removal/preservation objects and the Approach names the
+          collision-twin edge as covered, but SC-1's fixture is open/+closed/
+          only, SC-2's fixture pins no shape, SC-3/SC-4 do not reach
+          remediation handling — an implementation mishandling or crashing on
+          a top-level {N}-slug item passes every SC.
+        remediation: >-
+          SC-1's fixture extended with a top-level contentless {N}-slug
+          residue record and a contentless collision twin beside an existing
+          current-format record.
+      - class: fabricated claims
+        classification: finding
+        defect: >-
+          The Approach's coverage attribution "(SC-1/SC-2 instruments each
+          combine shapes)" asserts shape coverage no fixture description
+          established — no fixture carried a {N}-slug item at all.
+        remediation: >-
+          SC-2's fixture extended to carry records failing removability in
+          each shape (content-bearing under open/ and a top-level
+          content-bearing {N}-slug record), so the attribution holds as
+          written.
+    adjudicated_preferences:
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          R-1's removability gloss "(empty spec/body content)" could be misread
+          as an exhaustive redefinition of "no content beyond its YAML metadata
+          block"; the primary clause plus the criterion's own justification
+          resolve the reading — readers converge on one action set.
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          the --description short-circuit omission carries forward — same
+          defect, same class per class invariance; nothing hinges.
+      - class: design completeness
+        classification: preference
+        ground: >-
+          R-2 does not state archive-target name-collision handling; under
+          ordinary move semantics plausible implementations preserve content
+          byte-identical, R-2's clause and the recorded-commit rollback bound
+          the outcome, and no stated requirement fails — hypothetical
+          improvement, not a correctness gap.
+    re-evaluation: none
+    loop_state: >-
+      Three cycles. Rounds 1-2 findings remediated and verified resolved;
+      round 3's two findings share one root (the {N}-slug fixture gap) and
+      were remediated in place this session; round 4 re-review queued. No
+      spin (each round's findings mechanically distinct and resolvable), no
+      non-convergence judgment, count trigger unfired (3 < 4).
+  - round: 4
+    date: "2026-11-02"
+    artifact_state: post-round-3-remediation
+    verdict: FAIL
+    findings:
+      - class: fabricated claims
+        classification: finding
+        defect: >-
+          SC-1's collision-twin parenthetical misstates the _parse_number
+          semantics it cites: the twin fixture name 007-stub-of-3 parses to 7
+          (int("007"), local-issues:1690-1698), not 3 — "its parsed number
+          colliding with an existing current-format 3/ record" is false, the
+          fixture carries no 7/, so the twin collides with nothing.
+        remediation: twin renamed in place to 003-stub-of-3/ (head digits
+          parse to 3, beside existing current-format 3/) — the Approach's own
+          example shape.
+      - class: gap analysis
+        classification: finding
+        defect: >-
+          Same root, round-3 finding recurring reshaped: with no true
+          collision in the fixture, SC-1 never exercises the collision-twin
+          edge the Approach lists as covered — an implementation routing
+          removal by parsed number or mishandling twin containment passes
+          every SC.
+        remediation: covered by the same rename — the twin now genuinely
+          parses to the partner record's number.
+    adjudicated_preferences:
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          the --description short-circuit omission carries forward — same
+          defect, same class; nothing hinges.
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          R-1's removability gloss carries forward — unchanged reading
+          resolution.
+      - class: design completeness
+        classification: preference
+        ground: >-
+          SC-2's "in each shape" omits a closed/-resident failing record —
+          open/ and closed/ are one loop in the predicate source, the
+          per-item preserve operation has no residency-specific behavior, and
+          no stated requirement fails.
+      - class: design completeness
+        classification: preference
+        ground: >-
+          R-1 keys the remote-reference half to github_issue without naming
+          github_url — verified era-consistent for the residue space (the
+          filing's records carry exactly that field); a github_url-aware
+          predicate is a hypothetical improvement.
+    re-evaluation: none
+    loop_state: >-
+      Four cycles. Reviewer flagged the round-3 class recurring reshaped as
+      spin-relevant; the running agent's spin judgment: not spinning — each
+      round's coverage genuinely grew (no slug shapes → slug shapes carried
+      → collision twin carried but mis-named) and this round's findings share
+      one mechanical root fixed by one name. Findings-addressing revisions
+      to date: 3 (count trigger is >4; unfired). Round 5 re-review queued;
+      a FAIL there satisfies the count trigger and mandates the structural
+      re-evaluation.
+  - round: 5
+    date: "2026-11-02"
+    artifact_state: post-round-4-remediation
+    verdict: FAIL
+    findings:
+      - class: gap analysis
+        classification: finding
+        defect: >-
+          SC-1's and SC-2's fixtures are homogeneous in removability outcome —
+          no criterion exercises one run making different routing decisions
+          for different items, which R-1, the Approach's per-item routing, and
+          R-4's "(removals and/or archive-moves recorded)" state; an
+          implementation routing by store-level outcome (blanket-preserve
+          everything to _legacy/ whenever any item fails verification)
+          violates R-1/R-2 on a mixed store and passes every SC.
+        remediation: >-
+          SC-1's fixture extended to a mixed-outcome set: a contentless but
+          remote-referencing record (008-open-tickets/ — empty body,
+          github_issue set, removability failing on the reference conjunct)
+          rides alongside the removable items; the run's different routing
+          decisions for different items in one invocation are asserted per
+          item.
+      - class: gap analysis
+        classification: finding
+        defect: >-
+          The github_issue conjunct's protective direction has no coverage:
+          no fixture anywhere carries a contentless residue record with
+          github_issue set (SC-1's items are all github_issue: null; SC-2's
+          pins content-bearing records) — a verification checking only
+          content, removing remote-referencing contentless residue, violates
+          R-1/R-2 and passes every SC.
+        remediation: same extension (the 008-open-tickets/ instance covers
+          both findings' root — one fixture, one fix).
+    adjudicated_preferences:
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          the --description short-circuit omission carries forward (same
+          defect, same class, rounds 1-4); nothing hinges.
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          R-1's removability gloss carries forward (round-3 adjudication,
+          unchanged reading resolution).
+      - class: design completeness
+        classification: preference
+        ground: >-
+          Approach's "--dry-run against a residue-free store" edge named as
+          covered with no instrument — R-5 vacuously satisfied on that input,
+          no stated requirement fails (degenerate input).
+      - class: design completeness
+        classification: preference
+        ground: >-
+          R-1's store-resolution gloss compresses the composite qualified-ref
+          semantics; for the store-level command target the gloss matches the
+          operative path; no requirement fails.
+    re-evaluation: none
+    loop_state: >-
+      Five cycles. The reviewer's fresh spin judgment: converging, not
+      spinning — coverage grew monotonically each round and this round's
+      findings are a genuinely new layer (run-composition and the
+      verification-conjunct, not record-shape). Remediation: one fixture
+      extension covering both findings' shared root; re-review queued as
+      round 6.       Findings-addressing revisions to date: 4 (round-2, -3, -4,
+      -5 remediations); a round-6 FAIL would be the 5th, satisfying the
+      count trigger and mandating the structural re-evaluation.
+  - round: 6
+    date: "2026-11-02"
+    artifact_state: post-round-5-remediation
+    verdict: FAIL
+    findings:
+      - class: cross-reference sufficiency
+        classification: finding
+        defect: >-
+          the traceability table's R-4 row cites "SC-1(c), SC-2(c)" as the
+          fallback floor's coverage anchor, and both citations fail against
+          the artifact's own text: SC-1's post-run-silence assertion is
+          clause (d) (its (c) is the commit-log clause, a different
+          assertion), and SC-2 contains no lettered clauses — its silence
+          assert is unlettered closing prose. The coverage substantively
+          exists (SC-1(d) and SC-2's closing clause), but the row's pointers
+          misstate the coverage map — a stale residue of the round-5
+          remediation's restructure of SC-1 into (a)-(d).
+        remediation: >-
+          pending this cycle's revision step — the row's pointers corrected
+          to SC-1(d) and SC-2's closing silence assert, after the
+          count-trigger-mandated structural re-evaluation ran first.
+    adjudicated_preferences:
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          the --description short-circuit omission carries forward (same
+          defect, same class, rounds 1-5); nothing hinges — SC-4's instrument
+          keys to the gate, not the exemption list.
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          R-1's removability gloss carries forward (rounds 3-5).
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          new: SC-1's gloss "the preserve-guard's behavioral half" on the
+          pre-remediation warning assertion — the assert itself is
+          unambiguous and its coherent anchors all hold.
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          new: the "store-tree manifest, byte-identical" shorthand — the SC
+          table's "path/content comparison" wording resolves the only capable
+          reading.
+      - class: design completeness
+        classification: preference
+        ground: >-
+          SC-2's "in each shape" omits a closed/-resident failing record
+          (carried, round 4).
+      - class: design completeness
+        classification: preference
+        ground: >-
+          R-1 keys the reference conjunct to github_issue without naming
+          github_url — era-consistent (carried, round 4).
+      - class: design completeness
+        classification: preference
+        ground: >-
+          R-2 states no archive-target name-collision handling (carried,
+          round 3).
+      - class: design completeness
+        classification: preference
+        ground: >-
+          the Approach's "dry-run against a residue-free store" edge named
+          without an instrument — degenerate input (carried, round 5).
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          R-1's store-resolution gloss compresses the qualified-ref
+          semantics — matches the operative path (carried, round 5).
+    re-evaluation:
+      outcome: Sound
+      ground: >-
+        count trigger satisfied by this cycle's required revision (the fifth
+        finding-addressing revision) — the mandated structural re-evaluation
+        ran before further in-place revision. Factors examined: repo boundaries
+        (change confined to the .opencode tool); separation of concerns
+        (remediation as its own mutation command; no cross-command coupling);
+        atomic work-unit decomposition (six single-outcome requirements, five
+        one-scenario criteria; SC-1's composite carries ANDed per-item
+        asserts — binary outcome, judged acceptable round 6); fatness (one
+        command's spec, ~76 lines — not over-fat); intent wording/reachability
+        (the intent — actionable warning, repetition ending by removal — is
+        reachable by the stated design; the defect is a stale coverage
+        pointer, not an intent or structure defect). The artifact's structure
+        stands; the loop resumes on the unchanged artifact with the
+        in-place pointer fix.
+    loop_state: >-
+      Six cycles. Converging, not spinning (two consecutive fresh reviewers'
+      judgment; coverage grew monotonically; each round's finding fixed its
+      own root; the single round-6 defect is a revision-restructure residue,
+      not a recurring or reshaped prior finding). Count trigger satisfied;
+      structural re-evaluation ran this cycle — outcome Sound. The pointer
+      fix applied; round-7 re-review queued.
+  - round: 7
+    date: "2026-11-02"
+    artifact_state: >-
+      post-round-6-remediation — the traceability table's R-4 row pointers
+      corrected to SC-1(d) and SC-2's closing silence assert
+    verdict: PASS
+    zero_finding: true
+    adjudicated_classes:
+      - class: cross-reference sufficiency
+        classification: finding
+        outcome: >-
+          resolved (terminal cycle) — every traceability-table row's pointers
+          re-verified exact against the artifact's own text, including all six
+          R rows and the root-causes row; all source-line pointers, quotes,
+          lettering, and fixture parses re-verified against the tool source
+          and the live citations (#1309/#2548/#2627/filing). All eight defect
+          classes and fourteen analysis families ruled out with one-line
+          grounds; safety's five-deep safeguard set verified; convergence
+          judged real (coverage grew monotonically; no recurrence of any
+          prior ground).
+    re-evaluation: none
+    loop_state: >-
+      Zero-finding verdict at round 7 — the validation loop's exit. The
+      completed spec awaits the developer's approval gate before plan (spec
+      card rule 7). Loop history: seven fresh-context reviews, five
+      finding-addressing revisions, one count-triggered structural
+      re-evaluation (round 6, outcome Sound), zero findings standing.
