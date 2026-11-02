@@ -4,6 +4,110 @@ status: open
 labels:
 - needs-approval
 - enhancement
-body: ''
+body: '## Problem
+
+
+  When a triaged bug report proceeds to work, the governing spec gets filed as a separate
+  issue while the original bug report stays open as a detached ticket. Two tickets
+  then describe one body of work with no record of which governs: the detached ticket
+  keeps getting re-triaged or requested to be worked on, effort is duplicated across
+  both records, and the divergence between them produces confusion and defects.
+
+
+  ## Requested policy
+
+
+  Triaged bug reports are always updated to become proper specs:
+
+
+  1. **In-place conversion.** The triaged bug report itself is updated to become a
+  proper spec — the original report is always converted into the first spec or the
+  only spec, as appropriate. The ticket''s identity (number, thread, record) carries
+  into the spec; no separate spec issue is filed alongside it.
+
+  2. **New issues only for multi-spec warrants.** New issues are filed only when the
+  triaged bug report warrants multiple specs. In that case the original bug report
+  converts into the first spec and the further specs are filed as new issues linked
+  to it.
+
+  3. **No detached tickets.** The workflow never leaves a bug report detached from
+  the spec that governs its work — after conversion, the record reads as the spec
+  on both surfaces (local store and remote tracker), so re-triage and work requests
+  land on the spec record, not on a stale pre-spec ticket.
+
+
+  ## Scope
+
+
+  The deck rule text that governs triage outcomes and the entry into spec creation:
+
+
+  - `skills/issues/SKILL.md` — triage semantics (the closure-verdict-only path today).
+
+  - `floor.md` — the scope/stage doctrine the triage path runs under.
+
+  - The spec/work cards — the spec-creation entry point a triaged report follows.
+
+  - `tests-v2/` — behavioral coverage for the conversion path.
+
+
+  The change is deck rule text and harness coverage — no tools, hooks, or scripts.
+
+
+  ## Requirements
+
+
+  - **R-1 — In-place conversion mandate.** The deck''s triage discipline SHALL mandate
+  that a triaged bug report is updated in place to become a proper spec: the original
+  bug report is always converted into the first spec or the only spec, as appropriate,
+  and no separate spec issue is filed alongside it.
+
+  - **R-2 — Multi-spec carve-out.** New issues SHALL be filed only when the triaged
+  bug report warrants multiple specs; in that case the original bug report converts
+  into the first spec and the further specs are filed as new issues linked to it.
+
+  - **R-3 — No detached bug reports.** The workflow SHALL leave no bug report detached
+  from the spec governing its work: after conversion the record reads as the spec
+  on both surfaces, so re-triage and work requests land on the spec record.
+
+
+  ## Impact
+
+
+  - **Consumers:** every agent session the deck serves — any session that triages
+  a bug report or files a spec for one.
+
+  - **Benefit:** removes the detached-ticket defect class — re-triage loops, duplicated
+  specs, confusion about the governing record, and defects from work proceeding against
+  a stale ticket.
+
+  - **Risk:** the conversion mandate over-applied to reports that warrant multiple
+  specs — bounded by R-2''s carve-out; and conversion performed as a fresh filing
+  instead of an in-place update — bounded by R-1''s "no separate spec issue" clause.
+
+  - **Blast radius:** deck rule text and `tests-v2/` scenarios; no tool, hook, or
+  script changes.
+
+
+  ## Context
+
+
+  - **#2704** records the adjacent regression: the deck conversion retired the `analyze-and-spec`
+  triage→spec path with no successor. That retired path filed the fix spec as a **separate
+  sub-issue** — the pattern this request replaces with in-place conversion. Restoration
+  work under #2704 should follow this request''s mechanics.
+
+  - **#2681** is the worked precedent: a filed bug report revised in place into its
+  specification under the developer''s directive, with title/labels/body reconciled
+  across both surfaces.
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2707/
+
+
+  Artifacts for agents: `.opencode/.issues/2707/`.
+
+  '
 created_at: '2026-11-02T17:28:26+00:00'
-updated_at: '2026-11-02T17:28:26+00:00'
+updated_at: '2026-11-02T17:30:59+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2707
