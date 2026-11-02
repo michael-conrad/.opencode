@@ -1,0 +1,9 @@
+title: validation/audit sessions discovering deliverable-already-on-trunk leave the
+  ticket falsely open — no status-transition obligation
+status: open
+labels:
+- needs-approval
+- bug
+body: ''
+created_at: '2026-11-02T15:12:33+00:00'
+updated_at: '2026-11-02T15:12:33+00:00'
