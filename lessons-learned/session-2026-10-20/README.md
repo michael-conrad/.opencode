@@ -1,3 +1,10 @@
+---
+consumed:
+  LL-1: "2026-10-31 — conduct-only lesson; the §4 cycle already encodes the correct window; no deck defect to file"
+  LL-2: "2026-10-20 — fixed in commit e85ca39b on the #2639 branch"
+  LL-3: "2026-10-20 — fixed in commit 5d4a109d on the #2639 branch"
+---
+
 # Session 2026-10-20 (evening, EDT) — Correction Catalog
 
 Scope: the #2639 SC-8 recovery passes 7–9 and their harness fixes (commits `5d4a109d`, `e85ca39b` on `feature/2639-scope-boundary-stacked-pr`).

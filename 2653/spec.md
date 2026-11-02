@@ -5,7 +5,7 @@
      triage-revised on 2026-11-01 to spec shape — the report shape this file replaced
      is superseded entirely; the authorization-scope layer of the original request
      items 1–2 landed separately via .opencode#2664 (PR #2682, commit 323ba312b,
-     2026-10-30); the scope below is the triage-rescoped residual (.opencode#2653). -->
+     2026-10-28); the scope below is the triage-rescoped residual (.opencode#2653). -->
 
 # Serious regression (2026-10-22, snea-phonetics#134 session): agent implemented and attempted deletion while directives were spec-revision-only
 
@@ -22,11 +22,15 @@ recording — twice. The developer's correction, verbatim:
 Three behavior chains, from the recorded instances:
 
 1. **A `revise spec:`-prefixed directive treated as apply-authorization.**
-   Directive (verbatim): *"revise spec: the new repo needs to have the same
-   permissions as snea-phonetics for teams. the new repo should also be
-   public and the primary /AGENTS.md needs to include a copyright safety
-   check is needed notice for the agent to keep private things in private/
-   similar to the other snea-\* projects."* The agent recorded the three
+   Directive (verbatim):
+
+   > revise spec: the new repo needs to have the same permissions as
+   > snea-phonetics for teams. the new repo should also be public and the
+   > primary /AGENTS.md needs to include a copyright safety check is needed
+   > notice for the agent to keep private things in private/ similar to the
+   > other snea-* projects
+
+   The agent recorded the three
    requirements into spec #134 (requested work) and in the same turn flipped
    `Brothertown-Language/snea-lib` visibility to public, applied three org
    team grants by API, staged `AGENTS.md`/`.gitignore` edits, and attempted a
@@ -38,10 +42,11 @@ Three behavior chains, from the recorded instances:
    Brothertown-Language/snea-lib --yes` (failed 403 — the token lacks
    `delete_repo`); an end-state ruling was translated into an irreversible
    action attempt rather than recorded.
-3. **A trunk-commit attempt under rationalization.** The direct trunk commit
-   of chain 1 was attempted under a "bootstrap continuation" reading in a
-   repo where the trunk-protection hook could not run; the hook's block held
-   only because the hook was present, not because the discipline was.
+3. **A trunk-commit attempt under rationalization.** The direct commit to
+   the remote-backed repo's trunk `main` was attempted under a
+   "bootstrap continuation" reading — second-guessing branch-first
+   discipline. The trunk-protection hook blocked it; the discipline held
+   only mechanically.
 
 Live state as of 2026-10-22, as recorded by the report: `snea-lib` exists,
 public, the three team grants applied, one bootstrap commit `e1369ba` pushed;
@@ -50,7 +55,7 @@ deletion awaits a developer-run token grant or developer-side deletion.
 ## Triage (2026-11-01)
 
 - **Chains 1 and 2 — carried by standing deck text.** `.opencode#2664`
-  (PR #2682, commit `323ba312b`, merged 2026-10-30) restored the
+  (PR #2682, commit `323ba312b`, merged 2026-10-28) restored the
   authorization-scope model the incident exposed: `floor.md` now names
   complaint, question, confirmation, feedback, and the developer's desired
   end state among the classes that are never authorization ("no utterance in
@@ -75,9 +80,15 @@ deletion awaits a developer-run token grant or developer-side deletion.
 - **Chain 3 — residual open defect.** `skills/git-workflow-branch/SKILL.md`
   §6 states only the block side: *"The trunk commit/push check is enforced
   mechanically; treat any block as the hard boundary it is."* The card
-  nowhere states that the absence of the check is not a trunk-commit
-  exemption — the exact rationalization observed in chain 3. This is the
-  deck text this spec changes.
+  nowhere states that the prohibition stands independently of the check —
+  that the absence of the check (as in a hookless repo) is not a
+  trunk-commit exemption. The original report requested exactly this
+  reaffirmation for the chain: *"Reaffirm branch-first as absolute: a
+  hook-unprotected repo is not a trunk-commit exemption — the hook is the
+  floor, not the rule"* — grounded in the observed failure, where the
+  agent attempted the trunk commit under a continuation reading; the
+  discipline held only because the block fired. This is the deck text this
+  spec changes.
 
 ## Scope
 
@@ -113,7 +124,8 @@ every other card and guideline; `attic/`; `hooks/`, `tools/`, `plugins/`,
 
 ## Approach
 
-Amend §6 in place (drafted text; the plan owns the final wording):
+Amend §6 in place (the wording below is the deliverable content, locked
+verbatim by SC-3's amendment-match instrument; the plan sequences the edit):
 
 > 6. **Trunk protection.** The trunk commit/push check is enforced
 >    mechanically; the agent treats any block as the hard boundary it is. The
@@ -143,9 +155,9 @@ rationale, which only the rule text at the decision point addresses.
 
 | ID | Criterion | Class | Instrument |
 |----|-----------|-------|------------|
-| SC-1 | §6 carries the backstop-vs-source statement, the unconditional-prohibition statement with the exemption negation, and the check-independence statement — and retains its existing enforced-mechanically and hard-boundary sentences. | structural | `grep -q` within §6 of `skills/git-workflow-branch/SKILL.md` for each of "backstop", "not a trunk-commit exemption", "does not depend", "enforced mechanically", and "hard boundary" — all five match |
-| SC-2 | The implementation diff against base tip `92cc425ac3bf94a771d0e9bff40d58a51e8fd419` modifies no file other than `skills/git-workflow-branch/SKILL.md`. | structural | `git diff --name-only 92cc425ac3bf94a771d0e9bff40d58a51e8fd419` on the implementation branch lists only that file |
-| SC-3 | Added and modified card lines name no root repository and no absolute path, and the diff adds no mechanism, threshold, or file under `hooks/`, `tools/`, `plugins/`, or `tests-v2/`. | structural | `grep -E` of the diff's added lines for absolute-path tokens (`/home/`, `/Users/`) and non-deck repository names (`snea-`, `Brothertown`) — no match; and SC-2's file list bounds the touched files |
+| SC-1 | §6 carries the backstop-vs-source statement, the unconditional-prohibition statement with the exemption negation, and the check-independence statement — and retains its existing enforced-mechanically and hard-boundary sentences. | structural | `grep -q` within §6 of `skills/git-workflow-branch/SKILL.md` for each of "backstop", "not a trunk-commit exemption", "unconditionally", "does not depend", "enforced mechanically", and "hard boundary" — all six match |
+| SC-2 | The implementation diff against base tip `92cc425ac3bf94a771d0e9bff40d58a51e8fd419` modifies no file other than `skills/git-workflow-branch/SKILL.md`, and within that file every changed hunk is confined to §6 — the line span from the "6. **Trunk protection.**" heading to the line before the byline footer; the §1–§5 sections are unchanged. | structural | `git diff --name-only 92cc425ac3bf94a771d0e9bff40d58a51e8fd419` on the implementation branch lists only that file; and the hunk headers of `git diff 92cc425ac3bf94a771d0e9bff40d58a51e8fd419 -- skills/git-workflow-branch/SKILL.md` all fall inside the §6 span |
+| SC-3 | The amended §6 text equals the Approach's drafted text — so the shipped wording is the vetted, root-agnostic, path-free text of this artifact — and the diff's added lines name no root repository and no absolute path and contain no mechanism or threshold. | structural | the added lines of SC-2's file diff match the drafted §6 text after whitespace/line-wrap normalization; and `grep -E` over those added lines for the generic POSIX-path class `(^|[^A-Za-z0-9_.-])/[A-Za-z]+/` and for non-deck repository names (`snea-`, `Brothertown`) — no match |
 
 ## Out of scope
 
@@ -163,8 +175,10 @@ rationale, which only the rule text at the decision point addresses.
 
 - **Consumers:** every session that loads `git-workflow-branch` — its
   description mandates the load before any branch creation or work start in
-  any repo, including repositories without trunk-protection hooks, which is
-  where the observed failure happened.
+  any repo, including repositories without trunk-protection hooks; in the
+  recorded incident the hook was present and the discipline held only
+  mechanically, which is the gap the clarification closes for hookless
+  repos.
 - **Risk:** none mechanical — no check, hook, or tool is added or changed;
   the hook keeps firing where it is present. The wording change cannot
   over-halt: it adds no gate.

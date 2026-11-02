@@ -1,3 +1,8 @@
+---
+consumed:
+  LL-1: "2026-10-28 — remediation shipped in this session's own change (.opencode#2619); no new filing required"
+---
+
 # Session 2026-10-15 — Correction Catalog
 
 ## LL-1: Supervision poll discipline regression — interval drift + updates leaving chat

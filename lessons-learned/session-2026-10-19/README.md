@@ -1,3 +1,9 @@
+---
+consumed:
+  LL-1: "2026-10-31 — conduct-only lesson; filed as .opencode#2644 at occurrence time; no deck defect to file"
+  LL-2: "2026-10-20 — filed as .opencode#2647; fix shipped in commit 403f8d5a (inside #2646's scope)"
+---
+
 # Session 2026-10-19 — Correction Catalog
 
 ## LL-1: R-20 escape-hatch regression — model substitution proposed under an ambiguous developer message

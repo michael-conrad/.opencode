@@ -1,0 +1,73 @@
+validation-record:
+  spec:
+    artifact: spec.md
+    criteria-source: .opencode/skills/spec/references/validation-standards.md
+    rounds:
+      - round: 1
+        date: 2026-11-01
+        verdict: FAIL
+        findings:
+          - class: fabricated-claims
+            kind: stale-citation (current-state assertion never checked against the PR record)
+            detail: triage bullet and provenance stated .opencode#2664 (PR #2682, commit 323ba312b) "merged 2026-10-30"; the live PR record (gh pr view 2682 — mergedAt 2026-10-28T13:12:55Z, mergeCommit a9c65ec46) says 2026-10-28
+            remediation: both date instances corrected to 2026-10-28 in place; re-verified by grep
+        outcome: revise in place, re-validate (round 2 dispatched)
+      - round: 2
+        date: 2026-11-01
+        verdict: FAIL
+        findings:
+          - class: cross-reference sufficiency
+            kind: quoted-text fidelity (chained-quote deviation)
+            detail: chain-1 "Directive (verbatim)" quote carried a trailing closing period and an escaped-asterisk rendering absent from the filed record (.opencode#2653 remote body ends the directive without a period)
+            remediation: directive re-rendered as a blockquote mirroring the filed record character-for-character
+        outcome: revise in place, re-validate (round 3 dispatched)
+      - round: 3
+        date: 2026-11-01
+        verdict: FAIL
+        findings:
+          - class: internal contradiction
+            kind: untraceable addition on a load-bearing claim
+            detail: chain 3 said the trunk commit was attempted "in a repo where the trunk-protection hook could not run" — contradicting the filed record ("correctly BLOCKED by the trunk-protection hook"; "The trunk hook blocked it"); the residual-defect grounding depended on the contradictory clause
+            remediation: chain 3 rendered to the record's facts (hook ran and blocked; "the discipline held only mechanically"); the chain-3 triage bullet grounded on the report's requested reaffirmation (quoted from the filed record) instead of the inferred clause
+        outcome: revise in place, re-validate (round 4 dispatched)
+      - round: 4
+        date: 2026-11-01
+        verdict: FAIL
+        findings:
+          - class: internal contradiction
+            kind: section disagreement + factual error vs filed record (stale pre-remediation wording)
+            detail: Impact's Consumers bullet asserted the observed failure happened "in repositories without trunk-protection hooks", contradicting the record and the spec's own corrected chain 1/chain 3 (the incident repo had the hook and it fired); the bullet still carried the pre-round-3 hookless-locus framing
+            remediation: Consumers bullet re-grounded to the record's wording — the incident repo had the hook and "the discipline held only mechanically"; hookless repos are the forward-looking consumer class the clarification closes
+        outcome: revise in place, re-validate (round 5 dispatched)
+      - round: 5
+        date: 2026-11-01
+        verdict: FAIL
+        findings:
+          - class: incapable instrument
+            kind: weaker-question match set (SC-1)
+            detail: R-1's unconditional-prohibition requirement was carried by no grep token ("unconditionally" absent from SC-1's token list) — an amendment omitting the clause would pass all five greps
+            remediation: SC-1 token list extended with "unconditionally" (six tokens)
+          - class: incapable instrument
+            kind: member-enumeration instead of class test (SC-3)
+            detail: the root-agnostic criterion was verified by two path tokens and two repository names — violations via other members of each class passed the check
+            remediation: SC-3 re-cast — the added §6 lines must equal the Approach's drafted text (verbatim amendment lock, whitespace-normalized) plus a generic POSIX-path-class regex; the drafted text is vetted root-agnostic in the artifact itself, and the match carries the class check
+          - class: gap analysis
+            kind: unstated requirement slice without an instrument (R-2 within-file confinement)
+            detail: R-2 confined the change to §6 but SC-2 verified only the file bound — additional edits to other §-blocks of the card passed every SC
+            remediation: SC-2 extended to hunk-level confinement — every changed hunk header must fall inside the §6 span; §1–§5 unchanged
+        outcome: revise in place, re-validate (round 6 dispatched)
+        re-evaluation:
+          trigger: count trigger — five revision rounds (rounds 1–5) exceed the four-revision threshold; examination mandated before further in-place revision
+          examined:
+            repo boundaries: single repository (.opencode) and its own issue store; the artifact crosses none — sound
+            separation of concerns: one change (branch-card §6 clarification) with its constraints co-located; the triage section carries the supersession record in its owning section — sound
+            atomic work-unit decomposition: three requirements / three criteria / one file / one section — atomic and minimal — sound
+            fatness: lean; the problem and triage sections carry the observed-failure evidence with verbatim quotes the admission gate and this criteria source require — sound
+            intent wording/reachability: the residual intent is stated once, and the drafted text + instruments make it reachable — sound
+          outcome: Sound
+          grounds: all five rounds' findings were citation-fidelity and instrument-precision defects on stable content, not structural defects of the artifact; the loop resumes in-place revision on the unchanged-structure artifact
+      - round: 6
+        date: 2026-11-01
+        verdict: PASS
+        findings: []
+        outcome: terminal PASS — zero findings across the full criteria set (factual sweep, internal-consistency sweep, instrument-capability sweep, traceability sweep); the spec proceeds to the developer approval gate
