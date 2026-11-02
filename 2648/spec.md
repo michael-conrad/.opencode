@@ -27,19 +27,19 @@ remote-dependent scenario that omits `BEHAVIOR_NEEDS_REMOTE` therefore
 produces a test home where **both credential surfaces are empty**: every REST
 call 401s regardless of the launcher's `GB_TOKEN`.
 
-## Observed (2026-10-20, .opencode#2639 SC-8 recovery passes)
+## Observed (2026-10-20 – 10-21, .opencode#2639 SC-8 recovery passes)
 
-- Recovery pass 8: the run agent's recorded `gb pr create` failed 401 ("Bad
-  credentials") on both the create and a read-gate check, while the identical
-  token authenticated host-side. The run agent independently diagnosed the
-  mechanism: `config.toml` mtime = the resume boot time, token field empty.
-- The recurring "stored token emptying across container relaunches"
-  observations across earlier passes (agent halt records repeatedly verified
-  the token key empty on file read) were this defect misread as gb state
-  loss — the config was being rewritten at each boot, not emptied in place.
-- With `BEHAVIOR_NEEDS_REMOTE=1` present (pass 9), the boot wrote the token
-  into the profile and the recorded create succeeded on the first attempt
-  (PR root/test-repo#1 OPEN).
+- Recovery pass 8: the run agent's recorded `gb pr create` failed 401 on both
+  credential surfaces while the same token authenticated host-side (ground:
+  the authored fix's commit message `e85ca39bd906…`).
+- Across earlier passes, the recurring observations of the "stored token
+  emptying across container relaunches" were this defect misread as gb state
+  loss — the config was rewritten at each boot, not emptied in place (ground:
+  the authored fix's commit message; `.opencode/.issues/2639/comments.yaml`).
+- With the recovery fix in force (pass 9), the recorded `gb pr create`
+  succeeded after the earlier passes' 401s and produced PR root/test-repo#1
+  (OPEN) (ground: `.opencode/.issues/2639/comments.yaml`, dated
+  2026-10-21 — outcome record and final-create caveat).
 
 ## Scope
 
