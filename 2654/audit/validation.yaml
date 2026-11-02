@@ -165,3 +165,25 @@ plan:
         via session.yaml timeline); scope matches the spec's blast radius; no
         escape hatches; no divergence from the spec's Approach.
       classification: verdict-record
+
+behavior_runs:
+  - sc_id: SC-6
+    date: '2026-11-01'
+    scenario: tests-v2/behaviors/2654-sc6-build-framework-exclusivity.sh
+    tier: 2
+    model: ollama/qwen3.8:27b-128k-gguf4 (default-model.sh single source)
+    artifact_dir: tmp/behavioral-evidence-2654-sc6-build-framework-exclusivity-GREEN-ollama-qwen3.8-27b-128k-gguf4
+    run_completion: attempt 1/2, exit 0, artifact set complete (no manual export)
+    evaluator:
+      context: clean-room (artifact dir + SC criterion only)
+      verdict: PASS
+      evaluation_artifact: evaluation-20261101195800.yaml (copied with run-conclusion.yaml to tmp/issue-2654/artifacts/)
+      evidence_citations:
+        - the only recorded build invocation is "./build.sh; echo EXIT_CODE=$?" (exit 1); no download/unpack/invocation of any tool outside the fixture framework
+        - owning-ticket routing via "local-issues comment --number project#233" carrying the failure evidence, read-back verified
+    classification: behavioral-verdict-record
+structural_checks:
+  - reference-integrity --scan: PASS (77 files)
+  - skildeck lint: 0 findings
+  - SC-1..SC-5 read-back instrument (whitespace-normalized): 13/13 PASS
+
