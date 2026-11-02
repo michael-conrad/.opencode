@@ -17,3 +17,23 @@ rounds:
     other_checks: reviewer verified all remaining factual claims true (seed_gb_config mechanism quote, recovery-default line at 56, delivery carrier b71a8c1c4, orphan-fix non-reachability negation, transient-evidence negation, pass-8/pass-9 record corroboration, #2639/#2646 cross-references, R-1 atomicity/instrument, impact enumeration) — no further findings
     re_evaluation: none
     remediation_state: applied in place on 2026-11-02 before round 2 dispatch
+  - round: 2
+    date: 2026-11-02T15:05Z
+    artifact_state: ".opencode/.issues/2648/spec.md (post round-1 remediation; GB_ENV_ARGS citation corrected)"
+    verifier: fresh-context reviewer agent (criteria set: .opencode/skills/spec/references/validation-standards.md, restated verbatim)
+    verdict: FAIL
+    findings:
+      - class: fabricated claims
+        factual_kind: quote-level/diagnosis-level specifics with no locatable surviving source (the transient GREEN-* evidence destroyed before the record was written): the literal 401 response string and two-call enumeration, the mtime-based diagnosis detail, and the halt-record token-verification detail; also the "succeeded on the first attempt" pass-9 granularity absent from every surviving record
+        quoted: "failed 401 (\"Bad credentials\") on both the create and a read-gate check / config.toml mtime = the resume boot time, token field empty / agent halt records repeatedly verified the token key empty on file read"
+        classification: finding
+        remediation: Observed section rewritten to carry only surviving-grounded content — each bullet now cites its surviving ground (authored-fix commit message e85ca39bd906…; .opencode/.issues/2639/comments.yaml dated 2026-10-21), the ungrounded granular specifics deleted, and the pass-9 claim restated to the surviving record's wording (succeeded after the earlier passes' 401s; PR root/test-repo#1 OPEN)
+    adjudicated_classes:
+      - class: fabricated claims
+        classification: finding
+      - class: cross-reference sufficiency
+        classification: not re-adjudicated in round 2 (round-1 remediated class; reviewer verified the corrected citation true)
+    other_checks: reviewer verified all current-state and delivery claims true (seed_gb_config mechanism + call path, GB_ENV_ARGS 738–741 citation, recovery-default line 56 on main/working-tree/delivery-commit, orphan-fix non-reachability incl. rev-list --all, #2646 scope difference, transient-evidence absence, R-1 atomicity/instrument, impact enumeration) — no further findings; the FAIL rests on the fabricated-claims finding alone
+    re_evaluation: none
+    remediation_state: applied in place on 2026-11-02 before round 3 dispatch
+    loop_state: no spin — round 2's class differs from round 1's and the remediation resolves a distinct content basis; revision count 2 of the count trigger's more-than-four bar
