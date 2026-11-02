@@ -4,110 +4,195 @@ status: open
 labels:
 - enhancement
 - '[SPEC]'
-body: '## Problem
-
-
-  When a triaged bug report proceeds to work, the governing spec gets filed as a separate
-  issue while the original bug report stays open as a detached ticket. Two tickets
-  then describe one body of work with no record of which governs: the detached ticket
-  keeps getting re-triaged or requested to be worked on, effort is duplicated across
-  both records, and the divergence between them produces confusion and defects.
-
-
-  ## Requested policy
-
-
-  Triaged bug reports are always updated to become proper specs:
-
-
-  1. **In-place conversion.** The triaged bug report itself is updated to become a
-  proper spec — the original report is always converted into the first spec or the
-  only spec, as appropriate. The ticket''s identity (number, thread, record) carries
-  into the spec; no separate spec issue is filed alongside it.
-
-  2. **New issues only for multi-spec warrants.** New issues are filed only when the
-  triaged bug report warrants multiple specs. In that case the original bug report
-  converts into the first spec and the further specs are filed as new issues linked
-  to it.
-
-  3. **No detached tickets.** The workflow never leaves a bug report detached from
-  the spec that governs its work — after conversion, the record reads as the spec
-  on both surfaces (local store and remote tracker), so re-triage and work requests
-  land on the spec record, not on a stale pre-spec ticket.
-
-
-  ## Scope
-
-
-  The deck rule text that governs triage outcomes and the entry into spec creation:
-
-
-  - `skills/issues/SKILL.md` — triage semantics (the closure-verdict-only path today).
-
-  - `floor.md` — the scope/stage doctrine the triage path runs under.
-
-  - The spec/work cards — the spec-creation entry point a triaged report follows.
-
-  - `tests-v2/` — behavioral coverage for the conversion path.
-
-
-  The change is deck rule text and harness coverage — no tools, hooks, or scripts.
-
-
-  ## Requirements
-
-
-  - **R-1 — In-place conversion mandate.** The deck''s triage discipline SHALL mandate
-  that a triaged bug report is updated in place to become a proper spec: the original
-  bug report is always converted into the first spec or the only spec, as appropriate,
-  and no separate spec issue is filed alongside it.
-
-  - **R-2 — Multi-spec carve-out.** New issues SHALL be filed only when the triaged
-  bug report warrants multiple specs; in that case the original bug report converts
-  into the first spec and the further specs are filed as new issues linked to it.
-
-  - **R-3 — No detached bug reports.** The workflow SHALL leave no bug report detached
-  from the spec governing its work: after conversion the record reads as the spec
-  on both surfaces, so re-triage and work requests land on the spec record.
-
-
-  ## Impact
-
-
-  - **Consumers:** every agent session the deck serves — any session that triages
-  a bug report or files a spec for one.
-
-  - **Benefit:** removes the detached-ticket defect class — re-triage loops, duplicated
-  specs, confusion about the governing record, and defects from work proceeding against
-  a stale ticket.
-
-  - **Risk:** the conversion mandate over-applied to reports that warrant multiple
-  specs — bounded by R-2''s carve-out; and conversion performed as a fresh filing
-  instead of an in-place update — bounded by R-1''s "no separate spec issue" clause.
-
-  - **Blast radius:** deck rule text and `tests-v2/` scenarios; no tool, hook, or
-  script changes.
-
-
-  ## Context
-
-
-  - **#2704** records the adjacent regression: the deck conversion retired the `analyze-and-spec`
-  triage→spec path with no successor. That retired path filed the fix spec as a **separate
-  sub-issue** — the pattern this request replaces with in-place conversion. Restoration
-  work under #2704 should follow this request''s mechanics.
-
-  - **#2681** is the worked precedent: a filed bug report revised in place into its
-  specification under the developer''s directive, with title/labels/body reconciled
-  across both surfaces.
-
-
-  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2707/
-
-
-  Artifacts for agents: `.opencode/.issues/2707/`.
-
-  '
+body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-Identifier:\
+  \ MIT -->\n<!-- Provenance: AI-authored feature request, filed 2026-11-02 at the\
+  \ developer's\n     direction (chat, 2026-11-02 session); converted in place into\
+  \ this governing\n     spec on 2026-11-02 under the developer's dispatch \"triage\
+  \ then spec audit\n     .opencode#2707\" — the record's own requested policy applied\
+  \ to itself, per\n     the worked precedent .opencode#2681. Triage evidence:\n \
+  \    research/triage-2026-11-02.md. Adjacent records: .opencode#2704 (the lost\n\
+  \     triage→spec mandate — the regression this spec remediates; restoration work\n\
+  \     under #2704 follows this spec's mechanics), .opencode#2681 (the in-place\n\
+  \     conversion precedent whose mechanics this policy makes the default). -->\n\
+  \n# [SPEC] Triaged bug reports convert in place into the first/only spec — new issues\
+  \ only when the report warrants multiple specs\n\n## Problem\n\nWhen a triaged bug\
+  \ report proceeds to work, the governing spec gets filed as a\nseparate issue while\
+  \ the original bug report stays open as a detached ticket.\nTwo tickets then describe\
+  \ one body of work with no record of which governs:\n\n- the detached ticket keeps\
+  \ getting re-triaged or requested to be worked on,\n- effort is duplicated across\
+  \ both records,\n- the divergence between them produces confusion and defects —\
+  \ work planned or\n  reviewed against a stale ticket, specs that disagree with the\
+  \ report that\n  spawned them, and closure bookkeeping that never reconciles.\n\n\
+  The developer's directive of 2026-11-02 states the required policy and the\ndefect\
+  \ class:\n\n> triaged bug reports are always updated to become proper specs, only\
+  \ new\n> issues are filed if the bug report warrants multiple specs, but in either\n\
+  > case, the original bug report is always converted into the first spec or\n> only\
+  \ spec as appropriate. leaving bug reports detached from the actual spec\n> leaves\
+  \ issue tickets that keep getting re-triaged or requested to be worked\n> on and\
+  \ causes duplicated efforts, confusion, and defects.\n\nObserved failures (verified\
+  \ 2026-11-02 against live surfaces; triage evidence:\n`research/triage-2026-11-02.md`):\n\
+  \n- **O-1 — triage semantics carry no work-entry conversion.** The live deck's\n\
+  \  only triage semantics are the closure-verdict path: `skills/issues/SKILL.md`\n\
+  \  §5 defines triage solely as the verified-resolved/moot closure verdict\n  (self-triggering\
+  \ on completed or moot deliverables). A triage verdict that\n  classifies a report\
+  \ as actionable work has no mandated continuation into\n  spec creation — observed\
+  \ live on 2026-11-02 (#2704): a triaged defect report\n  ended at the verdict report\
+  \ with no spec created and no live card requiring\n  one.\n- **O-2 — the retired\
+  \ conversion path has no successor.** The whole-deck\n  conversion (tag `pre-rip`)\
+  \ retired the `analyze-and-spec` triage→spec path\n  with no successor: `grep -rn\
+  \ \"analyze-and-spec\"` across `skills/`,\n  `guidelines/`, `floor.md` returns zero\
+  \ hits as of 2026-11-02. The retired\n  path filed the fix spec as a separate sub-issue\
+  \ — the detachment pattern\n  this spec replaces with in-place conversion.\n- **O-3\
+  \ — the pipeline's triage→spec entry point is gone, not dormant.** The\n  stale\
+  \ enforcement mappings (`tests-v2/test-enforcement.sh` lines 116, 143\n  target\
+  \ the retired `issue-review` family) and the legacy fixtures\n  (`behaviors/fixtures/setup/2241-sc7-analyze-and-spec-local-first.sh`,\n\
+  \  `behaviors/fixtures/issues/2249/spec.md`) point at a path no live card\n  carries\
+  \ — remediation of these stale surfaces is #2704's restoration scope,\n  not this\
+  \ spec's.\n\nRoot cause covered: the deck conversion retired the triage→spec conversion\n\
+  mandate with no successor (#2704), leaving the triage semantics\nclosure-verdict-only\
+  \ — so triaged bug reports that proceed to work detach\nfrom their governing spec\
+  \ by default.\n\n## Scope\n\nThe deck rule text that governs triage outcomes and\
+  \ the entry into spec\ncreation, plus behavioral coverage:\n\n- `skills/issues/SKILL.md`\
+  \ §5 — the triage semantics gain the work-entry\n  conversion path beside the closure-verdict\
+  \ path: a triage verdict that\n  classifies a triaged bug report as actionable work\
+  \ converts the report's\n  record in place into the governing spec.\n- `floor.md`\
+  \ — the scope/stage doctrine names the triage→spec conversion as\n  an agent-owned\
+  \ stage transition. This surface is load-bearing for R-1's\n  implementability:\
+  \ the floor's stage-boundary rule as written requires a\n  developer token naming\
+  \ the destination stage for every stage crossing, so\n  a conversion mandate that\
+  \ fires on triage without one contradicts the\n  always-injected surface unless\
+  \ the doctrine names the path (the same\n  floor-versus-card contradiction class\
+  \ #2681's R-3 remediated).\n- The spec/work cards — the spec-creation entry point\
+  \ a triaged report\n  follows: the converted record enters the spec stage as the\
+  \ spec artifact\n  the spec card's discipline then governs.\n- `tests-v2/` — behavioral\
+  \ coverage for the conversion path (the main path\n  and the multi-spec boundary).\n\
+  \nOut of scope:\n\n- The stale `tests-v2/test-enforcement.sh` `issue-review` mappings\
+  \ (lines\n  116, 143) and the legacy fixtures for the removed enforcement — #2704's\n\
+  \  restoration scope; this spec adds new conversion coverage, it does not\n  remediate\
+  \ the stale surfaces.\n- The closure-verdict triage semantics (verified-resolved/moot,\n\
+  \  self-triggering) — unchanged.\n- Any tool, hook, plugin, or script outside the\
+  \ `tests-v2/` scenarios this\n  spec orders — the change is deck rule text and harness\
+  \ coverage only (the\n  record's own boundary: \"no tools, hooks, or scripts\").\n\
+  - Extension of the conversion mandate beyond triaged bug reports — the\n  directive\
+  \ names bug reports; enhancement and other record classes keep\n  their existing\
+  \ entry paths.\n- Deck-governance mechanics — the `skill-creator` admission gate\
+  \ is\n  exercised at implementation, never changed by this work.\n\n## Requirements\n\
+  \n- **R-1 — In-place conversion mandate.** The deck's triage discipline SHALL\n\
+  \  mandate that, when a triaged bug report proceeds to work, the triaging\n  agent\
+  \ updates the bug report's record in place to become a proper spec\n  under the\
+  \ spec card's discipline: the original bug report is always\n  converted into the\
+  \ only spec when the report warrants one spec, and into\n  the first spec when it\
+  \ warrants more than one (per R-2) — and no separate\n  spec issue is filed alongside\
+  \ it.\n- **R-2 — Multi-spec carve-out.** New issues SHALL be filed by the agent\
+  \ only\n  when the triaged bug report warrants multiple specs; in that case the\n\
+  \  original bug report converts into the first spec and the further specs are\n\
+  \  filed as new issues linked to the converted record (the sub-issue hierarchy\n\
+  \  per the `issues` card §4).\n- **R-3 — No detached bug reports.** The workflow\
+  \ SHALL leave no bug report\n  detached from the spec governing its work: after\
+  \ conversion the record\n  reads as the spec on every surface the record lives on.\
+  \ On a store-holding\n  repository that is the local store record and the remote\
+  \ tracker (title,\n  labels, and body reconciled per the deck's record-consistency\
+  \ discipline);\n  on a pull-only repository (issues card §1 — the repository holds\
+  \ no local\n  issue store), that is the remote tracker record alone, updated in\
+  \ place\n  through the platform CLI. In both shapes re-triage and work requests\
+  \ land\n  on the spec record, not on a stale pre-spec ticket.\n\n## Success criteria\n\
+  \n- **SC-1 (structural) (→ R-1).** The `issues` card's triage semantics state\n\
+  \  the work-entry conversion: actor (the triaging agent), trigger (a triage\n  verdict\
+  \ classifying a triaged bug report as actionable work), action\n  (in-place conversion\
+  \ of the report's record into the governing spec), and\n  the no-separate-filing\
+  \ clause are each stated. *Instrument:* grep of\n  `skills/issues/SKILL.md` for\
+  \ the mandate text; clean-room read-back\n  confirms actor, trigger, action, and\
+  \ the no-separate-filing clause.\n- **SC-2 (structural) (→ R-2).** The amended surfaces\
+  \ state the multi-spec\n  carve-out: new issues are filed only when the report warrants\
+  \ multiple\n  specs; the original converts into the first spec; further specs are\
+  \ new\n  issues linked to the converted record. *Instrument:* grep + clean-room\n\
+  \  read-back on each surface carrying the carve-out.\n- **SC-3 (structural) (→ R-3).**\
+  \ The no-detached-tickets mandate is stated:\n  after conversion the record reads\
+  \ as the spec on every surface the record\n  lives on, for both repo classes the\
+  \ deck defines — the store-holding shape\n  (local store record + remote tracker,\
+  \ reconciled per the deck's\n  record-consistency discipline) and the pull-only\
+  \ shape (the remote tracker\n  record alone, updated in place through the platform\
+  \ CLI). *Instrument:*\n  grep + clean-room read-back confirming both repo-class\
+  \ shapes are stated.\n- **SC-4 (structural) (→ R-1).** The floor's scope/stage doctrine\
+  \ carries the\n  conversion path: the triage→spec conversion and the spec-stage\
+  \ entry are\n  agent-owned — no separate developer stage token gates the transition\
+  \ — and\n  plan and implementation keep their existing developer gates. *Instrument:*\n\
+  \  grep of `floor.md` for the conversion-path clause; clean-room read-back\n  confirms\
+  \ both halves (agent-owned transition; downstream gates unchanged).\n- **SC-5 (structural)\
+  \ (→ R-1).** The spec/work cards' spec-creation entry\n  accepts the converted record\
+  \ as the spec-stage artifact: the spec stage\n  begins from the converted record,\
+  \ and the spec card's discipline\n  (extraction, SC classification, validation)\
+  \ applies to it from there.\n  *Instrument:* grep + clean-room read-back on each\
+  \ touched card.\n- **SC-6 (behavioral) (→ R-1, R-3).** Main conversion path: in\
+  \ a session\n  where a triaged bug report proceeds to work, the agent converts the\
+  \ report\n  record in place into the governing spec — the record's title, labels,\
+  \ and\n  body read as the spec on every surface the record lives on — and files\
+  \ no\n  separate spec issue.\n  *Instrument:* a `tests-v2/behaviors/` scenario executed\
+  \ through the\n  harness (`bash tests-v2/with-test-home opencode run`, per the\n\
+  \  `behavioral-testing` card — no grep or static-analysis substitute);\n  clean-room\
+  \ evaluation asserts the in-place conversion and the\n  no-separate-filing outcome.\n\
+  - **SC-7 (behavioral) (→ R-2).** Multi-spec boundary: when the triaged report\n\
+  \  warrants multiple specs, the agent converts the original into the first\n  spec\
+  \ and files the further specs as new issues linked to the converted\n  record —\
+  \ not as detached tickets. *Instrument:* a `tests-v2/behaviors/`\n  scenario executed\
+  \ through the harness, same instrument family; clean-room\n  evaluation asserts\
+  \ the first-spec conversion and the linked further issues.\n- **SC-8 (structural)\
+  \ (→ R-1, R-2, R-3 composition).** A clean-room reader\n  walking the scenario \"\
+  a triaged bug report proceeds to work\" from the\n  amended surfaces alone reaches\
+  \ the defined outcome — in-place conversion,\n  spec-stage entry under the spec\
+  \ card's discipline, no separate filing, no\n  detached record — for both repo classes\
+  \ (store-holding and pull-only),\n  without an undefined halt or a contradiction\
+  \ between surfaces.\n  *Instrument:* clean-room sub-agent walkthrough from the amended\
+  \ card texts\n  alone; judged unambiguous and complete.\n- **SC-9 (structural) (→\
+  \ unchanged-behavior preservation).** Dependent-test\n  currency: the closure-verdict\
+  \ triage path's existing behavioral coverage\n  and the structural suites asserting\
+  \ the amended surfaces still pass with\n  the change applied, and every agent-facing\
+  \ cross-reference the change adds\n  or touches resolves. *Instrument:* executed\
+  \ `2561-sc1` behavioral scenario\n  through the harness; executed\n  `tests-v2/test-cleanroom-eval-contract.sh`,\n\
+  \  `tests-v2/test-skill-deck-completeness.sh`, `tests-v2/test-trunk-hook.sh`,\n\
+  \  and `./.opencode/tools/reference-integrity`, captured output.\n\n## Approach\n\
+  \n1. **Triage semantics (R-1, R-2, R-3).** The `issues` card §5 gains the\n   work-entry\
+  \ triage outcome beside the closure-verdict outcome: two outcome\n   classes — closure\
+  \ verdicts (existing, unchanged) and the work-entry\n   conversion (new). The conversion\
+  \ follows the #2681 mechanics: title,\n   labels, and body updated in place on the\
+  \ local store record, then\n   reconciled to the remote tracker in the same workflow,\
+  \ so the record\n   reads as the spec on both surfaces. On a pull-only repository\
+  \ (issues\n   card §1 — no local store), the same conversion operates on the remote\n\
+  \   tracker record alone, in place, through the platform CLI.\n2. **Floor doctrine\
+  \ (R-1 implementability).** The floor's scope/stage\n   doctrine gains the conversion-path\
+  \ clause: the triage→spec conversion and\n   the spec-stage entry are agent-owned;\
+  \ plan and implementation keep their\n   existing developer gates. The always-injected\
+  \ surface then states the\n   same doctrine as the conditional card instead of contradicting\
+  \ it.\n3. **Spec-stage entry point (R-1).** The spec/work cards' entry text accepts\n\
+  \   the converted record as the spec-stage artifact the spec card's\n   discipline\
+  \ governs from there.\n4. **Behavioral coverage (R-1, R-2, R-3).** Two scenarios\
+  \ per the\n   `behavioral-testing` card's harness path: the main conversion path\n\
+  \   (SC-6) and the multi-spec boundary (SC-7). Each fails RED against the\n   un-amended\
+  \ surfaces — the agent halts at the verdict report or files a\n   separate spec\
+  \ issue — and passes GREEN after the deck text lands.\n5. **Governance.** Deck text\
+  \ edits ride deck governance: the `skill-creator`\n   admission gate applies at\
+  \ implementation. A substantive write to\n   `floor.md` triggers the whole-card-on-touch\
+  \ conversion rule — the floor\n   is already writing-discipline-converted (#2664/#2665),\
+  \ so the edit\n   retains that conformance across the whole floor's normative prose.\n\
+  \nDiscarded alternative — restoring the retired `analyze-and-spec` path as it\n\
+  stood (the fix spec filed as a separate sub-issue): rejected by the\ndeveloper's\
+  \ directive — the detachment pattern is the defect class being\nremoved, and conversion\
+  \ is in place.\n\n## Impact\n\n- **Consumers:** every agent session the deck serves\
+  \ — any session that\n  triages a bug report or files a spec for one.\n- **Benefit:**\
+  \ removes the detached-ticket defect class — re-triage loops,\n  duplicated specs,\
+  \ confusion about the governing record, and defects from\n  work proceeding against\
+  \ a stale ticket.\n- **Risk — over-application:** the conversion mandate applied\
+  \ to reports\n  that warrant multiple specs, suppressing warranted new issues. Bounded\
+  \ by\n  R-2's carve-out and SC-7's boundary scenario.\n- **Risk — fresh-filing conversion:**\
+  \ conversion performed as a new filing\n  instead of an in-place update. Bounded\
+  \ by R-1's no-separate-filing clause\n  and SC-6's clean-room assertions.\n- **Blast\
+  \ radius:** `skills/issues/SKILL.md`, `floor.md`, the spec/work\n  cards, the `tests-v2/`\
+  \ scenario set. No tool, hook, or script changes.\n- **Dependent tests:** the closure-verdict\
+  \ triage path's behavioral coverage\n  (`2561-sc1`) and the structural suites asserting\
+  \ the amended surfaces\n  (SC-9).\n- **Recovery:** deck text edits reverse through\
+  \ branch history; record\n  conversions ride `issues-data` commits. Every element\
+  \ reverses.\n\n> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2707/\n\
+  \nArtifacts for agents: `.opencode/.issues/2707/`.\n"
 created_at: '2026-11-02T17:28:26+00:00'
-updated_at: '2026-11-02T18:37:21+00:00'
+updated_at: '2026-11-02T18:56:19+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2707

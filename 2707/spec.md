@@ -24,8 +24,8 @@ Two tickets then describe one body of work with no record of which governs:
   reviewed against a stale ticket, specs that disagree with the report that
   spawned them, and closure bookkeeping that never reconciles.
 
-The developer's directive of 2026-11-02 states the defect class and the
-required policy in one sentence:
+The developer's directive of 2026-11-02 states the required policy and the
+defect class:
 
 > triaged bug reports are always updated to become proper specs, only new
 > issues are filed if the bug report warrants multiple specs, but in either
@@ -119,10 +119,13 @@ Out of scope:
   per the `issues` card §4).
 - **R-3 — No detached bug reports.** The workflow SHALL leave no bug report
   detached from the spec governing its work: after conversion the record
-  reads as the spec on both surfaces — the local store record and the remote
-  tracker (title, labels, and body reconciled per the deck's
-  record-consistency discipline) — so re-triage and work requests land on
-  the spec record, not on a stale pre-spec ticket.
+  reads as the spec on every surface the record lives on. On a store-holding
+  repository that is the local store record and the remote tracker (title,
+  labels, and body reconciled per the deck's record-consistency discipline);
+  on a pull-only repository (issues card §1 — the repository holds no local
+  issue store), that is the remote tracker record alone, updated in place
+  through the platform CLI. In both shapes re-triage and work requests land
+  on the spec record, not on a stale pre-spec ticket.
 
 ## Success criteria
 
@@ -139,9 +142,12 @@ Out of scope:
   issues linked to the converted record. *Instrument:* grep + clean-room
   read-back on each surface carrying the carve-out.
 - **SC-3 (structural) (→ R-3).** The no-detached-tickets mandate is stated:
-  after conversion the record reads as the spec on both surfaces — the local
-  store record and the remote tracker — reconciled per the deck's
-  record-consistency discipline. *Instrument:* grep + clean-room read-back.
+  after conversion the record reads as the spec on every surface the record
+  lives on, for both repo classes the deck defines — the store-holding shape
+  (local store record + remote tracker, reconciled per the deck's
+  record-consistency discipline) and the pull-only shape (the remote tracker
+  record alone, updated in place through the platform CLI). *Instrument:*
+  grep + clean-room read-back confirming both repo-class shapes are stated.
 - **SC-4 (structural) (→ R-1).** The floor's scope/stage doctrine carries the
   conversion path: the triage→spec conversion and the spec-stage entry are
   agent-owned — no separate developer stage token gates the transition — and
@@ -156,7 +162,8 @@ Out of scope:
 - **SC-6 (behavioral) (→ R-1, R-3).** Main conversion path: in a session
   where a triaged bug report proceeds to work, the agent converts the report
   record in place into the governing spec — the record's title, labels, and
-  body read as the spec on both surfaces — and files no separate spec issue.
+  body read as the spec on every surface the record lives on — and files no
+  separate spec issue.
   *Instrument:* a `tests-v2/behaviors/` scenario executed through the
   harness (`bash tests-v2/with-test-home opencode run`, per the
   `behavioral-testing` card — no grep or static-analysis substitute);
@@ -168,13 +175,14 @@ Out of scope:
   record — not as detached tickets. *Instrument:* a `tests-v2/behaviors/`
   scenario executed through the harness, same instrument family; clean-room
   evaluation asserts the first-spec conversion and the linked further issues.
-- **SC-8 (semantic) (→ R-1, R-2, R-3 composition).** A clean-room reader
+- **SC-8 (structural) (→ R-1, R-2, R-3 composition).** A clean-room reader
   walking the scenario "a triaged bug report proceeds to work" from the
   amended surfaces alone reaches the defined outcome — in-place conversion,
   spec-stage entry under the spec card's discipline, no separate filing, no
-  detached record — without an undefined halt or a contradiction between
-  surfaces. *Instrument:* clean-room sub-agent walkthrough from the amended
-  card texts alone; judged unambiguous and complete.
+  detached record — for both repo classes (store-holding and pull-only),
+  without an undefined halt or a contradiction between surfaces.
+  *Instrument:* clean-room sub-agent walkthrough from the amended card texts
+  alone; judged unambiguous and complete.
 - **SC-9 (structural) (→ unchanged-behavior preservation).** Dependent-test
   currency: the closure-verdict triage path's existing behavioral coverage
   and the structural suites asserting the amended surfaces still pass with
@@ -193,7 +201,9 @@ Out of scope:
    conversion (new). The conversion follows the #2681 mechanics: title,
    labels, and body updated in place on the local store record, then
    reconciled to the remote tracker in the same workflow, so the record
-   reads as the spec on both surfaces.
+   reads as the spec on both surfaces. On a pull-only repository (issues
+   card §1 — no local store), the same conversion operates on the remote
+   tracker record alone, in place, through the platform CLI.
 2. **Floor doctrine (R-1 implementability).** The floor's scope/stage
    doctrine gains the conversion-path clause: the triage→spec conversion and
    the spec-stage entry are agent-owned; plan and implementation keep their
