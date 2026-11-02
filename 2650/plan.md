@@ -54,7 +54,7 @@ path, `behaviors/helpers.sh` line 2273).
   `2639-sc8-second-directive-rides-open-pr.sh:160–166` (with the
   skip-turn2 annotation, `[ -n "${SC8_SKIP_TURN2:-}" ]` passing the
   annotation text into the helper conditionally) and SC-7's block at
-  `2557-sc7-ask-record-commands.sh:71–77` (no annotation); the inline
+  `2557-sc7-ask-record-commands.sh:72–77` (no annotation); the inline
   `cat`-echo blocks are deleted in the same change (R-3,
   self-containment). All other `helpers.sh` manifest surfaces untouched
   (base heredoc 2176, `resumed_after_cap_hit` append 2273 — R-4).
