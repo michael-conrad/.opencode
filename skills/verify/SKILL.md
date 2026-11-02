@@ -126,7 +126,16 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance; externally-d
     at a verified local path, verified before the audit's substance begins.
     When the artifact is absent locally, the auditor performs the mirror-repair
     per the `issues` card and proceeds with the audit — absence of a local
-    artifact is never a fail reason or halt ground by itself.
+    artifact is never a fail reason or halt ground by itself. When the
+    audited issue has no local record, the auditor first registers one per
+    the issues card's registration-on-demand rule — Read
+    [the issues skill](../issues/SKILL.md) — then re-checks presence. When
+    the audited artifact still does not exist
+    after registration — no spec, plan, or deliverable in the store or the
+    remote tracker — the audit resolves to a defined no-artifact outcome:
+    the report names the missing artifact and the stage that produces it,
+    and no verdict issues against a nonexistent artifact. This outcome is a
+    defined result of the audit, never an ad-hoc halt.
 11. **Instrument capability.** Evidence from an instrument that could not in
     principle detect the criterion's failure mode is not evidence the
     reviewer can consume: a check that answers a weaker question than the
