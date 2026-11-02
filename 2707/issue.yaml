@@ -89,17 +89,20 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \  filed as new issues linked to the converted record (the sub-issue hierarchy\n\
   \  per the `issues` card §4).\n- **R-3 — No detached bug reports.** The workflow\
   \ SHALL leave no bug report\n  detached from the spec governing its work: after\
-  \ conversion the record\n  reads as the spec on every surface the record lives on.\
-  \ On a store-holding\n  repository that is the local store record and the remote\
-  \ tracker (title,\n  labels, and body reconciled per the deck's record-consistency\
-  \ discipline);\n  on a pull-only repository (issues card §1 — the repository holds\
-  \ no local\n  issue store), that is the remote tracker record alone, updated in\
-  \ place\n  through the platform CLI. In both shapes re-triage and work requests\
-  \ land\n  on the spec record, not on a stale pre-spec ticket.\n\n## Success criteria\n\
-  \n- **SC-1 (structural) (→ R-1).** The `issues` card's triage semantics state\n\
-  \  the work-entry conversion: actor (the triaging agent), trigger (a triage\n  verdict\
-  \ classifying a triaged bug report as actionable work), action\n  (in-place conversion\
-  \ of the report's record into the governing spec), and\n  the no-separate-filing\
+  \ conversion the record\n  reads as the spec on every surface the record lives on,\
+  \ with each existing\n  surface updated in place and the record's title, labels,\
+  \ and body carrying\n  the spec on each. The record's surfaces are the local store\
+  \ record, when\n  the repository holds an issue store, and the remote tracker, when\
+  \ the\n  repository has one — the deck's repo classes compose from these: a\n  store-holding\
+  \ repository with a tracker reconciles both surfaces; a\n  remoteless store-holding\
+  \ repository (issues card §2) has its local record\n  alone; a pull-only repository\
+  \ (issues card §1 — no local issue store) has\n  its remote tracker record alone,\
+  \ updated in place through the platform\n  CLI. In every shape, re-triage and work\
+  \ requests land on the spec record,\n  not on a stale pre-spec ticket.\n\n## Success\
+  \ criteria\n\n- **SC-1 (structural) (→ R-1).** The `issues` card's triage semantics\
+  \ state\n  the work-entry conversion: actor (the triaging agent), trigger (a triage\n\
+  \  verdict classifying a triaged bug report as actionable work), action\n  (in-place\
+  \ conversion of the report's record into the governing spec), and\n  the no-separate-filing\
   \ clause are each stated. *Instrument:* grep of\n  `skills/issues/SKILL.md` for\
   \ the mandate text; clean-room read-back\n  confirms actor, trigger, action, and\
   \ the no-separate-filing clause.\n- **SC-2 (structural) (→ R-2).** The amended surfaces\
@@ -108,24 +111,23 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ new\n  issues linked to the converted record. *Instrument:* grep + clean-room\n\
   \  read-back on each surface carrying the carve-out.\n- **SC-3 (structural) (→ R-3).**\
   \ The no-detached-tickets mandate is stated:\n  after conversion the record reads\
-  \ as the spec on every surface the record\n  lives on, for both repo classes the\
-  \ deck defines — the store-holding shape\n  (local store record + remote tracker,\
-  \ reconciled per the deck's\n  record-consistency discipline) and the pull-only\
-  \ shape (the remote tracker\n  record alone, updated in place through the platform\
-  \ CLI). *Instrument:*\n  grep + clean-room read-back confirming both repo-class\
-  \ shapes are stated.\n- **SC-4 (structural) (→ R-1).** The floor's scope/stage doctrine\
-  \ carries the\n  conversion path: the triage→spec conversion and the spec-stage\
-  \ entry are\n  agent-owned — no separate developer stage token gates the transition\
-  \ — and\n  plan and implementation keep their existing developer gates. *Instrument:*\n\
-  \  grep of `floor.md` for the conversion-path clause; clean-room read-back\n  confirms\
-  \ both halves (agent-owned transition; downstream gates unchanged).\n- **SC-5 (structural)\
-  \ (→ R-1).** The spec/work cards' spec-creation entry\n  accepts the converted record\
-  \ as the spec-stage artifact: the spec stage\n  begins from the converted record,\
-  \ and the spec card's discipline\n  (extraction, SC classification, validation)\
-  \ applies to it from there.\n  *Instrument:* grep + clean-room read-back on each\
-  \ touched card.\n- **SC-6 (behavioral) (→ R-1, R-3).** Main conversion path: in\
-  \ a session\n  where a triaged bug report proceeds to work, the agent converts the\
-  \ report\n  record in place into the governing spec — the record's title, labels,\
+  \ as the spec on every surface the record\n  lives on, each existing surface updated\
+  \ in place — the surfaces doctrine\n  covering all three repo shapes the deck defines\
+  \ (store-holding with a\n  tracker; remoteless store-holding, issues card §2; pull-only,\
+  \ issues card\n  §1). *Instrument:* grep + clean-room read-back confirming the surfaces\n\
+  \  doctrine and all three shapes are stated.\n- **SC-4 (structural) (→ R-1).** The\
+  \ floor's scope/stage doctrine carries the\n  conversion path: the triage→spec conversion\
+  \ and the spec-stage entry are\n  agent-owned — no separate developer stage token\
+  \ gates the transition — and\n  plan and implementation keep their existing developer\
+  \ gates. *Instrument:*\n  grep of `floor.md` for the conversion-path clause; clean-room\
+  \ read-back\n  confirms both halves (agent-owned transition; downstream gates unchanged).\n\
+  - **SC-5 (structural) (→ R-1).** The spec/work cards' spec-creation entry\n  accepts\
+  \ the converted record as the spec-stage artifact: the spec stage\n  begins from\
+  \ the converted record, and the spec card's discipline\n  (extraction, SC classification,\
+  \ validation) applies to it from there.\n  *Instrument:* grep + clean-room read-back\
+  \ on each touched card.\n- **SC-6 (behavioral) (→ R-1, R-3).** Main conversion path:\
+  \ in a session\n  where a triaged bug report proceeds to work, the agent converts\
+  \ the report\n  record in place into the governing spec — the record's title, labels,\
   \ and\n  body read as the spec on every surface the record lives on — and files\
   \ no\n  separate spec issue.\n  *Instrument:* a `tests-v2/behaviors/` scenario executed\
   \ through the\n  harness (`bash tests-v2/with-test-home opencode run`, per the\n\
@@ -140,34 +142,37 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ (→ R-1, R-2, R-3 composition).** A clean-room reader\n  walking the scenario \"\
   a triaged bug report proceeds to work\" from the\n  amended surfaces alone reaches\
   \ the defined outcome — in-place conversion,\n  spec-stage entry under the spec\
-  \ card's discipline, no separate filing, no\n  detached record — for both repo classes\
-  \ (store-holding and pull-only),\n  without an undefined halt or a contradiction\
-  \ between surfaces.\n  *Instrument:* clean-room sub-agent walkthrough from the amended\
-  \ card texts\n  alone; judged unambiguous and complete.\n- **SC-9 (structural) (→\
-  \ unchanged-behavior preservation).** Dependent-test\n  currency: the closure-verdict\
-  \ triage path's existing behavioral coverage\n  and the structural suites asserting\
-  \ the amended surfaces still pass with\n  the change applied, and every agent-facing\
-  \ cross-reference the change adds\n  or touches resolves. *Instrument:* executed\
-  \ `2561-sc1` behavioral scenario\n  through the harness; executed\n  `tests-v2/test-cleanroom-eval-contract.sh`,\n\
+  \ card's discipline, no separate filing, no\n  detached record — for every repo\
+  \ shape the deck defines (store-holding\n  with a tracker, remoteless store-holding,\
+  \ pull-only), without an undefined\n  halt or a contradiction between surfaces.\n\
+  \  *Instrument:* clean-room sub-agent walkthrough from the amended card texts\n\
+  \  alone; judged unambiguous and complete.\n- **SC-9 (structural) (→ unchanged-behavior\
+  \ preservation).** Dependent-test\n  currency: the closure-verdict triage path's\
+  \ existing behavioral coverage\n  and the structural suites asserting the amended\
+  \ surfaces still pass with\n  the change applied, and every agent-facing cross-reference\
+  \ the change adds\n  or touches resolves. *Instrument:* executed `2561-sc1` behavioral\
+  \ scenario\n  through the harness; executed\n  `tests-v2/test-cleanroom-eval-contract.sh`,\n\
   \  `tests-v2/test-skill-deck-completeness.sh`, `tests-v2/test-trunk-hook.sh`,\n\
   \  and `./.opencode/tools/reference-integrity`, captured output.\n\n## Approach\n\
   \n1. **Triage semantics (R-1, R-2, R-3).** The `issues` card §5 gains the\n   work-entry\
   \ triage outcome beside the closure-verdict outcome: two outcome\n   classes — closure\
   \ verdicts (existing, unchanged) and the work-entry\n   conversion (new). The conversion\
-  \ follows the #2681 mechanics: title,\n   labels, and body updated in place on the\
-  \ local store record, then\n   reconciled to the remote tracker in the same workflow,\
-  \ so the record\n   reads as the spec on both surfaces. On a pull-only repository\
-  \ (issues\n   card §1 — no local store), the same conversion operates on the remote\n\
-  \   tracker record alone, in place, through the platform CLI.\n2. **Floor doctrine\
-  \ (R-1 implementability).** The floor's scope/stage\n   doctrine gains the conversion-path\
-  \ clause: the triage→spec conversion and\n   the spec-stage entry are agent-owned;\
-  \ plan and implementation keep their\n   existing developer gates. The always-injected\
-  \ surface then states the\n   same doctrine as the conditional card instead of contradicting\
-  \ it.\n3. **Spec-stage entry point (R-1).** The spec/work cards' entry text accepts\n\
-  \   the converted record as the spec-stage artifact the spec card's\n   discipline\
-  \ governs from there.\n4. **Behavioral coverage (R-1, R-2, R-3).** Two scenarios\
-  \ per the\n   `behavioral-testing` card's harness path: the main conversion path\n\
-  \   (SC-6) and the multi-spec boundary (SC-7). Each fails RED against the\n   un-amended\
+  \ follows the #2681 mechanics: title,\n   labels, and body updated in place on each\
+  \ surface the record lives on —\n   the local store record, when the repository\
+  \ holds a store, and the remote\n   tracker, when the repository has one, reconciled\
+  \ to each other in the\n   same workflow; a remoteless store-holding repository\
+  \ (issues card §2)\n   updates its local record alone; a pull-only repository (issues\
+  \ card §1 —\n   no local store) operates on the remote tracker record alone, through\
+  \ the\n   platform CLI.\n2. **Floor doctrine (R-1 implementability).** The floor's\
+  \ scope/stage\n   doctrine gains the conversion-path clause: the triage→spec conversion\
+  \ and\n   the spec-stage entry are agent-owned; plan and implementation keep their\n\
+  \   existing developer gates. The always-injected surface then states the\n   same\
+  \ doctrine as the conditional card instead of contradicting it.\n3. **Spec-stage\
+  \ entry point (R-1).** The spec/work cards' entry text accepts\n   the converted\
+  \ record as the spec-stage artifact the spec card's\n   discipline governs from\
+  \ there.\n4. **Behavioral coverage (R-1, R-2, R-3).** Two scenarios per the\n  \
+  \ `behavioral-testing` card's harness path: the main conversion path\n   (SC-6)\
+  \ and the multi-spec boundary (SC-7). Each fails RED against the\n   un-amended\
   \ surfaces — the agent halts at the verdict report or files a\n   separate spec\
   \ issue — and passes GREEN after the deck text lands.\n5. **Governance.** Deck text\
   \ edits ride deck governance: the `skill-creator`\n   admission gate applies at\
@@ -194,5 +199,5 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ reverses.\n\n> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2707/\n\
   \nArtifacts for agents: `.opencode/.issues/2707/`.\n"
 created_at: '2026-11-02T17:28:26+00:00'
-updated_at: '2026-11-02T18:56:19+00:00'
+updated_at: '2026-11-02T19:27:36+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2707
