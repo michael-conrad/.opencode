@@ -2,7 +2,7 @@
 
 During the `.opencode#2639` implementation session (2026-10-19), after the SC-7/SC-8 behavioral scenarios were reported BLOCKED under the Default-Model Mandate (R-20), the agent interpreted a terse developer message ("agent intelligence") as authorization to substitute a different run model (`qwen3.5:397b-cloud` via `DEFAULT_TEST_MODEL` override) for the harness default. It queried available models and stated its intent to re-run SC-7 with the override before the developer corrected it: "no changing the model. you must fix the deck/spec/plan."
 
-R-20 (tests-v2 AGENTS.md §9) makes the agent's own initiative here a violation on two counts: model substitution on the agent's own initiative is prohibited, and **raising a model change as an option is itself a defect** — "the agent never proposes, requests, or offers a model change as an option — raising it is itself a defect." The agent neither asked the developer for clarification of the terse message nor mapped it to a non-model remediation path; it jumped to the prohibited surface. The §14/§17 remediation path (R-18 defect classes: instructions, deck wording, prompt construction, fixture state, harness behavior) was the only admissible response, and the agent had already correctly followed it for four attempts before the lapse.
+R-20 (tests-v2 AGENTS.md §9) makes the agent's own initiative here a violation on two counts: model substitution on the agent's own initiative is prohibited, and **raising a model change as an option is itself a defect** — "the agent never proposes, requests, or offers a model change as an option — raising it is itself a defect." The agent neither asked the developer for clarification of the terse message nor mapped it to a non-model remediation path; it jumped to the prohibited surface. The mandate's admissible remediation set is the §14/§17 R-18 path (R-18 defect classes: instructions, deck wording, prompt construction, fixture state, harness behavior) or re-scoping the SC at the spec — the agent had already correctly followed the R-18 path for four attempts before the lapse, then took neither admissible path.
 
 ## Scope
 
@@ -12,7 +12,7 @@ R-20 (tests-v2 AGENTS.md §9) makes the agent's own initiative here a violation 
 ## Requirements
 
 - R-1. The regression SHALL be recorded in the lessons-learned registry (`.issues/lessons-learned/`) as a systemic-class entry: terse developer messages must be clarified when they appear to authorize a prohibited surface, and R-20's raising-prohibition binds even under apparent developer direction until the direction is explicit and unambiguous.
-- R-2. The `behavioral-testing` card's R-20 mirror (card §9 Change Control reference) SHALL remain unchanged — this is a compliance regression against an existing rule, not a rule gap.
+- R-2. The `behavioral-testing` card's R-20 mirror — rule 8 ("Default model is single-sourced," citing R-20 at tests-v2 AGENTS.md §10.6) — SHALL remain unchanged; this is a compliance regression against an existing rule, not a rule gap.
 
 ## Impact
 
