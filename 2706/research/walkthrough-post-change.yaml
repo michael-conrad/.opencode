@@ -1,0 +1,15 @@
+post_change_walkthrough:
+  date: 2026-11-02
+  dispatch: clean-room subagent (task ses_e6281ad06ffe2mId1NjYs04mAm)
+  scenario: spec audit dispatched on a remote-first-filed issue; no spec artifact exists anywhere
+  outcome_reached: defined-outcome
+  path:
+    - step: artifact-presence gate applies (verify §10)
+    - step: no local record -> registration-on-demand (verify §10 -> issues §7: register at remote-assigned number before other store work)
+    - step: re-check presence -> artifact still absent -> defined no-artifact outcome (verify §10: report names the missing artifact and the stage that produces it; no verdict against a nonexistent artifact)
+    - step: characterization fixed by text — "a defined result of the audit, never an ad-hoc halt" (verify §10)
+  noted_ambiguities: |
+    (1) sequencing of the outcome relative to the reviewer dispatch is unstated; (2) the recording surface
+    for the no-artifact outcome report is unstated (verdict recording rule does not apply — no verdict);
+    (3) a mirrored-but-contentless record reads as absent via the parenthetical, not a direct statement;
+    (4) §4's re-evaluation triad is clearly not reached but a reader might route absence there.

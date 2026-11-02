@@ -1,0 +1,21 @@
+pre_change_walkthrough:
+  date: 2026-11-02
+  dispatch: clean-room subagent (task ses_e6285b615ffeMw44Ur5B75OsO0)
+  scenario: spec audit dispatched on a remote-first-filed issue; no spec artifact exists anywhere
+  outcome_reached: dead-end
+  grounds: |
+    The path composes partway, then runs out. (1) issues §7 mirror-repair fires on record absence and
+    deterministically creates the local record mirroring remote-tracked content. (2) verify §10 then says
+    "proceeds with the audit", but with no spec artifact anywhere the reviewer has no primary artifact to
+    read (verify §1: "The reviewer reads the primary artifacts directly — spec/SCs, the diff, the executed
+    test output"); the short path's substitute (the work record's scope statement) is also absent — no work
+    record exists for a remote-first issue with no local work; §9 names the criteria set for a spec audit
+    but a criteria set requires an artifact to measure; §4's structural re-evaluation outcomes fire only
+    from loop triggers after findings exist, and artifact absence is explicitly barred as a fail reason
+    (§10). "The artifact" in §10 is underspecified: "absent locally" reads as locally-absent-though-remotely-
+    present (the mirror-repair cross-reference supports this), and neither reading yields an outcome for
+    total absence. The agent ends at an in-flight audit with no defined verdict path, no named halt, and no
+    applicable escalation trigger.
+  quotes:
+    - 'verify §10: "When the artifact is absent locally, the auditor performs the mirror-repair per the `issues` card and proceeds with the audit — absence of a local artifact is never a fail reason or halt ground by itself."'
+    - 'issues §7: "…mirror the remote-tracked content into `{N}/`, and correct the remote body''s pointer through the platform skill…"'
