@@ -1,10 +1,10 @@
 title: '[ENHANCEMENT] legacy-format warning fires permanently on removable open/closed
   residue — offer a remediation affordance'
-status: open
+status: closed
 labels:
 - needs-approval
 body: ''
 created_at: '2026-11-02T15:45:22+00:00'
-updated_at: '2026-11-02T16:35:48+00:00'
+updated_at: '2026-11-02T17:02:25+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2643
 phase: spec
