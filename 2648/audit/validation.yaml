@@ -1,0 +1,19 @@
+artifact: spec
+rounds:
+  - round: 1
+    date: 2026-11-02T14:52Z
+    artifact_state: ".opencode/.issues/2648/spec.md (mirror-repaired from the remote body on 2026-11-02; no prior local record existed)"
+    verifier: fresh-context reviewer agent (criteria set: .opencode/skills/spec/references/validation-standards.md)
+    verdict: FAIL
+    findings:
+      - class: cross-reference sufficiency
+        factual_kind: stale/mislocated line-range citation (the cited range named the set-env GB_TOKEN writer block, not the GB_ENV_ARGS strip; the "verified 2026-11-02" stamp did not match the verified surface)
+        quoted: "\"(`GB_ENV_ARGS` block, with-test-home ~line 705–710 on main, verified 2026-11-02)\""
+        classification: finding
+        remediation: citation replaced with the independently re-verified location (GB_ENV_ARGS declaration line 738; guarded += 739–741 on main, re-checked 2026-11-02) and the sentence restated to the verified mechanism, including the outside-the-provisioning-block fact that puts the strip on the resume-boot path
+    adjudicated_classes:
+      - class: cross-reference sufficiency
+        classification: finding
+    other_checks: reviewer verified all remaining factual claims true (seed_gb_config mechanism quote, recovery-default line at 56, delivery carrier b71a8c1c4, orphan-fix non-reachability negation, transient-evidence negation, pass-8/pass-9 record corroboration, #2639/#2646 cross-references, R-1 atomicity/instrument, impact enumeration) — no further findings
+    re_evaluation: none
+    remediation_state: applied in place on 2026-11-02 before round 2 dispatch
