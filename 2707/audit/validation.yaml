@@ -149,3 +149,42 @@ spec:
         result: not accurate — F-1
       - claim: store-holding implies a remote tracker
         result: not accurate for the remoteless sub-class — F-2
+  - round: 3
+    date: 2026-11-02
+    reviewer: fresh-context subagent (task ses_e62550d40ffeK0zysSwd1GHU9s)
+    criteria_set: .opencode/skills/spec/references/validation-standards.md
+    verdict: PASS
+    findings: []
+    classes_adjudicated:
+      - class: invented-requirement
+        classification: not-found
+      - class: untestable-criterion
+        classification: not-found
+      - class: either-or-criterion
+        classification: not-found
+      - class: ambiguous-criterion
+        classification: not-found (four two-reading judgment calls each
+          resolved by the spec's own text; none a defect)
+      - class: incapable-instrument
+        classification: not-found
+      - class: self-containment-violation
+        classification: not-found
+      - class: trivially-true-restatement
+        classification: not-found
+      - class: state-undecidable-criterion
+        classification: not-found
+    verified_claims:
+      - claim: all live-surface claims (card texts, grep results, instrument
+          existence, repo-class texts, cross-references, harness form,
+          writing-discipline citations)
+        result: accurate
+      - claim: directive quote
+        result: chat-sourced; corroborated by two independent same-day records
+          (#2704 expected-behavior text, triage record policy summary) — the
+          original chat text is not independently recoverable, inherent to the
+          in-place conversion the provenance records
+      - claim: repo-shape internal consistency (R-3, SC-3, SC-6, SC-8, Approach 1)
+        result: consistent — all five state the same three-shape doctrine
+      - claim: traceability both directions
+        result: holds — every SC traces to R-1..R-3 or the sanctioned
+          preservation shape; every root cause covered by criteria
