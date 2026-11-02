@@ -2494,6 +2494,18 @@ def _add_sync_parser(subparsers: argparse._SubParsersAction) -> None:
     )
 
 
+def _add_remediate_legacy_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser(
+        "remediate-legacy",
+        help="Remove verified-removable legacy-format residue; archive the rest under _legacy/ (mutation; auto-commits). Flags: --dry-run",
+    )
+    p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Report per-item routing (remove/archive with the reason) without mutating the store",
+    )
+
+
 def _add_doctor_parser(subparsers: argparse._SubParsersAction) -> None:
     subparsers.add_parser(
         "doctor",
@@ -2606,18 +2618,206 @@ def build_parser() -> argparse.ArgumentParser:
     _add_init_parser(sub)
     _add_sync_parser(sub)
     _add_sync_file_parser(sub)
+    _add_remediate_legacy_parser(sub)
     _add_doctor_parser(sub)
     _add_validate_yaml_parser(sub)
 
     return parser
 
 
+def _legacy_residue_items(issues_dir: Path) -> list[tuple[str, Path]]:
+    """Enumerate legacy-format residue items in an issues store (#2643).
+
+    Returns (kind, path) tuples: ``("slug", path)`` for top-level
+    ``{N}-slug`` directories (regex ``^\\d+-.+``) and ``("scaffold", path)``
+    for ``open/`` and ``closed/`` scaffolding directories. Shared by the
+    warning gate and the ``remediate-legacy`` command so the two cannot
+    disagree about what counts as residue. The sanctioned archive name
+    ``_legacy/`` is not flagged (it parses to no issue number).
+    """
+    if not issues_dir.is_dir():
+        return []
+    items: list[tuple[str, Path]] = []
+    for legacy_sub in ("open", "closed"):
+        scaffold = issues_dir / legacy_sub
+        if scaffold.is_dir():
+            items.append(("scaffold", scaffold))
+    for entry in sorted(issues_dir.iterdir()):
+        if entry.is_dir() and re.match(r"^\d+-.+", entry.name):
+            items.append(("slug", entry))
+    return items
+
+
+def _legacy_item_removable(entry: Path) -> tuple[bool, str]:
+    """Verify removability of one legacy residue item (#2643 R-1).
+
+    Removable when the record carries no content beyond its YAML metadata
+    block (empty body, no spec or other non-metadata files, no non-empty
+    comment or link entries) and tracks no remote issue (``github_url`` /
+    ``github_issue`` null). Returns ``(removable, reason)``.
+    """
+    children = sorted(entry.iterdir())
+    if not children:
+        return True, "empty directory"
+    for child in children:
+        if child.is_dir():
+            return False, f"contains subdirectory {child.name}/"
+        if child.name not in YAML_FILES:
+            return False, f"contains non-metadata file {child.name}"
+    issue_path = entry / "issue.yaml"
+    if issue_path.exists():
+        try:
+            data = yaml.safe_load(read_file(issue_path))
+        except Exception as e:
+            return False, f"unreadable issue.yaml ({e})"
+        if not isinstance(data, dict):
+            return False, "unreadable issue.yaml (non-mapping)"
+        if str(data.get("body") or "").strip():
+            return False, "body content present"
+        for key in ("github_url", "github_issue"):
+            if data.get(key) not in (None, ""):
+                return False, f"references remote issue ({key} set)"
+    comments_path = entry / "comments.yaml"
+    if comments_path.exists():
+        try:
+            cdata = yaml.safe_load(read_file(comments_path))
+        except Exception:
+            return False, "unreadable comments.yaml"
+        comments = cdata.get("comments") if isinstance(cdata, dict) else None
+        if comments:
+            for c in comments:
+                if isinstance(c, dict) and str(c.get("body") or "").strip():
+                    return False, "comment content present"
+    links_path = entry / "links.yaml"
+    if links_path.exists():
+        try:
+            ldata = yaml.safe_load(read_file(links_path))
+        except Exception:
+            return False, "unreadable links.yaml"
+        if isinstance(ldata, dict) and ldata.get("links"):
+            return False, "link entries present"
+    return True, "contentless and unreferenced"
+
+
+def _archive_legacy_item(entry: Path, legacy_dir: Path) -> Path:
+    """Move one legacy residue item intact under the store's _legacy/ archive.
+
+    Byte-identical content preservation (#2643 R-2); name collisions in the
+    archive resolve by numeric suffixing. Returns the archive destination.
+    """
+    dst = legacy_dir / entry.name
+    n = 0
+    while dst.exists():
+        n += 1
+        dst = legacy_dir / f"{entry.name}-{n}"
+    shutil.move(str(entry), str(dst))
+    return dst
+
+
+def cmd_remediate_legacy(args: argparse.Namespace) -> None:
+    """Remove or archive legacy-format residue in the CWD's .issues/ store.
+
+    Routing per item (#2643): removability-verified records are removed;
+    anything failing verification is preserved byte-identical under
+    ``_legacy/``. Scaffolding directories (``open/``, ``closed/``) are
+    removed once emptied. Real runs record through the standing mutation
+    contract (worktree establishment fail-fatal, then ``_auto_commit``);
+    ``--dry-run`` reports the routing and mutates nothing.
+    """
+    repo_path = Path(os.getcwd()).resolve()
+    repo_name = _resolve_repo_name()
+    issues_dir = repo_path / ISSUES_DIR
+    if not args.dry_run:
+        _reject_pull_only(repo_name, repo_path)
+        _ensure_worktree(repo_path=repo_path)
+    # Re-enumerate after worktree establishment: a first-mutation bootstrap
+    # replaces the plain .issues/ directory with the worktree checkout.
+    residue = _legacy_residue_items(issues_dir)
+    if not residue:
+        print(yaml_dump({"remediated": 0, "actions": [], "note": "nothing to do"}))
+        return
+    legacy_dir = issues_dir / "_legacy"
+    actions: list[dict[str, Any]] = []
+    # Dry-run simulates removals: routing decisions that would remove an
+    # item are tracked so scaffolding-empty checks preview the post-run
+    # state instead of reporting the pre-run directory listing.
+    pending_removals: set[Path] = set()
+
+    def _routed_away(record: Path) -> bool:
+        return (not args.dry_run and not record.exists()) or (
+            args.dry_run and record in pending_removals
+        )
+
+    def _route_record(record: Path, displayed: str) -> None:
+        removable, reason = _legacy_item_removable(record)
+        if removable:
+            if not args.dry_run:
+                shutil.rmtree(record)
+            else:
+                pending_removals.add(record)
+            actions.append(
+                {"item": displayed, "action": "removed", "reason": reason}
+            )
+        else:
+            dst = legacy_dir / record.name if args.dry_run else _archive_legacy_item(record, legacy_dir)
+            actions.append(
+                {
+                    "item": displayed,
+                    "action": "archived",
+                    "reason": reason,
+                    "archived_to": str(dst),
+                }
+            )
+
+    for kind, item in residue:
+        if kind == "scaffold":
+            for child in sorted(item.iterdir()):
+                if child.name == ".git":
+                    continue
+                _route_record(child, f"{item.name}/{child.name}")
+            remaining = [
+                c for c in item.iterdir()
+                if c.name != ".git" and not _routed_away(c)
+            ]
+            if not remaining:
+                if not args.dry_run:
+                    item.rmdir()
+                actions.append(
+                    {
+                        "item": item.name + "/",
+                        "action": "removed",
+                        "reason": "empty legacy scaffolding directory",
+                    }
+                )
+            else:
+                actions.append(
+                    {
+                        "item": item.name + "/",
+                        "action": "preserved",
+                        "reason": "still holds preserved records",
+                    }
+                )
+        else:
+            _route_record(item, item.name)
+
+    if not args.dry_run:
+        _auto_commit("auto: remediate legacy-format residue", repo_path)
+    print(
+        yaml_dump(
+            {
+                "store": str(issues_dir),
+                "dry_run": bool(args.dry_run),
+                "actions": actions,
+            }
+        )
+    )
+
+
 def _check_legacy_formats(issues_dir: Path) -> None:
     """Emit a warning if legacy issue directory formats are detected.
 
-    Checks for:
-    1. .issues/open/ or .issues/closed/ subdirectories
-    2. Directories matching legacy slug format {N}-{slug} (regex: ^\\d+-.+)
+    Residue predicates are single-sourced in `_legacy_residue_items` —
+    open/ or closed/ scaffolding, or top-level {N}-{slug} directories.
 
     Warns on EVERY run — the once-only `.legacy-warned` sentinel was
     swept into the tracked branch by `git add -A`, permanently muting
@@ -2625,34 +2825,18 @@ def _check_legacy_formats(issues_dir: Path) -> None:
     sanctioned archive name `_legacy/` is not flagged (it parses to no
     issue number).
     """
-    if not issues_dir.is_dir():
+    if not _legacy_residue_items(issues_dir):
         return
-
-    legacy_found = False
-
-    # Check for open/ or closed/ subdirectories
-    for legacy_sub in ("open", "closed"):
-        if (issues_dir / legacy_sub).is_dir():
-            legacy_found = True
-            break
-
-    # Check for legacy slug-format directories (^\d+-.+)
-    if not legacy_found:
-        for entry in issues_dir.iterdir():
-            if not entry.is_dir():
-                continue
-            if re.match(r"^\d+-.+", entry.name):  # noqa: SIM114
-                legacy_found = True
-                break
-
-    if legacy_found:
-        print(
-            "Warning: Legacy issue directory format detected in .issues/. "
-            "Correct format is .issues/{N}/ (flat numbered directories) "
-            "or .opencode/.issues/{N}/ for submodule repos. "
-            "AI agent must inspect and remediate manually.",
-            file=sys.stderr,
-        )
+    print(
+        "Warning: Legacy issue directory format detected in .issues/. "
+        "Correct format is .issues/{N}/ (flat numbered directories) "
+        "or .opencode/.issues/{N}/ for submodule repos. "
+"Remediate with the tool's remediate-legacy command "
+            "(local-issues remediate-legacy; add --dry-run to preview) — "
+            "verified-removable residue is removed, the rest is archived "
+            "under _legacy/.",
+        file=sys.stderr,
+    )
 
 
 def main() -> None:
@@ -2686,6 +2870,7 @@ def main() -> None:
         "init": cmd_init,
         "sync": cmd_sync,
         "sync-file": cmd_sync_file,
+        "remediate-legacy": cmd_remediate_legacy,
         "doctor": cmd_doctor,
         "validate-yaml": cmd_validate_yaml,
     }
