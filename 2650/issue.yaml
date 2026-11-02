@@ -1,26 +1,170 @@
-title: Two-SC manifest rewrite accumulates duplicate keys across recovery passes
+title: '[SPEC] Two-SC manifest rewrite — idempotent per-pass recording'
 status: open
 labels:
 - bug
-body: "## Defect (cosmetic)\n\nThe two-SC scenario scripts' manifest rewrite block\
-  \ appends per-pass annotations by concatenating the previous manifest with new lines:\n\
-  \n```bash\n{ cat \"$artifact_dir/manifest.yaml\" 2>/dev/null || true\n  echo \"\
-  two_turn: true\"\n  echo \"turn2_resumed_home: $test_home\"\n  [ -n \"${SC8_SKIP_TURN2:-}\"\
-  \ ] && echo \"tail_materialization_pass: true ...\"\n} > \"$artifact_dir/manifest.yaml.tmp\"\
-  \ && mv ...\n```\n\nAcross multi-pass recovery runs this accumulates duplicate keys\
-  \ — `two_turn` / `turn2_resumed_home` / `tail_materialization_pass` repeated once\
-  \ per pass (observed: 9 repetitions in the SC-8 artifact manifest after passes 1-9).\
-  \ YAML parsers take the last duplicate; consumers that read the first, or that validate\
-  \ strictly, get inconsistent behavior. Cosmetic today (all duplicates carry identical\
-  \ values except the free-text `tail_materialization_pass` annotation), but it is\
-  \ a data-hygiene defect in the evidence artifact the clean-room evaluator reads.\n\
-  \n## Fix shape (when picked up)\n\nIdempotent append: overwrite the scalar keys\
-  \ (single occurrence) and append only NEW pass annotations to a per-pass list key\
-  \ (e.g. `tail_materialization_passes: [...]`), or grep-guard the echoes.\n\n> Evidence:\
-  \ `tmp/behavioral-evidence-2639-sc8-second-directive-rides-open-pr-GREEN-*/manifest.yaml`\
-  \ (duplicate-key repetitions visible in the tail).\n\n> Full spec and plan artifacts:\
-  \ https://github.com/michael-conrad/.opencode/tree/issues-data/2650/\n\nArtifacts\
-  \ for agents: `.opencode/.issues/2650/`.\n\n"
+- spec-fix
+body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-Identifier:\
+  \ MIT -->\n<!-- Provenance: AI-authored. Revised from the 2026-11-01 defect filing\n\
+  \     (#2650) into this specification under the developer's directive of\n     2026-11-01\
+  \ (triage .opencode#2650 and convert it into a full spec).\n     Evidence basis:\
+  \ the filing's observed failure record, verified by code\n     inspection this session\
+  \ — triage verdict\n     `.opencode/.issues/2650/verdict.md` (2026-11-02 UTC). -->\n\
+  \n# [SPEC] Two-SC manifest rewrite — idempotent per-pass recording\n\n## Problem\n\
+  \nThe two-SC behavioral scenario scripts record the two-turn exchange shape in\n\
+  their artifact's `manifest.yaml` by a rewrite block that concatenates the\nprevious\
+  \ manifest with freshly echoed lines:\n\n```bash\n{\n    cat \"$artifact_dir/manifest.yaml\"\
+  \ 2>/dev/null || true\n    echo \"two_turn: true\"\n    echo \"turn2_resumed_home:\
+  \ $test_home\"\n    [ -n \"${SC8_SKIP_TURN2:-}\" ] && echo \"tail_materialization_pass:\
+  \ true (...)\"\n} > \"$artifact_dir/manifest.yaml.tmp\" && mv \"$artifact_dir/manifest.yaml.tmp\"\
+  \ \"$artifact_dir/manifest.yaml\"\n```\n\n`2639-sc8-second-directive-rides-open-pr.sh`\
+  \ recovery mode\n(`SC8_RECOVERY_HOME`) runs turn-1's fresh `behavior_run` only on\
+  \ pass 1 and\nthen re-discovers the newest existing artifact directory on every\
+  \ recovery\npass — so each recovery pass re-enters this rewrite block against the\
+  \ same\nfile, appending one more copy of `two_turn`, `turn2_resumed_home`, and (on\n\
+  skip-turn2 materialization passes) `tail_materialization_pass`\n(script lines 45–61,\
+  \ 160–166).\n\n**Observed failure (filing's record, verified by inspection):** 9\n\
+  repetitions of these keys in the SC-8 artifact manifest after pass 9 of\nthe recorded\
+  \ sequence (9 passes total — pass 1's fresh run and turn-2\nblock, then 8 recovery\
+  \ passes). The repetition count follows the mechanism\narithmetically: one copy\
+  \ per recording pass — the pass-1 rewrite block's\nfirst copies, plus one per recovery\
+  \ pass. Today every duplicate carries\nan identical value, so YAML last-wins parsing\
+  \ reads a correct manifest —\ncosmetic at runtime — but it is a data-hygiene defect\
+  \ in the evidence\nartifact the clean-room evaluator reads: consumers reading first\
+  \ occurrences\ninstead of last, or validating strictly, get inconsistent behavior,\
+  \ and the\nfree-text `tail_materialization_pass` annotation is the one field whose\n\
+  future pass-variant wording could silently diverge between first- and\nlast-wins\
+  \ readings.\n\n**Root causes covered:**\n\n- **RC-1 (→ dup accumulation)** — pass-reuse\
+  \ of one artifact directory\n  (recovery re-discovery) against an unguarded concatenate-and-re-echo\n\
+  \  rewrite: N passes → N copies. The block's sibling surface in the same\n  recovery\
+  \ path already carries the matching fix for this class — the\n  `TEST_HOME=` marker\
+  \ append is guarded with `>>` (\"a second recovery pass\n  must not clobber the\
+  \ prior pass's recovery evidence\",\n  `.opencode#2646` docker-resume fix) — the\
+  \ manifest was missed by that fix.\n- **RC-2 (→ no per-pass structure)** — the per-pass\
+  \ annotation is echoed as\n  a bare scalar line, so per-pass recording has no per-pass\
+  \ key to land on;\n  idempotence for it can only mean dropping repeated entries\
+  \ or tolerating\n  duplicates.\n\n## Scope\n\nThe `.opencode` deck's behavioral-harness\
+  \ scenario surface only:\n\n- `tests-v2/behaviors/2639-sc8-second-directive-rides-open-pr.sh`\
+  \ — the\n  manifest rewrite block becomes pass-idempotent recording.\n- `tests-v2/behaviors/2557-sc7-ask-record-commands.sh`\
+  \ — its same-pattern\n  rewrite block (lines 72–77; `two_turn` / `turn2_resumed_home`,\
+  \ no pass\n  annotation) takes the same shape; the issue's title covers the two-SC\n\
+  \  scripts and the block is one shared pattern.\n- `tests-v2/behaviors/helpers.sh`\
+  \ — one new manifest-recording helper used\n  by both scripts' blocks (the only\
+  \ `helpers.sh` touch).\n- One non-model verification probe under `tests-v2/` exercising\
+  \ the\n  recording path across a simulated pass sequence (R-1's and R-2's\n  instrument;\
+  \ §11/§6a concerns do not apply — this is harness-side\n  generation-metadata code,\
+  \ not model-behavior evidence).\n- The `.opencode#2650` record — body and labels\
+  \ reconciled on both surfaces\n  so the spec filing is consistent with the store\
+  \ (SC-5 decides the end\n  state).\n\n## Requirements\n\n- **R-1 — pass-idempotent\
+  \ scalar keys.** The two-SC manifest recording\n  SHALL be idempotent across recovery\
+  \ passes: repeated recording\n  invocations against one artifact directory never\
+  \ grow `two_turn` or\n  `turn2_resumed_home` occurrence counts beyond one each,\
+  \ the recorded\n  value is the latest invocation's, and the write preserves every\
+  \ key and\n  value the previous manifest carries beyond those two scalars — the\
+  \ base\n  heredoc keys (`scenario_name`, `phase`, `model`, `timestamp`,\n  `exit_code`,\
+  \ `harness_version`) and everything recorded into the\n  manifest between recording\
+  \ passes (e.g. a `resumed_after_cap_hit: true`\n  marker appended by `behaviors/helpers.sh`\
+  \ line 2273 in the pass-1 cap-hit\n  path, which today's concatenate-first block\
+  \ carries forward).\n- **R-2 — per-pass annotation collection.** The tail-materialization\
+  \ pass\n  annotation SHALL append exactly one entry to a per-pass list key\n  (e.g.\
+  \ `tail_materialization_passes: [...]`) per annotation-carrying\n  recording invocation\
+  \ — entries accumulate one per invocation, even when\n  entries' text is identical\
+  \ (per-pass identity is the invocation, never\n  value uniqueness) — replacing the\
+  \ current re-echoed\n  `tail_materialization_pass` scalar; an invocation carrying\
+  \ no annotation\n  adds no entry and no list key. Repeated passes never duplicate\
+  \ an entry\n  beyond that one-per-invocation rule and never lose an earlier one.\n\
+  - **R-3 — shared shape, both scripts.** Both two-SC scripts\n  (`2557-sc7`, `2639-sc8`)\
+  \ SHALL record the two-turn shape through the one\n  idempotent recording path —\
+  \ no script retains the inline\n  concatenate-and-re-echo block; SC-7's call carries\
+  \ no pass annotation, so\n  its recording output adds only the two scalar keys it\
+  \ records today.\n- **R-4 — unchanged harness surfaces.** All other manifest surfaces\
+  \ SHALL\n  keep current behavior unchanged: the base heredoc manifest\n  (`behaviors/helpers.sh`\
+  \ 2176), the `resumed_after_cap_hit: true`\n  append (2273), the `TEST_HOME=` marker\
+  \ append, fixture-written manifests\n  (`fixtures/setup/*.sh` heredocs), and `session.yaml`'s\
+  \ own shape — no\n  machinery outside the two-SC recording blocks and the probe\
+  \ changes.\n- **R-5 — record truth.** The `.opencode#2650` record SHALL read\n \
+  \ consistently across surfaces: title and labels agree between the GitHub\n  tracker\
+  \ and `.opencode/.issues/2650/`, renamed to this spec's `[SPEC]`\n  title with labels\
+  \ `bug`, `spec-fix`; the remote body\n  carries this spec as a structured summary\
+  \ closing with a resolvable\n  artifacts pointer; `.opencode/.issues/2650/spec.md`\
+  \ is the single\n  authoritative spec; the pre-conversion filing body is archived\
+  \ in the\n  store folder (`issue-body-original.md`).\n\n## Success criteria\n\n\
+  - **SC-1 (behavioral) (→ R-1).** Three consecutive recording invocations\n  against\
+  \ one artifact directory leave `two_turn` and `turn2_resumed_home`\n  at exactly\
+  \ one occurrence each, values the invocations supplied, all six\n  base-manifest\
+  \ keys present, and the seeded pre-existing marker key\n  (`resumed_after_cap_hit:\
+  \ true`, seeding the pass-1 cap-hit append)\n  preserved. *Instrument:* executed\
+  \ non-model probe under `tests-v2/` that\n  drives the recording path three times\
+  \ over one seeded temp artifact dir;\n  a YAML parse plus key-occurrence count of\
+  \ the resulting `manifest.yaml`\n  (captured output). A three-invocation sequence\
+  \ observes the accumulation\n  mechanism directly: the unguarded rewrite adds ≥2\
+  \ further copies per key;\n  the idempotent rewrite adds none — the probe can in\
+  \ principle fail on the\n  current code (verified: the block appends unconditionally\
+  \ on each\n  invocation).\n- **SC-2 (behavioral) (→ R-2).** Three consecutive invocations\
+  \ carrying the\n  pass annotation leave a single per-pass list key whose value holds\n\
+  \  exactly three entries, and no `tail_materialization_pass` scalar line; a\n  further\
+  \ no-annotation invocation adds no entry and no list key. *Instrument:* the same\n\
+  \  probe; occurrence count of the list key and absence of the scalar\n  (captured\
+  \ output).\n- **SC-3 (structural) (→ R-3).** Both two-SC scripts record through\
+  \ the\n  shared recording path and retain no inline concatenate-and-re-echo block.\n\
+  \  *Instrument:* grep across `tests-v2/behaviors/*.sh` returns the inline\n  pattern\
+  \ at zero call sites it does not belong to; read-back confirms both\n  scripts invoke\
+  \ the one recording path.\n- **SC-4 (structural) (→ R-4).** Unchanged-surfaces check:\
+  \ no file outside\n  the two-SC scripts, `helpers.sh` (the one recording helper),\
+  \ the probe,\n  and the #2650 record changes, and `helpers.sh`'s other manifest\
+  \ surfaces\n  (base heredoc, `resumed_after_cap_hit` append) are byte-identical.\n\
+  \  *Instrument:* recorded diff review of the change against its base tip;\n  grep\
+  \ confirms the appended line at 2273 untouched.\n- **SC-5 (structural) (→ R-5).**\
+  \ Record parity. *Instrument:* read-back of\n  GitHub #2650 and `.opencode/.issues/2650/`\
+  \ — titles equal, labels equal\n  (`bug`, `spec-fix`), the remote body carries this\
+  \ spec's structured\n  summary closing with a resolvable artifacts pointer, the\
+  \ local store body\n  mirrors the remote body, `spec.md` present and store-authoritative,\
+  \ and\n  `issue-body-original.md` present.\n\n## Out of scope\n\n- Full recovery\
+  \ runs with live model inference as the verification\n  instrument — a real cap-hit\
+  \ resume is not deterministically reproducible\n  on demand; the probe exercises\
+  \ the identical recording code path with\n  bounded cost (R-1's instrument basis).\
+  \ Scenario RED/GREEN behavior of the\n  model runs is untouched by this change.\n\
+  - The recovery/re-discovery mechanics themselves (`SC8_RECOVERY_HOME`\n  directory\
+  \ selection, `--resume-home`, determination gates,\n  `__resume_on_cap_hit` ceilings)\
+  \ — they are working\n  `.opencode#2646` machinery; only the recording shape it\
+  \ re-enters\n  changes.\n- Any manifest consumer change — nothing in the deck reads\
+  \ these keys\n  (consumer scan recorded 2026-11-02: only the two write sites and\
+  \ no read\n  sites across `tests-v2/` and the deck).\n- Fixture-written manifests,\
+  \ other scenario scripts' heredoc manifests, and\n  the §12/§13 harness surfaces.\n\
+  - Closure logistics for #2650 — post-merge cleanup per the issues card is\n  not\
+  \ a spec deliverable.\n\n## Approach\n\n1. **Shared recording helper (R-1, R-2,\
+  \ R-3).** Add one\n   `behaviors/helpers.sh` function — pass-idempotent manifest\
+  \ recording:\n   read the existing manifest, overwrite the two-turn scalars to single\n\
+  \   occurrence, append the pass annotation as one entry to the per-pass list\n \
+  \  key only when the invocation carries one. An annotation-only-when-new\n   list\
+  \ (never a re-echoed scalar) directly answers RC-2; single-occurrence\n   overwrite\
+  \ answers RC-1.\n2. **Call it from both blocks (R-3).** SC-8's block calls the helper\
+  \ with\n   its skip-turn2 annotation; SC-7's block calls it with no annotation.\
+  \ The\n   inline `cat`-echo blocks are deleted in the same change that lands the\n\
+  \   calls (self-containment).\n3. **Probe (SC-1, SC-2's instrument).** One non-model\
+  \ test under `tests-v2/`\n   seeds a temp artifact dir with a base manifest plus\
+  \ a\n   `resumed_after_cap_hit: true` marker line (the pass-1 cap-hit append\n \
+  \  path), drives the recording path three times with the pass annotation\n   (mirroring\
+  \ the observed materialization passes) and once without, and\n   parses/asserts\
+  \ the resulting manifest — occurrence counts, list shape,\n   and marker preservation,\
+  \ captured output. The probe is invoked directly\n   (`bash <probe>`), registered\
+  \ into no runner's scenario registries —\n   `tests-v2/test-enforcement.sh`'s in-file\
+  \ scenario registries are\n   outside R-4's changed-file set, so runner registration\
+  \ is out of scope\n   (R-4's constraint, stated to close the deferral branch). RED\
+  \ on the\n   current code (duplicates accumulate), GREEN with the helper.\n4. **Record\
+  \ reconciliation (R-5).** Labels gain `spec-fix` alongside `bug`\n   on both surfaces;\
+  \ the remote body is re-shaped with this spec's summary\n   and the closing artifacts\
+  \ pointer; the local store body mirrors it; the\n   pre-conversion body is archived\
+  \ first (this revision's flow, before\n   implementation).\n\n**Impact.** Blast\
+  \ radius: two scenario scripts, one `helpers.sh` helper, one\nnew probe test, the\
+  \ #2650 record/labels — no other harness, deck, tool, or\nhook surface. Consumers:\
+  \ the clean-room evaluator reads artifact manifests\nas generation metadata — SC-7/SC-8\
+  \ artifacts' key semantics are unchanged;\nthe tail annotation's shape moves from\
+  \ repeated scalar to a per-pass list\nwith no deck reader affected (scan on record).\
+  \ Dependent tests: none assert\nthese manifest keys; fixture manifests are heredoc-written\
+  \ and unaffected\n(R-4). Recovery: text edits on the deck's feature branch — every\
+  \ element\nreverses through branch history.\n\n\U0001F916 OpenCode (huggingface/zai-org/GLM-5.3-Flash)\n\
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2650/\n\
+  \nArtifacts for agents: `.opencode/.issues/2650/`.\n\n"
 created_at: '2026-11-02T03:53:57+00:00'
-updated_at: '2026-11-02T03:55:10+00:00'
+updated_at: '2026-11-02T04:17:03+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2650
