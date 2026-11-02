@@ -30,7 +30,7 @@ spec:
         result: accurate (floor.md default-scope clause quotes "no issue closure")
       - claim: existing issue-store workspace-maintenance exception does not already cover remote-tracker reconciliation
         result: accurate (exception covers issues-data store data only, explicitly excludes deck content)
-      - claim: "audit" is a closed-token-set token
+      - claim: '"audit" is a closed-token-set token'
         result: accurate
       - claim: issues card §5 names evidence-backed verified-resolved/moot triage verdict as closure trigger
         result: accurate ("Issue closure follows ... an evidence-backed verified-resolved/moot triage verdict ...")
