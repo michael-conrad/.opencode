@@ -1,0 +1,9 @@
+title: with-test-home resume boot wipes the stored gb credential and strips GB_TOKEN
+  when BEHAVIOR_NEEDS_REMOTE is unset
+status: open
+labels:
+- needs-approval
+- bug
+body: ''
+created_at: '2026-11-02T14:34:47+00:00'
+updated_at: '2026-11-02T14:34:47+00:00'
