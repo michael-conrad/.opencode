@@ -1,1 +1,70 @@
-comments: []
+comments:
+- type: stakeholder
+  body: '**Triage verdict: verified-resolved** (triaged 2026-11-02). Every defect
+    this issue records is remediated and merged to the deck''s trunk. No spec is filed
+    from this issue because the remediation already exists as specced, executed, merged
+    work (per the #2620 precedent for exactly this disposition):
+
+
+    - **Squash-at-creation false blocking — the body''s defect.** Remediated by #2665
+    (merged PR #2680, 2026-10-28). Verified live this session against the current
+    deck: `git-workflow-pr` §3 carries the agent-owned per-issue squash on a published
+    branch — "Squash WIP to one commit per issue at PR creation"; the producing agent
+    "produces the per-issue squash itself and pushes the rewritten branch with `git
+    push --force-with-lease origin <branch>`" and "does not solicit a developer''s
+    force-push decision"; the rewrite is stated in the PR body; the mandate "applies
+    to all PRs, including release PRs"; the authorization is lease-only, scoped by
+    the three-condition rewrite (the agent''s own branch, unmerged, held by no other
+    party), and a branch failing any one condition falls under the floor''s general
+    gate. Behavioral coverage shipped with the same PR: `tests-v2/behaviors/2665-sc5-squash-lease-push-own-branch.sh`,
+    `2665-sc6-squash-holds-anothers-branch.sh`, and their setup fixtures.
+
+
+    - **Floor-side carve-out — the issue''s remedy direction (a).** The same delivery
+    rewrote `floor.md`: "Exception — the agent''s own feature branch: an action a
+    feature branch receives under the `git-workflow-pr` card''s scoped branch rewrite
+    … proceeds under that card, not this bullet." An agent reading the floor alone
+    no longer reads the destructive gate as a refusal to rewrite its own unmerged
+    branch — remedy direction (b) (the PR card stating the rewrite outright) landed
+    with it, so both suggested remedies are live.
+
+
+    - **Standalone pointer-capture commit at the review surface.** The ride-along
+    invariant stands and the squashed shape folds the capture: `git-workflow-commit`
+    ("the squashed review surface: the pointer rides with real changes") and `git-workflow-branch`
+    ("the pointer rides with real changes in the squashed per-issue commit"), composing
+    with §3''s one-squashed-commit-per-issue shape the agent now produces itself.
+
+
+    - **The false blocking reason itself — rule knowledge cited as a block.** The
+    decision-loop counterweight clauses entered the floor by #2670 (merged PR #2671,
+    2026-10-26): a terse message that could plausibly authorize a gated surface is
+    clarified first; "knowledge of a rule — including citing it — never stands as
+    satisfaction of the rule"; option listings name no prohibited surface.
+
+
+    - **The comment''s GitBucket closing-keyword observation** (release PR #5''s `Closes`
+    lines auto-closed #3 and #4 against the then-deck''s "GitBucket has no closing-keyword
+    auto-close"). Corrected by #2658 (merged PR #2692, 2026-10-30): the class is per
+    (platform × form) — GitBucket closes the same-repo form at default-branch merge,
+    the cross-repo form closes nothing — measured on the current release, GitBucket
+    4.48.0 (17-row merge matrix plus the upstream mechanism reading, `extractCloseId`
+    rejecting qualified forms at the parser; research artifact `.opencode/.issues/2658/research/closing-keyword-measurement.md`).
+    This satisfies the comment''s own directive that platform notes be verified against
+    current GitBucket rather than assumed.
+
+
+    Two closing notes. (1) This ticket is the first observed instance (2026-10-21,
+    GitBucket release filing on ClinicaltrialAlertsSender) of the defect class whose
+    second instance #2665''s observed failure records (2026-10-24, algonquian-library)
+    — the remediation predates no open work. (2) The local `{N}/` store record was
+    absent until this session — its mirror-repair record per issues §7 lives in `.opencode/.issues/2652/`
+    with the original defect report at `issue-body-original.md`; the remote body stays
+    as filed (the #2620 precedent for verdict-closed issues).
+
+
+    Closing verified-resolved.
+
+
+    🤖 OpenCode (huggingface/zai-org/GLM-5.3-Flash)'
+  timestamp: '2026-11-02T03:50:44+00:00'
