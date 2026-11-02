@@ -1,0 +1,102 @@
+# Validation record (YAML) — .opencode#2643 spec audit (on-demand)
+# Criteria set: .opencode/skills/spec/references/validation-standards.md — canonical source, restated verbatim per the criteria-invariance rule
+# Record = the loop's history; the verdict is recorded once (chat report per the verify card's recording rule)
+artifact: spec
+store: .opencode/.issues/2643/
+rounds:
+  - round: 1
+    date: "2026-11-02"
+    artifact_state: intake-mirror — mirror-repaired this session (record created, remote-tracked
+      content mirrored verbatim, github_url set, remote body pointer appended);
+      the spec stage has never run on this ticket
+    verdict: FAIL
+    findings:
+      - class: problem fit
+        classification: finding
+        defect: >-
+          The artifact is not a spec: no success criteria exist anywhere in
+          the body, so the issue has no spec filing and the spec stage
+          demonstrably has not run. The body contains only observed behavior,
+          desired-end-state prose, a repro, and a component line; its own
+          header discloses intake status.
+        remediation: >-
+          None performed this dispatch — the remediation is the spec-creation
+          stage itself (a distinct pipeline stage; not authorized by this
+          dispatch). Ticket awaits the developer's spec-stage authorization.
+      - class: untestable criterion
+        classification: finding
+        defect: >-
+          Both "Expected behavior" sentences state goals with no stated or
+          derivable verification instrument ("should offer a remediation
+          affordance" / "should not repeat on every invocation") — completion
+          would be asserted rather than demonstrated.
+        remediation: >-
+          None performed this dispatch — resolves in spec creation (criteria
+          with instruments); awaits spec-stage authorization.
+      - class: either/or criterion
+        classification: finding
+        defect: >-
+          Remediation alternatives are bundled as one requirement plus a
+          second requirement level ("removes (or archives) them",
+          "`doctor --remediate-legacy` ... or auto-migrating", "At minimum,
+          the warning should not repeat") — an implementer satisfying one
+          branch passes while the ask is unresolved.
+        remediation: >-
+          None performed this dispatch — resolves in spec creation; awaits
+          spec-stage authorization.
+      - class: ambiguous criterion
+        classification: finding
+        defect: >-
+          The suppression condition is undefined: at least two readings of
+          "should not repeat on every invocation for a store whose
+          current-format records are all healthy" ("healthy" undefined;
+          a zero-record store vacuously qualifies), and the artifact resolves
+          neither.
+        remediation: >-
+          None performed this dispatch — resolves in spec creation; awaits
+          spec-stage authorization.
+      - class: research adequacy
+        classification: finding
+        defect: >-
+          Design-alternative history is unweighed: the once-only warning shape
+          was previously introduced (#1309 SC-6), found defective, and
+          deliberately removed (#2548 C5; the current source's docstring
+          records the sentinel's commit-muting failure mode); #1309's
+          non-goals explicitly scope out an automated migration command
+          ("tool warns, agent remediates manually") and #2627 bounds any
+          suppression design (fires only when the store genuinely deviates).
+          The artifact carries none of this.
+        remediation: >-
+          None performed this dispatch — resolves in spec creation
+          (design decision the developer weighs when authorizing the spec
+          stage); awaits spec-stage authorization.
+    adjudicated_preferences:
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          "_check_legacy_format" (singular) vs the actual symbol
+          "_check_legacy_formats" — transcription slip on an
+          unambiguously-pinned referent; the verbatim-mirror
+          contract forbids the mirror correcting the filer's wording;
+          nothing depends on the name.
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          "every ... invocation (except doctor/validate-yaml)" does not list
+          the --description short-circuit, which bypasses the warning
+          pre-parse; no requirement or conclusion hinges on the
+          metadata-query edge.
+      - class: phrasing precision
+        classification: preference
+        ground: >-
+          "~line 2494" is stale against today's file (now 2615) but accurate
+          against the code state in force at filing (commit e2cb95b34,
+          warning print at 2492-2499); drift is post-filing file evolution
+          (#2667/#2672/#2655), not an artifact defect.
+    re-evaluation: none
+    loop_state: >-
+      Single cycle. Spin, non-convergence, and count triggers all unfired.
+      Terminal for this dispatch on the stage boundary: every finding's
+      remediation is the spec-creation stage, which is outside an audit
+      dispatch's scope. Post-cycle ticket state: open, intake-mirrored,
+      spec stage pending developer authorization.
