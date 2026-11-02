@@ -17,12 +17,15 @@ token = "$gb_token"
 TOML
 ```
 
-The same guard strips `GB_TOKEN` from the agent's `env -i` (`GB_ENV_ARGS`
-block, with-test-home ~line 705–710 on main, verified 2026-11-02). A
-recovery/resume launch of a remote-dependent scenario that omits
-`BEHAVIOR_NEEDS_REMOTE` therefore produces a test home where **both
-credential surfaces are empty**: every REST call 401s regardless of the
-launcher's `GB_TOKEN`.
+An identically-guarded conditional passes `GB_TOKEN` into the agent's
+`env -i` environment only under `BEHAVIOR_NEEDS_REMOTE=1`
+(`GB_ENV_ARGS+=(GB_TOKEN="${GB_TOKEN:-}")` under the flag guard,
+with-test-home lines 738–741 on main, verified 2026-11-02; built
+unconditionally, outside the fresh-invocation provisioning block that ends at
+line 711, so resume boots reach it). A recovery/resume launch of a
+remote-dependent scenario that omits `BEHAVIOR_NEEDS_REMOTE` therefore
+produces a test home where **both credential surfaces are empty**: every REST
+call 401s regardless of the launcher's `GB_TOKEN`.
 
 ## Observed (2026-10-20, .opencode#2639 SC-8 recovery passes)
 
