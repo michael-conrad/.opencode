@@ -1,8 +1,24 @@
 title: Two-SC manifest rewrite accumulates duplicate keys across recovery passes
 status: open
 labels:
-- needs-approval
 - bug
-body: ''
+body: "## Defect (cosmetic)\n\nThe two-SC scenario scripts' manifest rewrite block\
+  \ appends per-pass annotations by concatenating the previous manifest with new lines:\n\
+  \n```bash\n{ cat \"$artifact_dir/manifest.yaml\" 2>/dev/null || true\n  echo \"\
+  two_turn: true\"\n  echo \"turn2_resumed_home: $test_home\"\n  [ -n \"${SC8_SKIP_TURN2:-}\"\
+  \ ] && echo \"tail_materialization_pass: true ...\"\n} > \"$artifact_dir/manifest.yaml.tmp\"\
+  \ && mv ...\n```\n\nAcross multi-pass recovery runs this accumulates duplicate keys\
+  \ — `two_turn` / `turn2_resumed_home` / `tail_materialization_pass` repeated once\
+  \ per pass (observed: 9 repetitions in the SC-8 artifact manifest after passes 1-9).\
+  \ YAML parsers take the last duplicate; consumers that read the first, or that validate\
+  \ strictly, get inconsistent behavior. Cosmetic today (all duplicates carry identical\
+  \ values except the free-text `tail_materialization_pass` annotation), but it is\
+  \ a data-hygiene defect in the evidence artifact the clean-room evaluator reads.\n\
+  \n## Fix shape (when picked up)\n\nIdempotent append: overwrite the scalar keys\
+  \ (single occurrence) and append only NEW pass annotations to a per-pass list key\
+  \ (e.g. `tail_materialization_passes: [...]`), or grep-guard the echoes.\n\n> Evidence:\
+  \ `tmp/behavioral-evidence-2639-sc8-second-directive-rides-open-pr-GREEN-*/manifest.yaml`\
+  \ (duplicate-key repetitions visible in the tail).\n\n"
 created_at: '2026-11-02T03:53:57+00:00'
-updated_at: '2026-11-02T03:53:57+00:00'
+updated_at: '2026-11-02T03:54:29+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2650
