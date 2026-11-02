@@ -121,3 +121,47 @@ spec:
         2026-10-22 original body via GitHub issue edit-history; Butter
         repository non-visibility re-confirmed live.
       classification: verdict-record
+plan:
+  artifact: plan.md
+  criteria_source: .opencode/skills/plan/references/plan-validation-standards.md
+  rounds:
+    - round: 1
+      date: '2026-11-01'
+      reviewer_context: fresh
+      verdict: FAIL
+      findings:
+        - class: internal inconsistency (defect class 5)
+          location: plan.md line 11 (duplicated orphan item header)
+          ground: >
+            A stray "### Item 4 — SC-6 behavioral scenario script (SC-6)"
+            header with no body preceded Item 1, leaving five item headings
+            for four items — execution order not followable from the plan
+            alone.
+          remediation: Orphan header removed; item inventory is four items.
+          classification: finding
+        - class: factual defect (defect class 5 family; misstates fact)
+          location: Item 1 GREEN step (list-position ordinal)
+          ground: >
+            Plan stated the new rule inserts as "a fifth `-` bullet"; floor.md
+            §Safety (irreducible) carries exactly three bullets, so the insert
+            is the fourth. Misstates the list state the item's own RED
+            describes.
+          remediation: Ordinal corrected to "fourth".
+          classification: finding
+      outcome: remediated — re-validation dispatched (round 2)
+    - round: 2
+      date: '2026-11-01'
+      reviewer_context: fresh
+      verdict: PASS
+      findings: []
+      outcome: >
+        Zero-findings verdict. Reviewer spot-checked every factual claim
+        against the live surfaces (floor.md §Safety three bullets; gradle card
+        §Wrapper discipline two routing-only bullets; implementation-workflow.md
+        §Submodule execution boundary text; no 2654-scoped scenario in
+        tests-v2/behaviors/; tools/session-to-timeline exists); traceability
+        both directions complete; ordering explicit and acyclic; REDs
+        falsifiable; instruments real and of the right nature (SC-6 runtime
+        via session.yaml timeline); scope matches the spec's blast radius; no
+        escape hatches; no divergence from the spec's Approach.
+      classification: verdict-record
