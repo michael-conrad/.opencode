@@ -1,0 +1,56 @@
+# Validation record (YAML) — .opencode#2644 spec audit (on-demand)
+# Criteria set: .opencode/skills/spec/references/validation-standards.md — canonical source, restated verbatim per the criteria-invariance rule
+# Record = the loop's history; the verdict is recorded once (chat report per the verify card's recording rule)
+artifact: spec
+store: .opencode/.issues/2644/
+rounds:
+  - round: 1
+    date: "2026-11-02"
+    artifact_state: pre-remediation
+    verdict: FAIL
+    findings:
+      - class: cross-reference sufficiency
+        classification: finding
+        defect: >-
+          R-2 located the behavioral-testing card's R-20 mirror as "(card §9
+          Change Control reference)" — the card carries no such heading; its
+          R-20 mirror is rule 8 ("Default model is single-sourced," citing R-20
+          at tests-v2 AGENTS.md §10.6), and "§9 Change Control — Default Model"
+          lives in tests-v2/AGENTS.md (mandate at line 682). A reader
+          dispatched to verify R-2 against the card as described finds no
+          matching surface.
+        remediation: >-
+          R-2's locator corrected in place to card rule 8 with its verified
+          citation (R-20 at tests-v2 AGENTS.md §10.6).
+      - class: cross-reference sufficiency
+        classification: finding
+        defect: >-
+          Problem stated "The §14/§17 remediation path … was the only
+          admissible response", overstating the cited source: the §9 R-20
+          mandate admits the R-18 defect classes OR re-scoping the SC at the
+          spec, and the spec's own adjacent sentence names clarification as
+          another admissible behavior (the floor's standing formula).
+        remediation: >-
+          Sentence rewritten in place to state the mandate's actual
+          disjunction (§14/§17 R-18 path or re-scoping the SC at the spec) and
+          that the agent took neither admissible path after four correct R-18
+          attempts.
+    re-evaluation: none
+  - round: 2
+    date: "2026-11-02"
+    artifact_state: post-remediation
+    verdict: PASS
+    zero_finding: true
+    adjudicated_classes:
+      - class: cross-reference sufficiency
+        classification: finding
+        outcome: >-
+          resolved (terminal cycle) — post-remediation R-2 locator matches the
+          cited artifact (card rule 8 lead text and its "(R-20, §10.6)"
+          citation), and the Problem's admissible-set statement matches the §9
+          mandate's disjunction with no contradiction from adjacent sentences;
+          no recurrence of either round-1 ground. R-20 quote verbatim-exact at
+          §9; R-1 deliverable (LL-1, systemic class) exists with both required
+          clauses; session facts grounded in LL-1 and #2639's D5/root cause 4;
+          traceability, problem fit, decomposition, blast radius, safety clean.
+    re-evaluation: none
