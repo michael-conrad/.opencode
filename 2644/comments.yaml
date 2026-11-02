@@ -1,1 +1,11 @@
-comments: []
+comments:
+- type: internal
+  body: 'Closure verdict 2026-11-02 (developer-directed). Deliverables complete on
+    current evidence: LL-1 systemic lesson recorded in this store at occurrence time
+    (delivered independent of the ticket); R-2 preservation holding (card rule 8,
+    tests-v2 AGENTS.md §9/§10.6 unchanged — spec audit PASS at round 2, validation
+    record at 2644/audit/validation.yaml). Developer ruling: store-recording-only
+    remediation needs no spec-bearing ticket; the filing fixes no deck/trunk content,
+    so it closes as the registry receipt it already delivered. No deck/trunk change
+    made or pending.'
+  timestamp: '2026-11-02T15:40:52+00:00'
