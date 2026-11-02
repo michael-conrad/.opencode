@@ -18,7 +18,9 @@ body: "## Defect (cosmetic)\n\nThe two-SC scenario scripts' manifest rewrite blo
   \ (single occurrence) and append only NEW pass annotations to a per-pass list key\
   \ (e.g. `tail_materialization_passes: [...]`), or grep-guard the echoes.\n\n> Evidence:\
   \ `tmp/behavioral-evidence-2639-sc8-second-directive-rides-open-pr-GREEN-*/manifest.yaml`\
-  \ (duplicate-key repetitions visible in the tail).\n\n"
+  \ (duplicate-key repetitions visible in the tail).\n\n> Full spec and plan artifacts:\
+  \ https://github.com/michael-conrad/.opencode/tree/issues-data/2650/\n\nArtifacts\
+  \ for agents: `.opencode/.issues/2650/`.\n\n"
 created_at: '2026-11-02T03:53:57+00:00'
-updated_at: '2026-11-02T03:54:29+00:00'
+updated_at: '2026-11-02T03:55:10+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2650
