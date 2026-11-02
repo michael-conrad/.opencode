@@ -1,0 +1,40 @@
+spec:
+  - round: 1
+    date: "2026-11-02"
+    reviewer: fresh-context sub-agent (task ses_e65940367ffeuCvXz0lLsp2UjQ)
+    verdict: FAIL
+    findings:
+      - class: internal-contradiction / ambiguous-criterion
+        location: R-2 / SC-2
+        ground: "R-2's 'repeated passes never duplicate an entry' unreconciled with SC-2's 'exactly three entries' for identical-text annotations; neither per-invocation accumulation nor the non-duplication clause's meaning stated."
+        remediation: "R-2 rewritten — entries accumulate one per annotation-carrying invocation (per-pass identity is the invocation, never value uniqueness); no-annotation invocation adds nothing; clause re-scoped to that rule."
+      - class: internal-contradiction / factual-imprecision
+        location: Scope probe bullet vs SC-3 / Approach 3
+        ground: "Scope called the probe R-1/R-2/R-3's instrument; SC-3's instrument is grep+read-back and Approach 3 said the probe covers SC-1/SC-2 only."
+        remediation: "Scope bullet corrected to 'R-1's and R-2's instrument'."
+      - class: gap-analysis
+        location: R-1/SC-1, R-4/SC-4
+        ground: "Preservation duty enumerated only the six base-heredoc keys; the resumed_after_cap_hit marker appended at behaviors/helpers.sh 2273 could be silently dropped by a rebuild-from-base-keys rewrite while every SC still passed."
+        remediation: "R-1 preservation clause generalized to 'every key and value the previous manifest carries beyond those two scalars' (naming the 2273 marker); SC-1's probe seeds the marker and asserts its persistence."
+      - class: internal-contradiction / blast-radius-gap
+        location: Approach 3 vs R-4/SC-4/Impact
+        ground: "Probe 'runner wiring at plan time' left a deferred branch (test-enforcement.sh registration) that R-4's exclusive changed-file set forbids."
+        remediation: "Approach 3 states the probe is invoked directly (no runner registration, out of scope) — R-4's constraint stated to close the deferral branch."
+  - round: 2
+    date: "2026-11-02"
+    reviewer: fresh-context sub-agent (task ses_e658d7a84ffei9byOp09OjuS42)
+    verdict: FAIL
+    findings:
+      - class: fabricated-claims / internal-contradiction
+        location: Problem, observed-failure sentence
+        ground: "'9 repetitions after recovery passes 1-9' did not reconcile with 'initial writes at pass 1, +1 per recovery pass' (1+9 = 10 != 9); the filing's 'after passes 1-9' means 9 total passes (fresh pass 1 + 8 recovery)."
+        remediation: "Count reworded to 'after pass 9 of the recorded sequence (9 passes total - pass 1's fresh run and turn-2 block, then 8 recovery passes)', arithmetic stated as one copy per recording pass."
+      - class: fabricated-claims
+        location: Approach 3 registry clause
+        ground: "'test-enforcement.sh's registry files' - the registries are in-file data structures inside the runner (scenario map ~83, tag map ~110, FILE_SCENARIO_MAP ~133), no registry files exist."
+        remediation: "Wording corrected to 'in-file scenario registries'; the operative no-registration constraint unchanged."
+  - round: 3
+    date: "2026-11-02"
+    reviewer: fresh-context sub-agent (task ses_e658a3ed0ffeh8bxunbONuqIWc)
+    verdict: PASS
+    findings: []
