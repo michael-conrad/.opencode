@@ -136,7 +136,13 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    API on any platform; `update --github` writes the local store's
    `github_url` field only and is never the mechanism for a remote-body
    correction. The repair is fact work performed on discovery — never a
-   blocker or fail reason by itself. This rule governs a record's absence;
+   blocker or fail reason by itself. **Registration-on-demand:** pipeline
+   work targeting an issue — spec creation, plan, implementation, or an
+   audit dispatch — whose local record is absent begins by registering the
+   record at the remote-assigned number (`create --number repo#N`), before
+   any other store work on that issue; the store then carries the work's
+   artifacts per the store's workspace guide. This rule governs a record's
+   absence;
    ticket-state hygiene (§6) governs state divergence for an existing record.
 8. **Email actions.** Mid-flow email work — drafting, sending, or mailbox
    checks — dispatches to the `email-ops` subagent, which holds the gmail
