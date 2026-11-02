@@ -119,13 +119,17 @@ Out of scope:
   per the `issues` card §4).
 - **R-3 — No detached bug reports.** The workflow SHALL leave no bug report
   detached from the spec governing its work: after conversion the record
-  reads as the spec on every surface the record lives on. On a store-holding
-  repository that is the local store record and the remote tracker (title,
-  labels, and body reconciled per the deck's record-consistency discipline);
-  on a pull-only repository (issues card §1 — the repository holds no local
-  issue store), that is the remote tracker record alone, updated in place
-  through the platform CLI. In both shapes re-triage and work requests land
-  on the spec record, not on a stale pre-spec ticket.
+  reads as the spec on every surface the record lives on, with each existing
+  surface updated in place and the record's title, labels, and body carrying
+  the spec on each. The record's surfaces are the local store record, when
+  the repository holds an issue store, and the remote tracker, when the
+  repository has one — the deck's repo classes compose from these: a
+  store-holding repository with a tracker reconciles both surfaces; a
+  remoteless store-holding repository (issues card §2) has its local record
+  alone; a pull-only repository (issues card §1 — no local issue store) has
+  its remote tracker record alone, updated in place through the platform
+  CLI. In every shape, re-triage and work requests land on the spec record,
+  not on a stale pre-spec ticket.
 
 ## Success criteria
 
@@ -143,11 +147,11 @@ Out of scope:
   read-back on each surface carrying the carve-out.
 - **SC-3 (structural) (→ R-3).** The no-detached-tickets mandate is stated:
   after conversion the record reads as the spec on every surface the record
-  lives on, for both repo classes the deck defines — the store-holding shape
-  (local store record + remote tracker, reconciled per the deck's
-  record-consistency discipline) and the pull-only shape (the remote tracker
-  record alone, updated in place through the platform CLI). *Instrument:*
-  grep + clean-room read-back confirming both repo-class shapes are stated.
+  lives on, each existing surface updated in place — the surfaces doctrine
+  covering all three repo shapes the deck defines (store-holding with a
+  tracker; remoteless store-holding, issues card §2; pull-only, issues card
+  §1). *Instrument:* grep + clean-room read-back confirming the surfaces
+  doctrine and all three shapes are stated.
 - **SC-4 (structural) (→ R-1).** The floor's scope/stage doctrine carries the
   conversion path: the triage→spec conversion and the spec-stage entry are
   agent-owned — no separate developer stage token gates the transition — and
@@ -179,8 +183,9 @@ Out of scope:
   walking the scenario "a triaged bug report proceeds to work" from the
   amended surfaces alone reaches the defined outcome — in-place conversion,
   spec-stage entry under the spec card's discipline, no separate filing, no
-  detached record — for both repo classes (store-holding and pull-only),
-  without an undefined halt or a contradiction between surfaces.
+  detached record — for every repo shape the deck defines (store-holding
+  with a tracker, remoteless store-holding, pull-only), without an undefined
+  halt or a contradiction between surfaces.
   *Instrument:* clean-room sub-agent walkthrough from the amended card texts
   alone; judged unambiguous and complete.
 - **SC-9 (structural) (→ unchanged-behavior preservation).** Dependent-test
@@ -199,11 +204,13 @@ Out of scope:
    work-entry triage outcome beside the closure-verdict outcome: two outcome
    classes — closure verdicts (existing, unchanged) and the work-entry
    conversion (new). The conversion follows the #2681 mechanics: title,
-   labels, and body updated in place on the local store record, then
-   reconciled to the remote tracker in the same workflow, so the record
-   reads as the spec on both surfaces. On a pull-only repository (issues
-   card §1 — no local store), the same conversion operates on the remote
-   tracker record alone, in place, through the platform CLI.
+   labels, and body updated in place on each surface the record lives on —
+   the local store record, when the repository holds a store, and the remote
+   tracker, when the repository has one, reconciled to each other in the
+   same workflow; a remoteless store-holding repository (issues card §2)
+   updates its local record alone; a pull-only repository (issues card §1 —
+   no local store) operates on the remote tracker record alone, through the
+   platform CLI.
 2. **Floor doctrine (R-1 implementability).** The floor's scope/stage
    doctrine gains the conversion-path clause: the triage→spec conversion and
    the spec-stage entry are agent-owned; plan and implementation keep their

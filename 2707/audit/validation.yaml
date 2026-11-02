@@ -1,0 +1,151 @@
+issue: .opencode#2707
+artifact: spec
+spec:
+  - round: 1
+    date: 2026-11-02
+    reviewer: fresh-context subagent (task ses_e62718847ffeDfjxgwkks94jhv)
+    criteria_set: .opencode/skills/spec/references/validation-standards.md
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class: gap-analysis
+        where: R-3, SC-3, SC-6, Approach item 1
+        ground: conversion mechanics presuppose a local store; the pull-only
+          repo class (issues card §1, #2667 — no local issue store) is
+          unstated and unexercised, though the record's consumer statement
+          ("every agent session the deck serves") covers it
+        remediation: R-3, SC-3, SC-8, and Approach item 1 now state both repo
+          classes — store-holding (local record + remote tracker, reconciled)
+          and pull-only (remote tracker record alone, in place, via the
+          platform CLI); SC-3's read-back requires both shapes stated; SC-8's
+          walkthrough covers both paths; SC-6 phrased repo-class-agnostic
+      - id: F-2
+        class: fabricated-claims
+        where: Problem, framing sentence before the directive quote
+        ground: the spec claimed the directive states defect class and policy
+          "in one sentence"; the quoted directive is two sentences
+        remediation: framing sentence rewritten to drop the count claim
+          ("states the required policy and the defect class")
+      - id: F-3
+        class: incapable-instrument-adjacent-imprecision
+        where: SC-8 classification label
+        ground: SC-8 labeled "(semantic)" — a class the governing taxonomy
+          does not define; the spec card defines exactly two classes
+          (behavioral, structural)
+        remediation: SC-8 relabeled structural — its instrument (clean-room
+          walkthrough of amended card text) is the read-back instrument
+          family at composition scale
+    classes_adjudicated:
+      - class: invented-requirement
+        classification: not-found
+      - class: untestable-criterion
+        classification: not-found
+      - class: either-or-criterion
+        classification: not-found
+      - class: ambiguous-criterion
+        classification: not-found (R-1's directive "as appropriate" resolved
+          deterministically against R-2's warrant test; R-3's "both surfaces"
+          ambiguity subsumed into F-1 and remediated)
+      - class: incapable-instrument
+        classification: not-found (F-3 adjudicated as an off-taxonomy label
+          on a capable instrument, not an incapable one)
+      - class: self-containment-violation
+        classification: not-found
+      - class: trivially-true-restatement
+        classification: not-found
+      - class: state-undecidable-criterion
+        classification: not-found
+    verified_claims:
+      - claim: issues card §5 triage semantics are closure-verdict-only (O-1)
+        result: accurate
+      - claim: no analyze-and-spec mandate in the live deck (O-2)
+        result: accurate (zero hits; token survives only under attic/ and the
+          legacy fixtures O-3 itself names)
+      - claim: instrument surfaces exist (2561-sc1 scenario, three structural
+          suites, reference-integrity tool, with-test-home harness path)
+        result: accurate
+      - claim: stale enforcement mappings at test-enforcement.sh lines 116/143 (O-3)
+        result: accurate
+      - claim: triage evidence note exists and corroborates O-1..O-3
+        result: accurate
+      - claim: .opencode#2704 supports the regression record it is cited for
+        result: accurate (remote body read; no local record per its filing protocol)
+      - claim: .opencode#2681 is the worked in-place conversion precedent
+        result: accurate (local spec.md; needs-approval removed at conversion)
+      - claim: #2664/#2665 floor writing-discipline conversion citations
+        result: accurate
+      - claim: floor's stage-boundary rule requires a token naming the destination stage
+        result: accurate (the floor-amendment analysis in Scope is sound)
+      - claim: directive quote verbatim
+        result: chat-sourced, writer-verifiable at write time; not fabricated
+      - claim: conversion-of-record state on both surfaces
+        result: accurate in substance; one record-state residue noted (local
+          issue.yaml body mirror retained the pre-conversion text) — issues
+          card §6 hygiene on the record's data, remediated in the same
+          workflow via local-issues update --body-file
+  - round: 2
+    date: 2026-11-02
+    reviewer: fresh-context subagent (task ses_e6260c59dffeh0xqVOzBsy7Rff)
+    criteria_set: .opencode/skills/spec/references/validation-standards.md
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class: cross-reference-sufficiency
+        where: R-3, SC-3
+        ground: the phrase "the deck's record-consistency discipline" names a
+          discipline that exists nowhere in the live deck (grep zero hits);
+          the underlying doctrine is real but scattered and unnamed (issues
+          §2 remote-body reconciliation, §6 ticket-state hygiene,
+          remote-body-format reference)
+        remediation: the phantom name removed; R-3 now states the mechanics
+          inline (title, labels, and body carrying the spec on each existing
+          surface, updated in place)
+      - id: F-2
+        class: gap-analysis
+        where: R-3's repo-shape enumeration, Approach 1, SC-3, SC-8
+        ground: the store-holding shape presupposed a remote tracker; the
+          deck-recognized remoteless store-holding class (issues §2,
+          "Remoteless stores pick the next free number in that repo's own
+          namespace") was unstated and unexercised — the amended §5 text
+          would mandate reconciliation to a nonexistent tracker there
+        remediation: R-3 restated as a surfaces doctrine complete by
+          construction (the record's surfaces are the local store record when
+          a store exists, and the remote tracker when a tracker exists; each
+          existing surface updated in place), with all three repo shapes
+          named in R-3, SC-3, SC-8, and Approach 1
+    classes_adjudicated:
+      - class: cross-reference-sufficiency
+        classification: finding (F-1)
+      - class: gap-analysis
+        classification: finding (F-2)
+      - class: fabricated-claims
+        classification: not-found (round-1 F-2 remediation held)
+      - class: ambiguous-criterion
+        classification: not-found (six two-reading judgment calls each
+          resolved by the spec's own text or adjudicated not defects)
+      - class: invented-requirement
+        classification: not-found
+      - class: untestable-criterion
+        classification: not-found
+      - class: either-or-criterion
+        classification: not-found
+      - class: incapable-instrument
+        classification: not-found
+      - class: self-containment-violation
+        classification: not-found
+      - class: trivially-true-restatement
+        classification: not-found
+      - class: state-undecidable-criterion
+        classification: not-found
+    verified_claims:
+      - claim: all thirteen live-surface claims re-verified (card text, grep
+          results, instrument existence, cross-references, harness form)
+        result: accurate
+      - claim: directive quote
+        result: chat-sourced; not independently verifiable in the audit scope,
+          internally corroborated (R-1..R-3 restate it; the filing title
+          paraphrases it; the triage note attributes the identical policy)
+      - claim: record-consistency discipline exists
+        result: not accurate — F-1
+      - claim: store-holding implies a remote tracker
+        result: not accurate for the remoteless sub-class — F-2
