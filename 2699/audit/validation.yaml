@@ -1,0 +1,38 @@
+issue: .opencode#2699
+artifact: spec
+spec:
+  - round: 1
+    date: 2026-11-02
+    reviewer: fresh-context subagent (task ses_e636261e7ffedsPg5Be3wUYnfj)
+    criteria_set: .opencode/skills/spec/references/validation-standards.md
+    verdict: PASS
+    findings: []
+    classes_adjudicated:
+      - class: invented-requirement
+        classification: not-found
+      - class: untestable-criterion
+        classification: not-found
+      - class: either-or-criterion
+        classification: not-found
+        note: scope's "either because / or because" wording is a deferred mechanism choice between two routes that both satisfy R-1/R-2, not one criterion
+      - class: ambiguous-criterion
+        classification: not-found
+      - class: incapable-instrument
+        classification: not-found
+      - class: self-containment-violation
+        classification: not-found
+      - class: trivially-true-restatement
+        classification: not-found
+      - class: state-undecidable-criterion
+        classification: not-found
+    verified_claims:
+      - claim: floor default-scope blocklist blocks issue closure without a scope token
+        result: accurate (floor.md default-scope clause quotes "no issue closure")
+      - claim: existing issue-store workspace-maintenance exception does not already cover remote-tracker reconciliation
+        result: accurate (exception covers issues-data store data only, explicitly excludes deck content)
+      - claim: "audit" is a closed-token-set token
+        result: accurate
+      - claim: issues card §5 names evidence-backed verified-resolved/moot triage verdict as closure trigger
+        result: accurate ("Issue closure follows ... an evidence-backed verified-resolved/moot triage verdict ...")
+      - claim: deck governance route via skill-creator covers floor.md and issues card edits
+        result: accurate
