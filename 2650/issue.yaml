@@ -1,5 +1,5 @@
 title: '[SPEC] Two-SC manifest rewrite — idempotent per-pass recording'
-status: open
+status: closed
 labels:
 - bug
 - spec-fix
@@ -166,5 +166,7 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2650/\n\
   \nArtifacts for agents: `.opencode/.issues/2650/`.\n\n"
 created_at: '2026-11-02T03:53:57+00:00'
-updated_at: '2026-11-02T04:17:03+00:00'
+updated_at: '2026-11-02T04:29:33+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2650
+closed_at: '2026-11-02T04:29:33+00:00'
+close_reason: completed
