@@ -1,0 +1,17 @@
+**Triage verdict: defect confirmed — valid, still current, remains open (bug)** (triaged 2026-11-02).
+
+Verified against the current deck trunk by code inspection; the file has had no change since this issue's filing (its only commit is the #2639 creation, `b71a8c1c4`), so every finding below is live code `tests-v2/behaviors/2639-sc8-second-directive-rides-open-pr.sh`.
+
+1. **Accumulation mechanism — confirmed exactly as filed.** Recovery mode (`SC8_RECOVERY_HOME`, script lines 45–61) skips `behavior_run` entirely and re-discovers the newest existing artifact dir (`ls -dt | head -1`, line 57). Every recovery pass therefore re-enters the manifest rewrite block (lines 160–166), which concatenates the previous `manifest.yaml` and re-echoes the scalars: `two_turn: true` and `turn2_resumed_home: $test_home` unconditionally, plus `tail_materialization_pass: true (...)` when `SC8_SKIP_TURN2` is set (the tail-materialization pass form). One copy appends per pass. Initial writes happen at pass 1 (fresh manifest from `behavior_run`'s heredoc, `helpers.sh` 2176; pass-1 turn-2 block appends the first occurrences), so after N passes each key appears N times — the observed 9 repetitions after 9 passes follow arithmetically.
+
+2. **Sibling-surface corroboration — the same fix class was applied here and missed the manifest.** In the same recovery block, the `TEST_HOME=` marker append is explicitly guarded with `>>`: "a second recovery pass must not clobber the prior pass's recovery evidence (`.opencode#2646` docker-resume fix)" (lines 62–67). The manifest rewrite is the same recovery-idempotence class and was not part of that fix.
+
+3. **Same pattern, different exposure, `2557-sc7` (lines 72–77).** It concatenates and re-echoes `two_turn` / `turn2_resumed_home` too, but has no recovery path — the block runs once per invocation into a fresh `behavior_run` dir, so nothing accumulates there today. A fix written as the issue suggests (idempotent append or a per-pass list key) should be reusable so the pattern cannot silently grow an SC-7 twin.
+
+4. **Adjacent surfaces examined and clean.** `resumed_after_cap_hit: true` (`helpers.sh` 2273) is a `>>` append, but it runs once per `behavior_run` call after the attempt loop, and recovery passes never call `behavior_run` — no accumulation vector.
+
+5. **Impact — as filed, accurate.** Cosmetic today: every duplicate carries an identical value per pass (`two_turn`, `turn2_resumed_home` literal; the `tail_materialization_pass` annotation is today one fixed string), and parsers take the last duplicate. The one divergence-in-principle spot is the free-text `tail_materialization_pass` annotation — a future pass that words its annotation differently makes first-wins vs last-wins consumers disagree silently. Data hygiene of the evidence artifact the clean-room evaluator reads stands as the operative reason to fix.
+
+Disposition: stays open awaiting pick-up (bug label, unchanged). The fix shape recorded in the issue body (idempotent scalar overwrite + a per-pass list key for pass annotations, or grep-guarded echoes) is a reasonable target surface; SC-7's identical block is the sibling to share the helper with.
+
+🤖 OpenCode (huggingface/zai-org/GLM-5.3-Flash)
