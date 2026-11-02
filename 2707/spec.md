@@ -94,9 +94,12 @@ Out of scope:
   remediate the stale surfaces.
 - The closure-verdict triage semantics (verified-resolved/moot,
   self-triggering) — unchanged.
-- Any tool, hook, plugin, or script — the change is deck rule text and
-  harness coverage only (the record's own boundary: "no tools, hooks, or
-  scripts").
+- Any tool, hook, plugin, or script outside the `tests-v2/` scenarios this
+  spec orders — the change is deck rule text and harness coverage only (the
+  record's own boundary: "no tools, hooks, or scripts").
+- Extension of the conversion mandate beyond triaged bug reports — the
+  directive names bug reports; enhancement and other record classes keep
+  their existing entry paths.
 - Deck-governance mechanics — the `skill-creator` admission gate is
   exercised at implementation, never changed by this work.
 
@@ -175,11 +178,12 @@ Out of scope:
 - **SC-9 (structural) (→ unchanged-behavior preservation).** Dependent-test
   currency: the closure-verdict triage path's existing behavioral coverage
   and the structural suites asserting the amended surfaces still pass with
-  the change applied. *Instrument:* executed `2561-sc1` behavioral scenario
-  through the harness and executed
+  the change applied, and every agent-facing cross-reference the change adds
+  or touches resolves. *Instrument:* executed `2561-sc1` behavioral scenario
+  through the harness; executed
   `tests-v2/test-cleanroom-eval-contract.sh`,
   `tests-v2/test-skill-deck-completeness.sh`, `tests-v2/test-trunk-hook.sh`,
-  captured output.
+  and `./.opencode/tools/reference-integrity`, captured output.
 
 ## Approach
 
