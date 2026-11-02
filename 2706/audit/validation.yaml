@@ -1,0 +1,46 @@
+issue: .opencode#2706
+artifact: spec
+spec:
+  - round: 1
+    date: 2026-11-02
+    reviewer: fresh-context subagent (task ses_e628bb027ffegRq0MRoSIYzL81)
+    criteria_set: .opencode/skills/spec/references/validation-standards.md
+    verdict: PASS
+    findings: []
+    classes_adjudicated:
+      - class: invented-requirement
+        classification: not-found
+      - class: untestable-criterion
+        classification: not-found
+      - class: either-or-criterion
+        classification: not-found
+      - class: ambiguous-criterion
+        classification: not-found
+      - class: incapable-instrument
+        classification: not-found
+      - class: self-containment-violation
+        classification: not-found
+      - class: trivially-true-restatement
+        classification: not-found
+      - class: state-undecidable-criterion
+        classification: not-found
+    verified_claims:
+      - claim: verify §10 requires a verified local path and defines no outcome for an artifact never produced
+        result: accurate (verify/SKILL.md §10 quote verbatim)
+      - claim: no card mandates record registration at work start; §7 triggers on discovery
+        result: accurate (issues/SKILL.md §7 triggers on discovery; overlap disclosed in admission table)
+      - claim: remote-body-format trigger rule quote verbatim
+        result: accurate (remote-body-format.md:16-17)
+      - claim: store guide forbids remote-body authority
+        result: accurate (.opencode/.issues/AGENTS.md)
+      - claim: skill-creator admission-gate items mirrored completely
+        result: accurate (skill-creator/SKILL.md:18-36)
+      - claim: dated incident evidence (SHA 6ddce945, tracker enumeration) traces to #2706 body
+        result: traces (provenance-sourced)
+plan:
+  - round: 1
+    date: 2026-11-02
+    reviewer: fresh-context subagent (task ses_e628871c7ffeSUnPLV8ZL4idik)
+    criteria_set: .opencode/skills/plan/references/plan-validation-standards.md
+    verdict: PASS
+    findings: []
