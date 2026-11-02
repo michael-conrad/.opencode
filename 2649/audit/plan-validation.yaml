@@ -1,0 +1,25 @@
+schema: validation-record
+issue: .opencode#2649
+artifact: plan.md
+dispatches:
+  - round: 1
+    reviewer: fresh-context dispatch (2026-11-02)
+    verdict: FAIL
+    findings:
+      - "SC-3 instrument-nature mismatch (class 12) — resolved by spec round-2 instrument amendment."
+      - "SC-5 instrument named a non-existent existing suite (class 13 aspect) — resolved by spec round-2 instrument amendment."
+      - "Item 1 RED referenced tests-v2/2649-sc13-probe.sh before its creation — Item 1 RED now creates the probe."
+  - round: 2
+    reviewer: fresh-context dispatch (2026-11-02)
+    verdict: FAIL
+    findings:
+      - "Item 2 RED stated two incompatible pre-change mechanisms (class 5/6) — RED rewritten to one mechanism: absent-helper failure."
+  - round: 3
+    reviewer: fresh-context dispatch (2026-11-02)
+    verdict: PASS
+    findings: []
+    notes: >
+      Item 2 re-checked in full: RED mechanism coherent (absent helper is the
+      deliverable), runtime behavioral claim asserted by the probe, wiring
+      swap asserted by grep at the correct surface, no instrument-nature
+      mismatch, no escape hatch.

@@ -12,4 +12,19 @@ spec:
       (__count_undetermined_cycle lock domain, halt-class auto-record block,
       SC-13 rewrite path, run-loop flock). Traceability both directions,
       causal sufficiency, problem fit, decomposition, and no-escape-hatch
-      all judged clean. Zero findings; no caveats.
+      all judged clean. Zero findings; no caveats.  - round: 2
+    artifact: spec.md
+    reviewer: fresh-context plan-validation dispatch (2026-11-02)
+    verdict: PASS (instrument-only amendment)
+    findings:
+      - "SC-3 instrument: 'behavioral harness run of a halt-class scenario' not achievable without a full model run; revised to harness-level non-model probe (2650 precedent) + structural wiring assertion."
+      - "SC-5 instrument: 'existing SC-7 validation tests' referenced a suite that does not exist (no runnable test references __record_orchestrator_decision); revised to harness-level probe cases."
+    adjudicated_classes:
+      - "Instrument-nature mismatch (SC-3); fact-decidable instrument correction — criterion text unchanged."
+    notes: >
+      Criteria text (the SC columns' criterion sentences) unchanged; only the
+      Instrument columns of SC-3 and SC-5 were revised. Admissibility of
+      non-model shell probes for SC-2/SC-4 judged admissible by the
+      fresh-context reviewer against the spec's Verification section (the
+      prohibition targets an ad-hoc opencode run, not container-local shell
+      probes of harness helpers). Spec criteria not re-classified.
