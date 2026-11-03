@@ -1,1 +1,6 @@
-comments: []
+comments:
+- type: internal
+  body: 'PR opened: https://github.com/michael-conrad/.opencode/pull/2709 (feature/2707-triage-in-place-spec-conversion,
+    squashed per-issue commit 6b5767a18; fresh-context verify PASS zero findings;
+    awaiting human merge)'
+  timestamp: '2026-11-03T12:38:00+00:00'
