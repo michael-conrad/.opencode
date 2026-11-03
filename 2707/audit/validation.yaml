@@ -195,3 +195,101 @@ spec:
   criteria_set: .opencode/skills/plan/references/plan-validation-standards.md
   verdict: PASS
   findings: []
+- artifact: implementation
+  round: 1
+  date: 2026-11-03
+  reviewer: OpenCode orchestrator session (evidence per SC below)
+  criteria_set: .opencode/.issues/2707/spec.md SC-1..SC-9
+  verdict: PASS
+  findings: []
+  sc_evidence:
+    - sc: SC-1/SC-2/SC-3
+      instrument: grep + clean-room read-back of skills/issues/SKILL.md §5
+      result: >-
+        PASS — actor ("the triaging agent converts the report's record in
+        place into the governing spec"), trigger ("when a triage verdict
+        classifies a triaged bug report as actionable work"), action, and the
+        no-separate-filing clause present; multi-spec carve-out stated
+        ("new issues are filed by the agent only when the report warrants
+        multiple specs... further specs are new issues linked to the
+        converted record"); surfaces doctrine stated with all three repo
+        shapes (store-holding+tracker, remoteless §2, pull-only §1).
+    - sc: SC-4
+      instrument: grep + clean-room read-back of floor.md
+      result: >-
+        PASS — "One agent-owned exception: the triage→spec conversion... is
+        agent-owned (the issues card's work-entry conversion) and requires no
+        destination-stage token; plan and implementation keep their existing
+        developer gates" — both halves stated.
+    - sc: SC-5
+      instrument: grep + clean-room read-back of skills/spec/SKILL.md and skills/work/SKILL.md
+      result: >-
+        PASS — spec rule 1 "Entry from triage conversion" clause and work
+        rule 2 "Triage-conversion entry" clause accept the converted record
+        as the spec-stage artifact under the spec card's discipline.
+    - sc: SC-6
+      instrument: executed harness scenario 2707-sc1 (RED run
+        tmp/behavioral-evidence-...-RED-...-2/, GREEN run
+        tmp/behavioral-evidence-...-GREEN-...-2/) + clean-room evaluations
+      result: >-
+        PASS — RED: clean-room evaluation (task ses_e618ec666ffeFo9ofauL3ozpIK)
+        confirmed the un-amended deck produced NO in-place conversion (agent
+        executed verdict-record disposition, kept the bug title/label, never
+        conceived conversion). GREEN: clean-room evaluation (task
+        ses_e6043021effeIBDMlVaNzfJvxk) PASS — full local conversion
+        (spec.md, [SPEC] title, spec labels, validation dispatch, store
+        sync), all sanctioned remote routes attempted with the platform gap
+        documented and spec content carried by a correspondence-gated
+        notice, no separate spec issue (zero create calls in 232 steps),
+        provenance deck-cards (§5 quoted verbatim before acting; the #2707
+        store artifact was NOT found by this agent).
+    - sc: SC-7
+      instrument: executed harness scenario 2707-sc2 (RED attempt aborted on
+        environment contamination — abort record
+        tmp/behavioral-evidence-...-RED-aborted-envleak/; GREEN run
+        tmp/behavioral-evidence-...-GREEN-.../) + clean-room evaluations
+      result: >-
+        PASS with amended RED — the RED premise was found environmentally
+        unattainable (the governing spec is reachable on the pushed
+        issues-data branch of every harness clone; the RED run discovered,
+        extracted, and began executing it — orchestrator kill by PID,
+        zero survivors). Plan amended in place. GREEN: clean-room evaluation
+        (task ses_e5f41d2dbffeYn4MxQ5Ewnp3xP) PASS — first-spec conversion of
+        #9052 in place, further spec filed as NEW issue #9053, linked
+        (sub-issue), zero detached tickets, no separate first-spec issue;
+        provenance deck-cards — the #2707 store spec read FAILED (exit 128,
+        empty output) and the disposition was derived clause-for-clause from
+        the amended §5 card text.
+    - sc: SC-8
+      instrument: clean-room walkthrough dispatch (task ses_e5e9a0319ffe8IY7kBrjUKo3Op)
+      result: >-
+        PASS — verdict "unambiguous-and-complete" across all three repo
+        shapes; zero contradictions, zero undefined halts; one minor
+        resolvable ambiguity noted (floor default-scope blocklist does not
+        explicitly name the conversion's remote-tracker write; resolvable
+        from the agent-owned clause).
+    - sc: SC-9
+      instrument: executed 2561-sc1 behavioral scenario (GREEN run
+        tmp/behavioral-evidence-2561-sc1-...-GREEN-...-1/ + clean-room
+        evaluation task ses_e5e9b10b4ffeVI7w66Hsk4m0Uy);
+        tests-v2/test-cleanroom-eval-contract.sh (8/8 PASS);
+        tests-v2/test-skill-deck-completeness.sh (3/3 PASS);
+        tests-v2/test-trunk-hook.sh (7/7 PASS);
+        ./.opencode/tools/reference-integrity --scan (77 files, all resolve)
+      result: >-
+        PASS — the closure-verdict triage path's behavior is unchanged
+        (verdict recorded with dated executed evidence; local + remote
+        closure in the same workflow; read-back state: closed on both);
+        the agent explicitly chose closure over conversion for the false
+        claim (no over-application). All structural suites green.
+  notes:
+    - Re-scope provenance recorded in the scenario files (§3a rule 4):
+      staged-verdict prompt re-scope (runs 1-2 of sc1 exhausted the turn
+      budget on store-mechanics deliberation), 8000→16000 token-cap raises
+      (legitimate deliberation turns routinely exceeded 8000 tokens).
+    - RED attempt 2 of sc2 (16000 cap) was killed by the orchestrator on
+      verdict-confirmed environment contamination (see abort record).
+    - 2561-sc1 first run (default 4000 cap) capped out before disposition;
+      rerun under 16000 completed. Harness undetermined-cycle counter cleared
+      as infrastructure maintenance (recorded in the run's
+      supervisor-confirmation.yaml).
