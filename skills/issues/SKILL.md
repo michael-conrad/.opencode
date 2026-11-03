@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382; recomposition protocol, .opencode#2661; self-triggering triage, .opencode#2699; self-firing evidence trigger + ticket-status semantics, .opencode#2702 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382; recomposition protocol, .opencode#2661; self-triggering triage, .opencode#2699; self-firing evidence trigger + ticket-status semantics, .opencode#2702; work-entry conversion triage outcome, .opencode#2707 -->
 
 # issues — issue operations
 
@@ -105,18 +105,38 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    self-triggering: when a ticket's deliverables are verifiably complete on
    dated evidence (executed instrument outputs matching the ticket's
    success-criteria outcomes) and the developer names that state or asks why
-    the ticket remains open, the agent runs the evidence-backed triage and
-    reconciles the tracker to the verdict in the same workflow — it does not
-    re-explain the closure gate and wait. The same trigger is self-firing on
-    the agent's own discovery: when a validation or audit session's executed
-    evidence independently verifiably shows the ticket's deliverables
-    complete on trunk — no pending work — the agent running that session
-    records the verdict grounds and performs the same reconciliation (local
-    state update and remote-tracker closure) in the same workflow, without
-    waiting for the developer to name the state. The closure bar is executed
+   the ticket remains open, the agent runs the evidence-backed triage and
+   reconciles the tracker to the verdict in the same workflow — it does not
+   re-explain the closure gate and wait. The same trigger is self-firing on
+   the agent's own discovery: when a validation or audit session's executed
+   evidence independently verifiably shows the ticket's deliverables
+   complete on trunk — no pending work — the agent running that session
+   records the verdict grounds and performs the same reconciliation (local
+   state update and remote-tracker closure) in the same workflow, without
+   waiting for the developer to name the state. The closure bar is executed
    evidence; closure to tidy up stays prohibited. A verdict-backed closure
    reconciles the remote tracker to the same closed state in the same
    workflow; the local store is authoritative (#2561).
+   **Work-entry conversion — the second triage outcome class.** When a
+   triage verdict classifies a triaged bug report as actionable work, the
+   triaging agent converts the report's record in place into the governing
+   spec under the spec card's discipline: the original bug report is always
+   converted into the only spec when the report warrants one spec, and into
+   the first spec when it warrants more than one — new issues are filed by
+   the agent only when the report warrants multiple specs, and the further
+   specs are new issues linked to the converted record (the sub-issue
+   hierarchy per §4). No separate spec issue is filed alongside the
+   converted record. After conversion the record reads as the spec on every
+   surface the record lives on — the local store record, when the
+   repository holds an issue store, and the remote tracker, when the
+   repository has one — each existing surface updated in place (title,
+   labels, and body carrying the spec) and reconciled to each other in the
+   same workflow; a remoteless store-holding repository (§2) updates its
+   local record alone; a pull-only repository (§1 — no local issue store)
+   operates on the remote tracker record alone, through the platform CLI.
+   No bug report is left detached from the spec governing its work:
+   re-triage and work requests land on the spec record, not on a stale
+   pre-spec ticket. (.opencode#2707)
 6. **Ticket-state hygiene.** A stale ticket state — the local store mirror's
    record diverging from the remote tracker's state — is corrected on
    discovery, reconciling both sides to the true state. The remote tracker
