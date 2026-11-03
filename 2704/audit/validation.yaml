@@ -1,0 +1,62 @@
+# Validation record — .opencode#2704 (spec)
+# One entry per completed validation cycle. Criteria source:
+# .opencode/skills/spec/references/validation-standards.md (single source; restated verbatim per round).
+artifact: spec
+rounds:
+  - round: 1
+    date: "2026-11-03"
+    reviewer: fresh-context sub-agent (general), no prior context on the spec
+    verdict: FAIL
+    findings:
+      - class: internal-contradiction (also blast-radius / fabricated-claims family)
+        detail: >
+          Stale-surface enumeration incomplete — the spec named two
+          test-enforcement.sh entries (lines 116, 143) while its own SC-1
+          instrument (zero `symptom-patch` hits) forces removal of the third:
+          line 89 registers `symptom-patch` as a prompt scenario in the
+          script's SCENARIOS map. Scope as written excluded what the criteria
+          include; the Impact claim "removes a tag no scenario carries" was
+          false while line 89 stood.
+        classification: finding
+        remediation: >
+          Scope, R-1, and Approach enumerate all three entries; Impact states
+          the SCENARIOS-removal consequences (one runnable prompt scenario
+          removed; successor coverage delivered by #2707's 2707-sc1/2707-sc2).
+          Verified live before revision (sed -n '89p;116p;143p').
+      - class: fabricated-claims (wrong count)
+        detail: >
+          "(97 scenarios, no symptom-patch)" hardened a directory-entry count
+          into a scenario count — behaviors/ holds 95 scenario .sh files; 97
+          directory entries include fixtures/ and secret-redaction/.
+        classification: finding
+        remediation: >
+          Claim removed; deadness is no longer argued from the behaviors/
+          absence (prompt scenarios need no behaviors/ file) but from the
+          retired card itself.
+      - class: cross-reference-sufficiency (also gap-analysis family)
+        detail: >
+          Out-of-scope deferral claimed #2635/#2636 "govern" the other stale
+          entries; both records explicitly disclaim that governance (#2635:
+          dead FILE_SCENARIO_MAP keys "each need[] its own disposition";
+          #2636 out-of-scope item 1: registry drift deferred to an unfiled
+          follow-up requiring its own investigation). The deferral premise
+          was false; the residual surface had no owner.
+        classification: finding
+        remediation: >
+          Out-of-scope section restated on verified grounds: deferral follows
+          the report's own family-scoped filing; the records' disclaimers are
+          cited accurately; residual entries recorded as separate unowned
+          work (verified 2026-11-03).
+    structural-re-evaluation: none — no spin; findings were genuine first-round defects, remediated in place
+  - round: 2
+    date: "2026-11-03"
+    reviewer: fresh-context sub-agent (general), no prior context on the spec
+    verdict: PASS
+    findings: []
+    notes: >
+      Zero findings. All factual claims verified against the live tree
+      (22 checks, command + outcome logged in the reviewer's report); every
+      requirement carries a stated executable instrument; traceability holds
+      both directions; deferral grounds verified against #2635/#2636 records;
+      README.md:93's stale skill-table mention adjudicated to #2636's
+      separately tracked README-refresh item — not a dependent of this change.
