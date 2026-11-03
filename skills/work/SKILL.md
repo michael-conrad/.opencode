@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; #2525 pipeline continuation; recomposit
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2525 pipeline continuation on terminal authorization; recomposition void in the authorization check, .opencode#2661; #2657 path selection, criteria set, and work record; criterion-assessment binding, #2657 (RC-2 observed in two runs of 2026-10-31) -->
+<!-- Provenance: AI-authored, .opencode#2490; #2525 pipeline continuation on terminal authorization; recomposition void in the authorization check, .opencode#2661; #2657 path selection, criteria set, and work record; criterion-assessment binding, #2657 (RC-2 observed in two runs of 2026-10-31); triage-conversion spec-stage entry, .opencode#2707 -->
 
 # work — the change gate
 
@@ -72,7 +72,10 @@ Consult before touching files.
    pipeline. It does not satisfy the spec stage, and the stage it names runs
    before any implementation it also directs. A request that names no stage
    and names what to build may serve as the short path's scope — subject to
-   rule 1.
+   rule 1. **Triage-conversion entry (.opencode#2707):** on the full path,
+   the spec stage may begin from a triaged bug report converted in place
+   (the `issues` card's work-entry conversion) — the converted record is
+   the spec-stage artifact the spec card's discipline governs from there.
 3. **Authorization check.** The vocabulary in `floor.md` defines authorization.
    Without authorization at the required scope, the agent prepares the
    spec/proposal and stops at the boundary. A question, complaint, or

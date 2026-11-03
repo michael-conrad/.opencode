@@ -2,7 +2,7 @@
 name: spec
 description: "Load when creating or revising a specification document — success criteria, evidence types, traceability. Also load when a spec needs revision from review findings. Success criteria come from the developer's stated requirements and observed failures only — inventing extra criteria is scope creep. Every criterion is classified behavioral (runtime effect) or structural by its nature, and carries a verification instrument."
 license: MIT
-provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2660
+provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2660; triage-conversion spec-stage entry, .opencode#2707
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
@@ -14,6 +14,11 @@ provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2
 1. **Extract, don't invent.** Requirements come from the developer's statements
    and the exploration record. If a criterion cannot be traced to a developer
    statement or an observed failure, delete it — that is the scope-creep guard.
+   **Entry from triage conversion (.opencode#2707).** A triaged bug report
+   converted in place (the `issues` card's work-entry conversion) enters the
+   spec stage as the spec artifact: the converted record is the spec-stage
+   input, and this card's discipline — extraction, SC classification,
+   validation — applies to it from there.
 2. **Load the cards in scope.** Identify the languages and build tools the
    change touches and load their cards (where cards exist), and load
    `programming-principles` for the engineering-principles layer — language

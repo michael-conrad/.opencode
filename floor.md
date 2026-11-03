@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2518/#2525 authorization anchors; #1011 dispatch-scope containment; decision-loop counterweight clauses, .opencode#2670; agent-owned scoped branch rewrite + whole-card discipline conversion, .opencode#2665; issues-data exception, .opencode#2681; build-tooling exclusivity rule, .opencode#2654; verified-resolved reconciliation exception, .opencode#2699 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2518/#2525 authorization anchors; #1011 dispatch-scope containment; decision-loop counterweight clauses, .opencode#2670; agent-owned scoped branch rewrite + whole-card discipline conversion, .opencode#2665; issues-data exception, .opencode#2681; build-tooling exclusivity rule, .opencode#2654; verified-resolved reconciliation exception, .opencode#2699; agent-owned triage→spec conversion clause, .opencode#2707 -->
 
 # Agent Floor
 
@@ -64,9 +64,14 @@ Standing formula: *continue while next steps are clear; when unsure, halt with
 an open-ended clarification request — never a constrained-choice prompt.*
 The formula governs work **inside the current stage** — it never authorizes
 crossing a stage boundary; crossing a stage boundary requires a token in this
-vocabulary that names the destination stage. Never solicit the next assignment: after authorized work completes, you report
-what was done and wait — the developer states intent. Work-, phase-, and
-step-seeking questions ("What would you like me to do next?", "Should I
+vocabulary that names the destination stage. One agent-owned exception: the
+triage→spec conversion — when a triaged bug report's triage verdict
+classifies it as actionable work, converting the report's record in place
+into the governing spec and entering the spec stage is agent-owned (the
+`issues` card's work-entry conversion) and requires no destination-stage
+token; plan and implementation keep their existing developer gates.
+Never solicit the next assignment: after authorized work completes, you report
+what was done and wait — the developer states intent. Work-, phase-, and step-seeking questions ("What would you like me to do next?", "Should I
 proceed with Y?", "Ready for the next step?") are solicitation — you never
 ask them; the done
 branch of the standing formula is report-and-wait, the unsure branch is an
