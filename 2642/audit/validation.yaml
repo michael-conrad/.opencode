@@ -7,47 +7,58 @@ rounds:
     verdict: FAIL
     findings:
       - class: incapable-instrument (class 5) + decomposition
-        location: SC-4 (success-criteria table, carrying R-3)
-        ground: SC-4 bundled provisioning plus two refusal grounds; its
-          instrument exercised only provisioning and an unattributable
-          refusal (in the https workspace the child is simultaneously
-          pull-only and non-host, so either refusal ground passes); the
-          unregistered-path refusal had no instrument anywhere in the set.
-        remediation: SC-4 split — provisioning alone (SC-4); refusal grounds
-          moved to new SC-12 with ground-attributable diagnostics (the
-          pull-only refusal names the pull-only classification; the
-          unregistered-path refusal names the not-a-registered-child ground);
-          R-3 gained the name-its-ground clause.
+        location: >-
+          SC-4 (success-criteria table, carrying R-3)
+        ground: >-
+          SC-4 bundled provisioning plus two refusal grounds; its instrument
+          exercised only provisioning and an unattributable refusal (in the
+          https workspace the child is simultaneously pull-only and non-host,
+          so either refusal ground passes); the unregistered-path refusal had
+          no instrument anywhere in the set.
+        remediation: >-
+          SC-4 split — provisioning alone (SC-4); refusal grounds moved to
+          new SC-12 with ground-attributable diagnostics (the pull-only
+          refusal names the pull-only classification; the unregistered-path
+          refusal names the not-a-registered-child ground); R-3 gained the
+          name-its-ground clause.
       - class: internal-contradiction (family)
-        location: approach step 1 ("discovery excludes it") vs R-1, R-4, SC-2, SC-6
-        ground: excluding non-host children from `_discover_all_repos()`
-          starves the reporting and resolution layers that read that set —
-          R-1's steady-state report entry, R-4's doctor marker, and SC-2's
-          mutation refusal become unsatisfiable; the spec stated no
-          compensating layer.
-        remediation: approach step 1 rewritten — discovery's enumerated
-          membership is unchanged; the host-evidence rule is a classification
-          layer over the enumerated set, applied at the consuming points
-          (bootstrap sweep, sync path, doctor, mutation resolution).
+        location: >-
+          approach step 1 ("discovery excludes it") vs R-1, R-4, SC-2, SC-6
+        ground: >-
+          excluding non-host children from `_discover_all_repos()` starves
+          the reporting and resolution layers that read that set — R-1's
+          steady-state report entry, R-4's doctor marker, and SC-2's mutation
+          refusal become unsatisfiable; the spec stated no compensating
+          layer.
+        remediation: >-
+          approach step 1 rewritten — discovery's enumerated membership is
+          unchanged; the host-evidence rule is a classification layer over
+          the enumerated set, applied at the consuming points (bootstrap
+          sweep, sync path, doctor, mutation resolution).
       - class: gap-analysis (family) + incapable-instrument (class 5)
-        location: R-1's non-host report-entry clause; the opt-in-path half of
-          R-1's refusal diagnostic
-        ground: no SC read the init/sync report entry for a non-host child
-          (SC-1/SC-8 read post-state only), and SC-2 checked only the
+        location: >-
+          R-1's non-host report-entry clause; the opt-in-path half of R-1's
+          refusal diagnostic
+        ground: >-
+          no SC read the init/sync report entry for a non-host child (SC-1
+          and SC-8 read post-state only), and SC-2 checked only the
           classification half of the diagnostic — both stated requirement
           contents had no verifying instrument.
-        remediation: SC-1's criterion and instrument extended to read the
-          init report's non-host steady-state entry; SC-2's criterion and
-          instrument extended to require both diagnostic elements
-          (classification and opt-in path).
+        remediation: >-
+          SC-1's criterion and instrument extended to read the init report's
+          non-host steady-state entry; SC-2's criterion and instrument
+          extended to require both diagnostic elements (classification and
+          opt-in path).
   - round: 2
     date: 2026-11-04
     reviewer: fresh-context dispatch (new reviewer, no prior context)
     verdict: FAIL
     findings:
       - class: blast-radius (family)
-        location: scope's sync-path enumeration and R-2's gate enumeration
-        ground: `sync-file` (`_sync_file_in_worktree`/`cmd_sync_file`) is a
+        location: >-
+          scope's sync-path enumeration and R-2's gate enumeration
+        ground: >-
+          the sync-file path (`_sync_file_in_worktree`/`cmd_sync_file`) is a
           fourth child-origin push site — it pushes `origin issues-data`
           whenever the resolved repository has a remote, guarded only by the
           pull-only refusal — and the spec named it nowhere: not in R-2's
@@ -57,14 +68,17 @@ rounds:
           state, sync-file would create the child's remote ref outside the
           two R-2 permits. (Verified against the tool: push at line 2268,
           guard only at line 2319.)
-        remediation: R-2's enumeration names the sync-file path explicitly;
-          scope's sync-path parenthetical carries `_sync_file_in_worktree`/
+        remediation: >-
+          R-2's enumeration names the sync-file path explicitly; scope's
+          sync-path parenthetical carries `_sync_file_in_worktree`/
           `cmd_sync_file`; SC-3's instrument adds the sync-file leg against
           the ref-less remote.
       - class: fabricated-claims (family)
-        location: approach step 3 — "a failed establishment push is retried
-          by re-running the adoption"
-        ground: contradicted by the mechanism the approach names —
+        location: >-
+          approach step 3 — "a failed establishment push is retried by
+          re-running the adoption"
+        ground: >-
+          contradicted by the mechanism the approach names —
           `_push_orphan_if_needed` reports a failed push as a non-fatal
           stderr warn and `_create_issues_worktree` still returns True, so
           the failed-push state is indistinguishable from success; a re-run
@@ -74,63 +88,77 @@ rounds:
           path could ever establish the child's remote ref that SC-4
           requires. (Verified against the tool: lines 344-348, 861-872,
           893-923, 985-1014.)
-        remediation: R-3 states the establishment-completing semantics — the
-          opt-in verifies the push outcome against the live remote ref,
-          exits non-zero when the ref is absent after the attempt, and a
-          re-run performs the establishment push on a child whose worktree
-          exists but whose origin ref is absent (no short-circuit on the
-          worktree's existence); approach step 3 rewritten to match.
+        remediation: >-
+          R-3 states the establishment-completing semantics — the opt-in
+          verifies the push outcome against the live remote ref, exits
+          non-zero when the ref is absent after the attempt, and a re-run
+          performs the establishment push on a child whose worktree exists
+          but whose origin ref is absent (no short-circuit on the worktree's
+          existence); approach step 3 rewritten to match.
   - round: 3
     date: 2026-11-04
     reviewer: fresh-context dispatch (new reviewer, no prior context)
     verdict: FAIL
     findings:
-      - class: internal-contradiction (family; scope-vs-requirement, blast-radius facet)
-        location: scope's local-issues enumeration vs R-2 / R-7 / SC-11
-        ground: R-2 gates "a mutation command's auto-push" but scope named the
-          mutation path only as store-host resolution and refusal diagnostic —
-          the auto-push machinery (`_auto_commit` → `_push_issues_changes`,
+      - class: internal-contradiction (family; scope-vs-requirement,
+          blast-radius facet)
+        location: >-
+          scope's local-issues enumeration vs R-2 / R-7 / SC-11
+        ground: >-
+          R-2 gates "a mutation command's auto-push" but scope named the
+          mutation path only as store-host resolution and refusal diagnostic
+          — the auto-push machinery (`_auto_commit` → `_push_issues_changes`,
           pushing `origin issues-data` unconditionally modulo the
           https-no-creds skip) was absent from the surface bound, forcing the
           implementer to touch an unnamed surface (violating R-7/SC-11) or
           leave R-2 unimplemented. (Verified against the tool: lines 1138,
           1168.)
-        remediation: scope's local-issues enumeration names the mutation
-          auto-push (`_auto_commit`, `_push_issues_changes`).
+        remediation: >-
+          scope's local-issues enumeration names the mutation auto-push
+          (`_auto_commit`, `_push_issues_changes`).
       - class: gap-analysis (family — boundary condition never exercised)
-        location: R-2's mutation-auto-push gate
-        ground: no SC ran a mutation against a child origin whose ref is
-          absent — in SC-3's own constructed state an ungated auto-push would
-          silently re-create the ref (the O-4 pollution class); a deliverable
+        location: >-
+          R-2's mutation-auto-push gate
+        ground: >-
+          no SC ran a mutation against a child origin whose ref is absent —
+          in SC-3's own constructed state an ungated auto-push would silently
+          re-create the ref (the O-4 pollution class); a deliverable
           omitting that gate passed the set.
-        remediation: SC-3's instrument adds the mutation leg (`update` against
-          the ref-less child) asserting the ref stays absent and the entry
+        remediation: >-
+          SC-3's instrument adds the mutation leg (`update` against the
+          ref-less child) asserting the ref stays absent and the entry
           reports no push.
       - class: gap-analysis (family — boundary conditions never exercised)
-        location: R-3's failure-visibility and re-run-completion clauses
-        ground: SC-4 exercised only the clean-workspace happy path; no
-          criterion constructed a failed establishment push or a re-run on a
+        location: >-
+          R-3's failure-visibility and re-run-completion clauses
+        ground: >-
+          SC-4 exercised only the clean-workspace happy path; no criterion
+          constructed a failed establishment push or a re-run on a
           half-established child — a deliverable exiting zero on a failed
           push, or short-circuiting on worktree existence, passed the set
           while violating R-3.
-        remediation: new SC-13 — the SSH-shim fixture with `git-receive-pack`
-          failing (adopt exits non-zero with the failed-establishment
-          diagnostic, worktree exists, ref absent), then receive-pack
-          restored (re-run completes the establishment, ref present).
+        remediation: >-
+          new SC-13 — the SSH-shim fixture with `git-receive-pack` failing
+          (adopt exits non-zero with the failed-establishment diagnostic,
+          worktree exists, ref absent), then receive-pack restored (re-run
+          completes the establishment, ref present).
       - class: gap-analysis (family — boundary condition never exercised;
           behavior change unobserved)
-        location: R-1's unverifiable-remote branch
-        ground: today that branch fails fatally mid-sweep
+        location: >-
+          R-1's unverifiable-remote branch
+        ground: >-
+          today that branch fails fatally mid-sweep
           (`_bootstrap_from_remote` → `_fail_worktree` → `sys.exit(1)`, not
           caught by `_ensure_all_worktrees`' `except Exception`), and no
           criterion exercised a child whose non-http origin is unreachable —
           the criteria could not distinguish the intended degradation from
           the current fatal behavior. (Verified against the tool: lines
           660-714, 875-890, 605-616.)
-        remediation: new SC-14 — the unreachable-endpoint child (ssh to a
-          closed port, no local store): init exits successfully with the
-          informational steady-state entry and no store artifacts; SC-9's
-          criterion adds the four evidence-branch unit-coverage property.
+        remediation: >-
+          new SC-14 — the unreachable-endpoint child (ssh to a closed port,
+          no local store): init exits successfully with the informational
+          steady-state entry and no store artifacts; SC-9's criterion adds
+          the four evidence-branch unit-coverage property.
   - round: 4
     date: 2026-11-04
     reviewer: fresh-context dispatch (new reviewer, no prior context)
@@ -138,10 +166,12 @@ rounds:
     findings:
       - class: gap-analysis (family — boundary condition never exercised;
           unchanged behavior put at risk; blast-radius facet)
-        location: R-2 and approach step 1, read against impact's network-down
-          risk bullet and the SC set
-        ground: R-2's skip closed the gate whenever the ref could not be
-          verified — including a host child (local worktree, host by R-1's
+        location: >-
+          R-2 and approach step 1, read against impact's network-down risk
+          bullet and the SC set
+        ground: >-
+          R-2's skip closed the gate whenever the ref could not be verified
+          — including a host child (local worktree, host by R-1's
           local-evidence branch) whose origin is temporarily unreachable.
           Today that state fails shell-visibly (`_sync_repo` reaches
           `_rebase_issues_branch`, whose pull fails on the network error →
@@ -154,17 +184,26 @@ rounds:
           local store); the impact bullet enumerated only the
           no-local-worktree case. (Verified against the tool: lines 2099,
           2058, 2139-2147.)
-        remediation: R-2 split into verified-absent (reachable origin, ref
-          confirmed absent → informational skip) and unverifiable
-          (unreachable origin → a host child keeps the existing failure
-          semantics and the non-zero sync exit per #2548 C2; a transient
-          outage is never reported as an intentional steady state; a
-          non-host child is skipped by R-1's classification on either
-          state); approach step 2 aligned; new SC-15 exercises the
-          unreachable-origin × host-child cell (non-zero exit, failure
-          status, then restored-origin re-run to `ok`); the impact risk
-          bullet enumerates both network-down cells.
+        remediation: >-
+          R-2 split into verified-absent (reachable origin, ref confirmed
+          absent → informational skip) and unverifiable (unreachable origin
+          → a host child keeps the existing failure semantics and the
+          non-zero sync exit per `.opencode#2548` C2; a transient outage is
+          never reported as an intentional steady state; a non-host child is
+          skipped by R-1's classification on either state); approach step 2
+          aligned; new SC-15 exercises the unreachable-origin × host-child
+          cell (non-zero exit, failure status, then restored-origin re-run
+          to `ok`); the impact risk bullet enumerates both network-down
+          cells.
   - round: 5
     date: 2026-11-04
     reviewer: fresh-context dispatch (new reviewer, no prior context)
-    verdict: PENDING
+    verdict: PASS
+    findings: []
+    note: >-
+      Zero findings; terminal cycle. The loop converged over five rounds —
+      each round's findings were genuinely new (architecture contradiction,
+      then missed push sites and unpinned boundary cells, then the
+      verified-absent/unverifiable semantic split), not recurrence of
+      remediated ones; no spin judgment fired and the count trigger (more
+      than four revisions) did not.
