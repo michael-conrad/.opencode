@@ -66,8 +66,11 @@ repo owns deck-card paths.
   forbid it.
 - R-3: The validation standards reference SHALL carry repo-boundary
   containment as a proactive check applied at every fresh-context spec
-  validation dispatch, in addition to its existing reactive structural
-  re-evaluation trigger (which is retained, not replaced).
+  validation dispatch — where containment covers both the spec's scope
+  (its requirements touch exactly one repo's `path` prefix) and its home
+  (it is filed in that repo's issue store) — in addition to the existing
+  reactive structural re-evaluation trigger (which is retained, not
+  replaced).
 - R-4: The work SHALL NOT modify `floor.md`.
 
 ## Impact
