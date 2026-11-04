@@ -367,6 +367,64 @@ def _issues_branch_exists(repo_path: Path | None = None) -> bool:
     return result.returncode == 0
 
 
+def _remote_has_issues_ref(repo_path: Path | None = None) -> bool | None:
+    """Live verification of an origin's `issues-data` ref (#2642 R-2).
+
+    Returns ``True`` when a live `ls-remote --heads origin issues-data`
+    carried in the repository itself lists the ref; ``False`` when the
+    origin is reachable and the ref is verified absent (clean exit, empty
+    output); ``None`` when the origin is unreachable or the probe fails
+    (a failed probe is never evidence of absence). A stale
+    remote-tracking ref is not verification — the probe always runs live.
+    """
+    target = repo_path or Path(os.getcwd())
+    result = subprocess.run(
+        [
+            "git", "-C", str(target),
+            "ls-remote", "--heads", "origin", WORKTREE_BRANCH,
+        ],
+        capture_output=True, text=True, timeout=30,
+    )
+    if result.returncode != 0:
+        return None
+    return bool(result.stdout.strip())
+
+
+def _local_store_evidence(repo_path: Path | None = None) -> bool:
+    """Local issue-host evidence (#2642 R-1).
+
+    The tool's own worktree detection or a local `issues-data` branch —
+    either marks the child as already holding (or having held) a store,
+    which is host evidence per the gate.
+    """
+    target = repo_path or Path(os.getcwd())
+    if _worktree_active(repo_path=target):
+        return True
+    return _issues_branch_exists(repo_path=target)
+
+
+def _is_store_host(repo_path: Path | None = None) -> bool:
+    """Child store-host classification (#2642 R-1).
+
+    The tool's project root is an unconditional store host. A child
+    repository is a store host only when the issue store already exists
+    on it: local evidence (`.issues/` worktree marker or a local
+    `issues-data` branch) or a live-verified remote ref. A child with
+    neither — including one whose remote ref cannot be verified — is a
+    non-host: no store provisioning, no passive-path operations, and
+    mutations against it are refused (the opt-in on `init` provisions).
+
+    Pull-only classification is orthogonal and runs first at every gate
+    site — this function adds nothing on top of it.
+    """
+    target = repo_path or Path(os.getcwd())
+    if target.resolve() == PROJECT_DIR.resolve():
+        return True  # workspace root: unconditional store host (R-1)
+    if _local_store_evidence(target):
+        return True
+    return _remote_has_issues_ref(target) is True
+
+
 def _registered_store_host_paths(root: Path) -> list[tuple[str, str]]:
     """Paths eligible to hold an issue store, via git's registered-submodule
     mechanism (#2667 R-1).
@@ -459,9 +517,34 @@ def _is_pull_only(repo_path: Path | None = None) -> bool:
     return url.startswith("http://") or url.startswith("https://")
 
 
+def _reject_non_store_host(repo_name: str, repo_path: Path | None) -> None:
+    """Refuse a mutation naming a non-store-host child (#2642 R-1).
+
+    Called after `_reject_pull_only` — a non-host child holds no issue
+    store, so a mutation naming it is refused with a diagnostic naming
+    the non-store-host classification and the opt-in provisioning path
+    (`init --adopt`). The workspace root never refuses here (it is an
+    unconditional store host).
+    """
+    target = repo_path if repo_path is not None else Path(os.getcwd())
+    if target.resolve() == PROJECT_DIR.resolve():
+        return
+    if _is_store_host(target):
+        return
+    print(
+        f"error: repo '{repo_name}' ({target}) is a non-store-host child: "
+        "no issue store exists there (no verified issues-data ref on its "
+        "origin and no local store), the child is provisioning-gated, "
+        "and mutations naming it are refused. Provision its store with "
+        f"'local-issues init --adopt {repo_name}', or read/write its "
+        f"issues through the platform CLI (qualifier '{repo_name}#N').",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+
 def _reject_pull_only(repo_name: str, repo_path: Path | None) -> None:
     """Refuse a mutation naming a pull-only repository (#2667 R-3).
-
     Pull-only here is a write-eligibility classification, not a push
     probe: the repository is served over ``http(s)``, the tool performs
     no store operation against it, and a mutation naming it exits
@@ -601,12 +684,19 @@ def _ensure_all_worktrees() -> bool:
     A pull-only child repository is skipped (#2667 R-3): no store branch,
     no worktree, no fetch, no push — the absent store there is
     intentional, not a failure.
+
+    A child with no issue-host evidence (neither a live-verified remote
+    ref nor local store evidence) is likewise skipped (#2642 R-1): it is
+    a non-host, and the opt-in on `init` (`--adopt`) is the provisioning
+    path — the sweep never provisions a store there.
     """
     repos = _discover_all_repos()
     all_ok = True
     for repo in repos:
         if _is_pull_only(repo):
             continue
+        if not _is_store_host(repo):
+            continue  # non-host child (#2642 R-1): informational skip
         try:
             if not _ensure_worktree(repo_path=repo):
                 all_ok = False
@@ -982,14 +1072,28 @@ def _is_https_without_creds(git_dir: str) -> bool:
         return False
 
 
-def _push_orphan_if_needed(repo_path: Path | None = None) -> None:
+def _push_orphan_if_needed(
+    repo_path: Path | None = None, allow_establish: bool = False
+) -> None:
     """Push the worktree branch to origin if a remote exists.
 
     Skips push when remote is HTTPS without credential helper to avoid
     hanging on interactive auth prompts in non-interactive environments (#1299).
+
+    Child push gate (#2642 R-2): for any repository other than the tool's
+    project root, the push runs only when the origin's ``issues-data`` ref
+    is not verified absent — a push that would create the ref on a
+    ref-less child origin goes through the opt-in's establishment push
+    only (``allow_establish``, R-3). An unreachable origin is not treated
+    as absent: the push attempts and fails through the existing warning.
     """
     git_dir = str(repo_path) if repo_path else os.getcwd()
     if _is_https_without_creds(git_dir):
+        return
+    target = Path(git_dir)
+    is_root = target.resolve() == PROJECT_DIR.resolve()
+    if (not allow_establish and not is_root
+            and _remote_has_issues_ref(target) is False):
         return
     try:
         result = subprocess.run(
@@ -1023,12 +1127,17 @@ def _push_issues_branch(repo_path: Path | None = None) -> None:
     Runs git commands from within .issues/ (the linked worktree).
 
     Skips push when remote is HTTPS without credential helper (#1299).
+    Child push gate (#2642 R-2): a non-root repository's mutation push
+    never re-creates a verified-absent origin ref.
     """
     root = repo_path or Path(os.getcwd())
     if not _worktree_active(repo_path=root):
         return
     issues_git_dir = str(root / ISSUES_DIR)
     if _is_https_without_creds(issues_git_dir):
+        return
+    if (root.resolve() != PROJECT_DIR.resolve()
+            and _remote_has_issues_ref(root) is False):
         return
     try:
         result = subprocess.run(
@@ -1140,9 +1249,15 @@ def _push_issues_changes(root: Path) -> None:
 
     Skips push when remote is HTTPS without credential helper (#1299).
     Retries once on transient network failures (#2548 C2).
+    Child push gate (#2642 R-2): a non-root repository's mutation auto-
+    push never re-creates a verified-absent origin ref — the mutation
+    commits locally and pushes nothing.
     """
     issues_git_dir = str(root / ISSUES_DIR)
     if _is_https_without_creds(issues_git_dir):
+        return
+    if (root.resolve() != PROJECT_DIR.resolve()
+            and _remote_has_issues_ref(root) is False):
         return
     try:
         result = subprocess.run(
@@ -1294,6 +1409,7 @@ def cmd_create(args: argparse.Namespace) -> None:
     repo_name, num = _require_qualified(args.number)
     repo_path = _resolve_and_validate_repo(repo_name)
     _reject_pull_only(repo_name, repo_path)
+    _reject_non_store_host(repo_name, repo_path)
     current_repo_name = repo_path.name
     args.number = num
     qualified = f"{current_repo_name}#{args.number}"
@@ -1588,6 +1704,7 @@ def cmd_update(args: argparse.Namespace) -> None:
     _repo_name, args.number = _require_qualified(args.number)
     repo_path = _resolve_and_validate_repo(_repo_name)
     _reject_pull_only(_repo_name, repo_path)
+    _reject_non_store_host(_repo_name, repo_path)
     if not issue_exists(args.number, repo_path):
         _not_found(args.number, repo_path)
     path = get_issue_path(args.number, repo_path=repo_path) / "issue.yaml"
@@ -1622,6 +1739,7 @@ def cmd_comment(args: argparse.Namespace) -> None:
     _repo_name, args.number = _require_qualified(args.number)
     repo_path = _resolve_and_validate_repo(_repo_name)
     _reject_pull_only(_repo_name, repo_path)
+    _reject_non_store_host(_repo_name, repo_path)
     if not issue_exists(args.number, repo_path):
         _not_found(args.number, repo_path)
     path = get_issue_path(args.number, repo_path=repo_path) / "comments.yaml"
@@ -1646,6 +1764,7 @@ def cmd_close(args: argparse.Namespace) -> None:
     _repo_name, args.number = _require_qualified(args.number)
     repo_path = _resolve_and_validate_repo(_repo_name)
     _reject_pull_only(_repo_name, repo_path)
+    _reject_non_store_host(_repo_name, repo_path)
     if not issue_exists(args.number, repo_path):
         _not_found(args.number, repo_path)
     path = get_issue_path(args.number, repo_path=repo_path) / "issue.yaml"
@@ -1666,6 +1785,7 @@ def cmd_delete(args: argparse.Namespace) -> None:
     _repo_name, args.number = _require_qualified(args.number)
     repo_path = _resolve_and_validate_repo(_repo_name)
     _reject_pull_only(_repo_name, repo_path)
+    _reject_non_store_host(_repo_name, repo_path)
     if not issue_exists(args.number, repo_path):
         _not_found(args.number, repo_path)
     links = yaml_load(
@@ -1814,6 +1934,7 @@ def cmd_link(args: argparse.Namespace) -> None:
     parent_repo, parent_num = _require_qualified(args.number)
     parent_path = _resolve_and_validate_repo(parent_repo)
     _reject_pull_only(parent_repo, parent_path)
+    _reject_non_store_host(parent_repo, parent_path)
     if not issue_exists(parent_num, parent_path):
         _not_found(parent_num, parent_path)
     sub_list: list[int] = []
@@ -1821,6 +1942,7 @@ def cmd_link(args: argparse.Namespace) -> None:
         _sub_repo, sub_num = _parse_qualified(sub_item)
         sub_path = _resolve_and_validate_repo(_sub_repo)
         _reject_pull_only(_sub_repo, sub_path)
+        _reject_non_store_host(_sub_repo, sub_path)
         if not issue_exists(sub_num, sub_path):
             _not_found(sub_num, sub_path)
         sub_list.append(sub_num)
@@ -1848,6 +1970,7 @@ def cmd_renumber(args: argparse.Namespace) -> None:
         sys.exit(1)
     repo_path = _resolve_and_validate_repo(from_repo)
     _reject_pull_only(from_repo, repo_path)
+    _reject_non_store_host(from_repo, repo_path)
     if not issue_exists(from_num, repo_path):
         _not_found(from_num, repo_path)
     if issue_exists(to_num, repo_path):
@@ -2111,11 +2234,28 @@ def _sync_repo(repo_path: Path, qualifier: str, issues_dir: Path | None = None) 
         entry["status"] = "pull-only"
         entry["classification"] = "pull-only"
         return entry
+    if (repo_path.resolve() != PROJECT_DIR.resolve()
+            and not _is_store_host(repo_path)):
+        # Non-host child (#2642 R-1): no fetch, rebase, or push, and no
+        # store — the absent store there is intentional (SC-1/SC-14).
+        entry["status"] = "non-host"
+        entry["classification"] = "non-host"
+        return entry
     if not (issues_dir / ".git").is_file():
         entry["status"] = "no_worktree"
         return entry
     if not _has_remote(repo_path):
         entry["status"] = "no_remote"
+        return entry
+    # Child ref gate (#2642 R-2): for a non-root repository, a reachable
+    # origin whose `issues-data` ref is verified absent receives no
+    # fetch, no rebase, and no push — an informational steady state, not
+    # a failure. An unreachable origin is not a steady state: the store
+    # operations attempt and fail through the existing statuses (SC-15).
+    if (repo_path.resolve() != PROJECT_DIR.resolve()
+            and _remote_has_issues_ref(repo_path) is False):
+        entry["status"] = "remote-ref-absent"
+        entry["classification"] = "host-pending"
         return entry
     if _rebase_in_progress(issues_dir):
         return {**entry, **_rebase_status_entry(issues_dir)}
@@ -2147,8 +2287,74 @@ def _exit_on_sync_failures(repos_info: list[dict]) -> None:
         sys.exit(1)
 
 
+def _adopt_child(name: str) -> None:
+    """Opt-in provisioning of one named child's store (#2642 R-3).
+
+    Establishment-completing, not a bootstrap wrap: resolve the named
+    child among git's registered submodule set; refuse pull-only
+    (existing ground) and not-a-registered-child (ground named); then
+    provision what is missing independently — the worktree under the
+    fail-fatal contract, then the establishment push. The origin ref is
+    re-verified live; a re-run on a child whose worktree exists but whose
+    origin ref is absent performs the push (no short-circuit on the
+    worktree's existence); exit non-zero naming the failed establishment
+    when the origin ref is absent after the attempt (SC-13).
+    """
+    root = PROJECT_DIR.resolve()
+    registered: list[tuple[str, Path]] = []
+    for path, marker in _registered_store_host_paths(root):
+        child = (root / path).resolve()
+        if child.is_dir():
+            registered.append((path, child))
+    name = name.strip().strip("/") or name
+    if name in ("", ".", root.name):
+        # The root is an unconditional store host: nothing to adopt.
+        return
+    resolved: tuple[str, Path] | None = None
+    for rel_path, child in registered:
+        if name == rel_path or name == child.name:
+            resolved = (rel_path, child)
+            break
+    if resolved is None:
+        print(
+            f"error: '{name}' is not a registered child of the workspace "
+            "root — adoption names a registered submodule path (per "
+            "`.gitmodules` / `git submodule status`); no store was created",
+            file=sys.stderr,
+        )
+        _print_available_repos()
+        sys.exit(1)
+    rel_path, child = resolved
+    _reject_pull_only(rel_path, child)
+    _ensure_worktree(repo_path=child)
+    _push_orphan_if_needed(repo_path=child, allow_establish=True)
+    if _remote_has_issues_ref(child) is not True:
+        print(
+            f"error: establishment failed for '{rel_path}': the origin "
+            "does not carry the issues-data ref after the push attempt "
+            "(the store worktree exists locally); remediate the origin "
+            "and re-run 'local-issues init --adopt "
+            f"{rel_path}' to complete the establishment",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    print(
+        yaml_dump(
+            {
+                "adopted": True,
+                "child": rel_path,
+                "worktree": str(child / ISSUES_DIR),
+                "origin_ref": WORKTREE_BRANCH,
+            }
+        )
+    )
+
+
 def cmd_init(args: argparse.Namespace) -> None:
     """Bootstrap worktrees and sync for all repos. Delegates to _sync_repo()."""
+    adopt = getattr(args, "adopt", None)
+    if adopt:
+        _adopt_child(adopt)
     _ensure_all_worktrees()
     repos_info: list[dict] = []
     for repo_path, qualifier in _collect_repos():
@@ -2264,6 +2470,13 @@ def _sync_file_in_worktree(
         capture_output=True, text=True, timeout=15,
     )
     has_remote = remote_check.returncode == 0 and bool(remote_check.stdout.strip())
+    # Child ref gate (#2642 R-2): do not push a verified-absent origin
+    # ref for a non-root repository — the local commit stands, the push
+    # is skipped, and the result stays ok (SC-3); the opt-in is the
+    # establishment path.
+    if (repo_path.resolve() != PROJECT_DIR.resolve()
+            and _remote_has_issues_ref(repo_path) is False):
+        has_remote = False
     if has_remote:
         push = subprocess.run(
             ["git", "-C", git_dir, "push", "origin", "issues-data"],
@@ -2317,6 +2530,7 @@ def cmd_sync_file(args: argparse.Namespace) -> None:
         sys.exit(1)
     repo_path, repo_name, rel_path = resolved
     _reject_pull_only(repo_name, repo_path)
+    _reject_non_store_host(repo_name, repo_path)
     result = _sync_file_in_worktree(repo_path, rel_path, args.message)
     result["repo"] = repo_name
     print(yaml_dump(result))
@@ -2474,8 +2688,17 @@ def _add_url_parser(subparsers: argparse._SubParsersAction) -> None:
 
 
 def _add_init_parser(subparsers: argparse._SubParsersAction) -> None:
-    subparsers.add_parser(
+    p = subparsers.add_parser(
         "init", help="Initialize worktrees and pull remote issues-data for all repos"
+    )
+    p.add_argument(
+        "--adopt",
+        type=str,
+        default=None,
+        metavar="CHILD",
+        help="Provision a store on one named registered child (worktree, "
+        "branch, establishment push); the opt-in is the only provisioning "
+        "path a non-host child has (#2642 R-3)",
     )
 
 
@@ -2554,11 +2777,23 @@ def _doctor_repo_report(repo: Path) -> str:
     and intentionally carries no ``branch_state=UNHEALTHY`` marker: R-3
     makes the absent store deliberate there, so the absent-branch health
     failure would be a false alarm.
+
+    A non-store-host child (#2642 R-4) is reported the same way — its
+    absent store is intentional under the evidence gate, so
+    ``classification=non-host`` replaces the branch-state health verdict
+    that would fire a false UNHEALTHY (SC-6). The root never carries this
+    row: it is an unconditional store host.
     """
     issues_dir = repo / ISSUES_DIR
     if _is_pull_only(repo):
         return (
             f"repo={repo} issues_dir={issues_dir} classification=pull-only "
+            "branch_state=absent-by-design worktree=absent"
+        )
+    if (repo.resolve() != PROJECT_DIR.resolve()
+            and not _is_store_host(repo)):
+        return (
+            f"repo={repo} issues_dir={issues_dir} classification=non-host "
             "branch_state=absent-by-design worktree=absent"
         )
     local_exists = _issues_branch_exists(repo_path=repo)

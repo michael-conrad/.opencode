@@ -121,7 +121,12 @@ def pull_only_sandbox() -> Path:
 
 @pytest.fixture
 def writeable_child_sandbox() -> Path:
-    """Workspace: writable-configured root + a registered ssh-origin child."""
+    """Workspace: writable-configured root + a registered child with store
+    evidence (#2642 R-1: the child's origin carries a seeded issues-data
+    branch — a real host child). No ssh anywhere: the machine's live sshd
+    turns failed ssh attempts into interactive auth dialogs, so the
+    reachable/pushable remote is a local bare repository (file transport).
+    """
     base = TMP_DIR / "writeable-child"
     if base.exists():
         shutil.rmtree(base)
@@ -130,7 +135,21 @@ def writeable_child_sandbox() -> Path:
     subprocess.run(["git", "init", "-q", str(root)], check=True)
     subprocess.run(["git", "init", "-q", "--bare", str(base / "origin.git")], check=True)
     _git(root, "remote", "add", "origin", str(base / "origin.git"))
-    _register_child(root, child, WRITEABLE_SSH_ORIGIN, init_child=True)
+    # Seeded child origin: a bare repo carrying an issues-data branch.
+    child_origin = base / "child-origin.git"
+    subprocess.run(["git", "init", "-q", "--bare", str(child_origin)], check=True)
+    seed = base / "seed"
+    subprocess.run(
+        ["git", "clone", "-q", str(child_origin), str(seed)], check=True
+    )
+    _git(seed, "checkout", "-q", "--orphan", "issues-data")
+    _git(
+        seed, "-c", "user.name=f", "-c", "user.email=f@x",
+        "commit", "-q", "--allow-empty", "-m", "init issues branch",
+    )
+    _git(seed, "push", "-q", "origin", "issues-data")
+    shutil.rmtree(seed)
+    _register_child(root, child, str(child_origin), init_child=True)
     tools_dir = root / CHILD_REPO_DIRNAME / "tools"
     tools_dir.mkdir(parents=True)
     shutil.copy2(REAL_TOOL, tools_dir / TOOL_NAME)
@@ -265,13 +284,16 @@ def test_mutations_refuse_pull_only_repo(pull_only_sandbox: Path) -> None:
 
 
 def test_writeable_child_is_a_store_host(writeable_child_sandbox: Path) -> None:
-    """Negative control (R-2 scope): an ssh-origin child keeps its store class.
+    """Negative control (R-2 scope): a store-host child keeps its store class
+    (#2642: the evidence branch — a child whose origin carries the ref is a
+    host regardless of origin scheme — carried onto the gated mechanism).
 
     Its classification is not pull-only; the tool resolves it by name and
-    the doctor line for it carries no pull-only classification. The store is
-    never created against the unreachable ssh origin, so the tool reports
-    its steady-state sync condition without a push attempt succeeding —
-    here only the *classification*, not connectivity, is under test.
+    the doctor line for it carries no pull-only classification. The store
+    is never created against a synthetic unreachable remote, so the tool
+    reports its steady-state sync condition without a push attempt
+    succeeding — here only the *classification*, not connectivity, is
+    under test.
     """
     root = writeable_child_sandbox
     child = root / CHILD_REPO_DIRNAME
