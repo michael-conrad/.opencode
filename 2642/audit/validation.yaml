@@ -43,4 +43,44 @@ rounds:
   - round: 2
     date: 2026-11-04
     reviewer: fresh-context dispatch (new reviewer, no prior context)
+    verdict: FAIL
+    findings:
+      - class: blast-radius (family)
+        location: scope's sync-path enumeration and R-2's gate enumeration
+        ground: `sync-file` (`_sync_file_in_worktree`/`cmd_sync_file`) is a
+          fourth child-origin push site — it pushes `origin issues-data`
+          whenever the resolved repository has a remote, guarded only by the
+          pull-only refusal — and the spec named it nowhere: not in R-2's
+          enumeration, not in scope's parentheticals, not in any SC; the
+          deck's own mutation-command list excludes sync-file, so "a
+          mutation's auto-push" did not cover it. In SC-3's constructed
+          state, sync-file would create the child's remote ref outside the
+          two R-2 permits. (Verified against the tool: push at line 2268,
+          guard only at line 2319.)
+        remediation: R-2's enumeration names the sync-file path explicitly;
+          scope's sync-path parenthetical carries `_sync_file_in_worktree`/
+          `cmd_sync_file`; SC-3's instrument adds the sync-file leg against
+          the ref-less remote.
+      - class: fabricated-claims (family)
+        location: approach step 3 — "a failed establishment push is retried
+          by re-running the adoption"
+        ground: contradicted by the mechanism the approach names —
+          `_push_orphan_if_needed` reports a failed push as a non-fatal
+          stderr warn and `_create_issues_worktree` still returns True, so
+          the failed-push state is indistinguishable from success; a re-run
+          short-circuits at `_ensure_worktree`'s `_worktree_active` guard
+          (`.issues/.git` is a file regardless of push outcome) before any
+          push executes. With R-2 gating every other push path, no specified
+          path could ever establish the child's remote ref that SC-4
+          requires. (Verified against the tool: lines 344-348, 861-872,
+          893-923, 985-1014.)
+        remediation: R-3 states the establishment-completing semantics — the
+          opt-in verifies the push outcome against the live remote ref,
+          exits non-zero when the ref is absent after the attempt, and a
+          re-run performs the establishment push on a child whose worktree
+          exists but whose origin ref is absent (no short-circuit on the
+          worktree's existence); approach step 3 rewritten to match.
+  - round: 3
+    date: 2026-11-04
+    reviewer: fresh-context dispatch (new reviewer, no prior context)
     verdict: PENDING
