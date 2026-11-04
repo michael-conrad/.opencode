@@ -145,16 +145,19 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ no `issues-data` ref, no local `.issues/` — receives no store, and the reports\
   \ say so: `local-issues init` exits successfully, the child has no `.issues` directory\
   \ and no `issues-data` branch, the child's origin carries no `issues-data` ref afterward,\
-  \ and the init report carries the child's informational non-host steady-state entry\
-  \ (the pull-only entry's shape — classification, no operation result). | behavioral\
-  \ (runtime effect) | Construct the workspace per the `.opencode#2667` SC-6 fixture\
-  \ family: workspace root whose origin is a reachable local bare repository, the\
-  \ deck's `tools/` at `<workspace>/.opencode/tools/`, and a registered submodule\
-  \ at `sub/deck` whose origin is a reachable bare repository carrying no `issues-data`\
-  \ branch. Run `<workspace>/.opencode/tools/local-issues init`; read its exit status\
-  \ and per-repo report (the entry naming `sub/deck`), then `ls -a sub/deck`, `git\
-  \ -C sub/deck branch`, `git -C sub/deck worktree list`, and `git -C sub/deck ls-remote\
-  \ origin`. |\n| SC-2 | A mutation naming a non-host child is refused with a diagnostic\
+  \ the init report carries the child's informational non-host steady-state entry\
+  \ (the pull-only entry's shape — classification, no operation result), and the workspace\
+  \ root's establishment push still fired (the root's origin carries the `issues-data`\
+  \ ref after `init` when it started without one). | behavioral (runtime effect) |\
+  \ Construct the workspace per the `.opencode#2667` SC-6 fixture family: workspace\
+  \ root whose origin is a reachable local bare repository carrying no `issues-data`\
+  \ branch, the deck's `tools/` at `<workspace>/.opencode/tools/`, and a registered\
+  \ submodule at `sub/deck` whose origin is a reachable bare repository carrying no\
+  \ `issues-data` branch. Run `<workspace>/.opencode/tools/local-issues init`; read\
+  \ its exit status and per-repo report (the entry naming `sub/deck`), then `ls -a\
+  \ sub/deck`, `git -C sub/deck branch`, `git -C sub/deck worktree list`, `git -C\
+  \ sub/deck ls-remote origin`, and `git ls-remote origin issues-data` from the workspace\
+  \ root. |\n| SC-2 | A mutation naming a non-host child is refused with a diagnostic\
   \ naming the child's non-host classification and the opt-in path, and the refusal\
   \ creates no store artifact in the child. | behavioral (runtime effect) | In the\
   \ SC-1 workspace (before any adoption), run `create --number 'deck#9999' --title\
@@ -362,5 +365,5 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ remote-branch deletion). Every element reverses.\n\n---\n\n*Co-authored with AI:\
   \ OpenCode (huggingface/zai-org/GLM-5.3-Flash)*\n"
 created_at: '2026-11-04T06:12:31+00:00'
-updated_at: '2026-11-04T06:49:39+00:00'
+updated_at: '2026-11-04T06:50:19+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2642

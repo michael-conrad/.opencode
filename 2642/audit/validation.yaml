@@ -134,4 +134,37 @@ rounds:
   - round: 4
     date: 2026-11-04
     reviewer: fresh-context dispatch (new reviewer, no prior context)
+    verdict: FAIL
+    findings:
+      - class: gap-analysis (family — boundary condition never exercised;
+          unchanged behavior put at risk; blast-radius facet)
+        location: R-2 and approach step 1, read against impact's network-down
+          risk bullet and the SC set
+        ground: R-2's skip closed the gate whenever the ref could not be
+          verified — including a host child (local worktree, host by R-1's
+          local-evidence branch) whose origin is temporarily unreachable.
+          Today that state fails shell-visibly (`_sync_repo` reaches
+          `_rebase_issues_branch`, whose pull fails on the network error →
+          `status: conflict` → `_exit_on_sync_failures` exits non-zero — the
+          `.opencode#2548` C2 contract `sync-mirroring.md` pins). R-2 as
+          worded downgraded that routine transient failure to an
+          informational steady state with exit 0, and no criterion exercised
+          the unreachable-origin × host-child cell (SC-3's origin is
+          reachable with the ref verified absent; SC-14's child holds no
+          local store); the impact bullet enumerated only the
+          no-local-worktree case. (Verified against the tool: lines 2099,
+          2058, 2139-2147.)
+        remediation: R-2 split into verified-absent (reachable origin, ref
+          confirmed absent → informational skip) and unverifiable
+          (unreachable origin → a host child keeps the existing failure
+          semantics and the non-zero sync exit per #2548 C2; a transient
+          outage is never reported as an intentional steady state; a
+          non-host child is skipped by R-1's classification on either
+          state); approach step 2 aligned; new SC-15 exercises the
+          unreachable-origin × host-child cell (non-zero exit, failure
+          status, then restored-origin re-run to `ok`); the impact risk
+          bullet enumerates both network-down cells.
+  - round: 5
+    date: 2026-11-04
+    reviewer: fresh-context dispatch (new reviewer, no prior context)
     verdict: PENDING
