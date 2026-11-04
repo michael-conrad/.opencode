@@ -1,59 +1,94 @@
-title: '[BUG] local-issues auto-bootstraps phantom issue stores on .gitmodules child
-  repos — wiki store created, content-polluted (Home.md), pushed to the wiki remote'
+title: 'local-issues: require issue-host evidence before child-repo store bootstrap;
+  never auto-push store branch to ref-less remotes'
 status: open
 labels:
-- needs-approval
-body: 'Observed behavior: `local-issues` treats every `.gitmodules` child repo as
-  an issue host and auto-bootstraps an issue store for it. In `hermes-ingest-pubmed`
-  the only child is the GitHub wiki checkout (`git@github.com:NewsRx/hermes-ingest-pubmed.wiki.git`)
-  — a content repo with no issue role. The tool:
-
-
-  1. created `wiki/.issues/` inside the wiki checkout (a gitignored dir there) during
-  `init`/`sync`;
-
-  2. populated its local `issues-data` branch with wiki trunk content — the branch
-  head contains `Home.md`, a wiki content page, not issue data;
-
-  3. pushed the branch to the wiki remote — `git -C wiki ls-remote origin` now shows
-  `refs/heads/issues-data` (b1f5156), polluting a special-purpose remote with a junk
-  branch;
-
-  4. while the remote ref did not yet exist, every `init`/`sync` reported `status:
-  conflict / pull_result: "fatal: couldn''t find remote ref issues-data"` for the
-  wiki entry — permanent conflict noise until the auto-push landed;
-
-  5. after the push, the phantom store reports `status: ok / issues_count: 0`, and
-  `doctor` calls it `HEALTHY` — no signal the store is spurious;
-
-  6. removing the worktree locally (`git -C wiki worktree remove --force .issues`)
-  does not fix it — the next `init` recreates the store and re-syncs (observed live
-  this session).
-
-
-  Expected behavior: child repos without an issue-host role should not be auto-bootstrapped.
-  Discovery should require evidence the child actually hosts issues (an existing `issues-data`
-  remote ref plus an `.issues/` record, or an explicit opt-in), and the sync path
-  should never auto-push a store branch to a remote that has no `issues-data` ref.
-  The stray `refs/heads/issues-data` (b1f5156, containing `Home.md`) on `NewsRx/hermes-ingest-pubmed.wiki`
-  needs maintainer-side deletion.
-
-
-  Steps to reproduce: any project whose `.gitmodules` lists a child repo that is not
-  an issue host; run `.opencode/tools/local-issues init`; observe the child `.issues/`
-  worktree being created, trunk content appearing in the store branch, and the auto-push
-  toward the child remote.
-
-
-  Component affected: `.opencode/tools/local-issues` — repo discovery (`_discover_all_repos`,
-  `_ensure_all_worktrees`) and the sync/push path (`_sync_repo`, `_push_issues_branch_safe`).
-
-
-  Related: #2446 — different facets of the same repo-discovery surface; this report''s
-  finding (child-repo auto-bootstrap + phantom store + remote pollution) is not covered
-  there.
-
-  '
+- triaged
+- spec
+body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-Identifier:\
+  \ MIT -->\n<!-- Provenance: bug report filed 2026-11-04 (remote GitHub); converted\
+  \ in place\n     into this governing spec on 2026-11-04 under triage dispatch \"\
+  triage\n     .opencode#2642\" (work-entry conversion, .opencode#2707). Triage evidence:\n\
+  \     code-level verification of .opencode/tools/local-issues —\n     _registered_store_host_paths\
+  \ (submodule intersection, no issue-host\n     evidence check), _discover_all_repos\
+  \ (bootstrap of every initialized\n     registered child), _push_issues_branch_safe\
+  \ (unconditional push to any\n     remote once a local worktree exists). Related:\
+  \ .opencode#2446 (different\n     facets of the same repo-discovery surface; the\
+  \ child-repo\n     auto-bootstrap + phantom store + remote-pollution finding is\
+  \ not covered\n     there). -->\n\n# [SPEC] local-issues: require issue-host evidence\
+  \ before child-repo store bootstrap; never auto-push store branch to ref-less remotes\n\
+  \n## Problem\n\n`local-issues` treats every initialized registered submodule of\
+  \ the\nworkspace root as an issue host. `_registered_store_host_paths` intersects\n\
+  `.gitmodules`-declared paths with `git submodule status` and `_discover_all_repos`\n\
+  bootstraps a store for every resulting child — with no check that the child\nactually\
+  \ hosts issues. In `hermes-ingest-pubmed` the only registered child is a\nGitHub\
+  \ wiki checkout (`git@github.com:NewsRx/hermes-ingest-pubmed.wiki.git`), a\ncontent\
+  \ repo with no issue role. Observed failure chain:\n\n1. `init`/`sync` created `wiki/.issues/`\
+  \ inside the wiki checkout.\n2. The store branch's head ended up containing wiki\
+  \ trunk content (`Home.md`),\n   not issue data.\n3. `_push_issues_branch_safe`\
+  \ pushed the branch to the wiki remote —\n   `git -C wiki ls-remote origin` showed\
+  \ `refs/heads/issues-data` (b1f5156),\n   polluting a special-purpose remote with\
+  \ a junk branch.\n4. Until the auto-push landed, every `init`/`sync` reported the\
+  \ wiki entry as\n   `status: conflict / pull_result: \"fatal: couldn't find remote\
+  \ ref\n   issues-data\"` — permanent failure noise.\n5. After the push, the phantom\
+  \ store reported `status: ok / issues_count: 0`\n   and `doctor` called it `HEALTHY`\
+  \ — no signal the store is spurious.\n6. Removing the worktree locally (`git -C\
+  \ wiki worktree remove --force\n   .issues`) does not fix it — the next `init` recreates\
+  \ the store and re-syncs.\n\nEvery store-holding workspace whose `.gitmodules` lists\
+  \ a non-issue child repo\nhits this: phantom stores, junk branches on third-party/special-purpose\n\
+  remotes, and standing sync-failure noise that can mask real divergences\n(the `_exit_on_sync_failures`\
+  \ gate trips on the phantom's conflict).\n\n## Scope\n\n`/.opencode/tools/local-issues`\
+  \ (single-file Python tool) — repo discovery\n(`_registered_store_host_paths`, `_discover_all_repos`,\
+  \ `_ensure_all_worktrees`)\nand the sync/push path (`_sync_repo`, `_push_issues_branch_safe`).\n\
+  \n## Requirements\n\n- **R-1.** `_discover_all_repos` SHALL treat a registered initialized\
+  \ child as\n  a store host only when issue-host evidence exists: (a) the child's\
+  \ remote\n  carries a `refs/heads/issues-data` ref, or (b) the child holds a local\n\
+  \  `.issues/` record, or (c) the child is an explicit opt-in (an explicit\n  configuration\
+  \ the tool already reads or a documented opt-in mechanism this\n  change adds).\
+  \ A child with no such evidence is never bootstrapped: no\n  `.issues/` worktree\
+  \ creation, no store branch, no init/sync entry that\n  fails.\n- **R-2.** `_push_issues_branch_safe`\
+  \ SHALL NOT push a store branch to a\n  remote that has no `refs/heads/issues-data`\
+  \ ref. Push is gated on\n  remote-ref existence (`git ls-remote origin refs/heads/issues-data`\n\
+  \  non-empty); a store whose local branch exists but whose remote ref does not\n\
+  \  is reported as an informational entry, not a push and not a failure.\n- **R-3.**\
+  \ `init`/`sync` entries for a child excluded under R-1 SHALL report\n  as an informational\
+  \ state (not in the failure set that trips\n  `_exit_on_sync_failures`) and SHALL\
+  \ NOT abort or fail the run.\n- **R-4.** The workspace root's own store bootstrap\
+  \ is unaffected: the root\n  remains a store host unconditionally, and children\
+  \ that do carry\n  issue-host evidence bootstrap exactly as today.\n\n## Approach\n\
+  \n1. Extend child eligibility in `_registered_store_host_paths` /\n   `_discover_all_repos`\
+  \ with the R-1 evidence check (remote-ref probe\n   plus local-record check plus\
+  \ explicit opt-in), applied before any\n   `_ensure_all_worktrees` bootstrap.\n\
+  2. Gate `_push_issues_branch_safe` on the remote-ref existence probe (R-2),\n  \
+  \ returning an informational entry shape for ref-less remotes.\n3. Ensure the informational\
+  \ entries stay outside\n   `SYNC_FAILURE_STATUSES` (R-3).\n4. Behavioral verification\
+  \ runs against a scratch workspace whose registered\n   child is a non-issue-host\
+  \ repo (mirroring the report's wiki-child shape).\n\n## Success criteria\n\n- **SC-1\
+  \ (behavioral).** In a workspace whose only registered child is a\n  non-issue-host\
+  \ repo, running `local-issues init` creates no `wiki/.issues/`\n  worktree, no store\
+  \ branch, and no push toward the child remote.\n  *Instrument:* behavioral test\
+  \ run against a scratch workspace (provisioned\n  per the behavioral-testing card's\
+  \ harness); assert the child directory\n  contains no `.issues/` and the child remote's\
+  \ `ls-remote` shows no\n  `issues-data` ref after `init` and after `sync`.\n- **SC-2\
+  \ (behavioral).** A child that does carry issue-host evidence (remote\n  `issues-data`\
+  \ ref present, or explicit opt-in) bootstraps and syncs\n  normally.\n  *Instrument:*\
+  \ same harness; positive-case workspace; `init` reports the\n  child `status: ok`\
+  \ and the store branch exists locally.\n- **SC-3 (structural).** `_push_issues_branch_safe`\
+  \ performs no push when the\n  remote lacks a `refs/heads/issues-data` ref.\n  *Instrument:*\
+  \ unit test invoking `_sync_repo` against a local bare remote\n  without the ref;\
+  \ assert no push occurred (ref still absent) and the entry\n  status is informational.\n\
+  - **SC-4 (structural).** A child excluded under R-1 produces an entry whose\n  status\
+  \ is not in `SYNC_FAILURE_STATUSES`; `init`/`sync` exit zero.\n  *Instrument:* unit\
+  \ test asserting the exclusion entry's classification and\n  the process exit code.\n\
+  \n## Out of scope\n\n- Deletion of the stray `refs/heads/issues-data` (b1f5156)\
+  \ on\n  `NewsRx/hermes-ingest-pubmed.wiki` — maintainer-side action on a\n  third-party\
+  \ remote; noted for the developer, not performed by this change.\n- Repo-discovery\
+  \ facets owned by `.opencode#2446`.\n\n## Impact\n\nConsumers: every session that\
+  \ runs `init`/`sync` in a store-holding workspace\nwith non-issue children (the\
+  \ session-start sequence). Risk: low — the change\nnarrows bootstrap and push eligibility;\
+  \ the root store and evidence-backed\nchild stores are unaffected (R-4). Blast radius:\
+  \ `.opencode/tools/local-issues`\nonly.\n\n---\n\n> Full spec and plan artifacts:\
+  \ https://github.com/michael-conrad/.opencode/tree/issues-data/2642/\n>\n> AI-facing\
+  \ artifacts pointer: `.opencode/.issues/2642/`\n"
 created_at: '2026-11-04T06:12:31+00:00'
-updated_at: '2026-11-04T06:12:52+00:00'
+updated_at: '2026-11-04T06:13:16+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2642
