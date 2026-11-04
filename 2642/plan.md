@@ -47,9 +47,18 @@ a verified-absent origin ref (SC-3). Neither status is added to
 - **RED:** two fixture shapes, two demonstrated failures:
   (a) SC-1 shape — a registered child with a reachable local bare origin
   carrying no ref: `init` mints `.issues/`, `issues-data`, and pushes the
-  ref to the child's origin; (b) SC-14 shape — origin an ssh URL to a
-  closed port: `init` still mints the local store (`.issues/` + branch)
-  even though no push can land.
+  ref to the child's origin; (b) SC-14 shape — origin a `file://` URL
+  whose backing path does not exist (transport fails immediately, no
+  ssh, no DNS, no interactive auth): `init` still mints the local store
+  (`.issues/` + branch) even though no push can land.
+- **Transport rule (developer direction 2026-11-04, in-place amendment):**
+  no fixture uses the ssh transport — this machine carries a live sshd,
+  and failed ssh attempts surface interactive host-key/password dialogs.
+  All sandbox remotes are local bare repositories over the file
+  transport; the GitBucket test container is the harness's tests-v2
+  provisioning and is not invoked by this suite. The `#2667` SSH-shim
+  instrument text is superseded here by the read-only-origin shape
+  (Item 4).
 - **GREEN:** the classification consult above.
 - **Instrument:** run the tool's `init` on both shapes; read exit 0, the
   per-repo report (the child's `non-host` entry), `ls -a child/.issues`
@@ -138,17 +147,14 @@ a verified-absent origin ref (SC-3). Neither status is added to
 - **RED:** the flag does not exist today.
 - **Instrument:** SC-4's read (worktree, branch, ref present after
   `--adopt`), the two refusal diagnostics on the SC-12 workspaces, and
-  SC-13's fail-then-complete cycle, constructed as follows (the shim is
-  built in the test fixture, not assumed present): a shim directory on
-  `PATH` ahead of the real one holds executable `git-upload-pack` (exec
-  the resolved real binary) and `git-receive-pack` (`exit 1`); the child's
-  origin is the ssh URL form pointing at a local bare repository via the
-  shim (`GIT_SSH_COMMAND` pointing at a pass-through `ssh` shim so the
-  URL form holds). Phase 1: shim's `git-receive-pack` failing → `init
-  --adopt` exits non-zero, diagnostic names the failed establishment, the
-  worktree exists, `ls-remote` shows no ref. Phase 2: restore
-  (re-point the shim's `git-receive-pack` at the real binary) → re-run
-  `--adopt` — zero exit, the ref present.
+  SC-13's fail-then-complete cycle, constructed as follows (no ssh — the
+  plan-header transport rule): the child's origin is a local bare
+  repository. Phase 1: the origin is made push-rejecting (`chmod a-w`
+  over its `objects/` and `refs/` — reads still work, writes fail
+  deterministically) → `init --adopt` exits non-zero, the diagnostic
+  names the failed establishment, the store worktree exists,
+  `ls-remote` shows no ref. Phase 2: restore write permission → re-run
+  `--adopt` — zero exit, the ref present on the origin.
 
 ## Item 5 — `doctor` reports the non-host classification (SC-6)
 
@@ -203,7 +209,10 @@ a verified-absent origin ref (SC-3). Neither status is added to
     happy path + two refusals + the fail-complete cycle, the SC-3
     passive-path/no-push sequence, and the SC-8 wiki-origin child (a bare
     origin carrying wiki-like content: content repo shape, no store
-    evidence).
+    evidence). No ssh anywhere — see the plan-header transport rule;
+    the SC-14 unreachable shape uses a non-existent `file://` backing
+    path, and the SC-13 establishment-failure shape uses the read-only
+    bare origin.
 - **Instrument:** `uv run --group dev pytest` (no failures) + reading the
   updated/new tests for each property's presence and the four
   evidence-branch coverage tests.
@@ -241,6 +250,18 @@ a verified-absent origin ref (SC-3). Neither status is added to
 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9. Items 2/3/4 depend on Item 1's
 classification; Item 7 depends on 1–6; Items 8 and 9 read the composed
 state.
+
+## Amendment record
+
+- 2026-11-04 (in-place, implement §4): the ssh-transport instrument
+  shapes (the `#2667` SSH-shim family, ssh-to-closed-port SC-14, ssh
+  origins in fixtures) are superseded — the machine's live sshd turns
+  failed ssh attempts into interactive host-key/password dialogs
+  (developer-corrected mid-cycle). Local bare repositories over the
+  file transport, a non-existent `file://` path for unreachable, and a
+  read-only bare origin for establishment-failure replace them. The
+  GitBucket test container remains the tests-v2 harness's provisioning
+  and is not invoked by this unit suite.
 
 ## Suite
 
