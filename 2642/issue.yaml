@@ -2,8 +2,8 @@ title: 'local-issues: require issue-host evidence before child-repo store bootst
   never auto-push store branch to ref-less remotes'
 status: open
 labels:
-- triaged
-- spec
+- spec-fix
+- local-issues
 body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-Identifier:\
   \ MIT -->\n<!-- Provenance: bug report filed 2026-11-04 (remote GitHub); converted\
   \ in place\n     into this governing spec on 2026-11-04 under triage dispatch \"\
@@ -90,5 +90,5 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ https://github.com/michael-conrad/.opencode/tree/issues-data/2642/\n>\n> AI-facing\
   \ artifacts pointer: `.opencode/.issues/2642/`\n"
 created_at: '2026-11-04T06:12:31+00:00'
-updated_at: '2026-11-04T06:13:16+00:00'
+updated_at: '2026-11-04T06:13:40+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2642
