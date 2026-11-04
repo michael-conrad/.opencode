@@ -1,0 +1,46 @@
+# Validation record — .opencode#2642 (spec)
+artifact: spec
+rounds:
+  - round: 1
+    date: 2026-11-04
+    reviewer: fresh-context dispatch (no prior context on the spec)
+    verdict: FAIL
+    findings:
+      - class: incapable-instrument (class 5) + decomposition
+        location: SC-4 (success-criteria table, carrying R-3)
+        ground: SC-4 bundled provisioning plus two refusal grounds; its
+          instrument exercised only provisioning and an unattributable
+          refusal (in the https workspace the child is simultaneously
+          pull-only and non-host, so either refusal ground passes); the
+          unregistered-path refusal had no instrument anywhere in the set.
+        remediation: SC-4 split — provisioning alone (SC-4); refusal grounds
+          moved to new SC-12 with ground-attributable diagnostics (the
+          pull-only refusal names the pull-only classification; the
+          unregistered-path refusal names the not-a-registered-child ground);
+          R-3 gained the name-its-ground clause.
+      - class: internal-contradiction (family)
+        location: approach step 1 ("discovery excludes it") vs R-1, R-4, SC-2, SC-6
+        ground: excluding non-host children from `_discover_all_repos()`
+          starves the reporting and resolution layers that read that set —
+          R-1's steady-state report entry, R-4's doctor marker, and SC-2's
+          mutation refusal become unsatisfiable; the spec stated no
+          compensating layer.
+        remediation: approach step 1 rewritten — discovery's enumerated
+          membership is unchanged; the host-evidence rule is a classification
+          layer over the enumerated set, applied at the consuming points
+          (bootstrap sweep, sync path, doctor, mutation resolution).
+      - class: gap-analysis (family) + incapable-instrument (class 5)
+        location: R-1's non-host report-entry clause; the opt-in-path half of
+          R-1's refusal diagnostic
+        ground: no SC read the init/sync report entry for a non-host child
+          (SC-1/SC-8 read post-state only), and SC-2 checked only the
+          classification half of the diagnostic — both stated requirement
+          contents had no verifying instrument.
+        remediation: SC-1's criterion and instrument extended to read the
+          init report's non-host steady-state entry; SC-2's criterion and
+          instrument extended to require both diagnostic elements
+          (classification and opt-in path).
+  - round: 2
+    date: 2026-11-04
+    reviewer: fresh-context dispatch (new reviewer, no prior context)
+    verdict: PENDING

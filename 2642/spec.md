@@ -67,7 +67,8 @@ child stores, plus the surfaces that describe or observe them:
 - `.opencode/tools/local-issues` — discovery (`_discover_all_repos`,
   `_registered_store_host_paths`), the bootstrap sweep (`_ensure_all_worktrees`,
   `_ensure_worktree`, `_create_issues_worktree`, `_push_orphan_if_needed`),
-  the sync path (`_sync_repo`, `_push_issues_branch_safe`), `doctor`
+  the sync path (`_sync_repo`, `_push_issues_branch_safe`) and the
+  `sync-file` path (`_sync_file_in_worktree`, `cmd_sync_file`), `doctor`
   (`_doctor_repo_report`, `cmd_doctor`), the mutation path's store-host
   resolution and refusal diagnostic, and the explicit opt-in surface.
 - `.opencode/tools/session-init` — the child store claims only: the
@@ -122,13 +123,14 @@ Out of scope:
   diagnostic that names the child's non-host classification and the opt-in
   path. The tool's project root SHALL remain an unconditional store host.
 - **R-2 — No child-origin store-branch creation from the passive paths.**
-  Before the sync path fetches, rebases against, or pushes to a child
-  repository's origin, and before the bootstrap sweep or a mutation's
-  auto-push pushes to it, the tool SHALL verify that the origin carries the
-  `issues-data` ref, and SHALL perform none of those operations when it does
-  not — reporting an informational steady state, not a failure. The
-  opt-in adoption path (R-3) and the workspace root's establishment push are
-  the only origins of a child's remote store ref.
+  Before any passive path — the sync path (`_sync_repo`), the `sync-file`
+  path (`cmd_sync_file`), the bootstrap sweep, or a mutation command's
+  auto-push — fetches from, rebases against, or pushes to a child
+  repository's origin, the tool SHALL verify that the origin carries the
+  `issues-data` ref, and SHALL perform none of those operations against that
+  origin when it does not — reporting an informational steady state, not a
+  failure. The opt-in adoption path (R-3) and the workspace root's
+  establishment push are the only origins of a child's remote store ref.
 - **R-3 — Explicit opt-in provisioning.** The tool SHALL provide an explicit
   opt-in on `init` that provisions a store on one named child: the store
   worktree, the store branch, and the establishment push to that child's
@@ -136,7 +138,12 @@ Out of scope:
   refuse a pull-only child (the `.opencode#2667` R-3 refusal) and a path
   that is not a registered child of the workspace root, and each refusal
   diagnostic SHALL name its ground — the pull-only classification, or the
-  not-a-registered-child ground.
+  not-a-registered-child ground. The opt-in SHALL leave the named child's
+  origin carrying the `issues-data` ref and SHALL exit non-zero when the
+  establishment push does not take effect; a re-run of the opt-in on a child
+  whose store worktree exists but whose origin ref is absent SHALL perform
+  the establishment push — the opt-in completes the establishment and does
+  not short-circuit on the worktree's existence.
 - **R-4 — `doctor` reflects the gate.** `doctor` SHALL apply the same
   host-evidence rule: a child with neither evidence carries the non-host
   classification in its marker line instead of a branch-state health verdict,
@@ -166,7 +173,7 @@ Out of scope:
 |----|-----------|-------|-----------|
 | SC-1 | A registered child with no store evidence — reachable pushable origin, no `issues-data` ref, no local `.issues/` — receives no store, and the reports say so: `local-issues init` exits successfully, the child has no `.issues` directory and no `issues-data` branch, the child's origin carries no `issues-data` ref afterward, and the init report carries the child's informational non-host steady-state entry (the pull-only entry's shape — classification, no operation result). | behavioral (runtime effect) | Construct the workspace per the `.opencode#2667` SC-6 fixture family: workspace root whose origin is a reachable local bare repository, the deck's `tools/` at `<workspace>/.opencode/tools/`, and a registered submodule at `sub/deck` whose origin is a reachable bare repository carrying no `issues-data` branch. Run `<workspace>/.opencode/tools/local-issues init`; read its exit status and per-repo report (the entry naming `sub/deck`), then `ls -a sub/deck`, `git -C sub/deck branch`, `git -C sub/deck worktree list`, and `git -C sub/deck ls-remote origin`. |
 | SC-2 | A mutation naming a non-host child is refused with a diagnostic naming the child's non-host classification and the opt-in path, and the refusal creates no store artifact in the child. | behavioral (runtime effect) | In the SC-1 workspace (before any adoption), run `create --number 'deck#9999' --title probe` (the child's qualifier) and read the exit status, the diagnostic text (it names the non-host classification and the opt-in path), `ls -a sub/deck`, and `git -C sub/deck branch`. An unknown-repository refusal alone, a diagnostic missing either element, or a refusal that created the store, fails. |
-| SC-3 | The passive sync path never touches a child's ref-less remote: a child holding a local store worktree whose origin lacks the `issues-data` ref is synced with no fetch, no rebase, and no push — its report entry is an informational steady state (not a failure status), `sync` exits successfully, and the ref stays absent. | behavioral (runtime effect) | In a workspace as in SC-1, provision the child's store locally without pushing (adopt, then delete the remote ref from the child's bare origin: `git -C <bare> branch -D issues-data`), run `local-issues sync`, and read the child's entry, the exit status, and `git -C sub/deck ls-remote origin` — the ref stays absent and the entry reports no operation against the child's remote. |
+| SC-3 | The passive paths never touch a child's ref-less remote: a child holding a local store worktree whose origin lacks the `issues-data` ref is synced with no fetch, no rebase, and no push — its report entry is an informational steady state (not a failure status), `sync` exits successfully, `sync-file` naming that child's store file likewise performs no push and reports an informational steady state while exiting successfully, and the ref stays absent. | behavioral (runtime effect) | In a workspace as in SC-1, adopt the child, create one record in it (the record's auto-push lands while the ref exists), then delete the remote ref from the child's bare origin (`git -C <bare> branch -D issues-data`). Run `local-issues sync`, then `local-issues sync-file --file 'deck#0001/issue.yaml'` (the child's qualifier); read both entries and exit statuses, and `git -C sub/deck ls-remote origin` — the ref stays absent and both entries report no operation against the child's remote. |
 | SC-4 | The opt-in provisions a store on a named child: `init` with the opt-in naming the registered child leaves the child with an `.issues` worktree, a local `issues-data` branch, and an `issues-data` ref on its origin. | behavioral (runtime effect) | In the SC-1 workspace, run `local-issues init` with the opt-in naming `sub/deck` and read `ls -a sub/deck`, `git -C sub/deck branch`, and `git -C sub/deck ls-remote origin`. |
 | SC-5 | A real host child on a fresh clone still bootstraps from its remote: a registered child whose origin carries `issues-data` and which has no local store receives the store worktree from the remote, and `init` exits successfully. | behavioral (runtime effect) | Construct the SC-1 workspace with the child's bare origin carrying an `issues-data` branch (seeded with one issue record); run `local-issues init` and read the exit status, the child's worktree registration, and the seeded record's presence in `sub/deck/.issues/`. |
 | SC-6 | `doctor` reports a non-host child with the non-host classification and no `UNHEALTHY` marker. | behavioral (runtime effect) | In the SC-1 workspace, run `local-issues doctor` and read the marker line naming `sub/deck`: it carries the non-host classification and does not carry `UNHEALTHY`. |
@@ -200,20 +207,24 @@ Out of scope:
    degrades safely — a real host child on a fresh clone simply does not
    bootstrap that session and bootstraps when the remote is reachable again.
 2. **Passive-path gates (R-2).** For a child repository, the sync path's
-   fetch, rebase, and push and the bootstrap-sweep and mutation pushes each
-   verify the origin's `issues-data` ref (`git ls-remote`, live) before
-   operating, and an absent ref yields an informational skip entry — the
-   child's remote is never created a store branch from, and never pulled
-   against, by a passive path. The root's establishment push keeps its
-   current behavior.
+   fetch, rebase, and push, the `sync-file` path's push, and the
+   bootstrap-sweep and mutation pushes each verify the origin's
+   `issues-data` ref (`git ls-remote`, live) before operating, and an absent
+   ref yields an informational skip entry — the child's remote is never
+   created a store branch from, and never pulled against, by a passive path.
+   The root's establishment push keeps its current behavior.
 3. **Opt-in (R-3).** `init` gains a per-invocation adoption flag naming one
-   registered child; the adoption path runs the existing bootstrap
-   (`_create_issues_worktree`) for that child including the establishment
-   push. The refusal diagnostics for pull-only and unregistered paths follow
-   the `_reject_pull_only()` pattern; the mutation path's non-host refusal
+   registered child. The adoption path is establishment-completing, not a
+   bootstrap wrap: it checks the named child's worktree and remote ref
+   independently, provisions what is missing (worktree via the existing
+   bootstrap, branch via the orphan path, remote ref via the establishment
+   push), verifies the push outcome against the live remote ref, and exits
+   non-zero when the ref is absent after the attempt — so a failed
+   establishment push is visible at adoption time and a re-run completes it.
+   The refusal diagnostics for pull-only and unregistered paths follow the
+   `_reject_pull_only()` pattern; the mutation path's non-host refusal
    reuses it. The store's existence is the persistent record — the flag is
-   the one-time establishment instrument, and a failed establishment push is
-   retried by re-running the adoption.
+   the establishment instrument, idempotent over the establishment state.
 4. **Doctor (R-4).** `_doctor_repo_report()` gains the non-host
    classification row — `classification=non-host`, no branch-state health
    verdict — beside the existing pull-only row.
