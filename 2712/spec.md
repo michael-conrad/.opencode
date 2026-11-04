@@ -94,12 +94,14 @@ content assertion — so the card edit breaks no existing assertion.
 | SC-2 | The spec card's text carries R-1 and R-2 | structural | read `.opencode/skills/spec/SKILL.md` post-implementation and verify the clauses state the single-repo rule and the fact-decidable split discipline as R-1/R-2 require |
 | SC-3 | The validation standards reference carries the proactive repo-boundary check | structural | read `.opencode/skills/spec/references/validation-standards.md` and verify the reference directs the fresh-context dispatch to examine repo-boundary containment proactively at every spec validation |
 | SC-4 | `floor.md` is unmodified by the work | structural | PR diff against trunk shows no `.opencode/floor.md` delta |
+| SC-5 | Given a spec request whose requirements touch only one repo's `path` prefix, the agent files the spec in that repo's issue store — not the other repo's store | behavioral | tests-v2 behavioral harness scenario: `opencode run` dispatching a single-repo spec request (deck-repo paths, parent-repo session context); session evidence asserts the filing landed in the deck store |
 
 ## Evidence types
 
-Behavioral SC-1 asserts agent behavior at runtime (spec-stage output shape)
-— harness-provisioned per the behavioral-testing card. Structural SC-2,
-SC-3, SC-4 are fact-decidable text/diff checks — no runtime needed.
+Behavioral SC-1 and SC-5 assert agent behavior at runtime (spec-stage output
+shape and filing destination) — harness-provisioned per the behavioral-testing
+card. Structural SC-2, SC-3, SC-4 are fact-decidable text/diff checks — no
+runtime needed.
 
 ## Out of scope
 
@@ -123,8 +125,10 @@ validation standards reference gains the proactive check so a bundled spec
 fails validation rather than slipping through to plan; the existing reactive
 trigger stays.
 
-Traceability: R-1, R-2 ← the regression report and the store evidence above;
-R-3 ← the brainstorm's enforcement decision (proactive over reactive-only);
-R-4 ← the developer's stated constraint (2026-11-04).
+Traceability: R-1, R-2 ← the regression report and the store evidence above
+(R-1's home-store clause ← the misfiled-home evidence; R-2's split ← the
+bundled-scope evidence); R-3 ← the brainstorm's enforcement decision
+(proactive over reactive-only); R-4 ← the developer's stated constraint
+(2026-11-04).
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
