@@ -11,6 +11,15 @@ orphan branch `issues-data`. The branch is metadata-only: its tree holds
 issue records and nothing else. It is not a submodule and never appears in
 `.gitmodules`.
 
+Child store hosting is evidence-gated (#2642): the workspace root is an
+unconditional store host, but a registered child is a store host only when
+the store already exists on it — its origin carries a live-verified
+`issues-data` ref, or local store evidence (`.issues/` worktree or local
+branch) exists. A child with neither evidence is a non-host: the bootstrap
+sweep provisions nothing in it, the passive paths push nothing toward it,
+and its store exists only through the explicit opt-in
+(`init --adopt <child>`).
+
 ## Initialization (plumbing-based)
 
 When no local `issues-data` branch exists, the tool creates it with git
@@ -52,11 +61,14 @@ number in that repo's own namespace.
   remedy — `git -C <worktree> rebase --abort`, or resolve conflicts and
   `git -C <worktree> rebase --continue` (#2548 C2/C3).
 - `init` = ensure worktrees in all store-holding repos (root first, then its
-  *registered* submodules per git's registered-submodule mechanism) + commit
+  *registered* submodules per git's registered-submodule mechanism — each
+  child gated on issue-host evidence, #2642) + commit
   pending changes + `pull --rebase origin issues-data` + push; pair it with
   `sync` at session start. A repo classified pull-only (effective
-  `http`/`https` origin) receives no store, no fetch, and no push (#2667).
-  First establishment requires a
+  `http`/`https` origin) receives no store, no fetch, and no push (#2667),
+  and a non-host child receives nothing until `init --adopt <child>`
+  provisions it; a child's passive-path push also never re-creates a ref
+  that its own origin no longer carries (R-2). First establishment requires a
   reachable remote when `origin/issues-data` may exist — a failed fetch
   fails fatally rather than minting a divergent empty orphan branch
   (#2548 C4).

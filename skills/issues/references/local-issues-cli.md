@@ -12,7 +12,7 @@ remains the flag-level source of truth. All numbers use the qualified
 
 | Command | Flags | Behavior |
 |---|---|---|
-| `init` | — | Bootstrap `issues-data` worktrees in all store-holding repos (root + its registered submodules per `git submodule status`); pull remote `issues-data` where present. A repository classified pull-only (effective `http`/`https` origin) is excluded — it receives no store, no fetch, and no push (#2667) |
+| `init` | `--adopt <child>` (optional) | Bootstrap `issues-data` worktrees in all store-holding repos. Store hosts are evidence-gated (#2642): the root unconditionally; a registered child only when the store already exists on it (its origin carries a live-verified `issues-data` ref, or local store evidence exists). A registered child with neither evidence is a non-host — it receives no store, no fetch, and no push; `--adopt` is its explicit provisioning path (worktree, branch, establishment push; exits non-zero naming the failed establishment when the push does not take effect). A repository classified pull-only (effective `http`/`https` origin) is excluded from both the sweep and adoption — no store, no fetch, no push (#2667) |
 | `sync` | — | Per repo: commit pending, pull-rebase, push. Reports per-repo status (`ok`, `no_worktree`, `no_remote`, `conflict`, …) |
 | `sync-file` | `--file`, `--message` | Commit + push one file into the correct repo's issues worktree; prints status/commit SHA/file URL |
 | `create` | `--number repo#N` (required), `--title`, `--labels` | Registers the local `{N}/` folder after the remote-first reservation; duplicate in the target repo exits 1; uniqueness is per-repo only |
@@ -46,6 +46,15 @@ the file ships with the deck to every mount.
 
 ## Store semantics
 
+- Store hosts are evidence-gated (#2642): the workspace root is an
+  unconditional store host; a registered child hosts a store only when its
+  origin carries a live-verified `issues-data` ref or local store
+  evidence (`.issues/` worktree or local branch) exists. Provisioning a
+  child's store goes only through `init --adopt <child>`.
+- Mutation commands naming a non-host child are refused: the diagnostic
+  names the non-store-host classification and the opt-in path. Passive
+  paths (sync, sync-file, mutation pushes) never push toward a child
+  origin whose ref is verified absent.
 - Numbers are per-repo: `michael-conrad/.opencode#2543` and
   `opencode-config#2543` are distinct issues; the qualified form disambiguates.
 - Issue directories are `{N}/` holding `issue.yaml`, `comments.yaml`,

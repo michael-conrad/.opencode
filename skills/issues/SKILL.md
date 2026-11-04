@@ -173,7 +173,13 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
 - **Tool path:** `.opencode/tools/local-issues` — run it directly
   (`./.opencode/tools/local-issues <command> [flags]`). First mutation
   auto-initializes the `.issues/` orphan-branch worktree in a store-holding
-  repository — every repository the tool classifies writable; a pull-only
+  repository — the workspace root unconditionally; a child repository only
+  when the issue store already exists on it: its origin carries a
+  live-verified `issues-data` ref, or local store evidence (`.issues/`
+  worktree or local branch) exists. A child with neither evidence is a
+  non-host: it receives no store from any passive path, mutations naming
+  it are refused, and provisioning goes through the explicit opt-in
+  (`init --adopt <child>`); a pull-only
   repository carries no store and never receives one (#2667).
 - **Invocation:** every number argument uses the qualified `repo#N` form;
   bare numbers exit with the available-qualifier list.

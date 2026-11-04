@@ -178,6 +178,49 @@ def _is_pull_only_repo(repo_dir: str) -> bool:
     return url.startswith("http://") or url.startswith("https://")
 
 
+def _remote_has_issues_ref(repo_dir: str) -> bool | None:
+    """Live verification of an origin's `issues-data` ref (#2642 R-1/R-5).
+
+    Twin of the check in `tools/local-issues` (#2642 — named twins to
+    prevent silent drift; the `#2667 R-5` pull-only duplication is the
+    precedent). Returns True (live-verified ref present), False
+    (reachable origin, ref verified absent), None (unreachable origin or
+    probe failure — never treated as evidence of absence).
+    """
+    result = subprocess.run(
+        [
+            "git", "-C", repo_dir,
+            "ls-remote", "--heads", "origin", "issues-data",
+        ],
+        capture_output=True, text=True, check=False,
+        stdin=subprocess.DEVNULL, timeout=GIT_TIMEOUT,
+    )
+    if result.returncode != 0:
+        return None
+    return bool(result.stdout.strip())
+
+
+def _child_store_host_evidence(repo_dir: str) -> bool:
+    """Whether a child repo already hosts an issue store (#2642 R-1/R-5).
+
+    Host evidence: the local `.issues/` worktree marker, or a local
+    `issues-data` branch, or a live-verified `issues-data` ref on the
+    child's origin. Session-init claims `issues:` paths (and bootstrap
+    hints) only for store-host children — the root is exempt (it is an
+    unconditional store host and its caller never routes it through
+    here). """
+    marker = os.path.join(repo_dir, ".issues", ".git")
+    if os.path.isfile(marker):
+        return True
+    branch = run_git_command(
+        ["-C", repo_dir, "rev-parse", "--verify", "--quiet",
+         "refs/heads/issues-data"]
+    )
+    if branch:
+        return True
+    return _remote_has_issues_ref(repo_dir) is True
+
+
 def _registered_submodule_paths(repo_dir: str) -> list[str]:
     """Paths of a repo's registered submodules (#2544 strict discovery).
 
@@ -759,6 +802,13 @@ def collect_issue_artifact_paths(repo_info: list[dict[str, str]]) -> list[str]:
         if repo.get("writability") == "pull-only":
             # Pull-only repository: holds no local issue store (#2667 R-3/R-5)
             continue
+        if repo_path != "." and not os.path.isdir(repo_path):
+            continue  # no checkout — no store claim
+        child_dir = "." if repo_path == "." else os.path.join(cwd, repo_path)
+        if repo_path != "." and not _child_store_host_evidence(child_dir):
+            # Non-host child (#2642 R-5): no store path claim and no
+            # bootstrap hint — provisioning is the tool's opt-in.
+            continue
         if repo_path == ".":
             issues_rel = ".issues/"
             issues_abs = os.path.join(cwd, ".issues")
@@ -1003,9 +1053,16 @@ def main() -> int:
         print(f"  writability: {entry.get('writability', 'not-pull-only')}")
         # Store path for qualified-reference resolution: local artifacts
         # for repo#N live under {issues}/{N}/ (#2549 change 2). A
-        # pull-only repository holds no store and carries no path (#2667 R-5).
+        # pull-only repository holds no store and carries no path (#2667
+        # R-5); a child without store evidence is a non-host and carries
+        # no path and no hint either (#2642 R-5) — the tool's opt-in
+        # (`init --adopt`) provisions it.
         if entry.get("writability") == "pull-only":
             continue
+        if entry["path"] != ".":
+            child_dir = os.path.join(os.getcwd(), entry["path"])
+            if not os.path.isdir(child_dir) or not _child_store_host_evidence(child_dir):
+                continue
         if entry["path"] == ".":
             print("  issues: .issues/")
         else:
