@@ -44,17 +44,19 @@ a verified-absent origin ref (SC-3). Neither status is added to
 - **Deliverable:** `_ensure_all_worktrees()` consults `_is_store_host`
   next to `_is_pull_only`; a non-host child receives no `_ensure_worktree`
   call. A host child with only remote evidence bootstraps (SC-5).
-- **RED:** on a registered ssh child with no store evidence and a
-  reachable stateless origin, `init` mints `.issues/`, `issues-data`, and
-  pushes the ref to the child's origin. Fixture: the `#2667` SC-6 pattern
-  (`test_pull_only.py` `_register_child`) with an ssh origin
-  (`git@127.0.0.1:<closed-port>/...` for the SC-14 shape; local bare
-  origin for the SC-1 shape).
+- **RED:** two fixture shapes, two demonstrated failures:
+  (a) SC-1 shape — a registered child with a reachable local bare origin
+  carrying no ref: `init` mints `.issues/`, `issues-data`, and pushes the
+  ref to the child's origin; (b) SC-14 shape — origin an ssh URL to a
+  closed port: `init` still mints the local store (`.issues/` + branch)
+  even though no push can land.
 - **GREEN:** the classification consult above.
-- **Instrument:** run the tool's `init`; read exit 0, the per-repo report
-  (the child's `non-host` entry), `ls -a child/.issues`,
-  `git -C child branch`, `git -C child ls-remote origin`, and the root's
-  origin ref after `init` (the root's establishment still fires).
+- **Instrument:** run the tool's `init` on both shapes; read exit 0, the
+  per-repo report (the child's `non-host` entry), `ls -a child/.issues`
+  (absent on both), `git -C child branch` (absent on both),
+  `git -C child ls-remote origin` (no ref on (a); nothing to probe on
+  (b)), and the root's origin ref after `init` (the root's establishment
+  still fires).
 
 ## Item 2 — Mutation and sync-file refusals name the non-host ground (SC-2 + SC-12)
 
@@ -88,8 +90,12 @@ a verified-absent origin ref (SC-3). Neither status is added to
   Gate sites, each skipping only its own remote writes:
   `_sync_repo` (skip fetch, rebase, push — entry `remote-ref-absent`);
   `_sync_file_in_worktree` (no push; local commit still allowed; status
-  `ok`); `_push_issues_branch`/`_push_issues_changes` inside
-  `_auto_commit` (mutation commits locally, pushes nothing);
+  `ok`); `_push_issues_changes` inside `_auto_commit` (mutation commits
+  locally, pushes nothing; the orphan-path `_push_orphan_if_needed` call
+  site is covered by the Item 1 sweep gate and the `_create_issues_worktree`
+  gate above — `_push_issues_branch`, even though it lacks a caller
+  today, is gated identically so it cannot become an ungated push path by
+  being wired up later);
   `_create_issues_worktree`'s `_push_orphan_if_needed` call (bootstrap of
   a child host does not push the freshly minted branch to a ref-less
   origin; the root's path stays unconditional).
@@ -98,11 +104,21 @@ a verified-absent origin ref (SC-3). Neither status is added to
 - **RED:** a child with a local store whose origin's ref is deleted:
   `sync` fetches against a ref-less remote and reports `conflict` per
   O-5; `sync-file` and `update` push and re-create the ref.
+- **Store provenance at Item 3's point (ordering guard):** `init --adopt`
+  (Item 4) does not exist yet, so the RED/verification setups
+  hand-provision the child's local store in the fixture — git plumbing
+  only: `hash-object` + `commit-tree` + `update-ref` to mint
+  `refs/heads/issues-data` in the child (the same mechanics
+  `_create_orphan_branch` uses), then `git -C child worktree add .issues
+  issues-data`. The remote-ref deletion step then deletes the ref from
+  the child's bare origin (`git -C child push origin --delete
+  issues-data` or a direct `update-ref -d` on the bare repository).
 - **GREEN:** the gates above.
-- **Instrument:** SC-3's sequence (adopt → record → delete remote ref →
-  `sync`, `sync-file --file …`, `update --title probe2` — read the three
-  entry statuses, exits, and `ls-remote origin`) and SC-15's restore
-  cycle (unreachable origin → failure status + exit 1 → restore → `ok`).
+- **Instrument:** SC-3's sequence over the hand-provisioned store
+  (record → delete remote ref → `sync`, `sync-file --file …`,
+  `update --title probe2` — read the three entry statuses, exits, and
+  `ls-remote origin`) and SC-15's restore cycle (unreachable origin →
+  failure status + exit 1 → restore → `ok`).
 
 ## Item 4 — Opt-in provisioning on `init` (R-3; SC-4 + SC-12 + SC-13)
 
@@ -122,8 +138,17 @@ a verified-absent origin ref (SC-3). Neither status is added to
 - **RED:** the flag does not exist today.
 - **Instrument:** SC-4's read (worktree, branch, ref present after
   `--adopt`), the two refusal diagnostics on the SC-12 workspaces, and
-  SC-13's fail-then-complete cycle through the #2667 SSH-shim family
-  (`git-upload-pack` working, `git-receive-pack` failing, then restored).
+  SC-13's fail-then-complete cycle, constructed as follows (the shim is
+  built in the test fixture, not assumed present): a shim directory on
+  `PATH` ahead of the real one holds executable `git-upload-pack` (exec
+  the resolved real binary) and `git-receive-pack` (`exit 1`); the child's
+  origin is the ssh URL form pointing at a local bare repository via the
+  shim (`GIT_SSH_COMMAND` pointing at a pass-through `ssh` shim so the
+  URL form holds). Phase 1: shim's `git-receive-pack` failing → `init
+  --adopt` exits non-zero, diagnostic names the failed establishment, the
+  worktree exists, `ls-remote` shows no ref. Phase 2: restore
+  (re-point the shim's `git-receive-pack` at the real binary) → re-run
+  `--adopt` — zero exit, the ref present.
 
 ## Item 5 — `doctor` reports the non-host classification (SC-6)
 
@@ -190,7 +215,9 @@ a verified-absent origin ref (SC-3). Neither status is added to
   root's unconditional-host statement:
   - `skills/issues/SKILL.md` — the operating-contract store-host
     sentence.
-  - `skills/issues/references/local-issues-cli.md` — the `init` row.
+  - `skills/issues/references/local-issues-cli.md` — the `init` row and
+    the store-semantics text of the same file (both named by the spec's
+    Scope).
   - `skills/issues/references/sync-mirroring.md` — the store-shape and
     initialization text.
 - Edits ride the `skill-creator` admission gate: the triage evidence
