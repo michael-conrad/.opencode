@@ -1,0 +1,49 @@
+# Validation record — .opencode#2712
+# One record file per issue; one top-level section per artifact under validation.
+# Criteria source: skills/spec/references/validation-standards.md (single source; applied verbatim).
+
+spec:
+  rounds:
+    - round: 1
+      date: "2026-11-04"
+      verdict: FAIL
+      reviewer: fresh-context dispatch (general sub-agent, no prior context)
+      findings:
+        - class: gap-analysis
+          mechanism: ambiguous-criterion
+          target: "R-1 scope-containment only; R-2 filing clause gated on the spanning case; R-3 containment unspecified; SC-1 exercises only the spanning scenario"
+          ground: >
+            Three of four cited parent-store failures (#1447, #1448, #1589) are
+            single-repo deck work misfiled into the parent store. A #1447-style
+            spec satisfies R-1 as literally stated (scope covers exactly one
+            repo); its defect is the filing home, which no requirement bound.
+            The implied prohibition — a single-repo spec files in the store of
+            the repo its scope covers — was stated by no requirement and tested
+            by no criterion.
+          classification: finding
+          remediation: >
+            R-1 extended with the home-store rule (spec filed in the store of
+            the repo its scope covers); R-3 states containment covers both
+            scope and home; SC-5 added exercising the misfiling scenario
+            behaviorally; Problem section now names both failure shapes
+            (bundled scope, misfiled home) so problem and fix aim at the same
+            defects.
+        - class: blast-radius
+          mechanism: internal-contradiction
+          target: "Scope deliverables enumeration vs SC-1's instrument"
+          ground: >
+            SC-1's instrument requires new tests-v2 behavioral scenario (and
+            fixture) files that the scope's two-file deliverables list did not
+            account for — work executed to the scope list could not satisfy
+            SC-1 as instrumented.
+          classification: finding
+          remediation: >
+            Scope deliverables extended with the tests-v2 scenario (and
+            fixture) files SC-1 and SC-5 require, under tests-v2/behaviors/,
+            exact paths fixed at plan time.
+      classes_adjudicated:
+        - { class: gap-analysis, classification: finding }
+        - { class: ambiguous-criterion, classification: finding }
+        - { class: blast-radius, classification: finding }
+        - { class: internal-contradiction, classification: finding }
+      structural_reevaluation: none
