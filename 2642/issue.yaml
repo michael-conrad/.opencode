@@ -95,28 +95,29 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ entry's shape); a mutation naming it SHALL be refused with a\n  diagnostic that\
   \ names the child's non-host classification and the opt-in\n  path. The tool's project\
   \ root SHALL remain an unconditional store host.\n- **R-2 — No child-origin store-branch\
-  \ creation from the passive paths.**\n  Before the sync path, the bootstrap sweep,\
-  \ or a mutation's auto-push pushes\n  the store branch to a child repository's origin,\
-  \ the tool SHALL verify that\n  the origin carries the `issues-data` ref, and SHALL\
-  \ NOT push when it does\n  not — reporting an informational steady state, not a\
-  \ failure. The\n  opt-in adoption path (R-3) and the workspace root's establishment\
-  \ push are\n  the only origins of a child's remote store ref.\n- **R-3 — Explicit\
-  \ opt-in provisioning.** The tool SHALL provide an explicit\n  opt-in on `init`\
-  \ that provisions a store on one named child: the store\n  worktree, the store branch,\
-  \ and the establishment push to that child's\n  origin. No other path SHALL provision\
-  \ a child store. The opt-in SHALL\n  refuse a pull-only child (the `.opencode#2667`\
-  \ R-3 refusal) and a path that\n  is not a registered child of the workspace root.\n\
-  - **R-4 — `doctor` reflects the gate.** `doctor` SHALL apply the same\n  host-evidence\
-  \ rule: a child with neither evidence carries the non-host\n  classification in\
-  \ its marker line instead of a branch-state health verdict,\n  and no `UNHEALTHY`\
-  \ marker fires for a child whose absent store is\n  intentional — the marker pattern\
-  \ `.opencode#2667` R-4 established for\n  pull-only repositories.\n- **R-5 — Session-init's\
-  \ child store claims agree with the gate.** For a\n  child repository that is not\
-  \ a store host under R-1, session-init SHALL\n  emit no `issues:` store path in\
-  \ the Repo Information block and no\n  `run local-issues init` bootstrap hint in\
-  \ the Local Issue Folders section.\n  The root's claims and the pull-only exclusions\
-  \ are unchanged.\n- **R-6 — The deck text states the gate.** The `issues` card's\n\
-  \  operating-contract store-host sentence and the two operating references\n  (`local-issues-cli.md`,\
+  \ creation from the passive paths.**\n  Before the sync path fetches, rebases against,\
+  \ or pushes to a child\n  repository's origin, and before the bootstrap sweep or\
+  \ a mutation's\n  auto-push pushes to it, the tool SHALL verify that the origin\
+  \ carries the\n  `issues-data` ref, and SHALL perform none of those operations when\
+  \ it does\n  not — reporting an informational steady state, not a failure. The\n\
+  \  opt-in adoption path (R-3) and the workspace root's establishment push are\n\
+  \  the only origins of a child's remote store ref.\n- **R-3 — Explicit opt-in provisioning.**\
+  \ The tool SHALL provide an explicit\n  opt-in on `init` that provisions a store\
+  \ on one named child: the store\n  worktree, the store branch, and the establishment\
+  \ push to that child's\n  origin. No other path SHALL provision a child store. The\
+  \ opt-in SHALL\n  refuse a pull-only child (the `.opencode#2667` R-3 refusal) and\
+  \ a path that\n  is not a registered child of the workspace root.\n- **R-4 — `doctor`\
+  \ reflects the gate.** `doctor` SHALL apply the same\n  host-evidence rule: a child\
+  \ with neither evidence carries the non-host\n  classification in its marker line\
+  \ instead of a branch-state health verdict,\n  and no `UNHEALTHY` marker fires for\
+  \ a child whose absent store is\n  intentional — the marker pattern `.opencode#2667`\
+  \ R-4 established for\n  pull-only repositories.\n- **R-5 — Session-init's child\
+  \ store claims agree with the gate.** For a\n  child repository that is not a store\
+  \ host under R-1, session-init SHALL\n  emit no `issues:` store path in the Repo\
+  \ Information block and no\n  `run local-issues init` bootstrap hint in the Local\
+  \ Issue Folders section.\n  The root's claims and the pull-only exclusions are unchanged.\n\
+  - **R-6 — The deck text states the gate.** The `issues` card's\n  operating-contract\
+  \ store-host sentence and the two operating references\n  (`local-issues-cli.md`,\
   \ `sync-mirroring.md`) SHALL describe the child\n  store-host rule as evidence-gated\
   \ with the opt-in path named, and SHALL NOT\n  describe registered-submodule membership\
   \ alone as the child eligibility\n  rule. The root's unconditional-host description\
@@ -142,77 +143,81 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ `create --number 'deck#9999' --title probe` (the child's qualifier) and read the\
   \ exit status, the diagnostic text, `ls -a sub/deck`, and `git -C sub/deck branch`.\
   \ The diagnostic names the non-host classification; an unknown-repository refusal\
-  \ alone, or a refusal that created the store, fails. |\n| SC-3 | The sync path never\
-  \ creates the store ref on a child's remote: a child holding a local store worktree\
-  \ whose origin lacks the `issues-data` ref is synced without a push, its report\
-  \ entry is an informational steady state (not a failure status), and `sync` exits\
-  \ successfully. | behavioral (runtime effect) | In a workspace as in SC-1, provision\
-  \ the child's store locally without pushing (adopt, then delete the remote ref from\
-  \ the child's bare origin: `git -C <bare> branch -D issues-data`), run `local-issues\
-  \ sync`, and read the child's entry, the exit status, and `git -C sub/deck ls-remote\
-  \ origin` — the ref stays absent. |\n| SC-4 | The opt-in provisions a store on a\
-  \ named child: `init` with the opt-in naming the registered child leaves the child\
-  \ with an `.issues` worktree, a local `issues-data` branch, and an `issues-data`\
-  \ ref on its origin; the opt-in refuses a pull-only child and a path that is not\
-  \ a registered child. | behavioral (runtime effect) | In the SC-1 workspace, run\
-  \ `local-issues init` with the opt-in naming `sub/deck` and read `ls -a sub/deck`,\
-  \ `git -C sub/deck branch`, and `git -C sub/deck ls-remote origin`. Then, in a workspace\
-  \ whose child's origin is an `https` URL resolving to nothing (the `.opencode#2667`\
-  \ SC-1 rewrite), run the opt-in naming the child and read the refusal and the child's\
-  \ state. |\n| SC-5 | A real host child on a fresh clone still bootstraps from its\
-  \ remote: a registered child whose origin carries `issues-data` and which has no\
-  \ local store receives the store worktree from the remote, and `init` exits successfully.\
-  \ | behavioral (runtime effect) | Construct the SC-1 workspace with the child's\
-  \ bare origin carrying an `issues-data` branch (seeded with one issue record); run\
-  \ `local-issues init` and read the exit status, the child's worktree registration,\
-  \ and the seeded record's presence in `sub/deck/.issues/`. |\n| SC-6 | `doctor`\
-  \ reports a non-host child with the non-host classification and no `UNHEALTHY` marker.\
-  \ | behavioral (runtime effect) | In the SC-1 workspace, run `local-issues doctor`\
-  \ and read the marker line naming `sub/deck`: it carries the non-host classification\
-  \ and does not carry `UNHEALTHY`. |\n| SC-7 | Session-init's child store claims\
-  \ agree with the gate: a non-host child carries no `issues:` store path in the Repo\
-  \ Information block and no bootstrap hint in the Local Issue Folders section; the\
-  \ root's claims are unchanged. | behavioral (runtime effect) | In the SC-1 workspace,\
-  \ run `./.opencode/tools/session-init` and read the Repo Information block entry\
-  \ naming the child and the Local Issue Folders section: no `issues:` line and no\
-  \ `run ./.opencode/tools/local-issues init` hint names the child; the root's `issues:\
-  \ .issues/` line is present. |\n| SC-8 | A wiki-origin child — the report's exact\
-  \ repro shape — receives no store: no `.issues` directory, no branch, and no push\
-  \ toward the wiki remote. | behavioral (runtime effect) | Construct the SC-1 workspace\
-  \ with the child's origin URL ending in `.wiki.git` (a local bare repository so\
-  \ the transport is reachable); run `local-issues init` and read the exit status,\
-  \ `ls -a`, the branch list, and `ls-remote origin` for the child. |\n| SC-9 | The\
-  \ deck's unit-test suite passes with the gated mechanism, and the tests that pinned\
-  \ child discovery keep the properties they were written for: discovery is CWD-independent;\
-  \ a registered child with host evidence is discovered; the doctor's per-repository\
-  \ attribution covers a child; the pull-only expectations stand. | behavioral (runtime\
-  \ effect) + structural | Run `uv run --group dev pytest` in the deck and read the\
-  \ summary (no failures). Then read the updated tests: the CWD-independence assertion,\
-  \ the child-discovery assertion (now with host evidence in the fixture), the doctor\
-  \ attribution assertion, and the pull-only assertions are each present. |\n| SC-10\
-  \ | The three deck-text surfaces state the gate: the `issues` card's operating-contract\
-  \ store-host sentence, the `local-issues-cli.md` `init` row, and the `sync-mirroring.md`\
-  \ store-shape/initialization text each describe child store-host membership as evidence-gated\
-  \ with the opt-in path named, and none describes registered-submodule membership\
-  \ alone as the child eligibility rule. | structural | Read each surface: the evidence\
-  \ rule and the opt-in are stated for children; the root's unconditional-host statement\
-  \ survives in each; no surface states registration-alone eligibility. |\n| SC-11\
-  \ | The change touches only the surfaces named in Scope and adds no tool command\
-  \ beyond the opt-in on `init`. | structural | The changed-file list against the\
-  \ base tip, plus `local-issues --help` compared with the base revision's command\
-  \ list (the opt-in is a flag on the existing `init` command, not a new command).\
-  \ |\n\n## Approach\n\n1. **Discovery gate (R-1).** In `_discover_all_repos()`, keep\
-  \ the project\n   root unconditional; for each registered initialized child, require\
-  \ store\n   evidence — a local `.issues/` worktree marker (the tool's own\n   `(issues_dir\
-  \ / \".git\").is_file()` detection) or a verified `issues-data`\n   ref on the child's\
-  \ origin (`git ls-remote`, live — a stale remote-tracking\n   ref is not verification).\
-  \ A child whose remote ref cannot be verified and\n   which holds no local worktree\
-  \ is not a host: discovery excludes it and no\n   store is minted. Network absence\
-  \ degrades safely — a real host child on a\n   fresh clone simply does not bootstrap\
-  \ that session and bootstraps when the\n   remote is reachable again.\n2. **Push\
-  \ gates (R-2).** `_push_issues_branch_safe()` and, for children,\n   `_push_orphan_if_needed()`\
-  \ verify the origin's `issues-data` ref before\n   pushing and return an informational\
-  \ skip entry when it is absent. The\n   root's establishment push keeps its current\
+  \ alone, or a refusal that created the store, fails. |\n| SC-3 | The passive sync\
+  \ path never touches a child's ref-less remote: a child holding a local store worktree\
+  \ whose origin lacks the `issues-data` ref is synced with no fetch, no rebase, and\
+  \ no push — its report entry is an informational steady state (not a failure status),\
+  \ `sync` exits successfully, and the ref stays absent. | behavioral (runtime effect)\
+  \ | In a workspace as in SC-1, provision the child's store locally without pushing\
+  \ (adopt, then delete the remote ref from the child's bare origin: `git -C <bare>\
+  \ branch -D issues-data`), run `local-issues sync`, and read the child's entry,\
+  \ the exit status, and `git -C sub/deck ls-remote origin` — the ref stays absent\
+  \ and the entry reports no operation against the child's remote. |\n| SC-4 | The\
+  \ opt-in provisions a store on a named child: `init` with the opt-in naming the\
+  \ registered child leaves the child with an `.issues` worktree, a local `issues-data`\
+  \ branch, and an `issues-data` ref on its origin; the opt-in refuses a pull-only\
+  \ child and a path that is not a registered child. | behavioral (runtime effect)\
+  \ | In the SC-1 workspace, run `local-issues init` with the opt-in naming `sub/deck`\
+  \ and read `ls -a sub/deck`, `git -C sub/deck branch`, and `git -C sub/deck ls-remote\
+  \ origin`. Then, in a workspace whose child's origin is an `https` URL resolving\
+  \ to nothing (the `.opencode#2667` SC-1 rewrite), run the opt-in naming the child\
+  \ and read the refusal and the child's state. |\n| SC-5 | A real host child on a\
+  \ fresh clone still bootstraps from its remote: a registered child whose origin\
+  \ carries `issues-data` and which has no local store receives the store worktree\
+  \ from the remote, and `init` exits successfully. | behavioral (runtime effect)\
+  \ | Construct the SC-1 workspace with the child's bare origin carrying an `issues-data`\
+  \ branch (seeded with one issue record); run `local-issues init` and read the exit\
+  \ status, the child's worktree registration, and the seeded record's presence in\
+  \ `sub/deck/.issues/`. |\n| SC-6 | `doctor` reports a non-host child with the non-host\
+  \ classification and no `UNHEALTHY` marker. | behavioral (runtime effect) | In the\
+  \ SC-1 workspace, run `local-issues doctor` and read the marker line naming `sub/deck`:\
+  \ it carries the non-host classification and does not carry `UNHEALTHY`. |\n| SC-7\
+  \ | Session-init's child store claims agree with the gate: a non-host child carries\
+  \ no `issues:` store path in the Repo Information block and no bootstrap hint in\
+  \ the Local Issue Folders section; the root's claims are unchanged. | behavioral\
+  \ (runtime effect) | In the SC-1 workspace, run `./.opencode/tools/session-init`\
+  \ and read the Repo Information block entry naming the child and the Local Issue\
+  \ Folders section: no `issues:` line and no `run ./.opencode/tools/local-issues\
+  \ init` hint names the child; the root's `issues: .issues/` line is present. |\n\
+  | SC-8 | A wiki-origin child — the report's exact repro shape — receives no store:\
+  \ no `.issues` directory, no branch, and no push toward the wiki remote. | behavioral\
+  \ (runtime effect) | Construct the SC-1 workspace with the child's origin URL ending\
+  \ in `.wiki.git` (a local bare repository so the transport is reachable); run `local-issues\
+  \ init` and read the exit status, `ls -a`, the branch list, and `ls-remote origin`\
+  \ for the child. |\n| SC-9 | The deck's unit-test suite passes with the gated mechanism,\
+  \ and the tests that pinned child discovery keep the properties they were written\
+  \ for: discovery is CWD-independent; a registered child with host evidence is discovered;\
+  \ the doctor's per-repository attribution covers a child; the pull-only expectations\
+  \ stand. | behavioral (runtime effect) + structural | Run `uv run --group dev pytest`\
+  \ in the deck and read the summary (no failures). Then read the updated tests: the\
+  \ CWD-independence assertion, the child-discovery assertion (now with host evidence\
+  \ in the fixture), the doctor attribution assertion, and the pull-only assertions\
+  \ are each present. |\n| SC-10 | The three deck-text surfaces state the gate: the\
+  \ `issues` card's operating-contract store-host sentence, the `local-issues-cli.md`\
+  \ `init` row, and the `sync-mirroring.md` store-shape/initialization text each describe\
+  \ child store-host membership as evidence-gated with the opt-in path named, and\
+  \ none describes registered-submodule membership alone as the child eligibility\
+  \ rule. | structural | Read each surface: the evidence rule and the opt-in are stated\
+  \ for children; the root's unconditional-host statement survives in each; no surface\
+  \ states registration-alone eligibility. |\n| SC-11 | The change touches only the\
+  \ surfaces named in Scope and adds no tool command beyond the opt-in on `init`.\
+  \ | structural | The changed-file list against the base tip, plus `local-issues\
+  \ --help` compared with the base revision's command list (the opt-in is a flag on\
+  \ the existing `init` command, not a new command). |\n\n## Approach\n\n1. **Discovery\
+  \ gate (R-1).** In `_discover_all_repos()`, keep the project\n   root unconditional;\
+  \ for each registered initialized child, require store\n   evidence — a local `.issues/`\
+  \ worktree marker (the tool's own\n   `(issues_dir / \".git\").is_file()` detection)\
+  \ or a verified `issues-data`\n   ref on the child's origin (`git ls-remote`, live\
+  \ — a stale remote-tracking\n   ref is not verification). A child whose remote ref\
+  \ cannot be verified and\n   which holds no local worktree is not a host: discovery\
+  \ excludes it and no\n   store is minted. Network absence degrades safely — a real\
+  \ host child on a\n   fresh clone simply does not bootstrap that session and bootstraps\
+  \ when the\n   remote is reachable again.\n2. **Passive-path gates (R-2).** For\
+  \ a child repository, the sync path's\n   fetch, rebase, and push and the bootstrap-sweep\
+  \ and mutation pushes each\n   verify the origin's `issues-data` ref (`git ls-remote`,\
+  \ live) before\n   operating, and an absent ref yields an informational skip entry\
+  \ — the\n   child's remote is never created a store branch from, and never pulled\n\
+  \   against, by a passive path. The root's establishment push keeps its\n   current\
   \ behavior.\n3. **Opt-in (R-3).** `init` gains a per-invocation adoption flag naming\
   \ one\n   registered child; the adoption path runs the existing bootstrap\n   (`_create_issues_worktree`)\
   \ for that child including the establishment\n   push. The refusal diagnostics for\
@@ -274,5 +279,5 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ maintainer-side remote-branch deletion). Every element reverses.\n\n---\n\n*Co-authored\
   \ with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*\n"
 created_at: '2026-11-04T06:12:31+00:00'
-updated_at: '2026-11-04T06:24:59+00:00'
+updated_at: '2026-11-04T06:26:19+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2642

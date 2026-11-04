@@ -122,9 +122,10 @@ Out of scope:
   diagnostic that names the child's non-host classification and the opt-in
   path. The tool's project root SHALL remain an unconditional store host.
 - **R-2 — No child-origin store-branch creation from the passive paths.**
-  Before the sync path, the bootstrap sweep, or a mutation's auto-push pushes
-  the store branch to a child repository's origin, the tool SHALL verify that
-  the origin carries the `issues-data` ref, and SHALL NOT push when it does
+  Before the sync path fetches, rebases against, or pushes to a child
+  repository's origin, and before the bootstrap sweep or a mutation's
+  auto-push pushes to it, the tool SHALL verify that the origin carries the
+  `issues-data` ref, and SHALL perform none of those operations when it does
   not — reporting an informational steady state, not a failure. The
   opt-in adoption path (R-3) and the workspace root's establishment push are
   the only origins of a child's remote store ref.
@@ -163,7 +164,7 @@ Out of scope:
 |----|-----------|-------|-----------|
 | SC-1 | A registered child with no store evidence — reachable pushable origin, no `issues-data` ref, no local `.issues/` — receives no store: `local-issues init` exits successfully, the child has no `.issues` directory and no `issues-data` branch, and the child's origin carries no `issues-data` ref afterward. | behavioral (runtime effect) | Construct the workspace per the `.opencode#2667` SC-6 fixture family: workspace root whose origin is a reachable local bare repository, the deck's `tools/` at `<workspace>/.opencode/tools/`, and a registered submodule at `sub/deck` whose origin is a reachable bare repository carrying no `issues-data` branch. Run `<workspace>/.opencode/tools/local-issues init`; read its exit status, `ls -a sub/deck`, `git -C sub/deck branch`, `git -C sub/deck worktree list`, and `git -C sub/deck ls-remote origin`. |
 | SC-2 | A mutation naming a non-host child is refused with the non-host diagnostic and creates no store artifact in the child. | behavioral (runtime effect) | In the SC-1 workspace (before any adoption), run `create --number 'deck#9999' --title probe` (the child's qualifier) and read the exit status, the diagnostic text, `ls -a sub/deck`, and `git -C sub/deck branch`. The diagnostic names the non-host classification; an unknown-repository refusal alone, or a refusal that created the store, fails. |
-| SC-3 | The sync path never creates the store ref on a child's remote: a child holding a local store worktree whose origin lacks the `issues-data` ref is synced without a push, its report entry is an informational steady state (not a failure status), and `sync` exits successfully. | behavioral (runtime effect) | In a workspace as in SC-1, provision the child's store locally without pushing (adopt, then delete the remote ref from the child's bare origin: `git -C <bare> branch -D issues-data`), run `local-issues sync`, and read the child's entry, the exit status, and `git -C sub/deck ls-remote origin` — the ref stays absent. |
+| SC-3 | The passive sync path never touches a child's ref-less remote: a child holding a local store worktree whose origin lacks the `issues-data` ref is synced with no fetch, no rebase, and no push — its report entry is an informational steady state (not a failure status), `sync` exits successfully, and the ref stays absent. | behavioral (runtime effect) | In a workspace as in SC-1, provision the child's store locally without pushing (adopt, then delete the remote ref from the child's bare origin: `git -C <bare> branch -D issues-data`), run `local-issues sync`, and read the child's entry, the exit status, and `git -C sub/deck ls-remote origin` — the ref stays absent and the entry reports no operation against the child's remote. |
 | SC-4 | The opt-in provisions a store on a named child: `init` with the opt-in naming the registered child leaves the child with an `.issues` worktree, a local `issues-data` branch, and an `issues-data` ref on its origin; the opt-in refuses a pull-only child and a path that is not a registered child. | behavioral (runtime effect) | In the SC-1 workspace, run `local-issues init` with the opt-in naming `sub/deck` and read `ls -a sub/deck`, `git -C sub/deck branch`, and `git -C sub/deck ls-remote origin`. Then, in a workspace whose child's origin is an `https` URL resolving to nothing (the `.opencode#2667` SC-1 rewrite), run the opt-in naming the child and read the refusal and the child's state. |
 | SC-5 | A real host child on a fresh clone still bootstraps from its remote: a registered child whose origin carries `issues-data` and which has no local store receives the store worktree from the remote, and `init` exits successfully. | behavioral (runtime effect) | Construct the SC-1 workspace with the child's bare origin carrying an `issues-data` branch (seeded with one issue record); run `local-issues init` and read the exit status, the child's worktree registration, and the seeded record's presence in `sub/deck/.issues/`. |
 | SC-6 | `doctor` reports a non-host child with the non-host classification and no `UNHEALTHY` marker. | behavioral (runtime effect) | In the SC-1 workspace, run `local-issues doctor` and read the marker line naming `sub/deck`: it carries the non-host classification and does not carry `UNHEALTHY`. |
@@ -185,10 +186,13 @@ Out of scope:
    store is minted. Network absence degrades safely — a real host child on a
    fresh clone simply does not bootstrap that session and bootstraps when the
    remote is reachable again.
-2. **Push gates (R-2).** `_push_issues_branch_safe()` and, for children,
-   `_push_orphan_if_needed()` verify the origin's `issues-data` ref before
-   pushing and return an informational skip entry when it is absent. The
-   root's establishment push keeps its current behavior.
+2. **Passive-path gates (R-2).** For a child repository, the sync path's
+   fetch, rebase, and push and the bootstrap-sweep and mutation pushes each
+   verify the origin's `issues-data` ref (`git ls-remote`, live) before
+   operating, and an absent ref yields an informational skip entry — the
+   child's remote is never created a store branch from, and never pulled
+   against, by a passive path. The root's establishment push keeps its
+   current behavior.
 3. **Opt-in (R-3).** `init` gains a per-invocation adoption flag naming one
    registered child; the adoption path runs the existing bootstrap
    (`_create_issues_worktree`) for that child including the establishment
