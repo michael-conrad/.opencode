@@ -55,9 +55,10 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ or propagate\nchild stores, plus the surfaces that describe or observe them:\n\
   \n- `.opencode/tools/local-issues` — discovery (`_discover_all_repos`,\n  `_registered_store_host_paths`),\
   \ the bootstrap sweep (`_ensure_all_worktrees`,\n  `_ensure_worktree`, `_create_issues_worktree`,\
-  \ `_push_orphan_if_needed`),\n  the sync path (`_sync_repo`, `_push_issues_branch_safe`),\
-  \ `doctor`\n  (`_doctor_repo_report`, `cmd_doctor`), the mutation path's store-host\n\
-  \  resolution and refusal diagnostic, and the explicit opt-in surface.\n- `.opencode/tools/session-init`\
+  \ `_push_orphan_if_needed`),\n  the sync path (`_sync_repo`, `_push_issues_branch_safe`)\
+  \ and the\n  `sync-file` path (`_sync_file_in_worktree`, `cmd_sync_file`), `doctor`\n\
+  \  (`_doctor_repo_report`, `cmd_doctor`), the mutation path's store-host\n  resolution\
+  \ and refusal diagnostic, and the explicit opt-in surface.\n- `.opencode/tools/session-init`\
   \ — the child store claims only: the\n  Repo Information block's `issues:` field\
   \ for child entries and the\n  Local Issue Folders section's bootstrap hint for\
   \ children.\n- `skills/issues/SKILL.md` — the operating-contract sentence defining\
@@ -95,29 +96,36 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ entry's shape); a mutation naming it SHALL be refused with a\n  diagnostic that\
   \ names the child's non-host classification and the opt-in\n  path. The tool's project\
   \ root SHALL remain an unconditional store host.\n- **R-2 — No child-origin store-branch\
-  \ creation from the passive paths.**\n  Before the sync path fetches, rebases against,\
-  \ or pushes to a child\n  repository's origin, and before the bootstrap sweep or\
-  \ a mutation's\n  auto-push pushes to it, the tool SHALL verify that the origin\
-  \ carries the\n  `issues-data` ref, and SHALL perform none of those operations when\
-  \ it does\n  not — reporting an informational steady state, not a failure. The\n\
-  \  opt-in adoption path (R-3) and the workspace root's establishment push are\n\
-  \  the only origins of a child's remote store ref.\n- **R-3 — Explicit opt-in provisioning.**\
-  \ The tool SHALL provide an explicit\n  opt-in on `init` that provisions a store\
-  \ on one named child: the store\n  worktree, the store branch, and the establishment\
+  \ creation from the passive paths.**\n  Before any passive path — the sync path\
+  \ (`_sync_repo`), the `sync-file`\n  path (`cmd_sync_file`), the bootstrap sweep,\
+  \ or a mutation command's\n  auto-push — fetches from, rebases against, or pushes\
+  \ to a child\n  repository's origin, the tool SHALL verify that the origin carries\
+  \ the\n  `issues-data` ref, and SHALL perform none of those operations against that\n\
+  \  origin when it does not — reporting an informational steady state, not a\n  failure.\
+  \ The opt-in adoption path (R-3) and the workspace root's\n  establishment push\
+  \ are the only origins of a child's remote store ref.\n- **R-3 — Explicit opt-in\
+  \ provisioning.** The tool SHALL provide an explicit\n  opt-in on `init` that provisions\
+  \ a store on one named child: the store\n  worktree, the store branch, and the establishment\
   \ push to that child's\n  origin. No other path SHALL provision a child store. The\
   \ opt-in SHALL\n  refuse a pull-only child (the `.opencode#2667` R-3 refusal) and\
-  \ a path that\n  is not a registered child of the workspace root.\n- **R-4 — `doctor`\
-  \ reflects the gate.** `doctor` SHALL apply the same\n  host-evidence rule: a child\
-  \ with neither evidence carries the non-host\n  classification in its marker line\
-  \ instead of a branch-state health verdict,\n  and no `UNHEALTHY` marker fires for\
-  \ a child whose absent store is\n  intentional — the marker pattern `.opencode#2667`\
-  \ R-4 established for\n  pull-only repositories.\n- **R-5 — Session-init's child\
-  \ store claims agree with the gate.** For a\n  child repository that is not a store\
-  \ host under R-1, session-init SHALL\n  emit no `issues:` store path in the Repo\
-  \ Information block and no\n  `run local-issues init` bootstrap hint in the Local\
-  \ Issue Folders section.\n  The root's claims and the pull-only exclusions are unchanged.\n\
-  - **R-6 — The deck text states the gate.** The `issues` card's\n  operating-contract\
-  \ store-host sentence and the two operating references\n  (`local-issues-cli.md`,\
+  \ a path\n  that is not a registered child of the workspace root, and each refusal\n\
+  \  diagnostic SHALL name its ground — the pull-only classification, or the\n  not-a-registered-child\
+  \ ground. The opt-in SHALL leave the named child's\n  origin carrying the `issues-data`\
+  \ ref and SHALL exit non-zero when the\n  establishment push does not take effect;\
+  \ a re-run of the opt-in on a child\n  whose store worktree exists but whose origin\
+  \ ref is absent SHALL perform\n  the establishment push — the opt-in completes the\
+  \ establishment and does\n  not short-circuit on the worktree's existence.\n- **R-4\
+  \ — `doctor` reflects the gate.** `doctor` SHALL apply the same\n  host-evidence\
+  \ rule: a child with neither evidence carries the non-host\n  classification in\
+  \ its marker line instead of a branch-state health verdict,\n  and no `UNHEALTHY`\
+  \ marker fires for a child whose absent store is\n  intentional — the marker pattern\
+  \ `.opencode#2667` R-4 established for\n  pull-only repositories.\n- **R-5 — Session-init's\
+  \ child store claims agree with the gate.** For a\n  child repository that is not\
+  \ a store host under R-1, session-init SHALL\n  emit no `issues:` store path in\
+  \ the Repo Information block and no\n  `run local-issues init` bootstrap hint in\
+  \ the Local Issue Folders section.\n  The root's claims and the pull-only exclusions\
+  \ are unchanged.\n- **R-6 — The deck text states the gate.** The `issues` card's\n\
+  \  operating-contract store-host sentence and the two operating references\n  (`local-issues-cli.md`,\
   \ `sync-mirroring.md`) SHALL describe the child\n  store-host rule as evidence-gated\
   \ with the opt-in path named, and SHALL NOT\n  describe registered-submodule membership\
   \ alone as the child eligibility\n  rule. The root's unconditional-host description\
@@ -128,156 +136,185 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ the\n  gated mechanism and keeping the properties they were written for.\n\n##\
   \ Success criteria\n\n| ID | Criterion | Class | Instrument |\n|----|-----------|-------|-----------|\n\
   | SC-1 | A registered child with no store evidence — reachable pushable origin,\
-  \ no `issues-data` ref, no local `.issues/` — receives no store: `local-issues init`\
-  \ exits successfully, the child has no `.issues` directory and no `issues-data`\
-  \ branch, and the child's origin carries no `issues-data` ref afterward. | behavioral\
+  \ no `issues-data` ref, no local `.issues/` — receives no store, and the reports\
+  \ say so: `local-issues init` exits successfully, the child has no `.issues` directory\
+  \ and no `issues-data` branch, the child's origin carries no `issues-data` ref afterward,\
+  \ and the init report carries the child's informational non-host steady-state entry\
+  \ (the pull-only entry's shape — classification, no operation result). | behavioral\
   \ (runtime effect) | Construct the workspace per the `.opencode#2667` SC-6 fixture\
   \ family: workspace root whose origin is a reachable local bare repository, the\
   \ deck's `tools/` at `<workspace>/.opencode/tools/`, and a registered submodule\
   \ at `sub/deck` whose origin is a reachable bare repository carrying no `issues-data`\
-  \ branch. Run `<workspace>/.opencode/tools/local-issues init`; read its exit status,\
-  \ `ls -a sub/deck`, `git -C sub/deck branch`, `git -C sub/deck worktree list`, and\
-  \ `git -C sub/deck ls-remote origin`. |\n| SC-2 | A mutation naming a non-host child\
-  \ is refused with the non-host diagnostic and creates no store artifact in the child.\
-  \ | behavioral (runtime effect) | In the SC-1 workspace (before any adoption), run\
-  \ `create --number 'deck#9999' --title probe` (the child's qualifier) and read the\
-  \ exit status, the diagnostic text, `ls -a sub/deck`, and `git -C sub/deck branch`.\
-  \ The diagnostic names the non-host classification; an unknown-repository refusal\
-  \ alone, or a refusal that created the store, fails. |\n| SC-3 | The passive sync\
-  \ path never touches a child's ref-less remote: a child holding a local store worktree\
+  \ branch. Run `<workspace>/.opencode/tools/local-issues init`; read its exit status\
+  \ and per-repo report (the entry naming `sub/deck`), then `ls -a sub/deck`, `git\
+  \ -C sub/deck branch`, `git -C sub/deck worktree list`, and `git -C sub/deck ls-remote\
+  \ origin`. |\n| SC-2 | A mutation naming a non-host child is refused with a diagnostic\
+  \ naming the child's non-host classification and the opt-in path, and the refusal\
+  \ creates no store artifact in the child. | behavioral (runtime effect) | In the\
+  \ SC-1 workspace (before any adoption), run `create --number 'deck#9999' --title\
+  \ probe` (the child's qualifier) and read the exit status, the diagnostic text (it\
+  \ names the non-host classification and the opt-in path), `ls -a sub/deck`, and\
+  \ `git -C sub/deck branch`. An unknown-repository refusal alone, a diagnostic missing\
+  \ either element, or a refusal that created the store, fails. |\n| SC-3 | The passive\
+  \ paths never touch a child's ref-less remote: a child holding a local store worktree\
   \ whose origin lacks the `issues-data` ref is synced with no fetch, no rebase, and\
   \ no push — its report entry is an informational steady state (not a failure status),\
-  \ `sync` exits successfully, and the ref stays absent. | behavioral (runtime effect)\
-  \ | In a workspace as in SC-1, provision the child's store locally without pushing\
-  \ (adopt, then delete the remote ref from the child's bare origin: `git -C <bare>\
-  \ branch -D issues-data`), run `local-issues sync`, and read the child's entry,\
-  \ the exit status, and `git -C sub/deck ls-remote origin` — the ref stays absent\
-  \ and the entry reports no operation against the child's remote. |\n| SC-4 | The\
+  \ `sync` exits successfully, `sync-file` naming that child's store file likewise\
+  \ performs no push and reports an informational steady state while exiting successfully,\
+  \ and the ref stays absent. | behavioral (runtime effect) | In a workspace as in\
+  \ SC-1, adopt the child, create one record in it (the record's auto-push lands while\
+  \ the ref exists), then delete the remote ref from the child's bare origin (`git\
+  \ -C <bare> branch -D issues-data`). Run `local-issues sync`, then `local-issues\
+  \ sync-file --file 'deck#0001/issue.yaml'` (the child's qualifier); read both entries\
+  \ and exit statuses, and `git -C sub/deck ls-remote origin` — the ref stays absent\
+  \ and both entries report no operation against the child's remote. |\n| SC-4 | The\
   \ opt-in provisions a store on a named child: `init` with the opt-in naming the\
   \ registered child leaves the child with an `.issues` worktree, a local `issues-data`\
-  \ branch, and an `issues-data` ref on its origin; the opt-in refuses a pull-only\
-  \ child and a path that is not a registered child. | behavioral (runtime effect)\
+  \ branch, and an `issues-data` ref on its origin. | behavioral (runtime effect)\
   \ | In the SC-1 workspace, run `local-issues init` with the opt-in naming `sub/deck`\
   \ and read `ls -a sub/deck`, `git -C sub/deck branch`, and `git -C sub/deck ls-remote\
-  \ origin`. Then, in a workspace whose child's origin is an `https` URL resolving\
-  \ to nothing (the `.opencode#2667` SC-1 rewrite), run the opt-in naming the child\
-  \ and read the refusal and the child's state. |\n| SC-5 | A real host child on a\
-  \ fresh clone still bootstraps from its remote: a registered child whose origin\
-  \ carries `issues-data` and which has no local store receives the store worktree\
-  \ from the remote, and `init` exits successfully. | behavioral (runtime effect)\
-  \ | Construct the SC-1 workspace with the child's bare origin carrying an `issues-data`\
-  \ branch (seeded with one issue record); run `local-issues init` and read the exit\
-  \ status, the child's worktree registration, and the seeded record's presence in\
-  \ `sub/deck/.issues/`. |\n| SC-6 | `doctor` reports a non-host child with the non-host\
-  \ classification and no `UNHEALTHY` marker. | behavioral (runtime effect) | In the\
-  \ SC-1 workspace, run `local-issues doctor` and read the marker line naming `sub/deck`:\
-  \ it carries the non-host classification and does not carry `UNHEALTHY`. |\n| SC-7\
-  \ | Session-init's child store claims agree with the gate: a non-host child carries\
-  \ no `issues:` store path in the Repo Information block and no bootstrap hint in\
-  \ the Local Issue Folders section; the root's claims are unchanged. | behavioral\
-  \ (runtime effect) | In the SC-1 workspace, run `./.opencode/tools/session-init`\
-  \ and read the Repo Information block entry naming the child and the Local Issue\
-  \ Folders section: no `issues:` line and no `run ./.opencode/tools/local-issues\
-  \ init` hint names the child; the root's `issues: .issues/` line is present. |\n\
-  | SC-8 | A wiki-origin child — the report's exact repro shape — receives no store:\
-  \ no `.issues` directory, no branch, and no push toward the wiki remote. | behavioral\
-  \ (runtime effect) | Construct the SC-1 workspace with the child's origin URL ending\
-  \ in `.wiki.git` (a local bare repository so the transport is reachable); run `local-issues\
-  \ init` and read the exit status, `ls -a`, the branch list, and `ls-remote origin`\
-  \ for the child. |\n| SC-9 | The deck's unit-test suite passes with the gated mechanism,\
-  \ and the tests that pinned child discovery keep the properties they were written\
-  \ for: discovery is CWD-independent; a registered child with host evidence is discovered;\
-  \ the doctor's per-repository attribution covers a child; the pull-only expectations\
-  \ stand. | behavioral (runtime effect) + structural | Run `uv run --group dev pytest`\
-  \ in the deck and read the summary (no failures). Then read the updated tests: the\
-  \ CWD-independence assertion, the child-discovery assertion (now with host evidence\
-  \ in the fixture), the doctor attribution assertion, and the pull-only assertions\
-  \ are each present. |\n| SC-10 | The three deck-text surfaces state the gate: the\
-  \ `issues` card's operating-contract store-host sentence, the `local-issues-cli.md`\
-  \ `init` row, and the `sync-mirroring.md` store-shape/initialization text each describe\
-  \ child store-host membership as evidence-gated with the opt-in path named, and\
-  \ none describes registered-submodule membership alone as the child eligibility\
-  \ rule. | structural | Read each surface: the evidence rule and the opt-in are stated\
-  \ for children; the root's unconditional-host statement survives in each; no surface\
-  \ states registration-alone eligibility. |\n| SC-11 | The change touches only the\
-  \ surfaces named in Scope and adds no tool command beyond the opt-in on `init`.\
-  \ | structural | The changed-file list against the base tip, plus `local-issues\
-  \ --help` compared with the base revision's command list (the opt-in is a flag on\
-  \ the existing `init` command, not a new command). |\n\n## Approach\n\n1. **Discovery\
-  \ gate (R-1).** In `_discover_all_repos()`, keep the project\n   root unconditional;\
-  \ for each registered initialized child, require store\n   evidence — a local `.issues/`\
-  \ worktree marker (the tool's own\n   `(issues_dir / \".git\").is_file()` detection)\
-  \ or a verified `issues-data`\n   ref on the child's origin (`git ls-remote`, live\
-  \ — a stale remote-tracking\n   ref is not verification). A child whose remote ref\
-  \ cannot be verified and\n   which holds no local worktree is not a host: discovery\
-  \ excludes it and no\n   store is minted. Network absence degrades safely — a real\
-  \ host child on a\n   fresh clone simply does not bootstrap that session and bootstraps\
-  \ when the\n   remote is reachable again.\n2. **Passive-path gates (R-2).** For\
-  \ a child repository, the sync path's\n   fetch, rebase, and push and the bootstrap-sweep\
-  \ and mutation pushes each\n   verify the origin's `issues-data` ref (`git ls-remote`,\
-  \ live) before\n   operating, and an absent ref yields an informational skip entry\
-  \ — the\n   child's remote is never created a store branch from, and never pulled\n\
-  \   against, by a passive path. The root's establishment push keeps its\n   current\
+  \ origin`. |\n| SC-5 | A real host child on a fresh clone still bootstraps from\
+  \ its remote: a registered child whose origin carries `issues-data` and which has\
+  \ no local store receives the store worktree from the remote, and `init` exits successfully.\
+  \ | behavioral (runtime effect) | Construct the SC-1 workspace with the child's\
+  \ bare origin carrying an `issues-data` branch (seeded with one issue record); run\
+  \ `local-issues init` and read the exit status, the child's worktree registration,\
+  \ and the seeded record's presence in `sub/deck/.issues/`. |\n| SC-6 | `doctor`\
+  \ reports a non-host child with the non-host classification and no `UNHEALTHY` marker.\
+  \ | behavioral (runtime effect) | In the SC-1 workspace, run `local-issues doctor`\
+  \ and read the marker line naming `sub/deck`: it carries the non-host classification\
+  \ and does not carry `UNHEALTHY`. |\n| SC-7 | Session-init's child store claims\
+  \ agree with the gate: a non-host child carries no `issues:` store path in the Repo\
+  \ Information block and no bootstrap hint in the Local Issue Folders section; the\
+  \ root's claims are unchanged. | behavioral (runtime effect) | In the SC-1 workspace,\
+  \ run `./.opencode/tools/session-init` and read the Repo Information block entry\
+  \ naming the child and the Local Issue Folders section: no `issues:` line and no\
+  \ `run ./.opencode/tools/local-issues init` hint names the child; the root's `issues:\
+  \ .issues/` line is present. |\n| SC-8 | A wiki-origin child — the report's exact\
+  \ repro shape — receives no store: no `.issues` directory, no branch, and no push\
+  \ toward the wiki remote. | behavioral (runtime effect) | Construct the SC-1 workspace\
+  \ with the child's origin URL ending in `.wiki.git` (a local bare repository so\
+  \ the transport is reachable); run `local-issues init` and read the exit status,\
+  \ `ls -a`, the branch list, and `ls-remote origin` for the child. |\n| SC-9 | The\
+  \ deck's unit-test suite passes with the gated mechanism, and the tests that pinned\
+  \ child discovery keep the properties they were written for: discovery is CWD-independent;\
+  \ a registered child with host evidence is discovered; the doctor's per-repository\
+  \ attribution covers a child; the pull-only expectations stand. | behavioral (runtime\
+  \ effect) + structural | Run `uv run --group dev pytest` in the deck and read the\
+  \ summary (no failures). Then read the updated tests: the CWD-independence assertion,\
+  \ the child-discovery assertion (now with host evidence in the fixture), the doctor\
+  \ attribution assertion, and the pull-only assertions are each present. |\n| SC-10\
+  \ | The three deck-text surfaces state the gate: the `issues` card's operating-contract\
+  \ store-host sentence, the `local-issues-cli.md` `init` row, and the `sync-mirroring.md`\
+  \ store-shape/initialization text each describe child store-host membership as evidence-gated\
+  \ with the opt-in path named, and none describes registered-submodule membership\
+  \ alone as the child eligibility rule. | structural | Read each surface: the evidence\
+  \ rule and the opt-in are stated for children; the root's unconditional-host statement\
+  \ survives in each; no surface states registration-alone eligibility. |\n| SC-11\
+  \ | The change touches only the surfaces named in Scope and adds no tool command\
+  \ beyond the opt-in on `init`. | structural | The changed-file list against the\
+  \ base tip, plus `local-issues --help` compared with the base revision's command\
+  \ list (the opt-in is a flag on the existing `init` command, not a new command).\
+  \ |\n| SC-12 | The opt-in's refusals name their grounds: on a registered child whose\
+  \ origin is an `https` URL resolving to nothing, the opt-in is refused with a diagnostic\
+  \ naming the pull-only classification; on a path that is not a registered child\
+  \ of the workspace root, the opt-in is refused with a diagnostic naming the not-a-registered-child\
+  \ ground; neither refusal creates a store in any target. | behavioral (runtime effect)\
+  \ | In a workspace whose child's origin is an `https` URL resolving to nothing (the\
+  \ `.opencode#2667` SC-1 rewrite — the child is pull-only there regardless of host\
+  \ evidence), run the opt-in naming the child and read the diagnostic: it names the\
+  \ pull-only classification. In the SC-1 workspace, run the opt-in naming a plain\
+  \ directory that is not a registered child (a `scratch/` directory created for the\
+  \ run) and read the diagnostic: it names the not-a-registered-child ground. After\
+  \ both runs, read `ls -a` and the branch lists of both targets: no store artifact\
+  \ exists. |\n\n## Approach\n\n1. **Host classification over enumeration, not discovery\
+  \ exclusion\n   (R-1, R-2, R-4).** Discovery keeps enumerating the registered child\
+  \ set —\n   `_discover_all_repos()`'s membership is unchanged, because the reporting\n\
+  \   and resolution layers read that set: the init/sync report\n   (`_collect_repos()`),\
+  \ `doctor`'s per-repo rows (`cmd_doctor()`), and the\n   mutation path's name resolution\
+  \ (`_resolve_worktree_from_path()` and its\n   resolver helpers) each need the child\
+  \ present to report or refuse it. The\n   host-evidence rule becomes a classification\
+  \ layer over the enumerated\n   set: a child is a store host when its origin carries\
+  \ a live-verified\n   `issues-data` ref (`git ls-remote` — a stale remote-tracking\
+  \ ref is not\n   verification) or a local `.issues/` worktree marker (the tool's\
+  \ own\n   `(issues_dir / \".git\").is_file()` detection); otherwise it is a non-host.\n\
+  \   The consuming points apply the classification: the bootstrap sweep\n   provisions\
+  \ only hosts; the sync path reports a non-host child as the\n   informational steady\
+  \ state (the pull-only entry's shape) and gates a host\n   child's fetch, rebase,\
+  \ and push on the verified remote ref (R-2);\n   `doctor` emits the non-host classification\
+  \ row (R-4); the mutation path\n   resolves registered children and refuses non-hosts\
+  \ (R-1). Network absence\n   degrades safely — a real host child on a fresh clone\
+  \ simply does not\n   bootstrap that session and bootstraps when the remote is reachable\
+  \ again.\n2. **Passive-path gates (R-2).** For a child repository, the sync path's\n\
+  \   fetch, rebase, and push, the `sync-file` path's push, and the\n   bootstrap-sweep\
+  \ and mutation pushes each verify the origin's\n   `issues-data` ref (`git ls-remote`,\
+  \ live) before operating, and an absent\n   ref yields an informational skip entry\
+  \ — the child's remote is never\n   created a store branch from, and never pulled\
+  \ against, by a passive path.\n   The root's establishment push keeps its current\
   \ behavior.\n3. **Opt-in (R-3).** `init` gains a per-invocation adoption flag naming\
-  \ one\n   registered child; the adoption path runs the existing bootstrap\n   (`_create_issues_worktree`)\
-  \ for that child including the establishment\n   push. The refusal diagnostics for\
-  \ pull-only and unregistered paths follow\n   the `_reject_pull_only()` pattern;\
-  \ the mutation path's non-host refusal\n   reuses it. The store's existence is the\
-  \ persistent record — the flag is\n   the one-time establishment instrument, and\
-  \ a failed establishment push is\n   retried by re-running the adoption.\n4. **Doctor\
-  \ (R-4).** `_doctor_repo_report()` gains the non-host\n   classification row — `classification=non-host`,\
-  \ no branch-state health\n   verdict — beside the existing pull-only row.\n5. **Session-init\
-  \ (R-5).** The child store claims consult the same evidence:\n   a non-host child\
-  \ emits neither the `issues:` field line nor the bootstrap\n   hint. No enumeration\
-  \ change — `.opencode#2544`'s wiki exclusion and the\n   pull-only skips stand.\n\
-  6. **Docs (R-6).** The three deck-text surfaces are reworded to the\n   evidence-gated\
-  \ rule with the opt-in named; deck-text edits ride the\n   `skill-creator` admission\
-  \ gate at implementation, with this report as the\n   observed-failure evidence.\n\
-  7. **Tests (R-7).** The unit tests' child fixtures gain host evidence or\n   assert\
-  \ the gated exclusion; new unit coverage pins the evidence rule's\n   branches (local-only,\
-  \ remote-only, neither, unverifiable-remote) and the\n   push gates; the construct-workspace\
-  \ behavioral SCs above execute the\n   runtime effects.\n\nDiscarded alternatives:\n\
-  \n- **Transport-based gating** (extending `.opencode#2667`'s origin-scheme rule\n\
-  \  to exclude wiki URLs from local-issues): rejected — transport is not\n  issue-host\
-  \ evidence; `.opencode#2667` SC-6 pins pushable ssh children as\n  legitimate hosts,\
-  \ and the report's defect is evidence-shape, not transport.\n  The wiki child is\
-  \ excluded by the same evidence rule every non-host child\n  is (SC-8 pins the repro\
-  \ shape).\n- **Strict conjunctive evidence** (remote ref AND local record, the report's\n\
-  \  parenthetical read literally): rejected — it would stop bootstrapping real\n\
-  \  host children on fresh clones, a regression of existing intended behavior\n \
-  \ (session-init's own hint text promises it; the remote-branch-bootstrap\n  tests\
-  \ pin it) that the report does not ask for.\n- **Un-pollution logic** (the tool\
-  \ deleting stray child-remote refs): rejected\n  — remote-branch deletion is destructive\
-  \ and maintainer-side; the tool's\n  mandate stops at not creating new pollution.\n\
-  - **A persistent config file listing host children:** rejected — the store's\n \
-  \ own existence is the persistent state; a one-shot adoption flag establishes\n\
-  \  it without adding a second declaration surface to maintain.\n\n## Impact\n\n\
-  - **Consumers:** every workspace whose root registers child repositories —\n  the\
-  \ tool's discovery, sync, doctor, and mutation paths; session-init's\n  per-session\
-  \ repo table and Local Issue Folders section; the agents reading\n  them.\n- **Benefit:**\
-  \ content children (wikis, vendored checkouts) no longer receive\n  phantom stores;\
-  \ child remotes are never polluted by store-branch pushes\n  from the passive paths;\
-  \ the conflict-noise class disappears for non-hosts;\n  `doctor` and session-init\
-  \ report store truthfully.\n- **Risk — a real host child skipped for a session:**\
-  \ a child whose remote\n  ref is temporarily unverifiable (network down) and which\
-  \ holds no local\n  worktree does not bootstrap that session; it bootstraps when\
-  \ the remote is\n  reachable. No store is minted wrongly; the cost is one deferred\
-  \ bootstrap.\n- **Risk — transitional polluted state:** a child polluted before\
-  \ this fix\n  (remote ref present, or local worktree present) is evidence-classified\
-  \ a\n  host until the operator's cleanup removes both artifacts; sync and doctor\n\
-  \  then describe a real store. The cleanup path is recorded in Scope.\n- **Risk\
-  \ — adoption misuse:** the opt-in could provision a store on an\n  unintended child.\
-  \ Bounded: the flag is explicit and per-invocation, names\n  the child, refuses\
-  \ pull-only and unregistered paths, and the provisioned\n  store reverses by operator\
-  \ cleanup.\n- **Blast radius:** `.opencode/tools/local-issues`,\n  `.opencode/tools/session-init`,\
-  \ the three deck-text surfaces, and the two\n  unit-test directories. No hook, plugin,\
-  \ or scenario-harness changes.\n- **Dependent tests:** the unit suite — notably\
-  \ `test_cwd_independence.py`,\n  `test_remote_branch_bootstrap.py`, `test_doctor_branch_health.py`,\n\
-  \  `test_pull_only.py` — carries its expectations onto the gated mechanism\n  (SC-9).\n\
-  - **Recovery:** code, docs, and test changes reverse through branch history.\n \
-  \ A provisioned child store reverses by operator cleanup (worktree removal,\n  then\
-  \ maintainer-side remote-branch deletion). Every element reverses.\n\n---\n\n*Co-authored\
-  \ with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*\n"
+  \ one\n   registered child. The adoption path is establishment-completing, not a\n\
+  \   bootstrap wrap: it checks the named child's worktree and remote ref\n   independently,\
+  \ provisions what is missing (worktree via the existing\n   bootstrap, branch via\
+  \ the orphan path, remote ref via the establishment\n   push), verifies the push\
+  \ outcome against the live remote ref, and exits\n   non-zero when the ref is absent\
+  \ after the attempt — so a failed\n   establishment push is visible at adoption\
+  \ time and a re-run completes it.\n   The refusal diagnostics for pull-only and\
+  \ unregistered paths follow the\n   `_reject_pull_only()` pattern; the mutation\
+  \ path's non-host refusal\n   reuses it. The store's existence is the persistent\
+  \ record — the flag is\n   the establishment instrument, idempotent over the establishment\
+  \ state.\n4. **Doctor (R-4).** `_doctor_repo_report()` gains the non-host\n   classification\
+  \ row — `classification=non-host`, no branch-state health\n   verdict — beside the\
+  \ existing pull-only row.\n5. **Session-init (R-5).** The child store claims consult\
+  \ the same evidence:\n   a non-host child emits neither the `issues:` field line\
+  \ nor the bootstrap\n   hint. No enumeration change — `.opencode#2544`'s wiki exclusion\
+  \ and the\n   pull-only skips stand.\n6. **Docs (R-6).** The three deck-text surfaces\
+  \ are reworded to the\n   evidence-gated rule with the opt-in named; deck-text edits\
+  \ ride the\n   `skill-creator` admission gate at implementation, with this report\
+  \ as the\n   observed-failure evidence.\n7. **Tests (R-7).** The unit tests' child\
+  \ fixtures gain host evidence or\n   assert the gated exclusion; new unit coverage\
+  \ pins the evidence rule's\n   branches (local-only, remote-only, neither, unverifiable-remote)\
+  \ and the\n   push gates; the construct-workspace behavioral SCs above execute the\n\
+  \   runtime effects.\n\nDiscarded alternatives:\n\n- **Transport-based gating**\
+  \ (extending `.opencode#2667`'s origin-scheme rule\n  to exclude wiki URLs from\
+  \ local-issues): rejected — transport is not\n  issue-host evidence; `.opencode#2667`\
+  \ SC-6 pins pushable ssh children as\n  legitimate hosts, and the report's defect\
+  \ is evidence-shape, not transport.\n  The wiki child is excluded by the same evidence\
+  \ rule every non-host child\n  is (SC-8 pins the repro shape).\n- **Strict conjunctive\
+  \ evidence** (remote ref AND local record, the report's\n  parenthetical read literally):\
+  \ rejected — it would stop bootstrapping real\n  host children on fresh clones,\
+  \ a regression of existing intended behavior\n  (session-init's own hint text promises\
+  \ it; the remote-branch-bootstrap\n  tests pin it) that the report does not ask\
+  \ for.\n- **Un-pollution logic** (the tool deleting stray child-remote refs): rejected\n\
+  \  — remote-branch deletion is destructive and maintainer-side; the tool's\n  mandate\
+  \ stops at not creating new pollution.\n- **A persistent config file listing host\
+  \ children:** rejected — the store's\n  own existence is the persistent state; a\
+  \ one-shot adoption flag establishes\n  it without adding a second declaration surface\
+  \ to maintain.\n\n## Impact\n\n- **Consumers:** every workspace whose root registers\
+  \ child repositories —\n  the tool's discovery, sync, doctor, and mutation paths;\
+  \ session-init's\n  per-session repo table and Local Issue Folders section; the\
+  \ agents reading\n  them.\n- **Benefit:** content children (wikis, vendored checkouts)\
+  \ no longer receive\n  phantom stores; child remotes are never polluted by store-branch\
+  \ pushes\n  from the passive paths; the conflict-noise class disappears for non-hosts;\n\
+  \  `doctor` and session-init report store truthfully.\n- **Risk — a real host child\
+  \ skipped for a session:** a child whose remote\n  ref is temporarily unverifiable\
+  \ (network down) and which holds no local\n  worktree does not bootstrap that session;\
+  \ it bootstraps when the remote is\n  reachable. No store is minted wrongly; the\
+  \ cost is one deferred bootstrap.\n- **Risk — transitional polluted state:** a child\
+  \ polluted before this fix\n  (remote ref present, or local worktree present) is\
+  \ evidence-classified a\n  host until the operator's cleanup removes both artifacts;\
+  \ sync and doctor\n  then describe a real store. The cleanup path is recorded in\
+  \ Scope.\n- **Risk — adoption misuse:** the opt-in could provision a store on an\n\
+  \  unintended child. Bounded: the flag is explicit and per-invocation, names\n \
+  \ the child, refuses pull-only and unregistered paths, and the provisioned\n  store\
+  \ reverses by operator cleanup.\n- **Blast radius:** `.opencode/tools/local-issues`,\n\
+  \  `.opencode/tools/session-init`, the three deck-text surfaces, and the two\n \
+  \ unit-test directories. No hook, plugin, or scenario-harness changes.\n- **Dependent\
+  \ tests:** the unit suite — notably `test_cwd_independence.py`,\n  `test_remote_branch_bootstrap.py`,\
+  \ `test_doctor_branch_health.py`,\n  `test_pull_only.py` — carries its expectations\
+  \ onto the gated mechanism\n  (SC-9).\n- **Recovery:** code, docs, and test changes\
+  \ reverse through branch history.\n  A provisioned child store reverses by operator\
+  \ cleanup (worktree removal,\n  then maintainer-side remote-branch deletion). Every\
+  \ element reverses.\n\n---\n\n*Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*\n"
 created_at: '2026-11-04T06:12:31+00:00'
-updated_at: '2026-11-04T06:37:26+00:00'
+updated_at: '2026-11-04T06:37:33+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2642
