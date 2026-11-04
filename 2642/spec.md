@@ -133,8 +133,10 @@ Out of scope:
   opt-in on `init` that provisions a store on one named child: the store
   worktree, the store branch, and the establishment push to that child's
   origin. No other path SHALL provision a child store. The opt-in SHALL
-  refuse a pull-only child (the `.opencode#2667` R-3 refusal) and a path that
-  is not a registered child of the workspace root.
+  refuse a pull-only child (the `.opencode#2667` R-3 refusal) and a path
+  that is not a registered child of the workspace root, and each refusal
+  diagnostic SHALL name its ground — the pull-only classification, or the
+  not-a-registered-child ground.
 - **R-4 — `doctor` reflects the gate.** `doctor` SHALL apply the same
   host-evidence rule: a child with neither evidence carries the non-host
   classification in its marker line instead of a branch-state health verdict,
@@ -162,10 +164,10 @@ Out of scope:
 
 | ID | Criterion | Class | Instrument |
 |----|-----------|-------|-----------|
-| SC-1 | A registered child with no store evidence — reachable pushable origin, no `issues-data` ref, no local `.issues/` — receives no store: `local-issues init` exits successfully, the child has no `.issues` directory and no `issues-data` branch, and the child's origin carries no `issues-data` ref afterward. | behavioral (runtime effect) | Construct the workspace per the `.opencode#2667` SC-6 fixture family: workspace root whose origin is a reachable local bare repository, the deck's `tools/` at `<workspace>/.opencode/tools/`, and a registered submodule at `sub/deck` whose origin is a reachable bare repository carrying no `issues-data` branch. Run `<workspace>/.opencode/tools/local-issues init`; read its exit status, `ls -a sub/deck`, `git -C sub/deck branch`, `git -C sub/deck worktree list`, and `git -C sub/deck ls-remote origin`. |
-| SC-2 | A mutation naming a non-host child is refused with the non-host diagnostic and creates no store artifact in the child. | behavioral (runtime effect) | In the SC-1 workspace (before any adoption), run `create --number 'deck#9999' --title probe` (the child's qualifier) and read the exit status, the diagnostic text, `ls -a sub/deck`, and `git -C sub/deck branch`. The diagnostic names the non-host classification; an unknown-repository refusal alone, or a refusal that created the store, fails. |
+| SC-1 | A registered child with no store evidence — reachable pushable origin, no `issues-data` ref, no local `.issues/` — receives no store, and the reports say so: `local-issues init` exits successfully, the child has no `.issues` directory and no `issues-data` branch, the child's origin carries no `issues-data` ref afterward, and the init report carries the child's informational non-host steady-state entry (the pull-only entry's shape — classification, no operation result). | behavioral (runtime effect) | Construct the workspace per the `.opencode#2667` SC-6 fixture family: workspace root whose origin is a reachable local bare repository, the deck's `tools/` at `<workspace>/.opencode/tools/`, and a registered submodule at `sub/deck` whose origin is a reachable bare repository carrying no `issues-data` branch. Run `<workspace>/.opencode/tools/local-issues init`; read its exit status and per-repo report (the entry naming `sub/deck`), then `ls -a sub/deck`, `git -C sub/deck branch`, `git -C sub/deck worktree list`, and `git -C sub/deck ls-remote origin`. |
+| SC-2 | A mutation naming a non-host child is refused with a diagnostic naming the child's non-host classification and the opt-in path, and the refusal creates no store artifact in the child. | behavioral (runtime effect) | In the SC-1 workspace (before any adoption), run `create --number 'deck#9999' --title probe` (the child's qualifier) and read the exit status, the diagnostic text (it names the non-host classification and the opt-in path), `ls -a sub/deck`, and `git -C sub/deck branch`. An unknown-repository refusal alone, a diagnostic missing either element, or a refusal that created the store, fails. |
 | SC-3 | The passive sync path never touches a child's ref-less remote: a child holding a local store worktree whose origin lacks the `issues-data` ref is synced with no fetch, no rebase, and no push — its report entry is an informational steady state (not a failure status), `sync` exits successfully, and the ref stays absent. | behavioral (runtime effect) | In a workspace as in SC-1, provision the child's store locally without pushing (adopt, then delete the remote ref from the child's bare origin: `git -C <bare> branch -D issues-data`), run `local-issues sync`, and read the child's entry, the exit status, and `git -C sub/deck ls-remote origin` — the ref stays absent and the entry reports no operation against the child's remote. |
-| SC-4 | The opt-in provisions a store on a named child: `init` with the opt-in naming the registered child leaves the child with an `.issues` worktree, a local `issues-data` branch, and an `issues-data` ref on its origin; the opt-in refuses a pull-only child and a path that is not a registered child. | behavioral (runtime effect) | In the SC-1 workspace, run `local-issues init` with the opt-in naming `sub/deck` and read `ls -a sub/deck`, `git -C sub/deck branch`, and `git -C sub/deck ls-remote origin`. Then, in a workspace whose child's origin is an `https` URL resolving to nothing (the `.opencode#2667` SC-1 rewrite), run the opt-in naming the child and read the refusal and the child's state. |
+| SC-4 | The opt-in provisions a store on a named child: `init` with the opt-in naming the registered child leaves the child with an `.issues` worktree, a local `issues-data` branch, and an `issues-data` ref on its origin. | behavioral (runtime effect) | In the SC-1 workspace, run `local-issues init` with the opt-in naming `sub/deck` and read `ls -a sub/deck`, `git -C sub/deck branch`, and `git -C sub/deck ls-remote origin`. |
 | SC-5 | A real host child on a fresh clone still bootstraps from its remote: a registered child whose origin carries `issues-data` and which has no local store receives the store worktree from the remote, and `init` exits successfully. | behavioral (runtime effect) | Construct the SC-1 workspace with the child's bare origin carrying an `issues-data` branch (seeded with one issue record); run `local-issues init` and read the exit status, the child's worktree registration, and the seeded record's presence in `sub/deck/.issues/`. |
 | SC-6 | `doctor` reports a non-host child with the non-host classification and no `UNHEALTHY` marker. | behavioral (runtime effect) | In the SC-1 workspace, run `local-issues doctor` and read the marker line naming `sub/deck`: it carries the non-host classification and does not carry `UNHEALTHY`. |
 | SC-7 | Session-init's child store claims agree with the gate: a non-host child carries no `issues:` store path in the Repo Information block and no bootstrap hint in the Local Issue Folders section; the root's claims are unchanged. | behavioral (runtime effect) | In the SC-1 workspace, run `./.opencode/tools/session-init` and read the Repo Information block entry naming the child and the Local Issue Folders section: no `issues:` line and no `run ./.opencode/tools/local-issues init` hint names the child; the root's `issues: .issues/` line is present. |
@@ -173,19 +175,30 @@ Out of scope:
 | SC-9 | The deck's unit-test suite passes with the gated mechanism, and the tests that pinned child discovery keep the properties they were written for: discovery is CWD-independent; a registered child with host evidence is discovered; the doctor's per-repository attribution covers a child; the pull-only expectations stand. | behavioral (runtime effect) + structural | Run `uv run --group dev pytest` in the deck and read the summary (no failures). Then read the updated tests: the CWD-independence assertion, the child-discovery assertion (now with host evidence in the fixture), the doctor attribution assertion, and the pull-only assertions are each present. |
 | SC-10 | The three deck-text surfaces state the gate: the `issues` card's operating-contract store-host sentence, the `local-issues-cli.md` `init` row, and the `sync-mirroring.md` store-shape/initialization text each describe child store-host membership as evidence-gated with the opt-in path named, and none describes registered-submodule membership alone as the child eligibility rule. | structural | Read each surface: the evidence rule and the opt-in are stated for children; the root's unconditional-host statement survives in each; no surface states registration-alone eligibility. |
 | SC-11 | The change touches only the surfaces named in Scope and adds no tool command beyond the opt-in on `init`. | structural | The changed-file list against the base tip, plus `local-issues --help` compared with the base revision's command list (the opt-in is a flag on the existing `init` command, not a new command). |
+| SC-12 | The opt-in's refusals name their grounds: on a registered child whose origin is an `https` URL resolving to nothing, the opt-in is refused with a diagnostic naming the pull-only classification; on a path that is not a registered child of the workspace root, the opt-in is refused with a diagnostic naming the not-a-registered-child ground; neither refusal creates a store in any target. | behavioral (runtime effect) | In a workspace whose child's origin is an `https` URL resolving to nothing (the `.opencode#2667` SC-1 rewrite — the child is pull-only there regardless of host evidence), run the opt-in naming the child and read the diagnostic: it names the pull-only classification. In the SC-1 workspace, run the opt-in naming a plain directory that is not a registered child (a `scratch/` directory created for the run) and read the diagnostic: it names the not-a-registered-child ground. After both runs, read `ls -a` and the branch lists of both targets: no store artifact exists. |
 
 ## Approach
 
-1. **Discovery gate (R-1).** In `_discover_all_repos()`, keep the project
-   root unconditional; for each registered initialized child, require store
-   evidence — a local `.issues/` worktree marker (the tool's own
-   `(issues_dir / ".git").is_file()` detection) or a verified `issues-data`
-   ref on the child's origin (`git ls-remote`, live — a stale remote-tracking
-   ref is not verification). A child whose remote ref cannot be verified and
-   which holds no local worktree is not a host: discovery excludes it and no
-   store is minted. Network absence degrades safely — a real host child on a
-   fresh clone simply does not bootstrap that session and bootstraps when the
-   remote is reachable again.
+1. **Host classification over enumeration, not discovery exclusion
+   (R-1, R-2, R-4).** Discovery keeps enumerating the registered child set —
+   `_discover_all_repos()`'s membership is unchanged, because the reporting
+   and resolution layers read that set: the init/sync report
+   (`_collect_repos()`), `doctor`'s per-repo rows (`cmd_doctor()`), and the
+   mutation path's name resolution (`_resolve_worktree_from_path()` and its
+   resolver helpers) each need the child present to report or refuse it. The
+   host-evidence rule becomes a classification layer over the enumerated
+   set: a child is a store host when its origin carries a live-verified
+   `issues-data` ref (`git ls-remote` — a stale remote-tracking ref is not
+   verification) or a local `.issues/` worktree marker (the tool's own
+   `(issues_dir / ".git").is_file()` detection); otherwise it is a non-host.
+   The consuming points apply the classification: the bootstrap sweep
+   provisions only hosts; the sync path reports a non-host child as the
+   informational steady state (the pull-only entry's shape) and gates a host
+   child's fetch, rebase, and push on the verified remote ref (R-2);
+   `doctor` emits the non-host classification row (R-4); the mutation path
+   resolves registered children and refuses non-hosts (R-1). Network absence
+   degrades safely — a real host child on a fresh clone simply does not
+   bootstrap that session and bootstraps when the remote is reachable again.
 2. **Passive-path gates (R-2).** For a child repository, the sync path's
    fetch, rebase, and push and the bootstrap-sweep and mutation pushes each
    verify the origin's `issues-data` ref (`git ls-remote`, live) before
