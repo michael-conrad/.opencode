@@ -1,6 +1,7 @@
-# [SPEC] SC subject-matter discipline — criteria verify behavior or content, never byte-exactness or toolchain guarantees
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
 
-Store: `.opencode` (michael-conrad/.opencode#2713) · Labels: spec, needs-approval · Filed 2026-11-04
+# [SPEC] SC subject-matter discipline — criteria verify behavior or content, never byte-exactness or toolchain guarantees
 
 ## 1. Problem Statement
 
@@ -28,7 +29,7 @@ The validators never fired: `.opencode#2643`'s validation defended a byte-identi
 Two files inside `skills/spec/`:
 
 1. `skills/spec/SKILL.md` rule 3 gains the subject-matter constraint: an SC's subject is the deliverable's behavior (a runtime effect the deliverable owns) or its content (what the deliverable states or contains); the toolchain prohibition; and the byte-exactness reservation with its identity/preservation carve-out.
-2. `skills/spec/references/validation-standards.md` gains the four observed shapes as described classes for reviewer judgment inside the existing defect-class structure — never a keyword table, per that page's own constitution ("no keyword lists, no trigger-word tables"; judgment, not lexical checks).
+2. `skills/spec/references/validation-standards.md` gains the five observed shapes as described classes for reviewer judgment inside the existing defect-class structure — never a keyword table, per that page's own constitution ("no keyword lists, no trigger-word tables"; judgment, not lexical checks).
 
 The new rule subsumes the retired `#2411` false-numerical-target rule — a count/byte/percentage reduction threshold is neither behavior nor content — so no attic restoration is needed and the attic copy stays retired.
 
@@ -61,7 +62,7 @@ The observed failures come from the same session's research findings, recorded i
 - **R-1 — SC subject matter.** Rule 3 of `skills/spec/SKILL.md` SHALL state that every SC asserts the deliverable's behavior — a runtime effect the deliverable owns — or its content — what the deliverable states or contains — and nothing else.
 - **R-2 — The toolchain prohibition.** Rule 3 SHALL prohibit, as SC subjects, what the build system or toolchain already guarantees: compilation, packaging, a tool succeeding at its own job.
 - **R-3 — The byte-exactness reservation.** Rule 3 SHALL reserve byte-exact instruments for criteria whose stated requirement is itself identity or preservation — guarding sections of a file the same change edits, point-in-time records, content-preservation moves — and SHALL state that a byte-exact check never substitutes for a behavioral or content criterion, never serves as a reduction target, and never restates the change's declared scope.
-- **R-4 — The validator-side shapes.** The validation standards' per-criterion defect classes SHALL name the observed concrete shapes as judgment descriptions within the existing structure — the toolchain-guarantee criterion under the incapable-instrument finding; the byte-exact target, the scope-restatement byte guard, byte-equality drift control, and the manufactured RED under the trivially-true-restatement / incapable-instrument findings — each carrying the identity/preservation carve-out so legitimate byte-exact criteria are not flagged. The additions are defect descriptions for reviewer judgment: no keyword list, no trigger-word table, no scripted check.
+- **R-4 — The validator-side shapes.** The validation standards' per-criterion defect classes SHALL name the five observed shapes as judgment descriptions within the existing structure, each carrying the identity/preservation carve-out so legitimate byte-exact criteria are not flagged: the toolchain-guarantee criterion (incapable instrument — the instrument observes the toolchain, not the deliverable); the count/byte/percentage reduction-threshold target (incapable instrument — the instrument answers "how many" when the requirement asks whether the content is right); the scope-restatement byte guard (trivially-true restatement — the scoped diff already states it); byte-equality asserted as drift control where a content or link check answers the criterion's question (trivially-true restatement); and the manufactured RED (incapable instrument — a RED produced by mutating the input the check reads and un-mutating it evidences the check's sensitivity, never the criterion). The additions are defect descriptions for reviewer judgment: no keyword list, no trigger-word table, no scripted check.
 - **R-5 — Single sourcing.** The rule SHALL live in exactly one authoring place (the spec card) and one validation place (the validation reference); no other card or reference gains a copy, and the implement card's existing test-side rule 7 is neither duplicated nor modified.
 - **R-6 — Whole-card conversion.** Each substantively edited file SHALL return its entire normative prose under the deck's writing discipline (guidelines/ainglish-writing-discipline.md) — the whole-card-on-touch adoption rule.
 
@@ -70,20 +71,22 @@ The observed failures come from the same session's research findings, recorded i
 | ID | Criterion | Class | Instrument | Sources |
 |----|-----------|-------|------------|---------|
 | SC-1 | Rule 3 states the subject-matter constraint — SC subjects are the deliverable's behavior or content — binding SC authorship | structural | Read rule 3; the operative sentence states the constraint and binds the SC author | `skills/spec/SKILL.md` |
-| SC-2 | Rule 3 states the toolchain prohibition and the byte-exactness reservation with its carve-out (identity/preservation criteria; never target, never scope restatement, never substitute) | structural | Read rule 3; both operative clauses present with their bounds | `skills/spec/SKILL.md` |
-| SC-3 | The validation standards name the four observed shapes as judgment descriptions inside the existing defect-class structure, with the carve-out stated, and no keyword table or scripted check enters the page | structural | Read the defect classes; each shape present as a described class with its ground; the page's no-keyword-list constitution intact | `skills/spec/references/validation-standards.md` |
-| SC-4 | The rule is single-sourced: the operative phrasing appears only in the spec card and the validation reference; the implement card is unchanged | structural | Search `skills/` for the rule's operative phrasing — matches only in the two owning files; `implement/SKILL.md` carries no new copy | `skills/` tree |
-| SC-5 | Both edited files' entire normative prose reads under the writing discipline | structural | Read each edited file end-to-end; the discipline's families hold across the whole normative body (judgment recorded in the validation record) | both edited files |
-| SC-6 | Deck validation is green after the edits | structural | `./.opencode/tools/skildeck lint` exits 0 | deck tooling |
+| SC-2 | Rule 3 prohibits, as SC subjects, what the build system or toolchain already guarantees — compilation, packaging, a tool succeeding at its own job | structural | Read rule 3; the prohibition clause is present with its scope | `skills/spec/SKILL.md` |
+| SC-3 | Rule 3 reserves byte-exact instruments for criteria whose stated requirement is itself identity or preservation, and states that a byte-exact check never substitutes for a behavioral or content criterion, never serves as a reduction target, and never restates the change's declared scope | structural | Read rule 3; the reservation clause and its three never-clauses are present | `skills/spec/SKILL.md` |
+| SC-4 | The validation standards name the five observed shapes as judgment descriptions inside the existing defect-class structure, with the carve-out stated, and no keyword table or scripted check enters the page | structural | Read the defect classes; each shape present as a described class with its ground; the page's no-keyword-list constitution intact | `skills/spec/references/validation-standards.md` |
+| SC-5 | The rule is single-sourced: the operative phrasing appears only in the spec card and the validation reference; the implement card is unchanged | structural | Search `skills/` for the rule's operative phrasing — matches only in the two owning files; `implement/SKILL.md` carries no new copy | `skills/` tree |
+| SC-6 | Both edited files' entire normative prose reads under the writing discipline | structural | Read each edited file end-to-end; the discipline's families hold across the whole normative body (judgment recorded in the validation record) | both edited files |
+| SC-7 | Deck validation is green after the edits | structural | `./.opencode/tools/skildeck lint` exits 0 | deck tooling |
 
 ### Per-SC RED/GREEN
 
 - **SC-1** — RED: read the current rule 3; no subject-matter constraint exists. GREEN: rule 3 states it. verify: read.
-- **SC-2** — RED: rule 3 carries no toolchain prohibition and no byte-exactness reservation. GREEN: both clauses present with their bounds. verify: read.
-- **SC-3** — RED: the defect classes name none of the four observed shapes. GREEN: each shape present as a described class, the carve-out stated, the page's constitution intact. verify: read.
-- **SC-4** — verify-only post-condition: post-edit search of `skills/` finds the operative phrasing only in the two owning files (pre-change it exists nowhere; the criterion guards against duplication during implementation, and its RED is any third-file match).
-- **SC-5** — verify-only: the whole-card conversion is part of the edit's obligation; verified by the end-to-end read.
-- **SC-6** — verify-only regression guard: the deck's own validator stays green across the edits.
+- **SC-2** — RED: rule 3 carries no toolchain prohibition. GREEN: the prohibition clause is present. verify: read.
+- **SC-3** — RED: rule 3 carries no byte-exactness reservation. GREEN: the reservation clause and its three never-clauses are present. verify: read.
+- **SC-4** — RED: the defect classes name none of the five observed shapes. GREEN: each shape present as a described class, the carve-out stated, the page's constitution intact. verify: read.
+- **SC-5** — verify-only post-condition: post-edit search of `skills/` finds the operative phrasing only in the two owning files (pre-change it exists nowhere; the criterion guards against duplication during implementation, and its RED is any third-file match).
+- **SC-6** — verify-only: the whole-card conversion is part of the edit's obligation; verified by the end-to-end read.
+- **SC-7** — verify-only regression guard: the deck's own validator stays green across the edits.
 
 ## 9. Edge Cases
 
@@ -103,7 +106,7 @@ The observed failures come from the same session's research findings, recorded i
 | `attic/reference/spec-structure-standards.md`, `attic/skills/audit/tasks/spec-audit-evaluator.md` | retired `#2411` anchors | subsumption claim | live read 2026-11-04 |
 | Observed-failure tickets: `.opencode#2097`, `#2618`, `#2444`, `#2460`, `#2458`, `#2411`, `#2346`, `#2304`, `#2660`, `#2643`; root-store `#300`, `#374` | observed failures | each named shape and legitimate instance read in its own record | 2026-11-04 |
 
-Traceability: SC-1 ← R-1; SC-2 ← R-2, R-3; SC-3 ← R-4; SC-4 ← R-5; SC-5 ← R-6; SC-6 ← deck card standards. R-1/R-2/R-3 ← the developer's stated rule + the root-cause gap; R-4 ← the validators-never-fired failures (#2643, #2660); R-5 ← skill-creator admission item 7 + the mimicry cause; R-6 ← the writing discipline's whole-card-on-touch rule.
+Traceability: SC-1 ← R-1; SC-2 ← R-2; SC-3 ← R-3; SC-4 ← R-4; SC-5 ← R-5; SC-6 ← R-6; SC-7 ← deck card standards. R-1/R-2/R-3 ← the developer's stated rule + the root-cause gap; R-4 ← the validators-never-fired failures (#2643, #2660); R-5 ← skill-creator admission item 7 + the mimicry cause; R-6 ← the writing discipline's whole-card-on-touch rule.
 
 ## 11. Cost Frame
 

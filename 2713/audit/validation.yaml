@@ -1,0 +1,31 @@
+spec:
+  rounds:
+    - round: 1
+      date: 2026-11-04
+      artifact: spec.md (as filed)
+      verdict: FAIL
+      findings:
+        - class: ambiguous criterion (enumerated defect class; internal contradiction analysis family)
+          location: "§1 measured-pattern list vs §7 R-4 vs §8 SC-4"
+          ground: >-
+            §1 measures five performative shapes (including count-threshold
+            targets, evidenced by #2347/#2411); R-4 enumerated four, silently
+            dropping count-threshold targets and introducing an undefined
+            "byte-exact target"; SC-4's "each shape present" was therefore
+            indeterminate — two readers produce two different validation
+            references, and the measured count-threshold shape could silently
+            fail to enter the sharpened page.
+          classification: finding
+          remediation: >-
+            R-4 rewritten to enumerate all five measured shapes, each with its
+            finding home (toolchain-guarantee → incapable instrument;
+            reduction-threshold target → incapable instrument;
+            scope-restatement byte guard → trivially-true restatement;
+            byte-equality drift control → trivially-true restatement;
+            manufactured RED → incapable instrument); SC-4 and its RED/GREEN
+            bullet updated to five; §3 Approach count reconciled; remote body
+            reconciled in the same action.
+    - round: 2
+      date: 2026-11-04
+      artifact: spec.md (as revised)
+      verdict: PENDING
