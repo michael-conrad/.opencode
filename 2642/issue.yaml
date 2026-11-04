@@ -3,6 +3,57 @@ title: '[BUG] local-issues auto-bootstraps phantom issue stores on .gitmodules c
 status: open
 labels:
 - needs-approval
-body: ''
+body: 'Observed behavior: `local-issues` treats every `.gitmodules` child repo as
+  an issue host and auto-bootstraps an issue store for it. In `hermes-ingest-pubmed`
+  the only child is the GitHub wiki checkout (`git@github.com:NewsRx/hermes-ingest-pubmed.wiki.git`)
+  — a content repo with no issue role. The tool:
+
+
+  1. created `wiki/.issues/` inside the wiki checkout (a gitignored dir there) during
+  `init`/`sync`;
+
+  2. populated its local `issues-data` branch with wiki trunk content — the branch
+  head contains `Home.md`, a wiki content page, not issue data;
+
+  3. pushed the branch to the wiki remote — `git -C wiki ls-remote origin` now shows
+  `refs/heads/issues-data` (b1f5156), polluting a special-purpose remote with a junk
+  branch;
+
+  4. while the remote ref did not yet exist, every `init`/`sync` reported `status:
+  conflict / pull_result: "fatal: couldn''t find remote ref issues-data"` for the
+  wiki entry — permanent conflict noise until the auto-push landed;
+
+  5. after the push, the phantom store reports `status: ok / issues_count: 0`, and
+  `doctor` calls it `HEALTHY` — no signal the store is spurious;
+
+  6. removing the worktree locally (`git -C wiki worktree remove --force .issues`)
+  does not fix it — the next `init` recreates the store and re-syncs (observed live
+  this session).
+
+
+  Expected behavior: child repos without an issue-host role should not be auto-bootstrapped.
+  Discovery should require evidence the child actually hosts issues (an existing `issues-data`
+  remote ref plus an `.issues/` record, or an explicit opt-in), and the sync path
+  should never auto-push a store branch to a remote that has no `issues-data` ref.
+  The stray `refs/heads/issues-data` (b1f5156, containing `Home.md`) on `NewsRx/hermes-ingest-pubmed.wiki`
+  needs maintainer-side deletion.
+
+
+  Steps to reproduce: any project whose `.gitmodules` lists a child repo that is not
+  an issue host; run `.opencode/tools/local-issues init`; observe the child `.issues/`
+  worktree being created, trunk content appearing in the store branch, and the auto-push
+  toward the child remote.
+
+
+  Component affected: `.opencode/tools/local-issues` — repo discovery (`_discover_all_repos`,
+  `_ensure_all_worktrees`) and the sync/push path (`_sync_repo`, `_push_issues_branch_safe`).
+
+
+  Related: #2446 — different facets of the same repo-discovery surface; this report''s
+  finding (child-repo auto-bootstrap + phantom store + remote pollution) is not covered
+  there.
+
+  '
 created_at: '2026-11-04T06:12:31+00:00'
-updated_at: '2026-11-04T06:12:31+00:00'
+updated_at: '2026-11-04T06:12:52+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2642
