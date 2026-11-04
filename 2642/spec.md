@@ -126,12 +126,19 @@ Out of scope:
 - **R-2 — No child-origin store-branch creation from the passive paths.**
   Before any passive path — the sync path (`_sync_repo`), the `sync-file`
   path (`cmd_sync_file`), the bootstrap sweep, or a mutation command's
-  auto-push — fetches from, rebases against, or pushes to a child
-  repository's origin, the tool SHALL verify that the origin carries the
-  `issues-data` ref, and SHALL perform none of those operations against that
-  origin when it does not — reporting an informational steady state, not a
-  failure. The opt-in adoption path (R-3) and the workspace root's
-  establishment push are the only origins of a child's remote store ref.
+  auto-push — operates against a child repository's origin, the tool SHALL
+  verify that the origin carries the `issues-data` ref (a live verification
+  against a reachable origin). When the origin is reachable and the ref is
+  verified absent, the passive path SHALL perform none of its operations
+  against that origin — reporting an informational steady state, not a
+  failure. When the child's origin cannot be verified — unreachable — a host
+  child's sync and mutation paths SHALL keep the existing failure semantics
+  (the failure statuses and the non-zero sync exit the `.opencode#2548` C2
+  contract pins): a transient outage is never reported as an intentional
+  steady state. A non-host child (R-1's classification) is skipped entirely
+  on either remote state. The opt-in adoption path (R-3) and the workspace
+  root's establishment push are the only origins of a child's remote store
+  ref.
 - **R-3 — Explicit opt-in provisioning.** The tool SHALL provide an explicit
   opt-in on `init` that provisions a store on one named child: the store
   worktree, the store branch, and the establishment push to that child's
@@ -186,6 +193,7 @@ Out of scope:
 | SC-12 | The opt-in's refusals name their grounds: on a registered child whose origin is an `https` URL resolving to nothing, the opt-in is refused with a diagnostic naming the pull-only classification; on a path that is not a registered child of the workspace root, the opt-in is refused with a diagnostic naming the not-a-registered-child ground; neither refusal creates a store in any target. | behavioral (runtime effect) | In a workspace whose child's origin is an `https` URL resolving to nothing (the `.opencode#2667` SC-1 rewrite — the child is pull-only there regardless of host evidence), run the opt-in naming the child and read the diagnostic: it names the pull-only classification. In the SC-1 workspace, run the opt-in naming a plain directory that is not a registered child (a `scratch/` directory created for the run) and read the diagnostic: it names the not-a-registered-child ground. After both runs, read `ls -a` and the branch lists of both targets: no store artifact exists. |
 | SC-13 | The opt-in's establishment failure is visible and completable: on a named child whose origin rejects pushes, the opt-in exits non-zero with a diagnostic naming the failed establishment while the store worktree exists locally; a re-run of the opt-in on that child once its origin accepts pushes performs the establishment push — exits successfully with the origin carrying the `issues-data` ref. | behavioral (runtime effect) | Construct the SC-1 workspace with the child's origin served by the `.opencode#2667` SC-6 SSH-shim family with `git-receive-pack` made to fail (`git-upload-pack` working), so fetch succeeds and push fails. Run the opt-in naming `sub/deck`: read the non-zero exit, the diagnostic (it names the failed establishment), `ls -a sub/deck` (the worktree exists), and `git -C sub/deck ls-remote origin` (the ref is absent). Restore `git-receive-pack` in the shim, re-run the opt-in naming `sub/deck`: read the zero exit, `ls -a sub/deck`, and `git -C sub/deck ls-remote origin` (the ref is present). |
 | SC-14 | A child whose origin is unreachable degrades to the informational skip, not a fatal abort: with the child's origin an ssh URL to an unreachable endpoint and no local store, `init` exits successfully, creates no store artifact in the child, and the child's report entry is the informational non-host steady state. | behavioral (runtime effect) | Construct the SC-1 workspace with the child's origin the ssh URL `git@127.0.0.1:<closed-port>/local/deck.git` (a port with nothing listening, so `git ls-remote` fails immediately) and no `issues-data` branch seeded. Run `<workspace>/.opencode/tools/local-issues init`; read its exit status (zero), the per-repo report (the child's entry is the informational steady state), `ls -a sub/deck`, and `git -C sub/deck branch` (no `issues-data` branch). |
+| SC-15 | A host child whose origin is unreachable keeps the existing failure semantics: with the child holding a local store worktree and its origin unreachable, `sync` attempts the store operations and exits non-zero with a failure status — the transient outage is not reported as an intentional steady state. | behavioral (runtime effect) | In the SC-1 workspace, adopt the child (its store worktree exists), then make the child's origin unreachable (stop the endpoint serving it, or rewrite the child's origin to a closed port's ssh URL). Run `local-issues sync`: read the non-zero exit and the child's entry — a failure status (`conflict`, `push_failed`, or `timeout`), not a steady-state skip. Restore the origin, re-run `sync`: zero exit, `ok`. |
 
 ## Approach
 
@@ -212,10 +220,14 @@ Out of scope:
 2. **Passive-path gates (R-2).** For a child repository, the sync path's
    fetch, rebase, and push, the `sync-file` path's push, and the
    bootstrap-sweep and mutation pushes each verify the origin's
-   `issues-data` ref (`git ls-remote`, live) before operating, and an absent
-   ref yields an informational skip entry — the child's remote is never
-   created a store branch from, and never pulled against, by a passive path.
-   The root's establishment push keeps its current behavior.
+   `issues-data` ref (`git ls-remote`, live) before operating. A reachable
+   origin with the ref verified absent yields an informational skip entry —
+   no operation runs against that origin. An origin whose ref cannot be
+   verified is not a skip: a host child's operations attempt and fail
+   through the existing failure statuses and the non-zero sync exit (the
+   `.opencode#2548` C2 contract), so a transient outage is never disguised
+   as an intentional steady state. The root's establishment push keeps its
+   current behavior.
 3. **Opt-in (R-3).** `init` gains a per-invocation adoption flag naming one
    registered child. The adoption path is establishment-completing, not a
    bootstrap wrap: it checks the named child's worktree and remote ref
@@ -275,10 +287,12 @@ Discarded alternatives:
   phantom stores; child remotes are never polluted by store-branch pushes
   from the passive paths; the conflict-noise class disappears for non-hosts;
   `doctor` and session-init report store truthfully.
-- **Risk — a real host child skipped for a session:** a child whose remote
-  ref is temporarily unverifiable (network down) and which holds no local
-  worktree does not bootstrap that session; it bootstraps when the remote is
-  reachable. No store is minted wrongly; the cost is one deferred bootstrap.
+- **Risk — network-down behavior, two cells:** a child whose remote ref is
+  temporarily unverifiable and which holds no local worktree does not
+  bootstrap that session (deferred, no store minted wrongly); a host child
+  holding a local worktree keeps the existing failure semantics — its sync
+  fails visibly with a non-zero exit (the `.opencode#2548` C2 contract), a
+  transient outage is never disguised as a steady state (SC-15).
 - **Risk — transitional polluted state:** a child polluted before this fix
   (remote ref present, or local worktree present) is evidence-classified a
   host until the operator's cleanup removes both artifacts; sync and doctor

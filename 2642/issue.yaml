@@ -98,14 +98,20 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ root SHALL remain an unconditional store host.\n- **R-2 — No child-origin store-branch\
   \ creation from the passive paths.**\n  Before any passive path — the sync path\
   \ (`_sync_repo`), the `sync-file`\n  path (`cmd_sync_file`), the bootstrap sweep,\
-  \ or a mutation command's\n  auto-push — fetches from, rebases against, or pushes\
-  \ to a child\n  repository's origin, the tool SHALL verify that the origin carries\
-  \ the\n  `issues-data` ref, and SHALL perform none of those operations against that\n\
-  \  origin when it does not — reporting an informational steady state, not a\n  failure.\
-  \ The opt-in adoption path (R-3) and the workspace root's\n  establishment push\
-  \ are the only origins of a child's remote store ref.\n- **R-3 — Explicit opt-in\
-  \ provisioning.** The tool SHALL provide an explicit\n  opt-in on `init` that provisions\
-  \ a store on one named child: the store\n  worktree, the store branch, and the establishment\
+  \ or a mutation command's\n  auto-push — operates against a child repository's origin,\
+  \ the tool SHALL\n  verify that the origin carries the `issues-data` ref (a live\
+  \ verification\n  against a reachable origin). When the origin is reachable and\
+  \ the ref is\n  verified absent, the passive path SHALL perform none of its operations\n\
+  \  against that origin — reporting an informational steady state, not a\n  failure.\
+  \ When the child's origin cannot be verified — unreachable — a host\n  child's sync\
+  \ and mutation paths SHALL keep the existing failure semantics\n  (the failure statuses\
+  \ and the non-zero sync exit the `.opencode#2548` C2\n  contract pins): a transient\
+  \ outage is never reported as an intentional\n  steady state. A non-host child (R-1's\
+  \ classification) is skipped entirely\n  on either remote state. The opt-in adoption\
+  \ path (R-3) and the workspace\n  root's establishment push are the only origins\
+  \ of a child's remote store\n  ref.\n- **R-3 — Explicit opt-in provisioning.** The\
+  \ tool SHALL provide an explicit\n  opt-in on `init` that provisions a store on\
+  \ one named child: the store\n  worktree, the store branch, and the establishment\
   \ push to that child's\n  origin. No other path SHALL provision a child store. The\
   \ opt-in SHALL\n  refuse a pull-only child (the `.opencode#2667` R-3 refusal) and\
   \ a path\n  that is not a registered child of the workspace root, and each refusal\n\
@@ -253,10 +259,19 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ branch seeded. Run `<workspace>/.opencode/tools/local-issues init`; read its exit\
   \ status (zero), the per-repo report (the child's entry is the informational steady\
   \ state), `ls -a sub/deck`, and `git -C sub/deck branch` (no `issues-data` branch).\
-  \ |\n\n## Approach\n\n1. **Host classification over enumeration, not discovery exclusion\n\
-  \   (R-1, R-2, R-4).** Discovery keeps enumerating the registered child set —\n\
-  \   `_discover_all_repos()`'s membership is unchanged, because the reporting\n \
-  \  and resolution layers read that set: the init/sync report\n   (`_collect_repos()`),\
+  \ |\n| SC-15 | A host child whose origin is unreachable keeps the existing failure\
+  \ semantics: with the child holding a local store worktree and its origin unreachable,\
+  \ `sync` attempts the store operations and exits non-zero with a failure status\
+  \ — the transient outage is not reported as an intentional steady state. | behavioral\
+  \ (runtime effect) | In the SC-1 workspace, adopt the child (its store worktree\
+  \ exists), then make the child's origin unreachable (stop the endpoint serving it,\
+  \ or rewrite the child's origin to a closed port's ssh URL). Run `local-issues sync`:\
+  \ read the non-zero exit and the child's entry — a failure status (`conflict`, `push_failed`,\
+  \ or `timeout`), not a steady-state skip. Restore the origin, re-run `sync`: zero\
+  \ exit, `ok`. |\n\n## Approach\n\n1. **Host classification over enumeration, not\
+  \ discovery exclusion\n   (R-1, R-2, R-4).** Discovery keeps enumerating the registered\
+  \ child set —\n   `_discover_all_repos()`'s membership is unchanged, because the\
+  \ reporting\n   and resolution layers read that set: the init/sync report\n   (`_collect_repos()`),\
   \ `doctor`'s per-repo rows (`cmd_doctor()`), and the\n   mutation path's name resolution\
   \ (`_resolve_worktree_from_path()` and its\n   resolver helpers) each need the child\
   \ present to report or refuse it. The\n   host-evidence rule becomes a classification\
@@ -274,18 +289,21 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ again.\n2. **Passive-path gates (R-2).** For a child repository, the sync path's\n\
   \   fetch, rebase, and push, the `sync-file` path's push, and the\n   bootstrap-sweep\
   \ and mutation pushes each verify the origin's\n   `issues-data` ref (`git ls-remote`,\
-  \ live) before operating, and an absent\n   ref yields an informational skip entry\
-  \ — the child's remote is never\n   created a store branch from, and never pulled\
-  \ against, by a passive path.\n   The root's establishment push keeps its current\
-  \ behavior.\n3. **Opt-in (R-3).** `init` gains a per-invocation adoption flag naming\
-  \ one\n   registered child. The adoption path is establishment-completing, not a\n\
-  \   bootstrap wrap: it checks the named child's worktree and remote ref\n   independently,\
-  \ provisions what is missing (worktree via the existing\n   bootstrap, branch via\
-  \ the orphan path, remote ref via the establishment\n   push), verifies the push\
-  \ outcome against the live remote ref, and exits\n   non-zero when the ref is absent\
-  \ after the attempt — so a failed\n   establishment push is visible at adoption\
-  \ time and a re-run completes it.\n   The refusal diagnostics for pull-only and\
-  \ unregistered paths follow the\n   `_reject_pull_only()` pattern; the mutation\
+  \ live) before operating. A reachable\n   origin with the ref verified absent yields\
+  \ an informational skip entry —\n   no operation runs against that origin. An origin\
+  \ whose ref cannot be\n   verified is not a skip: a host child's operations attempt\
+  \ and fail\n   through the existing failure statuses and the non-zero sync exit\
+  \ (the\n   `.opencode#2548` C2 contract), so a transient outage is never disguised\n\
+  \   as an intentional steady state. The root's establishment push keeps its\n  \
+  \ current behavior.\n3. **Opt-in (R-3).** `init` gains a per-invocation adoption\
+  \ flag naming one\n   registered child. The adoption path is establishment-completing,\
+  \ not a\n   bootstrap wrap: it checks the named child's worktree and remote ref\n\
+  \   independently, provisions what is missing (worktree via the existing\n   bootstrap,\
+  \ branch via the orphan path, remote ref via the establishment\n   push), verifies\
+  \ the push outcome against the live remote ref, and exits\n   non-zero when the\
+  \ ref is absent after the attempt — so a failed\n   establishment push is visible\
+  \ at adoption time and a re-run completes it.\n   The refusal diagnostics for pull-only\
+  \ and unregistered paths follow the\n   `_reject_pull_only()` pattern; the mutation\
   \ path's non-host refusal\n   reuses it. The store's existence is the persistent\
   \ record — the flag is\n   the establishment instrument, idempotent over the establishment\
   \ state.\n4. **Doctor (R-4).** `_doctor_repo_report()` gains the non-host\n   classification\
@@ -321,26 +339,28 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ agents reading\n  them.\n- **Benefit:** content children (wikis, vendored checkouts)\
   \ no longer receive\n  phantom stores; child remotes are never polluted by store-branch\
   \ pushes\n  from the passive paths; the conflict-noise class disappears for non-hosts;\n\
-  \  `doctor` and session-init report store truthfully.\n- **Risk — a real host child\
-  \ skipped for a session:** a child whose remote\n  ref is temporarily unverifiable\
-  \ (network down) and which holds no local\n  worktree does not bootstrap that session;\
-  \ it bootstraps when the remote is\n  reachable. No store is minted wrongly; the\
-  \ cost is one deferred bootstrap.\n- **Risk — transitional polluted state:** a child\
-  \ polluted before this fix\n  (remote ref present, or local worktree present) is\
-  \ evidence-classified a\n  host until the operator's cleanup removes both artifacts;\
-  \ sync and doctor\n  then describe a real store. The cleanup path is recorded in\
-  \ Scope.\n- **Risk — adoption misuse:** the opt-in could provision a store on an\n\
-  \  unintended child. Bounded: the flag is explicit and per-invocation, names\n \
-  \ the child, refuses pull-only and unregistered paths, and the provisioned\n  store\
-  \ reverses by operator cleanup.\n- **Blast radius:** `.opencode/tools/local-issues`,\n\
-  \  `.opencode/tools/session-init`, the three deck-text surfaces, and the two\n \
-  \ unit-test directories. No hook, plugin, or scenario-harness changes.\n- **Dependent\
-  \ tests:** the unit suite — notably `test_cwd_independence.py`,\n  `test_remote_branch_bootstrap.py`,\
-  \ `test_doctor_branch_health.py`,\n  `test_pull_only.py` — carries its expectations\
-  \ onto the gated mechanism\n  (SC-9).\n- **Recovery:** code, docs, and test changes\
-  \ reverse through branch history.\n  A provisioned child store reverses by operator\
-  \ cleanup (worktree removal,\n  then maintainer-side remote-branch deletion). Every\
-  \ element reverses.\n\n---\n\n*Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*\n"
+  \  `doctor` and session-init report store truthfully.\n- **Risk — network-down behavior,\
+  \ two cells:** a child whose remote ref is\n  temporarily unverifiable and which\
+  \ holds no local worktree does not\n  bootstrap that session (deferred, no store\
+  \ minted wrongly); a host child\n  holding a local worktree keeps the existing failure\
+  \ semantics — its sync\n  fails visibly with a non-zero exit (the `.opencode#2548`\
+  \ C2 contract), a\n  transient outage is never disguised as a steady state (SC-15).\n\
+  - **Risk — transitional polluted state:** a child polluted before this fix\n  (remote\
+  \ ref present, or local worktree present) is evidence-classified a\n  host until\
+  \ the operator's cleanup removes both artifacts; sync and doctor\n  then describe\
+  \ a real store. The cleanup path is recorded in Scope.\n- **Risk — adoption misuse:**\
+  \ the opt-in could provision a store on an\n  unintended child. Bounded: the flag\
+  \ is explicit and per-invocation, names\n  the child, refuses pull-only and unregistered\
+  \ paths, and the provisioned\n  store reverses by operator cleanup.\n- **Blast radius:**\
+  \ `.opencode/tools/local-issues`,\n  `.opencode/tools/session-init`, the three deck-text\
+  \ surfaces, and the two\n  unit-test directories. No hook, plugin, or scenario-harness\
+  \ changes.\n- **Dependent tests:** the unit suite — notably `test_cwd_independence.py`,\n\
+  \  `test_remote_branch_bootstrap.py`, `test_doctor_branch_health.py`,\n  `test_pull_only.py`\
+  \ — carries its expectations onto the gated mechanism\n  (SC-9).\n- **Recovery:**\
+  \ code, docs, and test changes reverse through branch history.\n  A provisioned\
+  \ child store reverses by operator cleanup (worktree removal,\n  then maintainer-side\
+  \ remote-branch deletion). Every element reverses.\n\n---\n\n*Co-authored with AI:\
+  \ OpenCode (huggingface/zai-org/GLM-5.3-Flash)*\n"
 created_at: '2026-11-04T06:12:31+00:00'
-updated_at: '2026-11-04T06:44:39+00:00'
+updated_at: '2026-11-04T06:49:39+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2642

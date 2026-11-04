@@ -83,4 +83,55 @@ rounds:
   - round: 3
     date: 2026-11-04
     reviewer: fresh-context dispatch (new reviewer, no prior context)
+    verdict: FAIL
+    findings:
+      - class: internal-contradiction (family; scope-vs-requirement, blast-radius facet)
+        location: scope's local-issues enumeration vs R-2 / R-7 / SC-11
+        ground: R-2 gates "a mutation command's auto-push" but scope named the
+          mutation path only as store-host resolution and refusal diagnostic —
+          the auto-push machinery (`_auto_commit` → `_push_issues_changes`,
+          pushing `origin issues-data` unconditionally modulo the
+          https-no-creds skip) was absent from the surface bound, forcing the
+          implementer to touch an unnamed surface (violating R-7/SC-11) or
+          leave R-2 unimplemented. (Verified against the tool: lines 1138,
+          1168.)
+        remediation: scope's local-issues enumeration names the mutation
+          auto-push (`_auto_commit`, `_push_issues_changes`).
+      - class: gap-analysis (family — boundary condition never exercised)
+        location: R-2's mutation-auto-push gate
+        ground: no SC ran a mutation against a child origin whose ref is
+          absent — in SC-3's own constructed state an ungated auto-push would
+          silently re-create the ref (the O-4 pollution class); a deliverable
+          omitting that gate passed the set.
+        remediation: SC-3's instrument adds the mutation leg (`update` against
+          the ref-less child) asserting the ref stays absent and the entry
+          reports no push.
+      - class: gap-analysis (family — boundary conditions never exercised)
+        location: R-3's failure-visibility and re-run-completion clauses
+        ground: SC-4 exercised only the clean-workspace happy path; no
+          criterion constructed a failed establishment push or a re-run on a
+          half-established child — a deliverable exiting zero on a failed
+          push, or short-circuiting on worktree existence, passed the set
+          while violating R-3.
+        remediation: new SC-13 — the SSH-shim fixture with `git-receive-pack`
+          failing (adopt exits non-zero with the failed-establishment
+          diagnostic, worktree exists, ref absent), then receive-pack
+          restored (re-run completes the establishment, ref present).
+      - class: gap-analysis (family — boundary condition never exercised;
+          behavior change unobserved)
+        location: R-1's unverifiable-remote branch
+        ground: today that branch fails fatally mid-sweep
+          (`_bootstrap_from_remote` → `_fail_worktree` → `sys.exit(1)`, not
+          caught by `_ensure_all_worktrees`' `except Exception`), and no
+          criterion exercised a child whose non-http origin is unreachable —
+          the criteria could not distinguish the intended degradation from
+          the current fatal behavior. (Verified against the tool: lines
+          660-714, 875-890, 605-616.)
+        remediation: new SC-14 — the unreachable-endpoint child (ssh to a
+          closed port, no local store): init exits successfully with the
+          informational steady-state entry and no store artifacts; SC-9's
+          criterion adds the four evidence-branch unit-coverage property.
+  - round: 4
+    date: 2026-11-04
+    reviewer: fresh-context dispatch (new reviewer, no prior context)
     verdict: PENDING
