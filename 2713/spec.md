@@ -5,7 +5,7 @@
 
 ## 1. Problem Statement
 
-The agent keeps authoring success criteria whose subject is byte-exact equality or what the build toolchain already guarantees, instead of the deliverable's behavior or content. The developer's statement of the rule, 2026-11-04: *"the SCs are supposed to be for behavior or content, not byte exact matches, nor for if gradle is doing its job."*
+The agent keeps authoring success criteria whose subject is byte-exact equality or what the build toolchain already guarantees, instead of the deliverable's behavior or content. The developer's stated rule, 2026-11-04: SCs target the deliverable's behavior or its content — never byte-exact matches as such, never a check on whether the build tool is doing its job (§5 carries the verbatim utterance).
 
 Measured pattern (research card
 [sc-subject-matter-byte-exact-performativity.md](../research-cards/sc-subject-matter-byte-exact-performativity.md), 2026-11-04): 35 deck-store tickets carry byte-identical/exact language. The observed performative shapes, each read in context:
@@ -106,7 +106,7 @@ The observed failures come from the same session's research findings, recorded i
 | `attic/reference/spec-structure-standards.md`, `attic/skills/audit/tasks/spec-audit-evaluator.md` | retired `#2411` anchors | subsumption claim | live read 2026-11-04 |
 | Observed-failure tickets: `.opencode#2097`, `#2618`, `#2444`, `#2460`, `#2458`, `#2411`, `#2346`, `#2304`, `#2660`, `#2643`; root-store `#300`, `#374` | observed failures | each named shape and legitimate instance read in its own record | 2026-11-04 |
 
-Traceability: SC-1 ← R-1; SC-2 ← R-2; SC-3 ← R-3; SC-4 ← R-4; SC-5 ← R-5; SC-6 ← R-6; SC-7 ← deck card standards. R-1/R-2/R-3 ← the developer's stated rule + the root-cause gap; R-4 ← the validators-never-fired failures (#2643, #2660); R-5 ← skill-creator admission item 7 + the mimicry cause; R-6 ← the writing discipline's whole-card-on-touch rule.
+Traceability: SC-1 ← R-1; SC-2 ← R-2; SC-3 ← R-3; SC-4 ← R-4; SC-5 ← R-5; SC-6 ← R-6; SC-7 ← deck card standards. R-1/R-2/R-3 ← the developer's stated rule (§5, verbatim) + the root-cause gap; R-4 ← the validators-never-fired failures (#2643, #2660); R-5 ← the deck's single-sourcing discipline (`skills/spec/SKILL.md` rule 5, provenance `.opencode#2660`); R-6 ← the writing discipline's whole-card-on-touch rule.
 
 ## 11. Cost Frame
 

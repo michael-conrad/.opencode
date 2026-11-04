@@ -28,4 +28,44 @@ spec:
     - round: 2
       date: 2026-11-04
       artifact: spec.md (as revised)
+      verdict: FAIL
+      findings:
+        - class: cross-reference sufficiency (analysis family)
+          location: "§10 traceability paragraph, R-5 row"
+          ground: >-
+            R-5's citation "skill-creator admission item 7 + the mimicry
+            cause" does not support the requirement: admission item 7 states
+            the what-it-replaces/net-zero norm (verified — no single-sourcing
+            or anti-duplication norm in skill-creator/SKILL.md), and would
+            even permit a justified cascade, under-determining R-5's "exactly
+            one place"; the mimicry cause grounds the spec's problem, not
+            R-5's placement rule. The norm R-5 encodes is the deck's
+            single-sourcing discipline whose home is skills/spec/SKILL.md
+            rule 5 (provenance #2660) — which the spec's own §4 item 3
+            invoked by name without citing its home.
+          classification: finding
+          remediation: >-
+            Traceability row rewritten: R-5 ← the deck's single-sourcing
+            discipline (skills/spec/SKILL.md rule 5, provenance #2660);
+            mimicry cause retained only where it grounds (the problem
+            statement).
+        - class: fabricated claims (analysis family)
+          location: "§1 vs §5 — the developer-utterance quotation"
+          ground: >-
+            §1 presented a paraphrase in quotation marks ("not byte exact
+            matches, nor for if gradle is doing its job") while §5 carried a
+            different verbatim text ("not fucking byte exact matches, nor for
+            if gradle is doing its job, etc.") under the same attribution and
+            date — at least one not verbatim, no store record to check
+            either against; the spec disagreed with itself about the text of
+            its authorizing utterance.
+          classification: finding
+          remediation: >-
+            §1 now states the rule as an unquoted paraphrase pointing at §5
+            as the verbatim owner (single-sourcing); §5 keeps the verbatim;
+            remote body's Problem section reconciled to the paraphrase form
+            with a pointer to the local verbatim.
+    - round: 3
+      date: 2026-11-04
+      artifact: spec.md (as revised)
       verdict: PENDING
