@@ -74,3 +74,25 @@ spec:
         Terminal cycle — zero findings; every defect class and analysis family
         adjudicated clean; all load-bearing current-state and evidence claims
         verified against the repository by the fresh-context reviewer.
+    - round: 4
+      date: 2026-11-04
+      artifact: spec.md (as revised)
+      verdict: PASS
+      findings: []
+      note: >-
+        On-demand spec audit — one fresh-context reviewer dispatched per the
+        verify card; the criteria set restated verbatim from
+        skills/spec/references/validation-standards.md. Zero findings. Live
+        reads verified: rule 3's current text (the SC-1/2/3 RED claims hold —
+        no subject-matter constraint, toolchain prohibition, or byte-exactness
+        reservation present), the defect classes' current text (the SC-4 RED
+        claim holds — none of the five shapes named; classes 5 and 7 present
+        as the abstract genera), rule 5's single-sourcing provenance (#2660),
+        the research card's existence and support for the five-shape
+        population and the 35-ticket figure, every cited observed-failure and
+        legitimate-use ticket against its own store record (#2097, #2618,
+        #2444, #2460, #2458, #2347, #2411, #2346, #2304, #2660, #2643;
+        root-store #300, #374), both attic anchors plus the no-live-copy
+        claim, the implement card's rule 7, the R-4/§1 five-shape agreement,
+        two-directional traceability, and feasibility of all referenced paths
+        and tools.
