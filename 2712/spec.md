@@ -95,13 +95,14 @@ content assertion — so the card edit breaks no existing assertion.
 | SC-3 | The validation standards reference carries the proactive repo-boundary check | structural | read `.opencode/skills/spec/references/validation-standards.md` and verify the reference directs the fresh-context dispatch to examine repo-boundary containment proactively at every spec validation |
 | SC-4 | `floor.md` is unmodified by the work | structural | PR diff against trunk shows no `.opencode/floor.md` delta |
 | SC-5 | Given a spec request whose requirements touch only one repo's `path` prefix, the agent files the spec in that repo's issue store — not the other repo's store | behavioral | tests-v2 behavioral harness scenario: `opencode run` dispatching a single-repo spec request (deck-repo paths, parent-repo session context); session evidence asserts the filing landed in the deck store |
+| SC-6 | The validation standards reference retains the existing reactive structural re-evaluation trigger, per R-3's retention clause | structural | read `.opencode/skills/spec/references/validation-standards.md` post-implementation and verify the reactive trigger machinery — the structural re-evaluation opened by the non-convergence judgment and the count trigger — is still present in the reference |
 
 ## Evidence types
 
 Behavioral SC-1 and SC-5 assert agent behavior at runtime (spec-stage output
 shape and filing destination) — harness-provisioned per the behavioral-testing
-card. Structural SC-2, SC-3, SC-4 are fact-decidable text/diff checks — no
-runtime needed.
+card. Structural SC-2, SC-3, SC-4, SC-6 are fact-decidable text/diff checks —
+no runtime needed.
 
 ## Out of scope
 
