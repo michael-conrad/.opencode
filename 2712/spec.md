@@ -9,7 +9,7 @@
 Specs authored under the deck fail repo-boundary discipline in two shapes.
 The deck's spec→plan chain carries no repo-scoping rule: the spec card's
 scope-creep guard (`skills/spec/SKILL.md` §1) targets invented criteria, not
-repo scope; the deck's only "repo boundaries" language is a reactive
+repo scope; the chain's only repo-boundary language is a reactive
 validation-loop trigger in `skills/spec/references/validation-standards.md`
 (reactive structural re-evaluation, fired only on non-convergence or
 revision-count — never at authoring); the `plan` card derives wholly from the
