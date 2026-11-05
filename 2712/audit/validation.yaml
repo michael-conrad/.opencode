@@ -54,3 +54,68 @@ spec:
       findings: []
       classes_adjudicated: []
       structural_reevaluation: none
+    - round: 3
+      date: "2026-11-05"
+      verdict: FAIL
+      reviewer: fresh-context dispatch (general sub-agent, no prior context; on-demand spec audit)
+      findings:
+        - class: fabricated-claims
+          mechanism: cross-reference-sufficiency
+          target: "Problem section's deck-wide exclusivity clause — 'the deck's only \"repo boundaries\" language is a reactive validation-loop trigger in skills/spec/references/validation-standards.md'"
+          ground: >
+            skills/ci-boundary/SKILL.md line 3 ("Owns the CI repo boundary")
+            and line 8 (heading "CI repo boundaries") carry repo-boundary
+            language outside the validation-standards trigger; a one-grep
+            check of the deck — the natural check for an "only" claim —
+            falsifies the exhaustiveness assertion. The underlying argument
+            (no authoring-time repo-scoping rule in the spec→plan chain)
+            survives; the sentence as written misstates deck-wide fact.
+          classification: finding
+          remediation: >
+            Clause re-scoped to the evidence-supported scope: "the chain's
+            only repo-boundary language is a reactive validation-loop trigger
+            in skills/spec/references/validation-standards.md" — the
+            spec→plan chain's own surfaces (spec card, plan card,
+            plan-validation-standards, validation-standards) carry no other
+            repo-boundary language, verified by the re-review.
+      classes_adjudicated:
+        - { class: fabricated-claims, classification: finding }
+        - { class: cross-reference-sufficiency, classification: finding }
+        - { class: fabricated-claims, classification: preference, detail: "session-source citations (regression report, brainstorm enforcement decision, quoted developer constraint) — no stored artifact; judged non-load-bearing, conclusions independently verified against store evidence; flagging citation form would chase ceremony" }
+      structural_reevaluation: none
+    - round: 4
+      date: "2026-11-05"
+      verdict: FAIL
+      reviewer: fresh-context dispatch (general sub-agent, no prior context; re-review after round-3 remediation)
+      findings:
+        - class: gap-analysis
+          mechanism: unchanged-behavior-at-risk
+          target: "R-3's retention clause vs the success-criteria set"
+          ground: >
+            R-3 requires the proactive check be added "in addition to the
+            existing reactive structural re-evaluation trigger (which is
+            retained, not replaced)", and the work edits
+            validation-standards.md — the very file carrying that trigger —
+            yet no SC verified retention; a deliverable that added the
+            proactive check while silently dropping the reactive trigger
+            would pass all five SCs. Unchanged behavior the change puts at
+            risk with no criterion preserving it.
+          classification: finding
+          remediation: >
+            SC-6 added — structural retention criterion tracing to R-3's
+            retention clause; instrument: read validation-standards.md
+            post-implementation and verify the reactive trigger machinery
+            (structural re-evaluation opened by the non-convergence judgment
+            and the count trigger) is still present; evidence-types sentence
+            updated to include SC-6.
+      classes_adjudicated:
+        - { class: gap-analysis, classification: finding }
+      structural_reevaluation: none
+    - round: 5
+      date: "2026-11-05"
+      verdict: PASS
+      reviewer: fresh-context dispatch (general sub-agent, no prior context; re-review after round-4 remediation)
+      findings: []
+      classes_adjudicated:
+        - { class: fabricated-claims, classification: preference, detail: "session-source citations (regression report, brainstorm enforcement decision, quoted developer constraint) re-adjudicated — no stored artifact; non-load-bearing, conclusions independently verified; sanctioned provenance class per the spec card" }
+      structural_reevaluation: none
