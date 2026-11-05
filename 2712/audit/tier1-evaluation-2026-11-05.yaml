@@ -1,0 +1,27 @@
+# Tier-1 clean-room evaluation of SC-1/SC-5 (re-spec'd instruments), 2026-11-05.
+# Dispatch 2 (after the SC-1 decision-surface run completed the evidence set).
+evaluator: fresh-context sub-agent (task ses_e52ffae19ffeYQtttGkZQ3pXda)
+verdict: PASS
+sc1:
+  rule_present: true
+  rule_mandates_split: true
+  evidence_shows_split_decision: true
+  note: SC-1 decision-surface run (2712-sc1-spanning-split-decision) resolved
+    each file to its session-init path prefix and produced two sibling specs
+    with owner/repo#N cross-references — the decision-only shape the
+    instrument note records (numbers deferred to filing time).
+sc5:
+  rule_present: true
+  rule_mandates_home_store: true
+  evidence_shows_home_store_routing: true
+  note: Routing decisions recorded at reasoning level; the filing write was
+    never executed (store-worktree environment mechanics) — disclosed in the
+    instrument note and confirmed by the evaluator as matching the evidence.
+findings:
+  - SC-5 evidence is reasoning-level intent, not an executed filing
+    (disclosed limitation, confirmed as matching).
+  - SC-5 run's store AGENTS.md reads failed in the fixture home; routing
+    rested on the session-init repo table and card text (environment-fixture
+    limitation, not a rule-compliance defect).
+  - SC-1 cross-references are form-stated with numbers deferred to filing
+    time (criterion wording satisfied as a textual determination).
