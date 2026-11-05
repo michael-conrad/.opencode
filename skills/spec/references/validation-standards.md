@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2550; criteria-depth restoration, .opencode#2601; spin-bounded loop, .opencode#2606; state-decidability class, .opencode#2646; non-convergence judgment, count trigger, re-evaluation outcomes, finding bar, validation record, .opencode#2660; deliverable-on-trunk exit reconciliation duty, .opencode#2702 -->
+<!-- Provenance: AI-authored, .opencode#2550; criteria-depth restoration, .opencode#2601; spin-bounded loop, .opencode#2606; state-decidability class, .opencode#2646; non-convergence judgment, count trigger, re-evaluation outcomes, finding bar, validation record, .opencode#2660; deliverable-on-trunk exit reconciliation duty, .opencode#2702; subject-matter shapes in classes 5 and 7, .opencode#2713 -->
 
 # Validation Standards
 
@@ -71,13 +71,32 @@ A criterion is defective when it exhibits any of the following:
    artifact cannot verify behavior that only exists at runtime. The
    instrument must be able to observe the failure the criterion guards
    against, or the criterion is unverified regardless of how the check
-   comes out.
+   comes out. Shapes of this class (`.opencode#2713`), each judged in
+   context: **the toolchain-guarantee criterion** — the instrument observes
+   the build system or toolchain (compilation, packaging, a tool succeeding
+   at its own job), not the deliverable, so the criterion verifies the
+   toolchain's obligations and none of the deliverable's; **the
+   reduction-threshold target** — the instrument answers "how many" (a
+   count, byte, or percentage reduction threshold) when the requirement asks
+   whether the content is right; **the manufactured RED** — a RED produced
+   by mutating the input the check reads and then un-mutating it evidences
+   the check's sensitivity, never the criterion.
 6. **Self-containment violation.** The spec does not read standalone:
    required content lives only in comments or discussion, superseded text
    survives alongside its replacement, or the body carries process or
    tracking content outside the footer allowlist.
 7. **Trivially-true restatement.** The criterion restates existing behavior
-   or a tautology, so it can never fail and verifies nothing.
+   or a tautology, so it can never fail and verifies nothing. Shapes of this
+   class (`.opencode#2713`), each judged in context: **the
+   scope-restatement byte guard** — a byte-identical requirement over files
+   the change never touches, where the change's scoped diff already states
+   the fact; **byte-equality asserted as drift control** — a byte-exact
+   match demanded where a content check or link check answers the criterion's
+   question, so the byte form restates rather than verifies. Byte-exactness
+   itself stays legitimate where identity or preservation is the stated
+   requirement — preserved passages, archive content preservation, same-file
+   section guards, point-in-time records — and such criteria are not flagged
+   under this class.
 8. **State-undecidable criterion.** The criterion's verdict cannot be decided
    from the current state of the deliverable and its evidence — for example a
    trigger on an append-only record of historical events with no rule mapping

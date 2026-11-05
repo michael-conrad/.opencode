@@ -2,12 +2,12 @@
 name: spec
 description: "Load when creating or revising a specification document — success criteria, evidence types, traceability. Also load when a spec needs revision from review findings. Success criteria come from the developer's stated requirements and observed failures only — inventing extra criteria is scope creep. Every criterion is classified behavioral (runtime effect) or structural by its nature, and carries a verification instrument."
 license: MIT
-provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2660; triage-conversion spec-stage entry, .opencode#2707
+provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2660; triage-conversion spec-stage entry, .opencode#2707; SC subject-matter discipline, .opencode#2713
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2550 validate step, validation-standards reference; #2557 language/tool call out; pointer-resolution guarantee, .opencode#2597; producer-side self-check, .opencode#2601; single-sourcing discipline in self-containment, .opencode#2660 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2550 validate step, validation-standards reference; #2557 language/tool call out; pointer-resolution guarantee, .opencode#2597; producer-side self-check, .opencode#2601; single-sourcing discipline in self-containment, .opencode#2660; SC subject-matter discipline in rule 3, .opencode#2713 -->
 
 # spec — specification creation and revision
 
@@ -26,6 +26,21 @@ provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2
 3. **Every SC is testable.** State what to check and how: behavioral SCs get a
    runtime verification instrument; structural SCs get a fact-decidable check.
    Evidence types are classified by the change's nature, not by intent.
+   **Subject matter (.opencode#2713).** Every SC asserts the deliverable's
+   behavior — a runtime effect the deliverable owns — or its content — what
+   the deliverable states or contains — and nothing else. What the build
+   system or toolchain already guarantees is never an SC subject: compilation,
+   packaging, and a tool succeeding at its own job are the toolchain's
+   obligations, and an instrument that observes the toolchain observes
+   nothing the deliverable owns. A byte-exact instrument is reserved for a
+   criterion whose stated requirement is itself identity or preservation —
+   guarding sections of a file the same change edits, point-in-time records,
+   content-preservation moves; a byte-exact check never substitutes for a
+   behavioral or content criterion, never serves as a reduction target, and
+   never restates the change's declared scope. An artifact-content claim (the
+   fat jar contains the service registration) stays a content criterion — the
+   toolchain prohibition targets what the toolchain guarantees by
+   construction, never what an artifact contains.
 4. **Write and persist.** Reserve the number from the store's remote tracker
    first — file the remote issue (`gh`/`gb`) for EVERY issue creation when a
    remote tracker exists; the local `{N}/` folder and `spec.md` follow, linked
