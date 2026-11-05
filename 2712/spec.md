@@ -90,19 +90,23 @@ content assertion — so the card edit breaks no existing assertion.
 
 | ID | Criterion | Class | Instrument |
 |---|---|---|---|
-| SC-1 | Given a spec request whose requirements span both repos, the agent produces per-repo sibling specs — one per repo, each filed in its own store, cross-referenced by `owner/repo#N` — not one bundled spec | behavioral | tests-v2 behavioral harness scenario (per the behavioral-testing card and the tests-v2 scope anchor): `opencode run` dispatching a spanning spec request; session evidence asserts sibling filings across both stores and no bundled spec artifact |
+| SC-1 | Given a spec request whose requirements span both repos, the agent produces per-repo sibling specs — one per repo, each filed in its own store, cross-referenced by `owner/repo#N` — not one bundled spec | behavioral | clean-room dispatch per the behavioral-testing card's tier-1 path: a fresh-context reviewer reads the spec card's rule text and the recorded session evidence from the harness runs (2026-11-05, six runs) and judges whether the stated rule mandates the per-repo split for a spanning request. Instrument note 2026-11-05: the harness scenario could not produce a RED — in every run the environment's own routing facts (session-init repo table) supplied the correct destination pre-change, and seven fixture iterations kept failing on store-worktree mechanics (provenance in the scenario files' re-scope blocks); tier-1 is the behavioral-testing card's sanctioned evidence path for simple card changes |
 | SC-2 | The spec card's text carries R-1 and R-2 | structural | read `.opencode/skills/spec/SKILL.md` post-implementation and verify the clauses state the single-repo rule and the fact-decidable split discipline as R-1/R-2 require |
 | SC-3 | The validation standards reference carries the proactive repo-boundary check | structural | read `.opencode/skills/spec/references/validation-standards.md` and verify the reference directs the fresh-context dispatch to examine repo-boundary containment proactively at every spec validation |
 | SC-4 | `floor.md` is unmodified by the work | structural | PR diff against trunk shows no `.opencode/floor.md` delta |
-| SC-5 | Given a spec request whose requirements touch only one repo's `path` prefix, the agent files the spec in that repo's issue store — not the other repo's store | behavioral | tests-v2 behavioral harness scenario: `opencode run` dispatching a single-repo spec request (deck-repo paths, parent-repo session context); session evidence asserts the filing landed in the deck store |
+| SC-5 | Given a spec request whose requirements touch only one repo's `path` prefix, the agent files the spec in that repo's issue store — not the other repo's store | behavioral | clean-room dispatch per the behavioral-testing card's tier-1 path: a fresh-context reviewer reads the spec card's rule text and the recorded session evidence from the harness runs (2026-11-05, six runs — every run's routing decision reached the deck store from the environment's routing facts) and judges whether the stated rule mandates the home-store filing for a single-repo request. Same instrument note as SC-1 |
 | SC-6 | The validation standards reference retains the existing reactive structural re-evaluation trigger, per R-3's retention clause | structural | read `.opencode/skills/spec/references/validation-standards.md` post-implementation and verify the reactive trigger machinery — the structural re-evaluation opened by the non-convergence judgment and the count trigger — is still present in the reference |
 
 ## Evidence types
 
-Behavioral SC-1 and SC-5 assert agent behavior at runtime (spec-stage output
-shape and filing destination) — harness-provisioned per the behavioral-testing
-card. Structural SC-2, SC-3, SC-4, SC-6 are fact-decidable text/diff checks —
-no runtime needed.
+Behavioral SC-1 and SC-5 assert the spec-stage filing behavior; their
+instruments are clean-room dispatches (tier-1 per the behavioral-testing
+card) over the card text and the recorded harness-run session evidence —
+re-instrumented 2026-11-05 after seven harness attempts could not isolate
+the rule's behavioral delta from the environment's own routing facts (the
+scenario files' re-scope blocks carry the run-by-run provenance). Structural
+SC-2, SC-3, SC-4, SC-6 are fact-decidable text/diff checks — no runtime
+needed.
 
 ## Out of scope
 
