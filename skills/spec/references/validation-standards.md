@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2550; criteria-depth restoration, .opencode#2601; spin-bounded loop, .opencode#2606; state-decidability class, .opencode#2646; non-convergence judgment, count trigger, re-evaluation outcomes, finding bar, validation record, .opencode#2660; deliverable-on-trunk exit reconciliation duty, .opencode#2702; subject-matter shapes in classes 5 and 7, .opencode#2713 -->
+<!-- Provenance: AI-authored, .opencode#2550; criteria-depth restoration, .opencode#2601; spin-bounded loop, .opencode#2606; state-decidability class, .opencode#2646; non-convergence judgment, count trigger, re-evaluation outcomes, finding bar, validation record, .opencode#2660; deliverable-on-trunk exit reconciliation duty, .opencode#2702; subject-matter shapes in classes 5 and 7, .opencode#2713; proactive repo-boundary containment check, .opencode#2712 -->
 
 # Validation Standards
 
@@ -197,6 +197,24 @@ judgment call about the artifact's substance, not a pattern to scan for.
   scenarios, irreversible operations without safeguards. A spec whose
   change can destroy state and says nothing about recovering from that
   destruction is defective here.
+
+## Repo-boundary containment (.opencode#2712)
+
+A proactive check applied at every fresh-context spec validation dispatch —
+not only when a defect surfaces. The reviewer examines both prongs:
+
+- **Scope containment** — the spec's requirements touch exactly one
+  repository's files, resolved via the session-init `path`-prefix routing.
+- **Home containment** — the spec is filed in that same repository's issue
+  store (scope repo and filing home coincide).
+
+Where the requirements span more than one repo's `path` prefix — a
+fact-decidable determination from the paths — the reviewer reports a finding
+directing the per-repo split per the spec card's single-repo scope rule: one
+spec per repository, each filed in its own store, siblings named by
+qualified `owner/repo#N` reference. This check runs proactively at every
+dispatch; the reactive structural re-evaluation trigger below (non-convergence
+judgment, count trigger) is retained alongside it, not replaced.
 
 ## Loop
 
