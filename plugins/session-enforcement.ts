@@ -3,11 +3,22 @@
 // Provenance: AI-generated
 
 /**
- * Session Enforcement Plugin for OpenCode
+ * Session Enforcement Plugin for OpenCode (V2)
  *
- * Injects session context into the LLM system prompt at session start and strips
- * synthetic mode-switch messages from user input. Secret redaction is delegated to
- * the opencode-vibeguard npm plugin (configured in opencode.json "plugin" array).
+ * Injects session context into the model-visible system context per model
+ * request. Secret redaction is delegated to the opencode-vibeguard npm
+ * plugin (configured in opencode.json "plugin" array).
+ *
+ * V2 port (per opencode.ai/v2/docs/build/plugins/migrate-v1):
+ * - V1 named-export Plugin function returning hooks -> `Plugin.define({ id, setup })` default export
+ * - V1 `directory` input -> `ctx.location.directory`
+ * - V1 `experimental.chat.system.transform` (`output.system.push(string)`)
+ *     -> `ctx.session.hook("context", ...)` pushing a `{ type: "text" }` part into `event.system`
+ * - V1 `experimental.chat.messages.transform` (the synthetic mode-switch
+ *     strip) — retired per .opencode#2717 R-5: V2 core renders
+ *     `agent-switched` syntheses to nothing at the model layer, so the
+ *     noise the V1 strip guarded has no generator and no surface to match;
+ *     the plugin registers no message-editing hook.
  *
  * Source attribution:
  * - Session init pattern adapted from existing session-init.ts (project-internal)
@@ -18,11 +29,10 @@
  * - CSO (Content Search Optimization) principles adapted from obra/superpowers
  *   https://github.com/obra/superpowers/blob/main/skills/writing-skills/SKILL.md
  *
- * Co-authored with AI: OpenCode (ollama-cloud/glm-5)
- * Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+ * Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
  */
 
-import type { Hooks, PluginInput } from "@opencode-ai/plugin";
+import { Plugin } from "@opencode/plugin";
 import { execSync } from "child_process";
 
 function runSessionInit(projectDir: string): string | null {
@@ -40,45 +50,20 @@ function runSessionInit(projectDir: string): string | null {
   }
 }
 
-function isModeSwitchSynthetic(text: string): boolean {
-  return text.includes("Your operational mode has changed from")
-    || text.includes("# Plan Mode - System Reminder");
-}
+export default Plugin.define({
+  id: "session-enforcement",
+  async setup(ctx) {
+    const projectDir = ctx.location.directory || process.cwd();
 
-export const SessionEnforcementPlugin = async (input: PluginInput): Promise<Hooks> => {
-  const projectDir = input?.directory || process.cwd();
-
-  // Inject session context into system prompt ONCE at session start
-  const systemTransformHook = async (_sysInput: unknown, output: { system?: string[] }) => {
-    const scriptOutput = runSessionInit(projectDir);
-    if (scriptOutput) {
-      output.system ??= [];
-      output.system.push(scriptOutput);
-    }
-  };
-
-  // Per-turn: strip synthetic mode-switch messages from user input, nothing else
-  const messagesTransformHook = async (_input: unknown, output: { messages?: Array<{ info?: { role?: string }; parts?: Array<{ type?: string; text?: string; synthetic?: boolean }> }> }) => {
-    if (!output.messages?.length) return;
-
-    const userMessages = output.messages.filter(m => m.info?.role === "user");
-    if (!userMessages.length) return;
-
-    const currentUser = output.messages.findLast(m => m.info?.role === "user");
-    if (!currentUser?.parts?.length) return;
-
-    for (const part of currentUser.parts) {
-      if (part.type !== "text") continue;
-      if (!part.synthetic) continue;
-      if (isModeSwitchSynthetic(part.text || "")) {
-        part.text = "";
-        part.synthetic = false;
+    await ctx.session.hook("context", (event) => {
+      // Inject session context into system context — V1 ran this transform
+      // per model request, and the V2 `context` hook preserves that frequency.
+      const scriptOutput = runSessionInit(projectDir);
+      if (scriptOutput) {
+        event.system.push({ type: "text", text: scriptOutput });
       }
-    }
-  };
+    });
+  },
+});
 
-  return {
-    "experimental.chat.system.transform": systemTransformHook,
-    "experimental.chat.messages.transform": messagesTransformHook,
-  };
-};
+

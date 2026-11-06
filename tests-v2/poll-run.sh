@@ -14,20 +14,25 @@
 #   run you are supervising (env-passed path, never newest-by-mtime).
 
 set -euo pipefail
+# .opencode#2717: locate the V2 adapter module for the session-store read.
+BEHAVIOR_HELPERS_DIR="${BEHAVIOR_HELPERS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+export BEHAVIOR_HELPERS_DIR
 DB="${1:?usage: poll-run.sh <session.yaml> [poll_number]}"
 POLL="${2:-?}"
 
 python3 - "$DB" "${2:-?}" <<'PYEOF'
-import json, sqlite3, sys, time
-
+import json, sqlite3, sys, time, os
 db_path, poll = sys.argv[1], sys.argv[2]
 con = sqlite3.connect(db_path)
 cur = con.cursor()
-# Live session DB (tests-v2 AGENTS.md §14): the event table's
-# message.part.updated events carry the parts — tool calls, text,
-# reasoning. Extract from the documented event stream.
+# Live session DB (tests-v2 AGENTS.md §14): the adapter (.opencode#2717)
+# normalizes the V2 store (session_v2/session_message) and V1 stores alike
+# into the event stream — message.part.updated rows carry the parts.
+import sys as _sys
+_sys.path.insert(0, os.environ.get("BEHAVIOR_HELPERS_DIR", "."))
+import v2rows
 tool_calls, texts, reasoning_chars = [], [], 0
-for (typ, data) in cur.execute("select type, data from event order by id"):
+for (seq, typ, _id, _agg, data) in v2rows.event_rows(db_path):
     if not typ.startswith("message.part.updated"):
         continue
     p = (json.loads(data) or {}).get("part") or {}

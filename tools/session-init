@@ -28,7 +28,9 @@ Changing session-init output names does NOT require changes to env-loader.
 Canonical env-loader variable names (UPPER_CASE, bash environment — separate pipeline):
 GIT_OWNER, GIT_REPO, GIT_PLATFORM, GITHUB_HTML_URL, GITBUCKET_HTML_URL,
 GITBUCKET_SSH_URL, GITBUCKET_HAS_CREDENTIALS, DEV_NAME, DEV_EMAIL,
-BRANCH_NAME, WORKTREE_PATH, WORKTREE_FATAL
+BRANCH_NAME, WORKTREE_FATAL
+(WORKTREE_PATH was removed with the V2 plugin port — the V2 plugin context
+exposes no worktree input; see .opencode#2717)
 
 Diagnostic and side-effect output goes to stderr — silent on success.
 

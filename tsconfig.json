@@ -16,12 +16,14 @@
     "paths": {
       "@opencode-ai/plugin": ["./node_modules/@opencode-ai/plugin/dist/index"],
       "@opencode-ai/plugin/*": ["./node_modules/@opencode-ai/plugin/dist/*"],
-      "@opencode-ai/sdk": ["./node_modules/@opencode-ai/sdk/dist/index"]
+      "@opencode-ai/sdk": ["./node_modules/@opencode-ai/sdk/dist/index"],
+      "@opencode/plugin": ["./types/v2-plugin.d.ts"]
     }
   },
   "include": [
     "plugins/session-enforcement.ts",
-    "plugins/env-loader.ts"
+    "plugins/env-loader.ts",
+    "types/v2-plugin.d.ts"
   ],
   "exclude": [
     "node_modules"

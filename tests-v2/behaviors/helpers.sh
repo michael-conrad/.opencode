@@ -52,6 +52,7 @@ UNDETERMINED_CYCLE_CEILING="${UNDETERMINED_CYCLE_CEILING:-3}"
 
 # Discover project root by walking up from helpers location
 BEHAVIOR_HELPERS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export BEHAVIOR_HELPERS_DIR
 
 __find_project_root() {
     local dir="$1"
@@ -255,6 +256,27 @@ try:
             'rows': rows
         }
 
+    import os, sys
+    sys.path.insert(0, os.environ.get(\"BEHAVIOR_HELPERS_DIR\", \".\"))
+    import v2rows
+    # .opencode#2717 V2 adapter: under a V2 store the \`event\` table is empty
+    # and content lives in session_v2/session_message — emit the normalized
+    # V1-shaped event stream (plus the part rows the timeline tool reads) so
+    # every documented consumer of the export keeps its contract.
+    ev_rows = v2rows.event_rows(db_path)
+    result['tables']['event'] = {
+        'columns': ['seq', 'type', 'id', 'aggregate_id', 'data'],
+        'rows': [
+            {'seq': r[0], 'type': r[1], 'id': r[2], 'aggregate_id': r[3],
+             'data': r[4], 'created': 0}
+            for r in ev_rows
+        ],
+    }
+    result['tables']['part'] = {
+        'columns': ['id', 'session_id', 'time_created', 'time_updated', 'data'],
+        'rows': v2rows.part_rows(db_path),
+    }
+
     conn.close()
 
     with open(output_file, 'w') as f:
@@ -396,7 +418,10 @@ db = sys.argv[1]
 try:
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    rows = c.execute("SELECT seq, data FROM event ORDER BY seq").fetchall()
+    import os as _os, sys as _sys
+    _sys.path.insert(0, _os.environ.get("BEHAVIOR_HELPERS_DIR", "."))
+    import v2rows
+    rows = [(r[0], r[4]) for r in v2rows.event_rows(db)]
     conn.close()
 except Exception as e:
     print(json.dumps({"error": str(e)}))
@@ -1330,7 +1355,10 @@ db = sys.argv[1]
 try:
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    rows = c.execute("SELECT seq, data FROM event ORDER BY seq").fetchall()
+    import os as _os, sys as _sys
+    _sys.path.insert(0, _os.environ.get("BEHAVIOR_HELPERS_DIR", "."))
+    import v2rows
+    rows = [(r[0], r[4]) for r in v2rows.event_rows(db)]
     conn.close()
 except Exception as e:
     print(json.dumps({"error": str(e)}))
@@ -1759,11 +1787,13 @@ __last_assistant_finish() {
     local db="$1"
     python3 - "$db" <<'PYEOF2'
 import json, sqlite3, sys
-conn = sqlite3.connect(sys.argv[1])
+db = sys.argv[1]
+conn = sqlite3.connect(db)
 c = conn.cursor()
-c.execute("SELECT data FROM event WHERE type='message.updated.1' ORDER BY id DESC LIMIT 12")
-for (data,) in c.fetchall():
-    info = json.loads(data).get("info", {})
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.environ.get("BEHAVIOR_HELPERS_DIR", "."))
+import v2rows
+for info in v2rows.last_assistant_infos(db):
     if info.get("role") == "assistant":
         print(info.get("finish", ""))
         break
@@ -1788,19 +1818,19 @@ import json, sqlite3, sys
 db = sys.argv[1]
 rows = []
 try:
-    conn = sqlite3.connect(db)
-    rows = conn.execute(
-        "SELECT data FROM event WHERE type='message.part.updated.1' ORDER BY id DESC LIMIT 400"
-    ).fetchall()
+    import os as _os, sys as _sys
+    _sys.path.insert(0, _os.environ.get("BEHAVIOR_HELPERS_DIR", "."))
+    import v2rows
+    # Newest-first part rows (the adapter yields V1-shaped part events,
+    # ascending): the original query read message.part.updated.1 rows
+    # ORDER BY id DESC — mirror it from the adapter stream.
+    _ev = v2rows.event_rows(db)
+    rows = [(json.loads(e[4]).get("part", {}),) for e in reversed(_ev)
+            if e[1] == "message.part.updated.1"][:400]
 except Exception:
     rows = []
 texts, reasons, tool = [], [], None
-for (data,) in rows:
-    try:
-        j = json.loads(data or "{}")
-    except Exception:
-        continue
-    p = j.get("part") or j.get("properties") or {}
+for (p,) in rows:
     if not isinstance(p, dict):
         continue
     t = p.get("type", "")
@@ -1895,7 +1925,7 @@ __resume_on_cap_hit() {
         docker rm -f "${run_target#container:}" >/dev/null 2>&1 || true
     else
         TEST_WORKDIR="$test_home/project" \
-        bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --resume-home "$test_home" "${OPENCODE_CMD[@]}" run --continue "$resume_message" --model "$model" --log-level INFO --print-logs \
+        bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --resume-home "$test_home" "${OPENCODE_CMD[@]}" run --continue "$resume_message" --model "$model" --log-level info --print-logs \
             >> "$output_file" 2>> "$err_file" || true
     fi
     # Recurse: the resumed run may itself hit the cap; the ceiling bounds the cycle.
@@ -2233,7 +2263,7 @@ behavior_run() {
             # abort-path comment in __semantic_monitor — wrapper-only kill
             # orphans the opencode grandchild and deadlocks the flock).
             TEST_WORKDIR="$attempt_workdir" \
-            setsid bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${ATTACH_ARGS[@]+"${ATTACH_ARGS[@]}"} ${agent:+--agent "$agent"} \
+            setsid bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level info --print-logs ${ATTACH_ARGS[@]+"${ATTACH_ARGS[@]}"} ${agent:+--agent "$agent"} \
                 > "$output_file" 2> "$err_file" \
                 &
             local run_pid=$!
@@ -2257,7 +2287,7 @@ behavior_run() {
             break
         else
             TEST_WORKDIR="$attempt_workdir" \
-            bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${ATTACH_ARGS[@]+"${ATTACH_ARGS[@]}"} ${agent:+--agent "$agent"} \
+            bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level info --print-logs ${ATTACH_ARGS[@]+"${ATTACH_ARGS[@]}"} ${agent:+--agent "$agent"} \
                 > "$output_file" 2> "$err_file" \
                 || true
         fi

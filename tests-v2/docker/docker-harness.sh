@@ -362,7 +362,7 @@ __docker_launch_run() {
     # existing TEST_XVFB_DISPLAY hook so callers can move the container display.
     [ -n "${TEST_XVFB_DISPLAY:-}" ] && docker_env+=(-e "TEST_XVFB_DISPLAY=$TEST_XVFB_DISPLAY")
 
-    local -a cmd=(bash "$staged_wth" opencode run "$message" --model "$model" --log-level INFO --print-logs)
+    local -a cmd=(bash "$staged_wth" opencode run "$message" --model "$model" --log-level info --print-logs)
     [ -n "$agent" ] && cmd+=(--agent "$agent")
     # Scenario attachment support (.opencode#2640 SC-8): SCENARIO_ATTACH carries
     # colon-separated workdir-relative paths, attached via `opencode run -f`.
@@ -460,7 +460,7 @@ __docker_launch_resume() {
     [ -n "$artifact_dir" ] && scan_list="$scan_list:$artifact_dir"
     docker_env+=(-e "BEHAVIOR_DETERMINATION_SCAN_DIR=$scan_list")
 
-    local -a cmd=(bash "$staged_wth" --resume-home "$home" opencode run --continue "$message" --model "$model" --log-level INFO --print-logs)
+    local -a cmd=(bash "$staged_wth" --resume-home "$home" opencode run --continue "$message" --model "$model" --log-level info --print-logs)
 
     local inner_cmd
     inner_cmd=$(printf '%q ' "${cmd[@]}")

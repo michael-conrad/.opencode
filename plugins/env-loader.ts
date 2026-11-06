@@ -1,22 +1,27 @@
 /**
- * Env-Loader Plugin for OpenCode
+ * Env-Loader Plugin for OpenCode (V2)
  *
  * Reads project environment data and injects all key-value pairs into
- * every shell session via the `shell.env` hook. This is the SOLE provider
- * of bash environment variables — session-enforcement.ts owns LLM context.
+ * every shell session via the shell-domain `create.before` hook. This is
+ * the SOLE provider of bash environment variables — session-enforcement.ts
+ * owns LLM context.
  *
- * Sources (independently gathered, no cross-plugin coupling):
+ * Source (independently gathered, no cross-plugin coupling):
  * - .env file — all parsed key-value pairs including secrets
- * - input.worktree — WORKTREE_PATH for bash commands
  *
- * Hook: shell.env ONLY — no system.transform, no LLM output.
+ * V2 port (per opencode.ai/v2/docs/build/plugins/migrate-v1):
+ * - V1 named-export Plugin function returning hooks -> `Plugin.define({ id, setup })` default export
+ * - V1 `directory` input -> `ctx.location.directory`
+ * - V1 `shell.env` hook (`output.env[key] = value`) -> `ctx.shell.hook("create.before", (event) => event.env[key] = value)`
+ * - V1 `worktree` input — no V2 equivalent on the plugin context; the derived
+ *   `WORKTREE_PATH` injection was removed with it (issue .opencode#2717, R-3)
  *
- * Restored from commit f7555bd, extended per issue #712.
+ * Hook: shell `create.before` ONLY — no system prompt, no LLM output.
  *
- * Co-authored with AI: OpenCode (ollama-cloud/glm-5)
+ * Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
  */
 
-import type { Plugin } from "@opencode-ai/plugin";
+import { Plugin } from "@opencode/plugin";
 import fs from "fs";
 import path from "path";
 
@@ -87,35 +92,28 @@ function stripInlineComments(value: string): string {
   return value;
 }
 
-export const EnvLoaderPlugin: Plugin = async ({ project, client, $, directory, worktree }) => {
-  const projectDir = directory || process.cwd();
-  const envPath = path.join(projectDir, ENV_FILE);
+export default Plugin.define({
+  id: "env-loader",
+  async setup(ctx) {
+    const projectDir = ctx.location.directory || process.cwd();
+    const envPath = path.join(projectDir, ENV_FILE);
 
-  return {
-    "shell.env": async (_input, output) => {
+    await ctx.shell.hook("create.before", (event) => {
       // --- .env file values ---
       if (fs.existsSync(envPath)) {
         const content = fs.readFileSync(envPath, "utf8");
         const { env } = parseEnvFile(content);
 
         for (const [key, value] of Object.entries(env)) {
-          output.env[key] = value;
+          event.env[key] = value;
         }
       }
+    });
 
-      // --- WORKTREE_PATH from PluginInput ---
-      const worktreeDir = worktree || "";
-      const mainRepoDir = directory || "";
-      if (worktreeDir && worktreeDir !== mainRepoDir) {
-        output.env["WORKTREE_PATH"] = worktreeDir;
-      }
+    // Hook registrations are disposed automatically when the plugin unloads.
+  },
+});
 
-
-    },
-  };
-}
-
-
-// Utility functions are intentionally not re-exported — the plugin system
-// iterates over all named exports and tries to call each as a plugin function.
-// Only the plugin function itself is exported.
+// Utility functions are intentionally not exported — a V2 plugin's module
+// surface is exactly the default definition. Only the plugin definition is
+// exported.

@@ -63,7 +63,7 @@ turn2_stderr="$artifact_dir/turn2-stderr.log"
 TEST_WORKDIR="$test_home/project" \
 bash "$SCRIPT_DIR/../with-test-home" --resume-home "$test_home" \
     "$test_home/bin/opencode" run --continue "$TURN2_MESSAGE" \
-    --model "$DEFAULT_TEST_MODEL" --log-level INFO --print-logs \
+    --model "$DEFAULT_TEST_MODEL" --log-level info --print-logs \
     > "$turn2_stdout" 2> "$turn2_stderr" || true
 
 # Final session.yaml: one export of the shared DB — both turns' events.

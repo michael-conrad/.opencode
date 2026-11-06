@@ -1,9 +1,12 @@
 ---
 description: Math operations subagent — calculate, statistics, unit conversion, matrix operations, and number theory via the math MCP. Dispatch any math, calculate, statistics, conversion, matrix, or number theory request here.
 mode: subagent
-permission:
-  "math_*": allow
+permissions:
+  - action: math_*
+    resource: "*"
+    effect: allow
 ---
+------
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
