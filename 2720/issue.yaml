@@ -2,9 +2,8 @@ title: '[SPEC] agent: ambiguous terse command triggers unrequested mass remote-A
   sweep (~200 repos) — floor boundary rules'
 status: open
 labels:
-- needs-approval
 - spec
 body: ''
 created_at: '2026-11-06T15:23:44+00:00'
-updated_at: '2026-11-06T15:25:11+00:00'
+updated_at: '2026-11-06T19:09:22+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2720
