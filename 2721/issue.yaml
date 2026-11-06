@@ -1,9 +1,8 @@
 title: '[SPEC] git-workflow-pr §2(f): submodule-first PR ordering must be stated positively'
 status: open
 labels:
-- needs-approval
 - spec
 body: ''
 created_at: '2026-11-06T15:23:42+00:00'
-updated_at: '2026-11-06T15:25:09+00:00'
+updated_at: '2026-11-06T19:09:24+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2721
