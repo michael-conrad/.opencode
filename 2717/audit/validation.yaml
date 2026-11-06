@@ -92,4 +92,25 @@ rounds:
     containment:
       scope: PASS (same grounds as round 1, re-verified)
       home: PASS
+  - round: 3
+    date: 2026-11-06
+    reviewer: fresh-context subagent (session ses_e509754b8ffeHW87Idu0UlMg6k), re-validation of the twice-revised spec against validation-standards.md
+    verdict: PASS
+    findings: none
+    notes: >
+      All four prior remediations (F1-F4) verified in place; every checkable factual
+      claim re-verified against trunk tip 801591ecb and the live migration guides
+      (both cited URLs live; every load-bearing mapping supported verbatim, including
+      the request.body keep-not-send semantics SC-10 pins). Negation claims re-verified:
+      zero occurrences of the V1 strip pattern in the v2.2.5 binary, no V1 SDK/server-API
+      usage in scripts/tools/tests, WORKTREE_PATH documented only as removed, .tools/
+      gitignored in both repos. R-12's documentation clause independently concurred as a
+      well-formed, traceable, testable requirement whose unimplemented-on-trunk state is
+      pipeline state carried by the reopened ticket (raw SELECT * FROM event at
+      tests-v2/AGENTS.md:484/734/795 is exactly the defect the requirement names) —
+      implementation status, not an artifact defect.
+    containment:
+      scope: PASS (all requirement paths under .opencode; R-10's binary surface machine-local and untracked, verified)
+      home: PASS (filed in .opencode/.issues/2717/)
+
 
