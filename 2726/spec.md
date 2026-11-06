@@ -44,3 +44,7 @@ Amend rule 1 in place: extend the binding sentence's found-fact enumeration with
 ## Impact
 
 Consumers: every no-stage-named request in any repository under this deck — the work card is the deck's primary change gate; every short-path collapse that skips a needed spec produces spec-less implementation, discarded work cycles, and developer-forced mid-cycle corrections. Risk of leaving unaddressed: any "small" request whose open choices the agent resolves from research takes the short path by shape, and each such miss ends in the reported discard pattern.
+
+## Mid-cycle revision (2026-11-06, round-1 probe discovery)
+
+Round-1 behavioral probe of SC-3 (clean-room dispatch ses_e4db55250ffda6iZxjC25RfuUg) FAILED with the observed misreading this spec targets, on the amended text: the probed agent read the request's "per the usage recorded in git history" phrase as the developer's stated resolution of the open choice and implemented the researched defaults with no spec artifact. Cause: naming an evidence source ("per <source>") was mistaken for the choice's statement. R-2's standard is amended to close that reading: a named evidence source states where the choice's evidence comes from — never the choice's resolution. SC-2's instrument text gains the same clause.

@@ -1,0 +1,3 @@
+#!/bin/bash
+opt="$1"
+case "$opt" in --batch) echo "batch=${BATCH_SIZE:-50}";; --retries) echo "retries=${RETRIES:-3}";; esac
