@@ -1,10 +1,12 @@
 title: '[SPEC] git-workflow-branch rule 2: attach a remote-tip freshness instrument
   to the submodule sync step'
-status: open
+status: closed
 labels:
 - spec-passed-review
 - needs-approval
 body: ''
 created_at: '2026-11-06T05:26:55+00:00'
-updated_at: '2026-11-06T14:53:27+00:00'
+updated_at: '2026-11-06T15:22:18+00:00'
 phase: pr-opened
+closed_at: '2026-11-06T15:22:18+00:00'
+close_reason: completed
