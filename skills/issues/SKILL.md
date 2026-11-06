@@ -190,5 +190,15 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
   non-zero with a remediation command — never continue in plain-file mode.
 - **Mutation commands** (`create`, `update`, `comment`, `close`, `delete`,
   `link`, `renumber`) auto-commit and auto-push to the `issues-data` branch.
+- **Local-only registration warning (`.opencode#2723`):** `create` on a
+  store-host whose origin resolves to a live remote tracker (host
+  `github.com`, or a host-mapped GitBucket base per the committed
+  host-maps conf) prints a stderr warning at creation time — naming the
+  issues card §2 creation rule (remote-first reservation; never derive the
+  number by listing remote issues) and the number-space/visibility fork the
+  local-only registration causes. The create proceeds: the warning surfaces
+  the divergence, and `create --number` stays the sanctioned mirror-repair
+  registration path (§7); the tool never contacts a remote issues-system
+  API to verify the reservation.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
