@@ -1,0 +1,8 @@
+title: 'agent: ambiguous terse command triggers unrequested mass remote-API sweep
+  (~200 repos)'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-11-06T15:23:44+00:00'
+updated_at: '2026-11-06T15:23:44+00:00'
