@@ -1,0 +1,31 @@
+spec:
+  - round: 1
+    date: 2026-11-06
+    session: ses_e4e52b0eaffeCPf8g6Sr7WLeDz
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class_or_family: cross-reference sufficiency
+        section: Problem point 1
+        ground: accumulation claims cited to research F4/F9 that neither finding contains; research gap (anecdotal accrual) contradicts the "documented" framing
+        remediation: research card restored (FA + pass-1 sources reloaded to both copies); spec re-cited to FA with the anecdotal-accrual caveat stated in place
+      - id: F-2
+        class_or_family: cross-reference sufficiency
+        section: Problem point 2
+        ground: 4.8:1, non-correlation, and AIDev statistics untraceable to cited findings F5/F6 (misnumbered; numbers absent from artifact)
+        remediation: research card restored (FB, FC + arxiv-value/arxiv-debt/codex-practice sources reloaded); spec re-cited per number with source ids
+      - id: F-3
+        class_or_family: cross-reference sufficiency
+        section: Problem point 5
+        ground: "(F4-tier gap) cites the smoke-definition finding for a tier-mechanism claim"
+        remediation: re-cited to F2 (per-toolchain exclusion mechanisms) and F8 (lifecycle split)
+      - id: F-4
+        class_or_family: invented requirement
+        section: R-4 / SC-4 (no-test-tampering component)
+        ground: traces to neither the developer's stated directive nor any stated failure in the Problem; entry path was the research card's synthesis anchor only
+        remediation: no-test-tampering component removed from R-4 and SC-4 (available for a future spec if the developer directs it)
+      - id: F-5
+        class_or_family: ambiguous criterion / incapable instrument
+        section: R-5 / SC-5 (commit clause)
+        ground: "SHALL NOT commit ephemeral scaffolding as test files" unobservable in a plan-authoring probe; two readings unresolved
+        remediation: R-5/SC-5 rescope to plan-observable claims (classification, on-demand routing, no ephemeral scratch listed as authored test artifacts); the commit-side behavior moved to the test-authoring scenario (sibling .opencode#2725 R-6/SC-6, whose Problem gains the scaffolding branch)

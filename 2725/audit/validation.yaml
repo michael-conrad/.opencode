@@ -1,0 +1,21 @@
+spec:
+  - round: 1
+    date: 2026-11-06
+    session: ses_e4e52b0e9ffecsMua0tK3HCypo
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class_or_family: fabricated claims
+        section: Problem item 2
+        ground: "tier table described as 'smoke / regression rows only' — actual table carries a third (full) row; internally inconsistent with R-1's preservation clause"
+        remediation: item 2 restated (three rows; full-row rule quoted verbatim and preserved; missing = two class rows + mark step)
+      - id: F-2
+        class_or_family: gap analysis / scope narrowness
+        section: R-3 / SC-3
+        ground: systematic-debugging #5's second clause mandates the full suite as standing evidence, contradicting the light-default policy; no criterion permitted fixing it
+        remediation: R-3/SC-3 extended — #5 rewritten with tier-scoped verification (full-suite mandate replaced, release-boundary rule preserved); verified the #5 text verbatim in the same action
+      - id: F-3
+        class_or_family: ambiguous criterion
+        section: R-1 / SC-1 (ephemeral placement)
+        ground: "five-class vocabulary" two-headed on the implement line — whether ephemeral is enumerated there is unresolved
+        remediation: R-1 states the single reading — implement line and tier table gain pr-validation + heavy-regression with placements; ephemeral is not a table row, is card-owned, exercised by the R-2 mark step
