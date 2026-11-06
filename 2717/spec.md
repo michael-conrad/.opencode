@@ -35,7 +35,9 @@ Additional V1→V2 upgrade surfaces in this deck (verified live 2026-11-05):
 - File-based agents use V1 frontmatter: `agent/notebook-ops.md`,
   `agents/email-ops.md`, `agents/math-ops.md`, `agents/visual-design-agent.md`
   all carry `permission` in V1 map form (auto-translated, deprecated V1 shape,
-  warned when mixed formats appear). `agent/notebook-ops.md` also uses the
+  warned when mixed formats appear), and `agents/visual-design-agent.md`
+  additionally carries V1 top-level sampling fields (`temperature: 1.0`,
+  `top_p: 0.95`). `agent/notebook-ops.md` also uses the
   V1-preferred `agent/` directory instead of V2's `agents/`.
 - The behavioral harness's host tier hard-requires
   `.tools/opencode/opencode` at the workspace root (the `with-test-home`
@@ -126,6 +128,7 @@ loads and reports `active` after the same conversion.
 | `permission:` map frontmatter (`"gmail_*": allow`) | `permissions:` list frontmatter (`- action: gmail_*` / `resource: "*"` / `effect: allow`) |
 | `agent/notebook-ops.md` location | moved to `agents/notebook-ops.md` (preferred V2 location; `agent/` still discovered, path-derived ID preserved) |
 | `description:`, `mode:`, markdown body | keep their names; the body remains the system prompt |
+| top-level sampling frontmatter (`temperature:`, `top_p:` — carried by `visual-design-agent.md`) | moved under `request.body` (a V2 field): the values are kept but not sent to the model — sampling options live on model variants per the migration guide; the sampling effectiveness drops (behavior change three, Impact) |
 
 Alternatives considered and discarded:
 
@@ -235,12 +238,16 @@ Alternatives considered and discarded:
   remain (except where a V2 native field's name coincides).
 - **R-9.** The four file-based agent definitions SHALL be converted to the
   native V2 file format: frontmatter uses only V2 fields (`description`,
-  `mode`, `permissions` list — `permission` map, `prompt`, `tools`,
+  `mode`, `permissions` list, `request` — `permission` map, `prompt`, `tools`,
   `disable`, and other V1 frontmatter fields do not appear); the Markdown
   body stays the system prompt with its provenance header preserved; and
   `agent/notebook-ops.md` moves to `agents/notebook-ops.md` with its
   path-derived ID (`notebook-ops`) preserved. Each file converts wholly to
-  one format (no V1/V2 mixed frontmatter in one file).
+  one format (no V1/V2 mixed frontmatter in one file). Sampling frontmatter a
+  file carries (`temperature`, `top_p` — `visual-design-agent.md`) moves under
+  `request.body`: the values are kept but not sent to the model (the migration
+  guide's agent-file conversion marks `request.body` keep-not-send) — a
+  behavior change recorded in Impact, not a preservation.
 - **R-10.** The harness's standalone binary SHALL be a V2 binary:
   `.tools/opencode/opencode` at the workspace root (the `with-test-home`
   copy source — the wrapper resolves `PROJECT_DIR` to the workspace root)
@@ -274,7 +281,13 @@ Alternatives considered and discarded:
   `message.part.updated.1` with `part`, `message.updated.1` with `info`) at
   every consumption surface — the `session.yaml` exporter (plus a `part`
   table for the timeline tool), the digest/monitor live readers, the
-  finish-state reader, the resume-tail reader, and `poll-run.sh` — and SHALL
+  finish-state reader, the resume-tail reader, `poll-run.sh`, and the
+  documented manual store-reading procedures in `tests-v2/AGENTS.md` (the
+  timeout export procedure and its evidence-check snippet, the post-timeout
+  recovery procedure, and the abort-path export route — their documented
+  store-reading SQL routes through the same adapter or states the adapter's
+  V2-shaped reading, leaving no raw `SELECT … FROM event` reading surface in
+  the harness documentation) — and SHALL
   pass V1 stores through unchanged. Every V1-shaped consumer keeps its
   contract; no consumer learns the V2 schema directly.
 
@@ -298,25 +311,42 @@ Alternatives considered and discarded:
   below).
 - Test surface: `tests-v2/behaviors/` gains scenarios for the preserved
   behaviors (SC-2 and SC-3) and the config/agent-file upgrade checks
-  (SC-6 through SC-8). The deck guide's testing guidance remains otherwise
+  (SC-6 through SC-8); the harness documentation's store-reading procedures
+  (`tests-v2/AGENTS.md` — the manual export and recovery procedures R-12
+  names) come onto the adapter's reading shape (SC-9). The deck guide's
+  testing guidance remains otherwise
   applicable.
-- Behavior changes shipped with the port: exactly two — `WORKTREE_PATH`
-  (R-3) is no longer injected in worktree sessions, and the V1 synthetic
+- Behavior changes shipped with the port: exactly three — `WORKTREE_PATH`
+  (R-3) is no longer injected in worktree sessions, the V1 synthetic
   mode-switch strip is retired (R-5): V2 core no longer carries a
   mode-switch text generator (`agent-switched` syntheses render nothing at
   the model-visible layer), so there is no noise left to strip and the
-  plugin registers no message-editing surface. Grounds and dispositions:
+  plugin registers no message-editing surface; and visual-design-agent's
+  sampling effectiveness drops (R-9): its V1 top-level `temperature: 1.0` /
+  `top_p: 0.95` applied to the agent's model requests through the V1
+  loader, while the native V2 agent record keeps `request.body` values but
+  does not send them (the migration guide's agent-file conversion
+  semantics — verified against the live guide), so the values are preserved
+  textually under `request.body` for provenance and cease to steer
+  sampling. Grounds and dispositions:
   R-3's removal is a V2-forced consequence with its single deck-internal
   reference (the `tools/session-init` header's canonical-name list) updated
   by R-3 in the same change, so no deck documentation is left asserting the
   dropped injection; R-5's retirement rests on the V2 ground that there is
-  nothing to strip. External consumers, if any exist, would observe both
-  absences and can derive an equivalent value from their own location.
-- The config and agent-file conversions change no effective behavior: the
-  in-memory normalized view `/api/config` and `/api/agent` produce today
-  (verified 2026-11-05) already equals the native target shapes — conversion
-  moves the on-disk files onto the supported native path the V1 translation
-  was reconstructing.
+  nothing to strip; the sampling disposition is the migration guide's
+  documented V2 landing shape for agent sampling fields, and making the
+  sampling effective again (model variants) is a separate work item the
+  developer may direct — not this spec's requirement. External consumers,
+  if any exist, would observe all three absences and can derive an
+  equivalent value from their own location.
+- The config and three of the four agent-file conversions change no
+  effective behavior: the in-memory normalized view `/api/config` and
+  `/api/agent` produce for them (verified 2026-11-05) already equals the
+  native target shapes — conversion moves the on-disk files onto the
+  supported native path the V1 translation was reconstructing. The
+  exception is `visual-design-agent.md`: the V1 normalized view applied its
+  top-level sampling fields to its model requests, and the native V2 shape
+  does not (behavior change three above).
 - Risk of the change itself is bounded and observable: a failed port leaves
   the plugin at `status: "failed"` with the load error surfaced on the same
   API surface SC-1 checks.
@@ -331,9 +361,10 @@ Alternatives considered and discarded:
 | SC-4 | The V1 synthetic mode-switch strip surface is retired: session-enforcement implements no message blanking and V2's agent-switch synthesis produces no model-visible text to strip. | Structural (content of the deliverable) + Behavioral (the V2 fact the retirement rests on) | Two-part instrument: (a) content check — `plugins/session-enforcement.ts` contains no message-editing code: neither pattern string (`Your operational mode has changed from`, `# Plan Mode - System Reminder`), no `isModeSwitchSynthetic`, no `event.messages` mutation; (b) behavioral — the live V2 ground the retirement rests on, re-executable: `/api/plugin?location[directory]=…` lists the plugin `active` (registered hooks unchanged: R-4's context hook only), and the V2 message-value converter's `agent-switched`→`return []` fact (verified in the 2.2.5 binary) means a mode switch injects no mode-switch text for any plugin to strip — no V2 hook, flag, or pattern surface exists. |
 | SC-5 | `plugins/AGENTS.md` states the V2 plugin contract as operative guidance (`Plugin.define` default export, V2 context, V2 hook names) and presents none of the V1 contract surfaces as operative. | Structural | Content check: the file contains `Plugin.define`, `ctx.shell.hook`, `ctx.event.subscribe`, and `ctx.session.hook`; and contains none of `MUST use **named exports**`, `@opencode-ai/plugin`, `PluginInput`, `experimental.chat.system.transform`, `experimental.chat.messages.transform`, `Plugin export is not a function`, and does not present `{project, client, $, directory, worktree}` as the plugin signature. |
 | SC-6 | The deck's `opencode.jsonc` is in native V2 config shape and loads under V2 with behavior preserved and no legacy-translation warnings for the deck's config keys. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) content check — the file contains `agents` (with `system`), `permissions` rules list, `mcp.servers`, and `plugins`; and contains none of the V1 keys `"agent"`, `"permission"`, `"plugin"`, or the V1 `"enabled"` MCP field; (b) behavioral — a V2 server start at the deck's location shows no legacy/malformed-field warning naming the deck's config file in the server log, and `/api/config` (deck location) and `/api/agent` (deck location) show the preserved effective values: `build`/`plan` `system` contains the `{file:}`-sourced prompt content, the three denials present as ordering-equivalent V2 rules, the four MCP servers carry their commands with `disabled: false`, and `plugins` is empty. |
-| SC-7 | The four file-based agent definitions are read as V2 by the loader with native frontmatter, and their permission behavior is preserved. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) content check — each of `agents/notebook-ops.md`, `agents/email-ops.md`, `agents/math-ops.md`, `agents/visual-design-agent.md` uses only V2 frontmatter fields (`description`, `mode`, `permissions` list); `agent/` no longer holds agent files (it may hold non-agent content if any exists — today it holds none besides the moved file); (b) behavioral — after a V2 server start at the deck's location, `/api/agent` lists all four agents (IDs `notebook-ops`, `email-ops`, `math-ops`, `visual-design-agent`) with their bodies as `system`, and no legacy-frontmatter warning names those files in the server log. Permission behavior (subagent-side `gmail_*`/`math_*`/`the-notebook-mcp_*` allow, main-side deny) carries over by the converted rules' equality with the prior normalized rules — asserted as part of (b)'s API listing state. |
-| SC-8 | The harness's standalone binary is a V2 binary and the host-tier harness runs. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) structural — the workspace root's `.tools/opencode/opencode` exists, is executable, and `--version` reports `>= 2.2`; (b) behavioral — the harness's own copy path serves it: `bash .opencode/tests-v2/with-test-home --setup` completes its smoke tests (`$TEST_HOME/bin/opencode --version` reports `>= 2.2`), producing a working test home. |
-| SC-9 | The harness reads a V2 session store correctly: a monitored run's export carries the run's own fresh session and full part stream, and its isolation verdict is PASS. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) structural — `v2rows.py` exists and is the only V2-schema-aware reading surface (the four documented SQL event readers, the exporter, and `poll-run.sh` route through it, no `SELECT … FROM event` remains where a V2 store is read); (b) behavioral — a monitored run (the SC-2 scenario) produces `session.yaml` whose `tables.event.rows` are non-empty and contain the run's `session.created.1` and its `message.part.updated.1` parts (tool-call parts with state/input, text parts), and `session-isolation.yaml` reads `verdict: PASS`. |
+| SC-7 | The four file-based agent definitions are read as V2 by the loader with native frontmatter, and their permission behavior is preserved. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) content check — each of `agents/notebook-ops.md`, `agents/email-ops.md`, `agents/math-ops.md`, `agents/visual-design-agent.md` uses only V2 frontmatter fields (`description`, `mode`, `permissions` list, and — where carried — `request`); `agent/` no longer holds agent files (it may hold non-agent content if any exists — today it holds none besides the moved file); (b) behavioral — after a V2 server start at the deck's location, `/api/agent` lists all four agents (IDs `notebook-ops`, `email-ops`, `math-ops`, `visual-design-agent`) with their bodies as `system`, and no legacy-frontmatter warning names those files in the server log. Permission behavior (subagent-side `gmail_*`/`math_*`/`the-notebook-mcp_*` allow, main-side deny) carries over by the converted rules' equality with the prior normalized rules — asserted as part of (b)'s API listing state. |
+| SC-8 | The harness's standalone binary is a V2 binary and the host-tier harness runs. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) structural — the workspace root's `.tools/opencode/opencode` exists, is executable, and `--version` reports `>= 2.2`; (b) behavioral — the harness's own resolution path serves it: the wrapper prepends the workspace root's `.tools/opencode/` to `PATH` so the standalone binary is found before any snap wrapper, and its fresh-invocation command mode copies the binary to `$TEST_HOME/bin/opencode` and executes through that copy (the `--setup` mode creates the environment and runs its smoke tests through the PATH-prepended workspace binary; it performs no binary copy itself). Executed check: a fresh-invocation harness run (the SC-2 scenario's wrapper invocation) completes with its isolation verdict — the run executes through the test-home copy, which is the copy path's executed evidence — and the copied `$TEST_HOME/bin/opencode --version` reports `>= 2.2`. |
+| SC-9 | The harness reads a V2 session store correctly: a monitored run's export carries the run's own fresh session and full part stream, and its isolation verdict is PASS. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) structural — `v2rows.py` exists and is the only V2-schema-aware reading surface (the four documented SQL event readers, the exporter, and `poll-run.sh` route through it, no `SELECT … FROM event` remains where a V2 store is read — including the store-reading snippets of the documented manual procedures in `tests-v2/AGENTS.md`); (b) behavioral — a monitored run (the SC-2 scenario) produces `session.yaml` whose `tables.event.rows` are non-empty and contain the run's `session.created.1` and its `message.part.updated.1` parts (tool-call parts with state/input, text parts), and `session-isolation.yaml` reads `verdict: PASS`. |
+| SC-10 | `visual-design-agent.md`'s V1 sampling fields sit in the recorded keep-not-send disposition: the values (temperature 1.0, top_p 0.95) are carried under `request.body` and appear nowhere as top-level frontmatter. | Structural (content of the deliverable) | Content check: `agents/visual-design-agent.md` frontmatter carries `request.body` with `temperature: 1.0` and `top_p: 0.95`, and no top-level `temperature` or `top_p` key appears in any of the four agent files' frontmatter. |
 
 Criteria notes: SC-1's instrument detects the defect class that produced this
 spec (loader rejection), SC-2 through SC-3 are the preserved-behavior guards
@@ -345,7 +376,9 @@ the remaining V1→V2 upgrade surfaces enumerated in the problem and requirement
 standalone binary), and SC-9 closes the V2 session-store schema surface
 (R-12 — the store the harness reads changed shape under V2; observed live:
 the SC-2 run's `event` table empty while its session carried full part
-data in `session_message`). Behavioral scenarios are authored and executed per the
+data in `session_message`), and SC-10 pins the sampling disposition R-9
+records (the migration guide's keep-not-send `request.body` shape).
+Behavioral scenarios are authored and executed per the
 behavioral-testing card's harness rules.
 
 ## Out of scope
@@ -368,6 +401,11 @@ behavioral-testing card's harness rules.
   V1 behavior preserved here.
 - Merging the two plugins into one package; changing V2 plugin
   auto-discovery layout to directory form.
+- Restoring sampling effectiveness for `visual-design-agent.md` (model
+  variants or an equivalent mechanism): the recorded disposition — values
+  kept under `request.body`, not sent — is what this spec requires; making
+  the sampling effective again is a separate work item the developer may
+  direct.
 - Terminal-client (`tui.json` → `cli.json`) configuration: the deck holds no
   `tui.json` files (verified by repository scan), so nothing in this
   repository migrates the client config.

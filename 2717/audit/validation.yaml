@@ -1,0 +1,64 @@
+artifact: spec
+rounds:
+  - round: 1
+    date: 2026-11-06
+    reviewer: fresh-context subagent (session ses_e50a9ba1cffdYmEbC473AB2ryL), on-demand audit of the approved+delivered spec against validation-standards.md
+    verdict: FAIL
+    findings:
+      - id: F1
+        class: incapable-instrument (defect class 5) + factual defect
+        ground: >
+          SC-8(b) stated the instrument as "with-test-home --setup completes its smoke
+          tests ($TEST_HOME/bin/opencode --version reports >= 2.2)". The wrapper's
+          --setup path performs no binary copy (do_setup creates the environment and
+          runs smoke tests through the PATH-prepended workspace binary);
+          $TEST_HOME/bin/opencode is produced by the fresh-invocation command-mode
+          copy block, so the named observation cannot be produced on the named path.
+          Implementor-ground re-verified in the primary session (with-test-home
+          lines 73-77, 389, 525-526, 631 at trunk).
+        classification: finding
+        remediation: >
+          SC-8(b)'s instrument rewritten to the actual resolution mechanics
+          (PATH-prepended workspace binary; fresh-invocation command-mode copy;
+          executed check = a fresh-invocation harness run through the test-home copy
+          plus the copy's --version; --setup's no-copy behavior stated).
+      - id: F2
+        class: fabricated-claims + gap-analysis + cross-reference-sufficiency (+ class 4 on R-9's field gloss)
+        ground: >
+          The agent-file conversion omitted visual-design-agent.md's V1 top-level
+          sampling fields (temperature 1.0, top_p 0.95). The cited migration guide
+          marks agent request.body keep-not-send for sampling, so the conversion
+          drops sampling effectiveness — a third behavior change the Impact
+          section's "exactly two" and "no effective behavior change" claims denied,
+          with no criterion guarding the surface. Implementor-ground re-verified in
+          the primary session (delivered agents/visual-design-agent.md carries
+          request.body temperature/top_p).
+        classification: finding
+        remediation: >
+          Problem bullet extended (sampling fields named); agent-file mapping table
+          gains the sampling row; R-9's field gloss gains `request` and records the
+          keep-not-send disposition; Impact corrected to exactly three behavior
+          changes with grounds, and the normalized-view claim corrected to exclude
+          visual-design-agent; SC-7(a)'s gloss gains `request`; new SC-10 pins the
+          disposition; Out-of-scope names the sampling-effectiveness restoration as
+          a separate developer-directed item.
+      - id: F3
+        class: blast-radius + gap-analysis (SC-9(a)'s structural claim contradicted by the delivered docs)
+        ground: >
+          R-12's consumption-surface enumeration and SC-9(a) omitted the documented
+          manual store-reading procedures in tests-v2/AGENTS.md (timeout export
+          procedure and its evidence-check snippet, post-timeout recovery, abort-path
+          export route) whose SQL reads the V1 event table raw (verified at lines
+          484/734/795 on trunk) — under the V2 schema those procedures produce
+          silently empty primary evaluation evidence.
+        classification: finding
+        remediation: >
+          R-12's surface enumeration extended with the documented manual procedures;
+          SC-9(a)'s structural instrument extended to include them; Impact's
+          test-surface bullet names the docs surface. Ticket consequence recorded:
+          the delivered tree leaves these procedures raw, so the closure carried
+          pending work — the ticket reopens (state reconciliation on discovery,
+          issues card §6).
+    containment:
+      scope: PASS (all requirement paths under .opencode; R-10's binary surface verified machine-local and untracked in both repos' .gitignore)
+      home: PASS (filed in .opencode/.issues/2717/)

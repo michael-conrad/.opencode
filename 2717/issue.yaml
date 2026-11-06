@@ -1,11 +1,8 @@
 title: '[SPEC] Port deck plugins (env-loader, session-enforcement) to the V2 plugin
   API'
-status: closed
+status: open
 labels:
-- needs-approval
-- spec-draft
+- spec-under-review
 body: ''
 created_at: '2026-11-06T00:11:41+00:00'
-updated_at: '2026-11-06T04:51:41+00:00'
-closed_at: '2026-11-06T04:51:41+00:00'
-close_reason: completed
+updated_at: '2026-11-06T05:40:14+00:00'
