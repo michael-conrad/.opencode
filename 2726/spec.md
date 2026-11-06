@@ -48,3 +48,7 @@ Consumers: every no-stage-named request in any repository under this deck — th
 ## Mid-cycle revision (2026-11-06, round-1 probe discovery)
 
 Round-1 behavioral probe of SC-3 (clean-room dispatch ses_e4db55250ffda6iZxjC25RfuUg) FAILED with the observed misreading this spec targets, on the amended text: the probed agent read the request's "per the usage recorded in git history" phrase as the developer's stated resolution of the open choice and implemented the researched defaults with no spec artifact. Cause: naming an evidence source ("per <source>") was mistaken for the choice's statement. R-2's standard is amended to close that reading: a named evidence source states where the choice's evidence comes from — never the choice's resolution. SC-2's instrument text gains the same clause.
+
+## Round-3 probe and disposition (2026-11-06)
+
+Round-3 probe (ses_e4daad10effeAIQhDljcl3usRs) with the un-assessed-edit anchor amendment in rule 1 again took the short path — same behavior on a fresh fixture. Three rounds establish the mechanism gap: probed agents never load the change-gate card on terse work-order tasks, so no text inside the card binds them. The anchor amendment is retained as deliverable (it binds agents who do run the card's assessment). Developer direction 2026-11-06 ("finish the batch"): the batch proceeds to the PR boundary with SC-3 recorded FAIL/BLOCKED and the residual, its evidence, and the trigger-discipline follow-up disclosed in the PR body rather than silently absorbed.
