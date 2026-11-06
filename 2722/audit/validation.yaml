@@ -1,0 +1,16 @@
+spec:
+  - round: 1
+    date: 2026-11-06
+    session: ses_e4e38c9cdffe8ROg3qVJZUh9A4
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class_or_family: gap analysis
+        section: R-1 (preservation sentence) / success-criteria table
+        ground: preservation requirement for the route statements has no verifying criterion — SC-1's instrument checks facets (a)/(b)/(c) only; both quoted route statements share the carrier sentence with the premise clause, so an implementer satisfying all SCs could silently reword or drop the 404-context or the unavailable-route statement
+        remediation: SC-1's criterion and instrument extended with facet (d) — both quoted route statements verified unchanged by the same passage read
+  - round: 2
+    date: 2026-11-06
+    session: ses_e4e355722ffeHSq4MZFhkSBZaJ
+    verdict: PASS
+    findings: []

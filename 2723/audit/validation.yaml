@@ -1,0 +1,16 @@
+spec:
+  - round: 1
+    date: 2026-11-06
+    session: ses_e4e38c9cdffe8ROg3qVJZUh9A4
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class_or_family: decomposition
+        section: SC-4 (success-criteria table)
+        ground: SC-4's observable set (create completes, record exists) is a strict subset of SC-1's from the same run in the same fixture — the issues-card §7 repair context (existing remote issue, absent local record) is indistinguishable to the tool, so the criterion can never fail where SC-1 passes and adds no verification content
+        remediation: SC-4 folded into SC-1 — SC-1's criterion now states the create path is the same end-to-end path §7 mirror-repair registers a local record with; the duplicate scenario is dropped
+  - round: 2
+    date: 2026-11-06
+    session: ses_e4e355722ffeHSq4MZFhkSBZaJ
+    verdict: PASS
+    findings: []
