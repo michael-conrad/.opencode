@@ -1,0 +1,6 @@
+artifact: verify
+date: 2026-11-06
+checks:
+  SC-1: {class: structural, verdict: PASS, evidence: "git-workflow-pr S2(f): 'The positive ordering: a multi-repo change files its **submodule PRs first**, and the parent PR is filed only **after the submodule trunks carry the merged pointers the parent PR bumps** - never the parent first.' (direct read)"}
+  SC-2: {class: structural, verdict: PASS, evidence: "S2(f) GitBucket cost note: 'Mis-ordering is expensive on GitBucket: an out-of-order parent PR cannot be closed by the filing agent there... the error stands open until the developer removes it.' (direct read)"}
+  SC-3: {class: behavioral, verdict: PASS, instrument: tier-1 clean-room dispatch, dispatch: "ses_e4db780e3ffeBnnc77vGMuHn8d", evidence: "multi-repo change with open submodule PRs and a ready parent pointer change: NO parent PR created; agent explicitly cited git-workflow-pr S2(f) submodule-PR ordering gate as a blocking reason and halted. (Fixture had no live tracker so no PR could be filed at all; the parent-PR absence is the SC's observable and held.)"}

@@ -1,0 +1,6 @@
+artifact: verify
+date: 2026-11-06
+checks:
+  SC-1: {class: behavioral, verdict: PASS, instrument: "executed create run in fixture store-host (/tmp/opencode/fix2723, sandbox git repo carrying tracker-platform origin URLs)", evidence: "github.com origin and host-mapped GitBucket origin: stderr warning emitted (naming issues card S2 creation rule and the number-space/visibility fork) AND create completed (created: true, exit 0); unmapped origin (git.example.org): no warning, create completed - negative control."}
+  SC-2: {class: structural, verdict: PASS, evidence: "tools/local-issues: _warn_local_only_registration called in cmd_create after _reject_pull_only/_reject_non_store_host and before _create_issue_files; covers every create path for tracker-platform store-hosts (platform derived via _remote_tracker_platform: host github.com or host-maps-resolved base; py_compile OK; no remote contact)."}
+  SC-3: {class: structural, verdict: PASS, evidence: "skills/issues/SKILL.md operating contract documents the creation-time divergence warning, naming issues card S2."}

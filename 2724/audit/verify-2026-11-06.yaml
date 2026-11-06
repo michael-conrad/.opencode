@@ -1,0 +1,9 @@
+artifact: verify
+date: 2026-11-06
+checks:
+  SC-1: {class: structural, verdict: PASS, evidence: "card exists at skills/test-discipline/SKILL.md; description names spec creation, plan creation, and test authoring/verification triggers (platform registered the card live in-session)."}
+  SC-2: {class: structural, verdict: PASS, evidence: "card section 1 defines all five classes (ephemeral / pr-validation / smoke / regression / heavy-regression) with run placements and the granularity rule."}
+  SC-3: {class: structural, verdict: PASS, evidence: "card section 2 carries the run-real-code anchor (execute real implementation; mocks are fallback for awkward/dangerous collaborators, never sole evidence)."}
+  SC-4: {class: structural, verdict: PASS, evidence: "card section 3 carries the light-default policy (always-run seconds-to-low-minutes: smoke + changed-area regression; full suite/benchmarks/mutation/broad e2e on-demand, scheduled, or release-boundary)."}
+  SC-5: {class: behavioral, verdict: PASS, instrument: tier-1 clean-room dispatch, dispatch: "ses_e4db55251ffdwVGatDBydfovLT", evidence: "fresh-dispatch plan for a sample SC with a lightweight unit-checkable observable and a heavyweight full-pipeline e2e instrument: plan (/tmp/opencode/t1-2724-plan/plan.md) states Tier: unit (fast tier) on items 1-2 and Tier: heavy tier (e2e/full-pipeline), run on demand never in the default run, on item 3; no ephemeral scratch listed as authored artifacts."}
+  SC-6: {class: structural, verdict: PASS, evidence: "frontmatter carries provenance (developer direction 2026-11-06) + admission-gate evidence (observed-failure grounds, no-retire justification, in-body novelty statement); skildeck lint 0 findings; governance: developer-directed edit per skill-creator carve-out."}
