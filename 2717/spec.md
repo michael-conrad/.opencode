@@ -39,12 +39,16 @@ Additional V1→V2 upgrade surfaces in this deck (verified live 2026-11-05):
   warned when mixed formats appear). `agent/notebook-ops.md` also uses the
   V1-preferred `agent/` directory instead of V2's `agents/`.
 - The behavioral harness's host tier hard-requires
-  `.opencode/.tools/opencode/opencode` — `with-test-home` exits `FATAL:
-  standalone binary not found` when absent, and the binary is absent from
-  this checkout. Worse than a missing convenience: the binary the harness
-  copies must be a **V2** binary (≥ 2.2) or the behavioral scenarios cannot
-  exercise plugin loading under V2 at all. Today no standalone binary
-  exists, so the host-tier harness cannot run at all.
+  `.tools/opencode/opencode` at the workspace root (the `with-test-home`
+  copy source — the wrapper resolves `PROJECT_DIR` to the workspace root) —
+  `with-test-home` exits `FATAL: standalone binary not found` when absent,
+  and the binary that surface carried was the V1 1.18.3 build, which rejects
+  native V2 config keys outright (observed live 2026-11-06:
+  `Unrecognized keys: agents, permissions, plugins`). It is a semantic
+  blocker, not just a missing convenience: the binary the harness copies
+  must be a **V2** binary (≥ 2.2) or the behavioral scenarios cannot
+  exercise plugin loading under V2 at all. Today the harness cannot run
+  host-tier at all against converted V2 config.
 
 ## Root cause
 
@@ -79,7 +83,8 @@ Port the deck's V1-era surfaces to the V2 API in place:
    setting's effective value.
 4. The four file-based agent definitions to native V2 frontmatter and the
    preferred `agents/` location.
-5. The harness's standalone binary provisioning surface gets a V2 binary.
+5. The harness's standalone binary provisioning surface gets a V2 binary at
+   the workspace root's `.tools/opencode/opencode`.
    No conversion to directory form is required for the two plugins: V2
    auto-discovers `.opencode/plugins/*.ts` files (log evidence: both files
    appear as discovered plugin entrypoints with
@@ -225,19 +230,41 @@ Alternatives considered and discarded:
   path-derived ID (`notebook-ops`) preserved. Each file converts wholly to
   one format (no V1/V2 mixed frontmatter in one file).
 - **R-10.** The harness's standalone binary SHALL be a V2 binary:
-  `.opencode/.tools/opencode/opencode` (the `with-test-home` copy source)
+  `.tools/opencode/opencode` at the workspace root (the `with-test-home`
+  copy source — the wrapper resolves `PROJECT_DIR` to the workspace root)
   SHALL exist and SHALL report version `>= 2.2` (via `--version`), so the
   harness's host-tier copy step serves a V2 binary and behavioral scenarios
-  exercise V2 plugin loading. Provisioning routes through the official
-  install channel (the OpenCode installer / release download fetched into
-  `.tools/opencode/` by the agent); the snapshot isolation mechanics
-  (`SNAP_USER_DATA` override against a snap binary) are NOT relied upon —
-  the provided binary is a standalone extraction, not a snap wrapper.
+  exercise V2 plugin loading. The V1 binary the surface carried is the
+  instrument-level defect that makes behavioral scenarios unable to exercise
+  V2 semantics the V1 runtime lacks (observed live 2026-11-05/06: the
+  1.18.3 binary rejected the converted deck config with
+  `Unrecognized keys: agents, permissions, plugins` while 2.2.x loads it).
+  Provisioning routes through the official install channel (a vendor-provided
+  release binary fetched into `.tools/opencode/` by the agent); the snapshot
+  isolation mechanics (`SNAP_USER_DATA` override against a snap binary) are
+  NOT relied upon — the provided binary is a standalone extraction, not a
+  snap wrapper. `.tools/` is gitignored in its repos like the z3 and
+  playwright vendoring precedent, so this surface is machine-local
+  provisioning, not a tracked deliverable.
 - **R-11.** No deck script, tool, or fixture may call the V1 server API:
   the deck's scripts/tools/tests carry no V1 server/SDK usage today
   (verified 2026-11-05 by repository scan — no `createOpencodeClient`, no
   V1 endpoint paths, no `OPENCODE_SERVER_USERNAME`), and this change
   introduces none.
+- **R-12.** The behavioral harness's session-store reading SHALL understand
+  the OpenCode V2 store schema: under V2 (≥ 2.2) the session record lives in
+  `session_v2`/`session_message` (rich per-message JSON with `content[]`
+  parts) and the V1 `event` table is empty (observed live 2026-11-06: the
+  SC-2 run's store had 0 event rows while an agent turn with tool calls and
+  outputs was fully recorded in `session_message`). The harness SHALL read
+  the V2 store through one adapter definition (`behaviors/v2rows.py`) that
+  emits the V1-shaped event stream (`session.created.1`,
+  `message.part.updated.1` with `part`, `message.updated.1` with `info`) at
+  every consumption surface — the `session.yaml` exporter (plus a `part`
+  table for the timeline tool), the digest/monitor live readers, the
+  finish-state reader, the resume-tail reader, and `poll-run.sh` — and SHALL
+  pass V1 stores through unchanged. Every V1-shaped consumer keeps its
+  contract; no consumer learns the V2 schema directly.
 
 ## Impact
 
@@ -288,7 +315,8 @@ Alternatives considered and discarded:
 | SC-5 | `plugins/AGENTS.md` states the V2 plugin contract as operative guidance (`Plugin.define` default export, V2 context, V2 hook names) and presents none of the V1 contract surfaces as operative. | Structural | Content check: the file contains `Plugin.define`, `ctx.shell.hook`, `ctx.event.subscribe`, and `ctx.session.hook`; and contains none of `MUST use **named exports**`, `@opencode-ai/plugin`, `PluginInput`, `experimental.chat.system.transform`, `experimental.chat.messages.transform`, `Plugin export is not a function`, and does not present `{project, client, $, directory, worktree}` as the plugin signature. |
 | SC-6 | The deck's `opencode.jsonc` is in native V2 config shape and loads under V2 with behavior preserved and no legacy-translation warnings for the deck's config keys. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) content check — the file contains `agents` (with `system`), `permissions` rules list, `mcp.servers`, and `plugins`; and contains none of the V1 keys `"agent"`, `"permission"`, `"plugin"`, or the V1 `"enabled"` MCP field; (b) behavioral — a V2 server start at the deck's location shows no legacy/malformed-field warning naming the deck's config file in the server log, and `/api/config` (deck location) and `/api/agent` (deck location) show the preserved effective values: `build`/`plan` `system` contains the `{file:}`-sourced prompt content, the three denials present as ordering-equivalent V2 rules, the four MCP servers carry their commands with `disabled: false`, and `plugins` is empty. |
 | SC-7 | The four file-based agent definitions are read as V2 by the loader with native frontmatter, and their permission behavior is preserved. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) content check — each of `agents/notebook-ops.md`, `agents/email-ops.md`, `agents/math-ops.md`, `agents/visual-design-agent.md` uses only V2 frontmatter fields (`description`, `mode`, `permissions` list); `agent/` no longer holds agent files (it may hold non-agent content if any exists — today it holds none besides the moved file); (b) behavioral — after a V2 server start at the deck's location, `/api/agent` lists all four agents (IDs `notebook-ops`, `email-ops`, `math-ops`, `visual-design-agent`) with their bodies as `system`, and no legacy-frontmatter warning names those files in the server log. Permission behavior (subagent-side `gmail_*`/`math_*`/`the-notebook-mcp_*` allow, main-side deny) carries over by the converted rules' equality with the prior normalized rules — asserted as part of (b)'s API listing state. |
-| SC-8 | The harness's standalone binary is a V2 binary and the host-tier harness runs. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) content check — `.opencode/.tools/opencode/opencode` exists and is executable; (b) behavioral — the harness's own copy path serves it: `bash .opencode/tests-v2/with-test-home --setup` completes its smoke tests (`opencode --version` from the copied binary reports `>= 2.2`), producing a working test home. |
+| SC-8 | The harness's standalone binary is a V2 binary and the host-tier harness runs. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) structural — the workspace root's `.tools/opencode/opencode` exists, is executable, and `--version` reports `>= 2.2`; (b) behavioral — the harness's own copy path serves it: `bash .opencode/tests-v2/with-test-home --setup` completes its smoke tests (`$TEST_HOME/bin/opencode --version` reports `>= 2.2`), producing a working test home. |
+| SC-9 | The harness reads a V2 session store correctly: a monitored run's export carries the run's own fresh session and full part stream, and its isolation verdict is PASS. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) structural — `v2rows.py` exists and is the only V2-schema-aware reading surface (the four documented SQL event readers, the exporter, and `poll-run.sh` route through it, no `SELECT … FROM event` remains where a V2 store is read); (b) behavioral — a monitored run (the SC-2 scenario) produces `session.yaml` whose `tables.event.rows` are non-empty and contain the run's `session.created.1` and its `message.part.updated.1` parts (tool-call parts with state/input, text parts), and `session-isolation.yaml` reads `verdict: PASS`. |
 
 Criteria notes: SC-1's instrument detects the defect class that produced this
 spec (loader rejection), SC-2 through SC-4 are the preserved-behavior guards
@@ -296,7 +324,10 @@ spec (loader rejection), SC-2 through SC-4 are the preserved-behavior guards
 conflict that manufactured the regression risk, and SC-6 through SC-8 close
 the remaining V1→V2 upgrade surfaces enumerated in the problem and requirements
 (legacy config translation dependence, V1 agent frontmatter, missing V2
-standalone binary). Behavioral scenarios are authored and executed per the
+standalone binary), and SC-9 closes the V2 session-store schema surface
+(R-12 — the store the harness reads changed shape under V2; observed live:
+the SC-2 run's `event` table empty while its session carried full part
+data in `session_message`). Behavioral scenarios are authored and executed per the
 behavioral-testing card's harness rules.
 
 ## Out of scope
