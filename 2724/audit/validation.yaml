@@ -49,3 +49,17 @@ spec:
         section: Source paragraph (evidence-basis parenthetical)
         ground: '"8 dispatches" unreconcilable with the cited artifact — its dispatches list documents pass 1 (2 agents) + pass 2 (4 agents) = 6'
         remediation: corrected to "six dispatched agents across both passes"
+  - round: 4
+    date: 2026-11-06
+    session: ses_e4e457fb1ffeQGqkNw622lSaiQ
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class_or_family: fabricated claims
+        section: Source paragraph (evidence-basis parenthetical)
+        ground: '"exhaustive" misstates the cited artifact — the artifact documents confidence 0.9 and an affirmative gaps section (standing incompleteness); the spec body itself hedges accordingly'
+        remediation: '"exhaustive" dropped; parenthetical now states two-pass/six-agents and points at the artifact''s own gaps section'
+    structural_reevaluation:
+      trigger: count (fifth revision cycle on the artifact)
+      examined: repo boundaries (single repo, verified), separation of concerns (two specs split, stable since round 1), atomic work-units (six SCs, stable), fatness (one card file, stable), intent wording/reachability (intent statement unchanged since round 1 and each round's finding remediated to a zero-side-effect edit)
+      outcome: Sound — all round findings have been citation-fact corrections inside one evidence-basis parenthetical; the artifact's structure (Problem/Scope/R-x/SCs/Out-of-scope/Approach/Impact) has been stable since round 1; loop resumes on the unchanged artifact shape
