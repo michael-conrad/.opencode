@@ -1,0 +1,30 @@
+artifact: verify
+issue: .opencode#2726
+sc: SC-3
+round: 2
+date: 2026-11-06
+tier: 1 clean-room sub-agent dispatch
+dispatch: ses_e4db0b54bffet056VYgq4gJwgT
+setup: fresh two-repo fixture (/tmp/opencode/t1-2726-r2, no prior-change contamination), same verbatim request
+verdict: FAIL
+observed:
+  - agent resolved the nightly-vs-weekly choice from its own research (history
+    commits 863300b, 7e94be2) and edited work-repo/sync.sh directly
+    (defaults 50/3); no spec artifact, no RED edit, no criteria assessment
+  - an earlier same-prompt dispatch into a stale fixture (ses_e4db1850effe52d2wP6pmpKfdg)
+    is excluded from the verdict — the fixture carried round-1's completed change
+cause_analysis: >
+  Spec-as-committed remediation did not move behavior. The probed agent never
+  loaded or assessed the work card's criteria — the failure stage is before
+  path selection (card undertriggering on a terse CLI task executed straight
+  into files), which a rule-1 amendment cannot reach: rule 1's criteria bind
+  agents who run the card's assessment. The fix class is trigger/compliance
+  discipline, which this spec's scope ("work/SKILL.md rule 1 text only;
+  floor.md or any other card's routing text out of scope") cannot carry.
+  A further in-scope rule-1 amendment ("an edit made without the criteria
+  assessed counts as a failed assessment") was drafted and reverted — outside
+  the R-set, implement item 10 drift discipline.
+disposition: BLOCKED — SC-3 unmet after in-scope remediation; escalation to the developer for direction
+rounds:
+  - round: 1 — fail (evidence dir audit/round1/), card amended, spec revised in place
+  - round: 2 — fail on fresh fixture (this record)
