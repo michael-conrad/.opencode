@@ -1,20 +1,40 @@
 ---
 description: Visual design producer that generates layouts, UI mockups, and front-end code from prompts or reference images. Use when creating design work — HTML/CSS/JS from a spec or image, Draw.io diagrams, newsletter/screen layouts — rather than reviewing existing work.
 mode: subagent
-temperature: 1.0
-top_p: 0.95
-permission:
-  edit: allow
-  bash:
-    "*": deny
-    "git status": allow
-    "git diff": allow
-    "git diff *": allow
-    "git log*": allow
-    "git show*": allow
-    "ls*": allow
-    "find*": allow
+request:
+  body:
+    temperature: 1.0
+    top_p: 0.95
+permissions:
+  - action: edit
+    resource: "*"
+    effect: allow
+  - action: shell
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "git status"
+    effect: allow
+  - action: shell
+    resource: "git diff"
+    effect: allow
+  - action: shell
+    resource: "git diff *"
+    effect: allow
+  - action: shell
+    resource: "git log*"
+    effect: allow
+  - action: shell
+    resource: "git show*"
+    effect: allow
+  - action: shell
+    resource: "ls*"
+    effect: allow
+  - action: shell
+    resource: "find*"
+    effect: allow
 ---
+------
 
 <!-- Provenance: AI-authored, .opencode#2490; profile realigned to the session primary's serving schema, .opencode#2567 -->
 

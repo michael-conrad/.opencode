@@ -245,7 +245,7 @@ run_scenario() {
             echo "ERROR: standalone script not found: $standalone_script" > "$logfile"
         fi
     else
-        bash "$WITH_TEST_HOME" "$OPENCODE_BIN" run "$prompt" --model "$DEFAULT_TEST_MODEL" --log-level INFO --print-logs \
+        bash "$WITH_TEST_HOME" "$OPENCODE_BIN" run "$prompt" --model "$DEFAULT_TEST_MODEL" --log-level info --print-logs \
             > "$logfile" 2>&1 || true
     fi
 

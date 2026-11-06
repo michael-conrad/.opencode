@@ -1,9 +1,12 @@
 ---
 description: Notebook operations subagent — Jupyter notebook work via the notebook MCP; starts/stops the notebook server, manages notebooks and kernels. Load for notebook, jupyter, or kernel tasks.
 mode: subagent
-permission:
-  "the-notebook-mcp_*": allow
+permissions:
+  - action: the-notebook-mcp_*
+    resource: "*"
+    effect: allow
 ---
+------
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->

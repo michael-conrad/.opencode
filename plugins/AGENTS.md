@@ -1,63 +1,65 @@
 # AGENTS.md — Plugin Development Guide
 
-## Named Export Requirement
+## V2 Plugin Contract
 
-OpenCode plugins MUST use **named exports** — `export default` is not supported. The plugin system iterates over module exports looking for named function exports; `export default` creates a `default` key on the module, which the loader does not find.
-
-```typescript
-// ✅ CORRECT — named export
-export const MyPlugin: Plugin = async ({ project, client, $, directory, worktree }) => { ... };
-
-// ❌ WRONG — export default is not detected by the plugin loader
-export default async function myPlugin(input: PluginInput) { ... }
-```
-
-## Plugin API Signature
-
-The `Plugin` type is imported from `@opencode-ai/plugin`:
+OpenCode V2 plugins **default-export** a definition created by `Plugin.define`:
 
 ```typescript
-import type { Plugin } from "@opencode-ai/plugin";
+import { Plugin } from "@opencode/plugin";
+
+export default Plugin.define({
+  id: "my-plugin", // stable id — storage and diagnostics are scoped by it
+  async setup(ctx) {
+    // register hooks, transforms, and subscriptions here
+  },
+});
 ```
 
-The plugin function receives a destructured context object:
+The V2 plugin API intentionally replaces the V1 contract: V1 plugin
+implementations — named exported functions returning a hooks object — do not
+load in V2 (the loader requires `Plugin must export a default definition with
+an id and an effect or setup function`). There is no V1 fallback.
 
-| Field | Type | Purpose |
-|-------|------|---------|
-| `project` | `string` | Project name |
-| `client` | `object` | API client for opencode operations |
-| `$` | `object` | Shell/git utility (`$.nothrow` for non-throwing command execution) |
-| `directory` | `string` | Project directory path |
-| `worktree` | `string` | Worktree directory path (empty string if not in worktree) |
+`Plugin` comes from the `@opencode/plugin` module, which the OpenCode runtime
+provides at plugin load time — it is not installed from npm as a dependency of
+a local file plugin.
 
-The function returns a `Hooks` object with hook implementations.
+## Plugin Context
 
-## Context Mapping
+`setup(ctx)` receives the V2 plugin context — domain objects grouped by
+concern, options on `ctx.options`, and a cleanup function returned by `setup`.
 
-When migrating from `PluginInput` to the destructured context:
-
-| Old (`PluginInput`) | New (destructured) |
-|---------------------|-------------------|
-| `input?.directory` | `directory` |
-| `input?.worktree` | `worktree` |
-| `input.$.nothrow` | `$.nothrow` |
+| Surface | Purpose |
+|---------|---------|
+| `ctx.location.directory` | Directory of the location the plugin loaded at |
+| `ctx.location.project` | Project of that location |
+| `ctx.options` | Plugin options from config |
+| plugin-return / cleanup | Function returned from `setup` runs at unload (timers, subprocesses, sockets) |
+| registration.dispose() | Remove a single hook/transform early |
 
 ## Available Hooks
 
+V2 registers each hook on the domain that owns the operation; the callback
+receives one mutable event instead of separate input/output objects.
+
 | Hook | Purpose |
 |------|---------|
-| `shell.env` | Inject environment variables into shell sessions |
-| `event` | Handle lifecycle events (discriminate by `event.type`) |
-| `experimental.chat.system.transform` | Inject content into system prompt |
-| `experimental.chat.messages.transform` | Transform user/assistant messages |
+| `ctx.shell.hook("create.before", (event) => ...)` | Inject environment variables into shell sessions (`event.env[key] = value`) |
+| `ctx.event.subscribe(...)` | Subscriptions on the server event stream |
+| `ctx.session.hook("context", (event) => ...)` | Agent-loop model-request context — edit `event.system` (system parts, `{ type: "text", text }`) and `event.messages` |
+| `ctx.tool.hook("execute.before", ...)` / `"execute.after"` | Tool execution gates |
+
+Keep supporting modules beside the plugin file. Local plugins are
+auto-discovered from `.opencode/plugins/*.ts` files and directories;
+configured paths in the `plugins` config array must name directories.
 
 ## Testing Guidance
 
-- Run `tsc --noEmit` to verify TypeScript compilation before testing
 - Use `with-test-home opencode run "test"` to verify the plugin loads without errors
-- Check stderr for `Plugin export is not a function` — if present, the export style is wrong
+- Confirm the plugin's `id` and source appear in the active plugin list — `opencode api get "/api/plugin?..."` — with `status: "active"`
+- Check the server log for V2 load errors: a plugin missing the default definition fails with `Plugin must export a default definition with an id and an effect or setup function`
 - Behavioral tests for plugins go in `.opencode/tests-v2/behaviors/`
 
 ---
 
-🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

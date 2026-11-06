@@ -1,9 +1,12 @@
 ---
 description: Email operations subagent — search, read, draft, and send Gmail mail; every send requires explicit developer instruction in the session. Load for any email, gmail, or inbox task.
 mode: subagent
-permission:
-  "gmail_*": allow
+permissions:
+  - action: gmail_*
+    resource: "*"
+    effect: allow
 ---
+------
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->

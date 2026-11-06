@@ -305,6 +305,25 @@ provision_test_project() {
 seed_model_config() {
     mkdir -p "$TEST_HOME/.config/opencode"
 
+    # V2 managed-service isolation (.opencode#2717 companion): V2's managed
+    # service binds a fixed channel-default port (49374 for the "latest"
+    # channel) — the production desktop service holds that port on the host,
+    # so every test-home service must bind its own. Seed a unique port per
+    # test home using the CLI's own channel-correct writer; when no binary is
+    # resolvable inside this environment, write the known channel config file
+    # names directly. Registered port persists in $XDG_CONFIG_HOME, so an
+    # `opencode serve --service` spawned in this home binds the seeded port
+    # and never collides with the production managed service.
+    local __svc_port=$((49400 + (RANDOM % 600)))
+    if command -v opencode >/dev/null 2>&1; then
+        HOME="$TEST_HOME" XDG_CONFIG_HOME="$TEST_HOME/.config" XDG_STATE_HOME="$TEST_HOME/.local/state" \
+            opencode service set port "$__svc_port" >/dev/null 2>&1 || true
+    fi
+    printf '{"port": %s}\n' "$__svc_port" > "$TEST_HOME/.config/opencode/service.json"
+    # NOTE: `opencode service set port` writes config/opencode/service.json
+    # (verified 2026-11-06) — the direct write above is the no-binary fallback
+    # with the same name.
+
     # Use the default test model only — NEVER call opencode models (reads production DB).
     # Model discovery via Ollama API only returns local models, not cloud models.
     if [ -f "$SCRIPT_DIR/default-model.sh" ]; then
@@ -461,11 +480,11 @@ do_setup() {
             # Docker tier (.opencode#2582): the image's baked opencode (official
             # release build) writes these runtime caches into the test home —
             # test-home-local cache state, not production leakage.
+            # .opencode#2717: the V2 binary (>= 2.2) writes its ONNX runtime
+            # device cache (.cache/Microsoft/DeveloperTools/.onnxruntime/*)
+            # under XDG_CACHE_HOME on every tier — test-local runtime state,
+            # not production leakage — so the allowance is tier-independent.
             .cache/Microsoft|.cache/Microsoft/*|.cache/huggingface|.cache/huggingface/*)
-                if [ "${TEST_ENV:-}" != "docker" ]; then
-                    echo "  [isolation] WARNING: unexpected file in test home: $rel" >&2
-                    leak_found=1
-                fi
                 ;;
             *)
                 echo "  [isolation] WARNING: unexpected file in test home: $rel" >&2
