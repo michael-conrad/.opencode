@@ -2,7 +2,7 @@
 name: plan
 description: "Load when writing an implementation plan from an approved spec — per-SC items with RED/GREEN cycles, dependency ordering, verification instruments. Plans derive entirely from the spec: a plan item without a spec source is scope creep. Plans state how to implement; implementation status lives in pipeline state, never in the plan body."
 license: MIT
-provenance: AI-authored, .opencode#2490; recomposition supersession, .opencode#2661; single-sourcing discipline, .opencode#2660
+provenance: AI-authored, .opencode#2490; recomposition supersession, .opencode#2661; single-sourcing discipline, .opencode#2660; per-SC test-tier statement requirement, .opencode#2725
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
@@ -14,6 +14,12 @@ provenance: AI-authored, .opencode#2490; recomposition supersession, .opencode#2
 1. **One item per SC.** Each item states: deliverable, RED (the failing
    assertion, written against current behavior), GREEN (the change), and the
    verification instrument (a check the agent can run — never prose recall).
+   An item whose RED or GREEN authors tests states those tests' tier(s) per
+   the test-discipline card's mark-on-creation vocabulary —
+   Read [the test-discipline skill](../test-discipline/SKILL.md) when planning
+   SC-matching tests; heavy-tier items state their on-demand routing (never
+   a default run), and scratch observation is never listed as an authored
+   test artifact (it is `ephemeral`, kept out of test files).
 2. **Load the cards in scope.** Identify the languages and build tools the
    plan's items touch and load their cards (where cards exist), and load
    `programming-principles` for the engineering-principles layer — conventions
