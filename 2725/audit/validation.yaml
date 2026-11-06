@@ -29,3 +29,13 @@ spec:
         section: Problem item 4
         ground: '"FA in the parent research card" cited for print-debug/observational scratch — FA is BLOAT/ACCUMULATION; the observation/print content is FB (LOW-VALUE OBSERVATIONAL)'
         remediation: citation corrected FA→FB
+  - round: 3
+    date: 2026-11-06
+    session: ses_e4e4a16c5ffeiuU9coZoJ0KdOE
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class_or_family: gap analysis (implicit precondition unstated)
+        section: R-1 / SC-1 (implementation-workflow.md scope)
+        ground: pr-validation's stated run placement (PR-check time only) had no deck-directed execution point — the deck's only PR-boundary check is the suite-green gate row, whose "affected tiers (smoke + regression)" text the spec preserved but never reconciled; research card's rewrite_surfaces_in_deck lists "tier table + suite-green row" and the suite-green row was dropped without a stated reason
+        remediation: R-1/SC-1 extended — suite-green gate row gains the pr-validation execution surface (stated explicitly, not implicit); Problem item 2, Scope, Approach, and Impact updated to match

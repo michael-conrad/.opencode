@@ -39,3 +39,13 @@ spec:
         section: Problem point 5 (final clause)
         ground: trailing "(F2, F8)" attached to the deck-state claim; neither cited finding states anything about the deck — the deck-gap claim's support is the research card's card_ready_material.rewrite_surfaces_in_deck plus the direct tier-table read
         remediation: deck-gap clause re-cited to card_ready_material.rewrite_surfaces_in_deck; the trailing parenthetical stays attached to the convention claims only
+  - round: 3
+    date: 2026-11-06
+    session: ses_e4e4a16c6ffeE44A7Lpybf1sdC
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class_or_family: cross-reference sufficiency
+        section: Source paragraph (evidence-basis parenthetical)
+        ground: '"8 dispatches" unreconcilable with the cited artifact — its dispatches list documents pass 1 (2 agents) + pass 2 (4 agents) = 6'
+        remediation: corrected to "six dispatched agents across both passes"
