@@ -14,8 +14,7 @@ timestamp=2026-11-05T23:44:24.434Z level=WARN run=ebe6eb05 message="failed to lo
 Consequences observed today (2026-11-05, opencode v2.2.0/v2.2.5):
 
 - `.env` file variables are not injected into any shell session in any workspace project served by the deck (env-loader inactive).
-- Session-init context is not injected into any system prompt, and synthetic mode-switch messages are not stripped (session-enforcement inactive).
-- The failure repeats on every server start and every plugin reload — the plugins are permanently dead under V2.
+- Session-init context is not injected into any system prompt (session-enforcement inactive). The plugin's V1 synthetic mode-switch strip surface is retired in this spec (R-5): under V2 it is dead surface — V2 core generates no mode-switch noise (`agent-switched` syntheses render nothing at the model layer) — so its absence is not a standing consequence.- The failure repeats on every server start and every plugin reload — the plugins are permanently dead under V2.
 
 `/api/plugin?location[directory]=/home/muksihs/git` (live check, 2026-11-05) lists both
 deck plugins with `status: "failed"` and the exact error above — the observed RED state.
@@ -108,7 +107,7 @@ loads and reports `active` after the same conversion.
 | `directory` / `worktree` destructured inputs | `ctx.location.directory` (V2 exposes no V1-style `worktree` input on the plugin context) |
 | `shell.env` hook (`output.env[key] = value`) | `ctx.shell.hook("create.before", (event) => { event.env[key] = value })` |
 | `experimental.chat.system.transform` (`output.system.push(string)`) | `ctx.session.hook("context", (event) => { event.system.push({ type: "text", text }) })` |
-| `experimental.chat.messages.transform` (`output.messages`) | `ctx.session.hook("context", (event) => { event.messages … })` |
+| `experimental.chat.messages.transform` (`output.messages`) | no V2 hook registered — V2 retires the strip: the messages the V1 transform blanked (`agent-switched` noise) render nothing at the model layer under V2 (`return []`), so there is no surface for the strip to match (R-5) |
 | no-op for plugin lifecycle cleanup | cleanup function returned from `setup` |
 
 ### Configuration conversion mapping
@@ -184,12 +183,25 @@ Alternatives considered and discarded:
   append its trimmed, non-empty output as a `{ type: "text" }` part to
   `event.system` via `ctx.session.hook("context", …)`, preserving V1's
   per-model-request invocation frequency in the agent loop.
-- **R-5.** session-enforcement SHALL — in the same `context` hook, over
-  `event.messages` — locate the last user message and, for each of its text
-  parts flagged `synthetic: true` whose text contains
-  `Your operational mode has changed from` or
-  `# Plan Mode - System Reminder`, blank the text and clear the synthetic
-  flag, preserving the V1 pattern set verbatim.
+- **R-5.** session-enforcement SHALL implement **no synthetic mode-switch
+  strip**: the V1 surface it ported from is dead under V2 and this spec
+  retires it rather than preserving dead code (bitrot removal, developer
+  directive 2026-11-06 "update spec to remove this bitrot"). Grounds,
+  verified live 2026-11-06 against opencode 2.2.5: V2 core generates no
+  V1-pattern mode-switch text — the message-value converter maps
+  `agent-switched` syntheses to nothing at the model-visible layer
+  (`case"agent-switched": case"idle": return []`), the string
+  "Your operational mode has changed from" has zero occurrences in the
+  binary, and the context-event messages carry no part-level `synthetic`
+  flag, so V1's flag-gated trigger had no V2-exposed mechanism to match
+  against. The plugin registers only the documented V1-mapped hooks
+  (R-2's shell hook, R-4's context hook) — no message-editing surface for
+  mode-switch patterns, and no `isModeSwitchSynthetic` helper. Synthetic
+  messages posted by external surfaces (the `session.synthetic` API /
+  `ctx.session.synthetic`) are delivered unchanged; V2's own functional
+  synthetic texts (its plan-mode `<system-reminder>` injections, e.g.
+  "You are NO LONGER in Plan mode…") are pattern-disjoint from the retired
+  V1 patterns and are never stripped.
 - **R-6.** `plugins/AGENTS.md` SHALL document the V2 plugin contract as its
   sole operative contract: plugins are
   `export default Plugin.define({ id, setup(ctx) })`; the context is the V2
@@ -206,11 +218,11 @@ Alternatives considered and discarded:
   may remain. This revision is deck-content governance and routes through
   the deck-governance card at implementation.
 - **R-7.** No unrelated refactoring: the existing helper functions
-  (`parseEnvFile`, `stripInlineComments`, `runSessionInit`,
-  `isModeSwitchSynthetic`), the file paths, and the redaction-delegation
-  note in session-enforcement's header SHALL be preserved. Header and
-  comment documentation changes are limited to what R-1 (V2 port facts) and
-  R-3 (the removed worktree input) require.
+  (`parseEnvFile`, `stripInlineComments`, `runSessionInit`) and the file
+  paths SHALL be preserved, and the redaction-delegation note in
+  session-enforcement's header SHALL be preserved. Header and comment
+  documentation changes are limited to what R-1 (V2 port facts), R-5 (the
+  retired strip surface), and R-3 (the removed worktree input) require.
 - **R-8.** `opencode.jsonc` SHALL be converted to the native V2
   configuration shape per the configuration-conversion mapping above, and
   every converted entry SHALL preserve its effective value: the `build` and
@@ -284,13 +296,22 @@ Alternatives considered and discarded:
   checkout are NOT repaired by this spec's port — they regain the behavior
   only when that repository's submodule pointer is bumped (out of scope,
   below).
-- Behavior changes shipped with the port: exactly one — `WORKTREE_PATH`
-  (R-3) is no longer injected in worktree sessions. Its removal is a
-  V2-forced consequence; its single deck-internal reference (the
-  `tools/session-init` header's canonical-name list) is updated by R-3 in
-  the same change, so no deck documentation is left asserting the dropped
-  injection. External consumers, if any exist, would observe its absence and
-  can derive an equivalent value from their own location.
+- Test surface: `tests-v2/behaviors/` gains scenarios for the preserved
+  behaviors (SC-2 and SC-3) and the config/agent-file upgrade checks
+  (SC-6 through SC-8). The deck guide's testing guidance remains otherwise
+  applicable.
+- Behavior changes shipped with the port: exactly two — `WORKTREE_PATH`
+  (R-3) is no longer injected in worktree sessions, and the V1 synthetic
+  mode-switch strip is retired (R-5): V2 core no longer carries a
+  mode-switch text generator (`agent-switched` syntheses render nothing at
+  the model-visible layer), so there is no noise left to strip and the
+  plugin registers no message-editing surface. Grounds and dispositions:
+  R-3's removal is a V2-forced consequence with its single deck-internal
+  reference (the `tools/session-init` header's canonical-name list) updated
+  by R-3 in the same change, so no deck documentation is left asserting the
+  dropped injection; R-5's retirement rests on the V2 ground that there is
+  nothing to strip. External consumers, if any exist, would observe both
+  absences and can derive an equivalent value from their own location.
 - The config and agent-file conversions change no effective behavior: the
   in-memory normalized view `/api/config` and `/api/agent` produce today
   (verified 2026-11-05) already equals the native target shapes — conversion
@@ -299,10 +320,6 @@ Alternatives considered and discarded:
 - Risk of the change itself is bounded and observable: a failed port leaves
   the plugin at `status: "failed"` with the load error surfaced on the same
   API surface SC-1 checks.
-- Test surface: `tests-v2/behaviors/` gains scenarios for the preserved
-  behaviors (SC-2 through SC-4) and the config/agent-file upgrade checks
-  (SC-6 through SC-8). The deck guide's testing guidance remains otherwise
-  applicable.
 
 ## Success criteria
 
@@ -311,7 +328,7 @@ Alternatives considered and discarded:
 | SC-1 | After a V2 server start or config reload at the deck's location, the deck's `env-loader` and `session-enforcement` plugins are loaded and active. | Behavioral (runtime effect) | `opencode api get "/api/plugin?location[directory]=/home/muksihs/git"` lists `env-loader` and `session-enforcement` with `status: "active"` — the same surface that today lists them `status: "failed"` with the exact load error, so the one check observes both satisfaction and violation of the criterion, scoped to the deck's own location only. |
 | SC-2 | A bash session at a location holding a `.env` file observes every declared key (verified with a sentinel key/value) in its environment. | Behavioral (runtime effect) | `tests-v2` behavioral scenario: test project with a sentinel `.env` pair; run a bash command echoing the sentinel key; assert the value appears in command output. |
 | SC-3 | The session-init tool's output appears as a text part in the system context of agent-loop model requests. | Behavioral (runtime effect) | `tests-v2` behavioral scenario: session-init emits a sentinel line; assert the agent's received instructions contain it. |
-| SC-4 | A synthetic mode-switch user message matching either preserved pattern is neutralized (text blanked, synthetic flag cleared) in the model-visible context of the agent loop. | Behavioral (runtime effect) | `tests-v2` behavioral scenario: inject a synthetic mode-switch message; assert its mode-switch text is not visible to the agent while other input survives. |
+| SC-4 | The V1 synthetic mode-switch strip surface is retired: session-enforcement implements no message blanking and V2's agent-switch synthesis produces no model-visible text to strip. | Structural (content of the deliverable) + Behavioral (the V2 fact the retirement rests on) | Two-part instrument: (a) content check — `plugins/session-enforcement.ts` contains no message-editing code: neither pattern string (`Your operational mode has changed from`, `# Plan Mode - System Reminder`), no `isModeSwitchSynthetic`, no `event.messages` mutation; (b) behavioral — the live V2 ground the retirement rests on, re-executable: `/api/plugin?location[directory]=…` lists the plugin `active` (registered hooks unchanged: R-4's context hook only), and the V2 message-value converter's `agent-switched`→`return []` fact (verified in the 2.2.5 binary) means a mode switch injects no mode-switch text for any plugin to strip — no V2 hook, flag, or pattern surface exists. |
 | SC-5 | `plugins/AGENTS.md` states the V2 plugin contract as operative guidance (`Plugin.define` default export, V2 context, V2 hook names) and presents none of the V1 contract surfaces as operative. | Structural | Content check: the file contains `Plugin.define`, `ctx.shell.hook`, `ctx.event.subscribe`, and `ctx.session.hook`; and contains none of `MUST use **named exports**`, `@opencode-ai/plugin`, `PluginInput`, `experimental.chat.system.transform`, `experimental.chat.messages.transform`, `Plugin export is not a function`, and does not present `{project, client, $, directory, worktree}` as the plugin signature. |
 | SC-6 | The deck's `opencode.jsonc` is in native V2 config shape and loads under V2 with behavior preserved and no legacy-translation warnings for the deck's config keys. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) content check — the file contains `agents` (with `system`), `permissions` rules list, `mcp.servers`, and `plugins`; and contains none of the V1 keys `"agent"`, `"permission"`, `"plugin"`, or the V1 `"enabled"` MCP field; (b) behavioral — a V2 server start at the deck's location shows no legacy/malformed-field warning naming the deck's config file in the server log, and `/api/config` (deck location) and `/api/agent` (deck location) show the preserved effective values: `build`/`plan` `system` contains the `{file:}`-sourced prompt content, the three denials present as ordering-equivalent V2 rules, the four MCP servers carry their commands with `disabled: false`, and `plugins` is empty. |
 | SC-7 | The four file-based agent definitions are read as V2 by the loader with native frontmatter, and their permission behavior is preserved. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) content check — each of `agents/notebook-ops.md`, `agents/email-ops.md`, `agents/math-ops.md`, `agents/visual-design-agent.md` uses only V2 frontmatter fields (`description`, `mode`, `permissions` list); `agent/` no longer holds agent files (it may hold non-agent content if any exists — today it holds none besides the moved file); (b) behavioral — after a V2 server start at the deck's location, `/api/agent` lists all four agents (IDs `notebook-ops`, `email-ops`, `math-ops`, `visual-design-agent`) with their bodies as `system`, and no legacy-frontmatter warning names those files in the server log. Permission behavior (subagent-side `gmail_*`/`math_*`/`the-notebook-mcp_*` allow, main-side deny) carries over by the converted rules' equality with the prior normalized rules — asserted as part of (b)'s API listing state. |
@@ -319,8 +336,9 @@ Alternatives considered and discarded:
 | SC-9 | The harness reads a V2 session store correctly: a monitored run's export carries the run's own fresh session and full part stream, and its isolation verdict is PASS. | Behavioral (runtime effect) + Structural | Two-part instrument: (a) structural — `v2rows.py` exists and is the only V2-schema-aware reading surface (the four documented SQL event readers, the exporter, and `poll-run.sh` route through it, no `SELECT … FROM event` remains where a V2 store is read); (b) behavioral — a monitored run (the SC-2 scenario) produces `session.yaml` whose `tables.event.rows` are non-empty and contain the run's `session.created.1` and its `message.part.updated.1` parts (tool-call parts with state/input, text parts), and `session-isolation.yaml` reads `verdict: PASS`. |
 
 Criteria notes: SC-1's instrument detects the defect class that produced this
-spec (loader rejection), SC-2 through SC-4 are the preserved-behavior guards
-(the unchanged behavior this change puts at risk), SC-5 closes the guide
+spec (loader rejection), SC-2 through SC-3 are the preserved-behavior guards
+(the unchanged behavior this change puts at risk), SC-4 closes the retired
+V1 strip surface (the bitrot removal R-5 carries), SC-5 closes the guide
 conflict that manufactured the regression risk, and SC-6 through SC-8 close
 the remaining V1→V2 upgrade surfaces enumerated in the problem and requirements
 (legacy config translation dependence, V1 agent frontmatter, missing V2
