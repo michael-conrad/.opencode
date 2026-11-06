@@ -98,9 +98,16 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    (f) **Submodule-PR ordering gate:** parent-repo PR creation is blocked
    while any submodule PR is pending (filed and unmerged on the submodule's
    tracker) — this applies to every parent PR, including unrelated changes.
-   After the submodule PRs merge, the parent PR carries the pointer to the
-   merged submodule trunk tip, re-synced with the parent's verification
-   re-run against the composed state before creation.
+   The positive ordering: a multi-repo change files its **submodule PRs
+   first**, and the parent PR is filed only **after the submodule trunks
+   carry the merged pointers the parent PR bumps** — never the parent first.
+   The gate's block is the enforcement of that order, not the order itself.
+   Mis-ordering is expensive on GitBucket: an out-of-order parent PR cannot
+   be closed by the filing agent there (`gb`'s close/edit fallback needs the
+   developer's terminal), so the error stands open until the developer
+   removes it. After the submodule PRs merge, the parent PR carries the
+   pointer to the merged submodule trunk tip, re-synced with the parent's
+   verification re-run against the composed state before creation.
    (g) **Pointer currency at the PR (.opencode#2679):** a parent-repo PR
    always carries the submodule pointer the parent's state actually
    references — the bump's existence is (d)'s fact (checked-out HEAD past the
