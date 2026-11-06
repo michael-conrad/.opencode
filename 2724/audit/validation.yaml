@@ -29,3 +29,13 @@ spec:
         section: R-5 / SC-5 (commit clause)
         ground: "SHALL NOT commit ephemeral scaffolding as test files" unobservable in a plan-authoring probe; two readings unresolved
         remediation: R-5/SC-5 rescope to plan-observable claims (classification, on-demand routing, no ephemeral scratch listed as authored test artifacts); the commit-side behavior moved to the test-authoring scenario (sibling .opencode#2725 R-6/SC-6, whose Problem gains the scaffolding branch)
+  - round: 2
+    date: 2026-11-06
+    session: ses_e4e4e79f2ffeCJZooX6T92SLnl
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class_or_family: cross-reference sufficiency
+        section: Problem point 5 (final clause)
+        ground: trailing "(F2, F8)" attached to the deck-state claim; neither cited finding states anything about the deck — the deck-gap claim's support is the research card's card_ready_material.rewrite_surfaces_in_deck plus the direct tier-table read
+        remediation: deck-gap clause re-cited to card_ready_material.rewrite_surfaces_in_deck; the trailing parenthetical stays attached to the convention claims only

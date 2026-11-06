@@ -19,3 +19,13 @@ spec:
         section: R-1 / SC-1 (ephemeral placement)
         ground: "five-class vocabulary" two-headed on the implement line — whether ephemeral is enumerated there is unresolved
         remediation: R-1 states the single reading — implement line and tier table gain pr-validation + heavy-regression with placements; ephemeral is not a table row, is card-owned, exercised by the R-2 mark step
+  - round: 2
+    date: 2026-11-06
+    session: ses_e4e4e79f1ffeNN4fv7mdNtvX8p
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class_or_family: cross-reference sufficiency
+        section: Problem item 4
+        ground: '"FA in the parent research card" cited for print-debug/observational scratch — FA is BLOAT/ACCUMULATION; the observation/print content is FB (LOW-VALUE OBSERVATIONAL)'
+        remediation: citation corrected FA→FB
