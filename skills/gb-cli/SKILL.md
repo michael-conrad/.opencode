@@ -2,12 +2,12 @@
 name: gb-cli
 description: "Load before any command or code that contacts GitBucket — using the gb CLI, GitBucket API calls, or anything needing GitBucket credentials for issues, pull requests, releases, or repository operations. Also load when authoring or running test-harness scenarios, scripts, or automation that will invoke gb or GitBucket endpoints at runtime, and when any GitBucket operation fails or behaves unexpectedly. Authentication is built into gb; never hand-roll GitBucket API code or hunt for credentials. One load does not carry across operation classes: before your first GitBucket contact in a new class (issues ↔ pull requests ↔ API passthrough), load this card again — even though it is already in context."
 license: MIT
-provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .opencode#2547; .opencode#2382; closing-keyword contract, .opencode#2658
+provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .opencode#2547; .opencode#2382; closing-keyword contract, .opencode#2658; web-fallback reality + attempt-first rule, .opencode#2722
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .opencode#2547; .opencode#2382; closing-keyword contract, .opencode#2658 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .opencode#2547; .opencode#2382; closing-keyword contract, .opencode#2658; web-fallback reality + attempt-first rule, .opencode#2722 -->
 
 # gb-cli — GitBucket operations
 
@@ -34,9 +34,13 @@ provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .openco
    fails with HTTP 404 on GitBucket in every condition observed
    (.opencode#2382, pinned by reproduction: head branch deleted, base branch
    deleted, both deleted, and even with branches intact). Close a PR with
-   `gb pr edit <N> --state closed --web` instead — the `--web` fallback
-   prompts for the GitBucket password on a terminal; `gb pr edit` without
-   `--web` reports "REST PR edit is unavailable" on GitBucket.
+   `gb pr edit <N> --state closed --web` instead. The `--web` fallback
+   completes non-interactively in a no-tty shell under stored token
+   credentials — observed 2026-11-06 (.opencode#2722: stdin closed, no tty,
+   exit 0, `✓ Updated pull request #N`): attempt it in the session's own
+   shell first; it is an agent-runnable route, not a developer handoff.
+   `gb pr edit` without `--web` reports "REST PR edit is unavailable" on
+   GitBucket.
    The merge itself is a human gate — the agent merges nothing; read the
    human-merge-gate statements in this deck's PR card and its instruction
    floor. Closing a pull request is not merging
@@ -52,5 +56,12 @@ provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .openco
    same system comment the web UI button writes. Never implement this with
    session cookies or account passwords.
 6. **Failures are information.** Diagnose from stderr; never retry blind.
+7. **Attempt-first (authenticated tooling).** A can't-run conclusion about an
+   authenticated tool (`gb`, and the same discipline wherever the floor lists
+   authenticated access) is never made from a card premise or a documented
+   limitation — the sanctioned command is attempted in the session's own
+   shell first, and work routes to the developer (report-with-halt) only on
+   an evidenced failure. (.opencode#2722: a false "prompts for password"
+   premise stood behind two run-vs-handoff misdecisions in one session.)
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
