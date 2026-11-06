@@ -17,7 +17,7 @@ spec:
       - id: F-3
         class_or_family: ambiguous criterion
         section: R-1 / SC-1 (ephemeral placement)
-        ground: "five-class vocabulary" two-headed on the implement line — whether ephemeral is enumerated there is unresolved
+        ground: "five-class vocabulary is two-headed on the implement line — whether ephemeral is enumerated there is unresolved"
         remediation: R-1 states the single reading — implement line and tier table gain pr-validation + heavy-regression with placements; ephemeral is not a table row, is card-owned, exercised by the R-2 mark step
   - round: 2
     date: 2026-11-06
