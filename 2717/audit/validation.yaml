@@ -62,3 +62,34 @@ rounds:
     containment:
       scope: PASS (all requirement paths under .opencode; R-10's binary surface verified machine-local and untracked in both repos' .gitignore)
       home: PASS (filed in .opencode/.issues/2717/)
+  - round: 2
+    date: 2026-11-06
+    reviewer: fresh-context subagent (session ses_e50a06ae4ffeOQ6w8fcuPfROX7), re-validation of the revised spec against validation-standards.md
+    verdict: FAIL
+    findings:
+      - id: F4
+        class: internal contradiction (analysis family) + factual defect in the impact enumeration
+        ground: >
+          Impact's test-surface bullet claimed tests-v2/behaviors gains scenarios for
+          "the config/agent-file upgrade checks (SC-6 through SC-8)". No such scenario
+          exists in the delivered tree (the PR added only the SC-2/SC-3 scenarios and
+          the SC-2 fixture), and the spec's own instruments define a different shape:
+          SC-6(b)/SC-7(b) are live-API checks at the deck's location (unobservable by
+          the isolated-cloned-home harness) and SC-8(b)'s executed check rides the
+          SC-2 scenario's wrapper invocation. The defect predates round 1 (the same
+          sentence carried the claim; round 1's reviewer missed it; round 2 caught it).
+        classification: finding
+        remediation: >
+          Test-surface bullet rewritten to the true verification surface: SC-2/SC-3
+          scenarios; SC-8(b) riding the SC-2 wrapper invocation; SC-6(b)/SC-7(b) as
+          live-API checks at the deck's location alongside their content checks; the
+          docs-procedures clause retained (SC-9).
+    adjudicated-not-findings:
+      - dated pre-port observations (plugin failures, pinned submodule, V1 binary, normalized view): point-in-time records with dates/log citations; the parent repo's committed gitlink remains pre-port, so the dependent-surface and out-of-scope declarations stay structurally accurate. Not a defect.
+      - R-12's documentation clause unimplemented on trunk: well-formed, traceable requirement; the pending work is pipeline state carried by the reopened ticket (status open), not a spec defect.
+      - Impact's adapter-reading-shape clause: consistent with SC-9(a)'s instrument. Not a defect.
+      - alternatives "e.g." gloss; R-6's governance-routing note; R-12's either/or branch: rationale gloss with substance intact / substantive scope determination / presentational choice where both branches satisfy SC-9(a)'s operative check. Not defects.
+    containment:
+      scope: PASS (same grounds as round 1, re-verified)
+      home: PASS
+

@@ -310,12 +310,15 @@ Alternatives considered and discarded:
   only when that repository's submodule pointer is bumped (out of scope,
   below).
 - Test surface: `tests-v2/behaviors/` gains scenarios for the preserved
-  behaviors (SC-2 and SC-3) and the config/agent-file upgrade checks
-  (SC-6 through SC-8); the harness documentation's store-reading procedures
+  behaviors (SC-2 and SC-3), with SC-8(b)'s executed check riding the SC-2
+  scenario's wrapper invocation; SC-6(b) and SC-7(b) run as live-API checks
+  at the deck's location (a server start there, `/api/config`, `/api/agent`,
+  server-log inspection — surfaces the harness's isolated cloned test homes
+  cannot observe), each alongside its content check (SC-6(a), SC-7(a)); the
+  harness documentation's store-reading procedures
   (`tests-v2/AGENTS.md` — the manual export and recovery procedures R-12
   names) come onto the adapter's reading shape (SC-9). The deck guide's
-  testing guidance remains otherwise
-  applicable.
+  testing guidance remains otherwise applicable.
 - Behavior changes shipped with the port: exactly three — `WORKTREE_PATH`
   (R-3) is no longer injected in worktree sessions, the V1 synthetic
   mode-switch strip is retired (R-5): V2 core no longer carries a
