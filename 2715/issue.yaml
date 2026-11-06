@@ -1,0 +1,8 @@
+title: '[BUG] git-workflow-branch rule 2: submodule trunk-freshness has no remote-tip
+  instrument — agents declare sync complete from pointer-only `git submodule status`'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-11-06T05:26:55+00:00'
+updated_at: '2026-11-06T05:26:55+00:00'
