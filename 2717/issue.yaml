@@ -6,4 +6,5 @@ labels:
 - needs-approval
 body: ''
 created_at: '2026-11-06T00:11:41+00:00'
-updated_at: '2026-11-06T05:57:15+00:00'
+updated_at: '2026-11-06T14:53:29+00:00'
+phase: pr-opened
