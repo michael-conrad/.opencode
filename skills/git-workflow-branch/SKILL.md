@@ -25,7 +25,28 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    submodule's remote trunk tip — the tracked-branch tip per `.gitmodules`,
    fetched from the remote, **not** the recorded pointer (syncing to the
    recorded pointer reproduces possibly-stale state, which is the bitrot trap
-   itself); (c) when the parent has nothing to contribute beyond pointer
+   itself) — using the **executed per-submodule remote-tip comparison** as
+   the sync's evidence instrument. Per registered submodule: (a') fetch the
+   submodule's origin (`git -C <submodule> fetch origin`); (b') resolve the
+   tracked branch, in order of availability — the `submodule.<name>.branch`
+   field of the parent repo's `.gitmodules` (read from the parent repo; a
+   branch key read inside the submodule via `git config --get branch` is a
+   recorded failure mode and is not the instrument); when no branch field
+   exists, the submodule's current checked-out branch (valid only while HEAD
+   is symbolic); when the checkout is detached, the submodule remote's
+   default branch (`refs/remotes/origin/HEAD`); (c') compare the checkout's
+   HEAD SHA against the fetched remote-tracking tip of the resolved branch
+   (guard ref existence before comparing); (d') record one of three
+   outcomes per submodule: `at-tip`, `behind`, `no-remote-tip`. The
+   outcomes drive the sync: a `behind` checkout is synced
+   to the resolved remote tip (the step 2(b) mandate); `at-tip` needs no
+   action; `no-remote-tip` is synced to the tracked-branch tip only when a
+   branch resolves, else recorded as the instrument's own outcome. A
+   pointer-state caveat binds the whole step: `git submodule status`
+   output is pointer-state only — checkout vs the parent's recorded
+   gitlink — and is never evidence that a submodule equals its
+   tracked-branch remote tip; this step's freshness evidence is the
+   executed comparison above, never the status listing. (c) when the parent has nothing to contribute beyond pointer
    bumps, create no branch and make no commit — the drift rides with the next
    real parent change. Verify the trunk tip before branching — sync and rebase
    if the trunk moved; state the verified tip in the work record, whose
@@ -41,9 +62,13 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    capture follows the tagged-SHA pointer discipline (rule 3).
    **Bounded verification.** Trunk-freshness verification is bounded and
    read-only: verify the working repo's trunk tip against its remote (fetch
-   and compare) and proceed to the branch decision on that evidence. A
-   submodule-pointer or store sync failure encountered during the same pass
-   is recorded, not remediated, and does not block the branch decision. If
+   and compare) and proceed to the branch decision on that evidence. The
+   per-submodule remote-tip comparison runs as part of the same pass, and
+   its per-submodule outcomes are recorded in the work record (rule 5). A
+   recorded-not-remediated outcome of that executed comparison — a
+   `behind` or `no-remote-tip` result, or an execution failure such as an
+   unreachable submodule remote — is recorded, not remediated, on this
+   pass, and does not block the branch decision. If
    the working repo's own trunk tip cannot be verified because its remote is
    unreachable, record the failure and halt the branch decision for
    developer direction rather than branch on unverified freshness.
