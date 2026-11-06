@@ -1,0 +1,8 @@
+title: 'git-workflow-pr §2(f): parent PR filed before submodule PRs merge — gate read
+  as an order hint, not a block'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-11-06T15:23:42+00:00'
+updated_at: '2026-11-06T15:23:42+00:00'
