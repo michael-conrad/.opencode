@@ -472,18 +472,20 @@ The harness uses `flock` (file lock) for mutual exclusion. A lock file at `tmp/.
 When a behavioral test times out (bash tool kills the script), the agent MUST NOT retry blindly. Instead:
 
 1. **Locate the test home directory** — the most recent `tmp/test-home-{timestamp}/` directory. The test harness creates one per run.
-2. **Export the SQLite DB** — the DB survives the timeout. Export it to the artifact directory:
+2. **Export the SQLite DB** — the DB survives the timeout. Export it to the artifact directory through the session-store adapter (`behaviors/v2rows.py` — the harness's single V1/V2 store reader; under a V2 store the `event` table is empty and content lives in `session_v2`/`session_message`, which the adapter normalizes into the V1-shaped stream; a V1 store passes through unchanged). Never read a V2 store with raw `SELECT … FROM event` — that reads an empty table and produces silently empty evaluation evidence:
    ```bash
    mkdir -p tmp/behavioral-evidence-{scenario}-{phase}-{model}/
    python3 -c "
-   import json, sqlite3
+   import json, sys
+   sys.path.insert(0, '.opencode/tests-v2/behaviors')
+   import v2rows
    db = 'tmp/test-home-{timestamp}/.local/share/opencode/opencode.db'
-   conn = sqlite3.connect(db)
-   conn.row_factory = sqlite3.Row
-   c = conn.cursor()
-   c.execute('SELECT * FROM event ORDER BY id')
-   events = [dict(r) for r in c.fetchall()]
-   result = {'source_db': db, 'harness_version': 1, 'tables': {'event': {'columns': ['id','aggregate_id','seq','type','data'], 'rows': events}}}
+   result = {'source_db': db, 'harness_version': 1, 'tables': {
+     'event': {'columns': ['seq','type','id','aggregate_id','data'],
+               'rows': [{'seq': r[0], 'type': r[1], 'id': r[2], 'aggregate_id': r[3], 'data': r[4]}
+                        for r in v2rows.event_rows(db)]},
+     'part':  {'columns': ['id','session_id','time_created','time_updated','data'],
+               'rows': v2rows.part_rows(db)}}}
    with open('tmp/behavioral-evidence-{scenario}-{phase}-{model}/session.yaml', 'w') as f:
        json.dump(result, f, indent=2, default=str)
    "
@@ -722,18 +724,20 @@ bash .opencode/tests-v2/behaviors/<scenario>.sh
 # ^ bash tool MUST have timeout: 600000
 ```
 
-**Evidence check:** Even when the bash tool kills the script, the SQLite DB in the test home contains the partial session data. Export it manually:
+**Evidence check:** Even when the bash tool kills the script, the SQLite DB in the test home contains the partial session data. Export it manually through the store adapter (`behaviors/v2rows.py` — V1 and V2 stores; same rationale as the §5 Timeout Export Procedure — a raw `SELECT … FROM event` reads an empty table under a V2 store):
 ```bash
 TEST_HOME=$(grep '^TEST_HOME=' tmp/behavioral-evidence-<scenario>-<phase>-<model>/stderr.log | sed 's/^TEST_HOME=//')
 python3 -c "
-import json, sqlite3
+import json, sys
+sys.path.insert(0, '.opencode/tests-v2/behaviors')
+import v2rows
 db = '$TEST_HOME/.local/share/opencode/opencode.db'
-conn = sqlite3.connect(db)
-conn.row_factory = sqlite3.Row
-c = conn.cursor()
-c.execute('SELECT * FROM event ORDER BY id')
-events = [dict(r) for r in c.fetchall()]
-result = {'source_db': db, 'harness_version': 1, 'tables': {'event': {'columns': ['id','aggregate_id','seq','type','data'], 'rows': events}}}
+result = {'source_db': db, 'harness_version': 1, 'tables': {
+  'event': {'columns': ['seq','type','id','aggregate_id','data'],
+            'rows': [{'seq': r[0], 'type': r[1], 'id': r[2], 'aggregate_id': r[3], 'data': r[4]}
+                     for r in v2rows.event_rows(db)]},
+  'part':  {'columns': ['id','session_id','time_created','time_updated','data'],
+            'rows': v2rows.part_rows(db)}}}
 with open('tmp/behavioral-evidence-<scenario>-<phase>-<model>/session.yaml', 'w') as f:
     json.dump(result, f, indent=2, default=str)
 "
@@ -784,17 +788,19 @@ When a behavioral test times out (bash tool kills the script), session resumptio
    ls -la "$TEST_HOME/.local/share/opencode/opencode.db"
    ```
 
-4. **Export session.yaml manually:**
+4. **Export session.yaml manually** through the store adapter (`behaviors/v2rows.py` — V1 and V2 stores; see §5 Timeout Export Procedure):
    ```bash
    python3 -c "
-   import json, sqlite3
+   import json, sys
+   sys.path.insert(0, '.opencode/tests-v2/behaviors')
+   import v2rows
    db = '$TEST_HOME/.local/share/opencode/opencode.db'
-   conn = sqlite3.connect(db)
-   conn.row_factory = sqlite3.Row
-   c = conn.cursor()
-   c.execute('SELECT * FROM event ORDER BY id')
-   events = [dict(r) for r in c.fetchall()]
-   result = {'source_db': db, 'harness_version': 1, 'tables': {'event': {'columns': ['id','aggregate_id','seq','type','data'], 'rows': events}}}
+   result = {'source_db': db, 'harness_version': 1, 'tables': {
+     'event': {'columns': ['seq','type','id','aggregate_id','data'],
+               'rows': [{'seq': r[0], 'type': r[1], 'id': r[2], 'aggregate_id': r[3], 'data': r[4]}
+                        for r in v2rows.event_rows(db)]},
+     'part':  {'columns': ['id','session_id','time_created','time_updated','data'],
+               'rows': v2rows.part_rows(db)}}}
    with open('tmp/behavioral-evidence-<scenario>-<phase>-<model>/session.yaml', 'w') as f:
        json.dump(result, f, indent=2, default=str)
    "
@@ -1106,7 +1112,7 @@ Polling past the confirming poll is a supervision defect (observed 2026-10-13, #
 ### Abort Recovery Procedure
 
 1. **Kill the run** — terminate the background `opencode run` process (the monitor kills the process; GNU `timeout` is still FORBIDDEN per the §5 Bash Tool Timeout Mandate — the monitor's own kill is the abort signal handler, not a timeout wrapper).
-2. **Export session.yaml** — follow the §10.5 manual export procedure (extract TEST_HOME from `stderr.log`, export the `event` table). Partial evidence is valid evidence (§10.5 step 5).
+2. **Export session.yaml** — follow the §10.5 manual export procedure (extract TEST_HOME from `stderr.log`, export through the `behaviors/v2rows.py` store adapter). Partial evidence is valid evidence (§10.5 step 5).
 3. **Record the semantic diagnosis** — write the poll log and the abort judgment (which signal fired, the event-stream evidence, the semantic reasoning) to the scenario's evidence directory alongside session.yaml.
 4. **Evaluate on the partial evidence** — the scenario verdict is evaluated from session.yaml + the monitoring evidence; a run aborted for looping yields a valid FAIL/behavior-diagnosis verdict, not an INCONCLUSIVE.
 
