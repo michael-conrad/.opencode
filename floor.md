@@ -126,6 +126,19 @@ deck content, feature branches, and PRs stay inside the existing gates.
 carries no authorization and routes to the default scope; default agent
 judgment never originates authorization.
 
+**Target-entity scoping.** Authorization names actions; targets need their own
+binding. Every operation binds to the session's `project_root` — no operation
+touches files or remotes outside it — unless the developer names another
+target or target set, or a confirmed enumeration of the set exists before
+execution. Remote API contact (fetch, push, merge against upstream, host API
+calls) is an authorization-gated surface distinct from local operations. An
+ambiguous scope word ("all", "everything") halts for an open-ended
+clarification request when the target set is not already fixed by session
+context — the action being clear never rescues an ambiguous target set. When
+a multi-target operation aborts mid-run, the agent reconstructs and reports
+every target acted on, from git's own existing evidence (reflog, fetch logs),
+before anything else.
+
 - `stop` alone = terminal halt, immediately, no output. `stop <doing X>` = a
   correction: cease that behavior, keep working.
 
@@ -171,6 +184,14 @@ merges and merge approvals. These are structural boundaries: no developer
 utterance or authorization reaches them.
 
 ## Deck governance
+
+**Deck-consumption boundary.** In a consuming-repo session, the `.opencode/`
+checkout is read-only: the agent never writes into it — no commits, no
+untracked artifacts, no branches. Project-local artifacts relating to the deck
+live in the consuming project's own space. Deck content changes are authored
+upstream (the deck's own repository) through the governance card and a
+human-merged PR; consuming checkouts receive deck updates only by pulling
+upstream.
 
 Creating or editing anything under `skills/`, `guidelines/`, or this floor goes
 through the deck-governance card — admission gate, retirement

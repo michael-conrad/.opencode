@@ -2,7 +2,7 @@
 name: implement
 description: "Load when executing an approved plan or making any change during the implementation work cycle — before starting work and before every mid-cycle change. Loads the implementation-workflow reference first (pre-implementation checklist, RED/GREEN chain, post-implementation gates). Run tests and show real output as evidence; use the project's connectors, libraries, and test frameworks from the floor inventory — bespoke reimplementation of what a library provides is a defect. Also load when implementation effort balloons into deep verification of a consumed framework's internals, verification tests of what the build system already guarantees, or methodology-only narration."
 license: MIT
-provenance: AI-authored, .opencode#2490; short-path inline default, .opencode#2645; docs-currentness pointer, .opencode#2670; mid-cycle spec/plan revision duty, developer directive 2026-10-30
+provenance: AI-authored, .opencode#2490; short-path inline default, .opencode#2645; docs-currentness pointer, .opencode#2670; mid-cycle spec/plan revision duty, developer directive 2026-10-30; pr-validation + heavy-regression tier classes + mark-on-creation citation, .opencode#2725
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
@@ -32,7 +32,13 @@ provenance: AI-authored, .opencode#2490; short-path inline default, .opencode#26
    - Test tiers: smoke + regression are the default for every cycle and PR —
      never the full suite (tier definitions in the implementation-workflow
      reference). Full-suite runs are for release boundaries or explicit
-     developer request.
+     developer request. Two further classes ride the cycle: `pr-validation`
+     (this PR's ticket-validation tests — run at PR-check time only, at the
+     suite-green gate's pr-validation surface, dispositioned at merge) and
+     `heavy-regression` (opt-in only — on-demand or scheduled, never in a
+     default run). Test classification is mark-on-creation per the
+     test-discipline card — Read [the test-discipline skill](../test-discipline/SKILL.md)
+     when the cycle creates or classifies tests.
 4. **Mid-cycle changes.** Re-consult the workflow reference first. A change
    beyond the current plan item's scope stops the cycle: report and get
    direction rather than expand silently. A discovered flaw in the spec or

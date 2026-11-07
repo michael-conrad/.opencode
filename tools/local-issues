@@ -1410,6 +1410,7 @@ def cmd_create(args: argparse.Namespace) -> None:
     repo_path = _resolve_and_validate_repo(repo_name)
     _reject_pull_only(repo_name, repo_path)
     _reject_non_store_host(repo_name, repo_path)
+    _warn_local_only_registration(repo_name, repo_path)
     current_repo_name = repo_path.name
     args.number = num
     qualified = f"{current_repo_name}#{args.number}"
@@ -1418,6 +1419,38 @@ def cmd_create(args: argparse.Namespace) -> None:
     _reject_malformed_labels(labels, "create")
     _ensure_worktree(repo_path=repo_path)
     _create_issue_files(args.number, args.title, labels, repo_path, qualified)
+
+
+def _warn_local_only_registration(repo_name: str, repo_path: Path) -> None:
+    """Warn at create time when the store-host's origin is a live tracker.
+
+    .opencode#2723: local-only registration in a store whose origin
+    resolves to a remote-tracker platform forks the number space and
+    hides the work from stakeholders (issues card §2's remote-first
+    reservation rule). A warning, never a refusal — `create --number` is
+    the sanctioned mirror-repair registration path (issues card §7).
+    Called after host classification, before any record is written.
+    """
+    platform = _remote_tracker_platform(repo_path)
+    if platform is None:
+        return
+    print(
+        f"warn: '{repo_name}' is a store-host whose origin resolves to a "
+        f"live remote tracker ({platform}) — this create registers the "
+        "record local-only",
+        file=sys.stderr,
+    )
+    print(
+        "  violated rule: issues card §2 creation rule — file the remote "
+        "issue first to reserve the number; never derive the number by "
+        "listing remote issues",
+        file=sys.stderr,
+    )
+    print(
+        "  effect of proceeding: local-only registration forks the number "
+        "space and hides the work from stakeholders on the remote tracker",
+        file=sys.stderr,
+    )
 
 
 def _recent_issue_numbers(repo_path: Path | None = None) -> list[int]:
@@ -2054,6 +2087,22 @@ def _load_host_browser_maps(tool_dir: Path) -> dict[str, str]:
     return maps
 
 
+def _parse_origin_url(url: str) -> tuple[str, str, str] | None:
+    """Parse a git origin URL into (host, owner, repo-name), or None."""
+    match = re.match(r"^git@([^:/]+):([^/]+)/(.+?)(?:\.git)?$", url)
+    if not match:
+        match = re.match(
+            r"^(?:git\+ssh|ssh)://(?:[^@/]+@)?([^/:]+)(?::\d+)?/([^/]+)/(.+?)(?:\.git)?$",
+            url,
+        )
+    if not match:
+        match = re.match(r"^https?://([^/]+)/([^/]+)/(.+?)(?:\.git)?$", url)
+    if not match:
+        return None
+    host, owner, repo_name = match.groups()
+    return host, owner, repo_name
+
+
 def _remote_browser_base(repo_path: Path) -> str | None:
     """Return the https browser base URL for the repo's origin remote.
 
@@ -2072,23 +2121,43 @@ def _remote_browser_base(repo_path: Path) -> str | None:
     )
     if result.returncode != 0:
         return None
-    url = result.stdout.strip()
-    match = re.match(r"^git@([^:/]+):([^/]+)/(.+?)(?:\.git)?$", url)
-    if not match:
-        match = re.match(
-            r"^(?:git\+ssh|ssh)://(?:[^@/]+@)?([^/:]+)(?::\d+)?/([^/]+)/(.+?)(?:\.git)?$",
-            url,
-        )
-    if not match:
-        match = re.match(r"^https?://([^/]+)/([^/]+)/(.+?)(?:\.git)?$", url)
-    if not match:
+    parsed = _parse_origin_url(result.stdout.strip())
+    if parsed is None:
         return None
-    host, owner, repo_name = match.groups()
+    host, owner, repo_name = parsed
     maps = _load_host_browser_maps(Path(__file__).resolve().parent)
     mapped = maps.get(host)
     if mapped:
         return f"{mapped}/{owner}/{repo_name}"
     return f"https://{host}/{owner}/{repo_name}"
+
+
+def _remote_tracker_platform(repo_path: Path) -> str | None:
+    """Return a tracker-platform label for the repo's origin, or None.
+
+    A store-host whose origin resolves to a live remote-tracker platform —
+    the `github.com` host, or a host-mapped (GitBucket-family) browser base
+    per the committed host-maps config — is reported; unmapped and
+    unparseable origins report None (.opencode#2723). Derived from the
+    origin URL the tool already parses; no remote contact is made.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(repo_path), "remote", "get-url", "origin"],
+        capture_output=True, text=True, timeout=15,
+    )
+    if result.returncode != 0:
+        return None
+    parsed = _parse_origin_url(result.stdout.strip())
+    if parsed is None:
+        return None
+    host = parsed[0]
+    if host == "github.com":
+        return "github.com"
+    maps = _load_host_browser_maps(Path(__file__).resolve().parent)
+    mapped = maps.get(host)
+    if mapped:
+        return mapped
+    return None
 
 
 def cmd_url(args: argparse.Namespace) -> None:

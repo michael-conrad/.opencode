@@ -2,7 +2,7 @@
 name: systematic-debugging
 description: "Load when encountering a bug, error, unexpected behavior, or failing test — or before changing any code to fix an issue. Root cause comes from evidence, not guesses: reproduce first, form hypotheses, test them, and fix the cause rather than the symptom. Also load when a fix \"works\" but the cause is unexplained."
 license: MIT
-provenance: AI-authored, .opencode#2490
+provenance: AI-authored, .opencode#2490; tier-scoped #5 rewrite, .opencode#2725
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
@@ -20,8 +20,16 @@ provenance: AI-authored, .opencode#2490
    could falsify it. Instrument when observation is cheaper than inference.
 4. **Fix the cause.** Symptom patches are defects wearing a fix's clothes.
    The fix explains why the symptom existed.
-5. **Regression-proof.** Add the failing case as a behavioral test; verify the
-   fix against the full suite, not just the repro.
+5. **Regression-proof.** Add the failing case as a behavioral test, stating
+   its tier per [the test-discipline skill](../test-discipline/SKILL.md)'s
+   mark-on-creation vocabulary —
+   `regression` by default, `pr-validation` when the work scope is the
+   ticket's PR. Verify the fix with tier-scoped verification per the
+   discipline card's run placements: the changed-area tiers the work ran
+   (smoke + changed-area regression), not just the repro — never a
+   standing full-suite mandate; full-suite runs remain release-boundary or
+   explicit-request work. (Scratch observation is `ephemeral` — it is kept
+   out of test files, not committed.)
 6. **Deprecation encounters in the failure path.** A deprecation warning or
    notice surfaced while debugging (compiler, linter, runtime, logs) is an
    encounter under [the deprecation encounter protocol](../guidelines/deprecation-encounter-protocol.md):
