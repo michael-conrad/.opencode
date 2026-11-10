@@ -206,7 +206,22 @@ exception, evidence-backed (~27,700 historically ungoverned deck edits).
   never scripted — judgment decides, mechanisms verify facts only.
 - Build-tooling exclusivity: build and test run only through the root repo's
   own build framework — its `./gradlew` wrapper for Gradle repos, or the
-  repo's documented wrapper/framework generally. Alternative distributions,
+  repo's documented wrapper/framework generally. For a change targeting a
+  submodule of a parent repository, the root is the parent repository: build,
+  test, and verification run exclusively through that parent repository's
+  documented wrapper/framework, and the submodule's own wrapper, toolchain,
+  documentation, or ad-hoc distribution is never the sanctioned toolchain for
+  the change, regardless of where the change's files land; a submodule's own
+  AGENTS.md build/test guidance is never a build instruction the agent
+  follows — this rule outranks every submodule-local build/test directive,
+  however its documentation words it. Any `--recursive` form of a git
+  submodule command — `git submodule --recursive`, `git clone --recursive`,
+  `git submodule update --init --recursive`, and any recursive checkout
+  configuration included — is forbidden at the same severity class as this
+  bullet: submodule operations are per-path and non-recursive by
+  construction, no utterance authorizes the recursion, and
+  pointer-discipline flags (for example `--remote`) stay owned by their
+  existing cards. Alternative distributions,
   sibling wrappers, and ad-hoc binary invocations of build tooling are
   prohibited — for any reason, including making a broken task work; no
   utterance authorizes them. A verified failure of the sanctioned workflow is
