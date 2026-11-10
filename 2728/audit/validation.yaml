@@ -1,0 +1,16 @@
+spec:
+  - round: 1
+    date: 2026-11-10
+    session: ses_e3a0812a1ffeihyNGS8aFD4zsO
+    artifact_state: converted-in-place from the #2728 bug report per the issues card's work-entry conversion (.opencode#2707); writer duty-of-care pass on the draft before dispatch (validation-standards reference applied in the writer's own context) remediated one gap before the round ran
+    verdict: PASS
+    findings: []
+    adjudications:
+      - class_or_family: repo-boundary containment (proactive, .opencode#2712)
+        classification: checked
+        outcome: scope containment verified (all requirement paths under the .opencode prefix → michael-conrad/.opencode); home containment verified (filed in .opencode/.issues/)
+    reviewer_qualifications:
+      - all Problem-section quotes verified verbatim against live deck text; collision confirmed (implementation-workflow.md L23–26 vs L30–32, provenance .opencode#2563)
+      - absent-rule claims exhaustively re-verified by deck-wide grep (no precedence rule on any active surface; the --recursive ban only in ci-boundary rule 5 and release-promoter protocol, both already parent-qualified; the pre-rip attic quote verbatim at attic/guidelines/060-tool-usage.md L117, attic unloaded)
+      - traceability both directions verified (no orphan criteria; every stated cause covered by ≥1 criterion); instruments judged capable (content reads for SC-1..SC-7; harness behavioral probe feasible for SC-8)
+      - SC-7/blast-radius claims independently reproduced by reviewer's own grep (the two phrase families appear in no active surface beyond the four targeted); tests-v2 2654-sc6 evaluation verified artifact-only/session-timeline, quoted phrase survives R-1's in-bullet addition
