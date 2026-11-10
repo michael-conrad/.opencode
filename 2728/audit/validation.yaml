@@ -14,3 +14,34 @@ spec:
       - absent-rule claims exhaustively re-verified by deck-wide grep (no precedence rule on any active surface; the --recursive ban only in ci-boundary rule 5 and release-promoter protocol, both already parent-qualified; the pre-rip attic quote verbatim at attic/guidelines/060-tool-usage.md L117, attic unloaded)
       - traceability both directions verified (no orphan criteria; every stated cause covered by ≥1 criterion); instruments judged capable (content reads for SC-1..SC-7; harness behavioral probe feasible for SC-8)
       - SC-7/blast-radius claims independently reproduced by reviewer's own grep (the two phrase families appear in no active surface beyond the four targeted); tests-v2 2654-sc6 evaluation verified artifact-only/session-timeline, quoted phrase survives R-1's in-bullet addition
+  - round: 2
+    date: 2026-11-10
+    session: ses_e39fd1b49ffecx98sPnPVlEiJe
+    artifact_state: revision round from the developer's mid-gate directive (the directive must not be gradle-specific) — R-1, R-5, SC-1, SC-5, scope table, Approach item 3, Impact revised in place; both surfaces reconciled
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class_or_family: invented requirement (defect class 1; embedded factual misstatement)
+        section: R-3 (--remote element)
+        statement: R-3's prohibited-form enumeration included `--remote` — no provenance source names it (the report's Expected Behavior names only `git submodule --recursive`/recursion; the cited pre-rip precedent bans only `--recursive`), and the deck's own rationale (release-promoter protocol) classifies `--remote` as pointer-discipline, non-recursive — a release-protocol-specific ban extended to the work-cycle floor
+        remediation: "`--remote` removed from R-3's enumeration; enumeration restated to recursion forms only (matching ci-boundary rule 5's form list)"
+    adjudications:
+      - class_or_family: ambiguous criterion / either-or (the R-1 revision surfaces)
+        classification: checked, no finding
+        outcome: R-1's framework-general phrasing judged single-reading (instances-subordinate resolved by the spec's "floors names → illustrative presupposition"); R-5's card-class generalization judged traceable to Problem item 3 + the developer directive, not invented scope (grep: gradle card + workflow reference are the only wrapper-referent surfaces; java card delegates to gradle)
+      - class_or_family: fabricated claims / repo-boundary containment (proactive)
+        classification: checked, no finding
+        outcome: all Problem quotes verbatim-verified on live text; phrase families located in exactly the targeted surfaces; both containment prongs hold (".opencode" prefix → michael-conrad/.opencode; filed in .opencode/.issues/)
+  - round: 3
+    date: 2026-11-10
+    session: ses_e39f9dad4ffejxlI5XTY6WWTDP
+    artifact_state: round-2 finding remediated in place — R-3's prohibited-form enumeration restated to recursion forms only (matching ci-boundary rule 5's list), `--remote` removed in both the local spec and the remote summary; both surfaces reconciled
+    verdict: PASS
+    findings: []
+    adjudications:
+      - class_or_family: invented requirement (remediation check on the round-2 F-1 surface)
+        classification: checked, no finding
+        outcome: R-3's enumeration now carries only traceable forms (ci-boundary rule 5's recursion list + the report's `git submodule --recursive`); `--remote` survives only as the named example of pointer-discipline rules staying card-owned (release-promoter rationale confirmed non-recursive classification)
+      - class_or_family: loop-consistency / repo-boundary containment (proactive)
+        classification: checked, no finding
+        outcome: round-2 revision surfaces (R-1 framework-general; R-5 card-class with gradle as verified instance) confirmed consistent with the unrevised sections; all factual claims and absence claims re-verified; containment prongs hold; loop exits clean at a zero-finding verdict
