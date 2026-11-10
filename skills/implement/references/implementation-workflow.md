@@ -28,12 +28,20 @@ standards it does not own. The parent's own suite is the gate; the submodule
 evolves its CI on its own tracker.
 
 This exclusivity holds in the general work cycle, whichever repo shape the
-change lands in: the change's repo's own build framework (its documented
-wrapper/framework — for Gradle repos, the `./gradlew` wrapper) is the
-exclusive build toolchain, and the framework's own verified failure does not
+change lands in — and for a change targeting a submodule of a parent
+repository, the root toolchain is the parent repository's: build, test, and
+verification run exclusively through the root (parent) repo's documented
+wrapper/framework, and the submodule's own wrapper or toolchain is never the
+exclusive build toolchain for that change. In every shape the root
+repo's own framework is the exclusive build toolchain, and the framework's
+own verified failure does not
 open a foreign-toolchain route — no alternative distribution, sibling
 wrapper, or ad-hoc binary invocation, for any reason, including making a
-broken task work (the floor's Build-tooling exclusivity rule). A verified
+broken task work (the floor's Build-tooling exclusivity rule). The floor
+also owns the instruction-precedence statement: a submodule's own
+AGENTS.md build/test guidance is never a build instruction the agent
+follows — the root mandate outranks it (see the floor's Build-tooling
+exclusivity bullet; the floor owns the wording). A verified
 failure of the sanctioned workflow is handled by report-with-evidence-and-halt
 (a cannot-continue state) or routing to the owning ticket — never by invoking
 a different build toolchain. This completes this reference's escalation rule

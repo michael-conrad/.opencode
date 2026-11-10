@@ -79,7 +79,18 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    commits** — and only then commence work. At the review surface the
    pointer-only prohibition applies (see `git-workflow-commit` #5 and
    `git-workflow-pr`): the pointer rides with real changes in the squashed
-   per-issue commit, never as a standalone parent PR.
+   per-issue commit, never as a standalone parent PR. All submodule
+   operations in this step — sync's per-submodule fetch/compare and any
+   pointer capture — are per-path and non-recursive (rule 3's
+   No-`--recursive` prohibition carries the floor-owned wording).
+   **No-`--recursive` prohibition (floor-owned wording, .opencode#2728).**
+   Every submodule operation this card plans — sync, pointer capture, deinit
+   remediation — is per-path and non-recursive by construction: any
+   `--recursive` form of a git submodule command (including `git clone
+   --recursive`, `git submodule update --init --recursive`, and
+   `git submodule --recursive`) is forbidden at the severity class the
+   floor's Build-tooling exclusivity bullet states — no utterance authorizes
+   the recursion.
    **Tagged-SHA pointer discipline (restored, .opencode#2683).** Before a
    parent commit records a submodule pointer, the recorded SHA carries a
    pushed annotated hash-permanence tag `<parent-repo>/<issue-number>-<submodule-dir>`

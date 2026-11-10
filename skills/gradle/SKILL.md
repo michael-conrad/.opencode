@@ -18,12 +18,15 @@ code, and a future Kotlin/Scala card would need it.
 
 ## Wrapper discipline
 
-- Invoke builds through the wrapper (`./gradlew`) when the repository ships
-  one — the wrapper pins the distribution version the project was built to
+- Invoke builds through the repository's wrapper (`./gradlew`) when it ships
+  one — the repository here is the root repo of the working set: for a
+  change targeting a submodule of a parent repository, that is the parent
+  repository, per the floor's Build-tooling exclusivity rule. The wrapper
+  pins the distribution version the project was built to
   work with; a bare `gradle` uses whatever the machine has.
-- When the repository has no wrapper, the canonical command comes from the
-  repo's declared build manifest — ask when the manifest does not declare it;
-  never guess.
+- When the root repository has no wrapper, the canonical command comes from
+  the root repo's declared build manifest — ask when the manifest does not
+  declare it; never guess.
 - Build execution is exclusive to the wrapper (or, wrapperless, the
   declared-framework command): an alternative Gradle distribution, a bare
   `gradle`, a sibling wrapper, or any ad-hoc binary gradle invocation is

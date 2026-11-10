@@ -16,7 +16,7 @@
 # the test home starts bare of agent-managed tooling (R-3).
 FROM ubuntu:24.04@sha256:f610ab94648195aa356059f5b41d6085c9d4d903c072430cdd1af7bdb646106b
 
-ARG OPENCODE_VERSION=1.19.0
+ARG OPENCODE_VERSION=2.2.5
 ARG UV_VERSION=0.13.0
 
 ENV DEBIAN_FRONTEND=noninteractive \
