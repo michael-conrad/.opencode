@@ -59,7 +59,10 @@ number in that repo's own namespace.
   resolution; if the worktree is stopped mid-rebase (`rebase-merge`/
   `rebase-apply` present), it reports `rebase_in_progress` with the actual
   remedy — `git -C <worktree> rebase --abort`, or resolve conflicts and
-  `git -C <worktree> rebase --continue` (#2548 C2/C3).
+  `git -C <worktree> rebase --continue` (#2548 C2/C3). The discovering agent
+  performs this repair on discovery, in the same workflow, per the issues
+  card §7 — report-with-halt naming only the store on evidenced failure
+  (.opencode#2731).
 - `init` = ensure worktrees in all store-holding repos (root first, then its
   *registered* submodules per git's registered-submodule mechanism — each
   child gated on issue-host evidence, #2642) + commit

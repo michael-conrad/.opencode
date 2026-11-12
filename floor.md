@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2518/#2525 authorization anchors; #1011 dispatch-scope containment; decision-loop counterweight clauses, .opencode#2670; agent-owned scoped branch rewrite + whole-card discipline conversion, .opencode#2665; issues-data exception, .opencode#2681; build-tooling exclusivity rule, .opencode#2654; verified-resolved reconciliation exception, .opencode#2699; agent-owned triage→spec conversion clause, .opencode#2707 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2518/#2525 authorization anchors; #1011 dispatch-scope containment; decision-loop counterweight clauses, .opencode#2670; agent-owned scoped branch rewrite + whole-card discipline conversion, .opencode#2665; issues-data exception, .opencode#2681; build-tooling exclusivity rule, .opencode#2654; verified-resolved reconciliation exception, .opencode#2699; agent-owned triage→spec conversion clause, .opencode#2707; enumerated/card-bounded target-set carve-out (halted release-pipeline request in a submodule container, 2026-11-12), .opencode#2730 -->
 
 # Agent Floor
 
@@ -134,7 +134,10 @@ execution. Remote API contact (fetch, push, merge against upstream, host API
 calls) is an authorization-gated surface distinct from local operations. An
 ambiguous scope word ("all", "everything") halts for an open-ended
 clarification request when the target set is not already fixed by session
-context — the action being clear never rescues an ambiguous target set. When
+context — session-init data (an enumerated worktree map or repo table) and an
+authorization-vocabulary token whose owning card bounds the target surface
+each fix the set — the action being clear never rescues a target set
+genuinely unfixed by session context. When
 a multi-target operation aborts mid-run, the agent reconstructs and reports
 every target acted on, from git's own existing evidence (reflog, fetch logs),
 before anything else.
