@@ -92,7 +92,8 @@ provenance: AI-authored, .opencode#2490; short-path inline default, .opencode#26
    **Short-path inline default.** For a change on the short path — the path
    [the change gate](../work/SKILL.md) defines — the default is working
    inline in the agent's own context; a sub-agent dispatch for that work
-   requires a scoped reason recorded in the work record.
+   carries the scoped reason in the dispatch prompt itself — the reason
+   travels with the work it justifies, never parked in a record file.
 10. **SC fidelity.** Implementation satisfies each criterion as written — no
     weakening, skipping, deferring, or reinterpreting a criterion to make it
     passable. Fidelity runs in both directions: the implementation adds no
