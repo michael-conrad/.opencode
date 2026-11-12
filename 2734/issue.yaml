@@ -1,0 +1,9 @@
+title: '[BUG] work card prescribes writing .git/work-record.md inside consuming repos
+  — agent-authored intrusion into the repo''s own git directory'
+status: open
+labels:
+- needs-approval
+- bug
+body: ''
+created_at: '2026-11-12T17:53:48+00:00'
+updated_at: '2026-11-12T17:53:48+00:00'
