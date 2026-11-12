@@ -1,6 +1,6 @@
 title: '[SPEC] Eliminate the deck''s work-record file mechanism — carry provenance
   and scope on stateless surfaces'
-status: open
+status: closed
 labels:
 - bug
 - '[SPEC]'
@@ -220,5 +220,7 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   > Local artifacts: `.opencode/.issues/2734/`\n\n\U0001F916 Co-authored with AI:\
   \ OpenCode (huggingface/zai-org/GLM-5.3-Flash)\n"
 created_at: '2026-11-12T17:53:48+00:00'
-updated_at: '2026-11-12T18:34:26+00:00'
+updated_at: '2026-11-12T20:19:24+00:00'
 github_url: michael-conrad/.opencode
+closed_at: '2026-11-12T20:19:24+00:00'
+close_reason: completed
