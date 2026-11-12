@@ -3,51 +3,67 @@ title: '[SPEC] release-promoter: resolve canonical build/test commands from sanc
 status: open
 labels:
 - needs-approval
-body: "## Summary\n\nThe release-promoter clean-room gate (step 7) requires discovering\
-  \ canonical\nbuild/test commands from a parent-repo build manifest and hard-fails\n\
-  `MANIFEST_FAIL` with no retry when none exists. Since step 8 forbids executing\n\
-  any command not discovered from the manifest, a repository whose tree carries\n\
-  no declared build manifest can never satisfy the gate's zero-failure\nbuild/test\
-  \ requirement — the release PR can never be filed. The developer's\nruling (2026-11-12):\
-  \ only a real failure — an actual build or test failure, or\nequivalent verified\
-  \ failure — should block a release. Manifest absence is not\na real failure.\n\n\
-  ## Environment\n\n- opencode version: 2.2.5\n- OS: Linux 6.8.0-147-generic (linux\
-  \ x64)\n- Terminal: TERM=dumb\n- Shell: /bin/bash\n- Install/channel: latest\n-\
-  \ Active plugins: ./plugins/vacuum-retention.ts\n- Deck: `.opencode` @ 65397f46\
-  \ (post-#2735)\n\n## Reproduction\n\nOn a Gradle parent repository with registered\
-  \ submodules but **no root\n`AGENTS.md`** (its `.opencode/AGENTS.md` is deliberately\
-  \ pointer-only:\n\n> \"This file exists because the platform auto-loads AGENTS.md\
-  \ — it must stay a\n> pointer and carry no rules.\"):\n\n1. Run the trunk-freshness\
-  \ pass (all repos reach remote trunk tips; no sync\n   needed).\n2. Begin the release-promoter\
-  \ Phase A clean-room gate.\n3. Step 7 (build-manifest discovery): read the root\
-  \ build manifest — none\n   exists; tree sweep (`git ls-files`) shows `build.gradle`,\
-  \ `gradlew`,\n   `CHANGELOG.md`, `README.md` (one deploy-path line) and no manifest\
-  \ with a\n   build/test commands section; no fallback manifest is named.\n4. Session-init\
-  \ supplies no build/test commands for the root (verified:\n   `./.opencode/tools/session-init`\
-  \ output contains none), despite the\n   floor's \"Per-root facts (owner, repo,\
-  \ test commands) come from session-init\".\n\n## Expected Behavior\n\nThe gate should\
-  \ block a release only on real failures: `DRIFT_FAIL`, an actual\n`BUILD_FAIL` (non-zero\
-  \ build or test exit), `TREE_MISMATCH`, or an equivalent\nverified failure. When\
-  \ no manifest declares canonical commands, the gate\nshould resolve the toolchain\
-  \ from sanctioned, documented sources — the\nrepository's own build framework (the\
-  \ wrapper the floor's build-tooling\nexclusivity explicitly sanctions: \"its `./gradlew`\
-  \ wrapper for Gradle repos\")\nand/or session-init per-root facts — and proceed\
-  \ to execute the real\nbuild/test zero-failure assertion.\n\n## Actual Behavior\n\
-  \nStep 7.4 is unconditional: \"If the commands cannot be discovered from the\nmanifest,\
-  \ hard-fail: state `MANIFEST_FAIL`, exit non-zero, and do NOT proceed —\nthe release\
-  \ PR is blocked,\" and `MANIFEST_FAIL` is classified an assertion\nfailure (no retry\
-  \ within the release run). Result observed live\n(2026-11-12, DoiUpdaterCurrent):\
-  \ release run ended at `MANIFEST_FAIL` with\nevery repo verified at its remote trunk\
-  \ tip and the candidate untested —\nblocked on missing paperwork, not on a failing\
-  \ build.\n\n## Additional Context\n\n- The conflict is structural: the floor sanctions\
-  \ the wrapper; the gate\n  permits only manifest-discovered commands; `.opencode/AGENTS.md`\
-  \ (a common\n  deck location) is prohibited from carrying commands.\n- Related closed\
-  \ specs that produced the current gate text: #2439 (original\n  gate), #2557, #2590\
-  \ (pre-PR relocation + no-retry rescope).\n- Possible remediation directions for\
-  \ triage (not prescriptive): define a\n  sanctioned discovery order (declared manifest\
-  \ → session-init per-root\n  facts → the repo's documented wrapper), demote manifest\
-  \ absence from a\n  blocking assertion to a remediable entry-criteria item, or have\n\
-  \  session-init emit per-root build/test commands as a declared source.\n\n"
+body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-Identifier:\
+  \ MIT -->\n<!-- Provenance: AI-authored bug report, filed 2026-11-12 on the remote\n\
+  \     tracker; triaged 2026-11-12 under the developer dispatch \"triage\n     .opencode#2736\"\
+  \ and converted in place into this governing spec under\n     the work-entry conversion\
+  \ (issues card §5, .opencode#2707 mechanics).\n     Developer ruling recorded in\
+  \ the report: only a real failure — an\n     actual build or test failure, or equivalent\
+  \ verified failure — should\n     block a release; manifest absence is not a real\
+  \ failure. Triage\n     evidence: claims verified against the live card text\n \
+  \    (skills/release-promoter/references/operating-protocol.md steps 7.4,\n    \
+  \ 8, 10; skills/release-promoter/SKILL.md step 0) and the\n     pointer-only `.opencode/AGENTS.md`\
+  \ constraint, this date. -->\n\n# [SPEC] release-promoter: resolve canonical build/test\
+  \ commands from sanctioned documented sources — manifest absence is not a release-blocking\
+  \ failure\n\n## Problem\n\nThe release-promoter clean-room gate's canonical build/test\
+  \ command\ndiscovery (operating protocol step 7) reads the parent repository's build\n\
+  manifest and, when no manifest declares the commands, hard-fails\n`MANIFEST_FAIL`\
+  \ with no retry (step 7.4). Step 8 forbids executing any\ncommand not discovered\
+  \ from the manifest. A parent repository whose tree\ncarries no declared build manifest\
+  \ therefore can never satisfy the gate's\nzero-failure build/test assertion: the\
+  \ release PR is permanently blocked on\nmissing paperwork, not on any failing build.\
+  \ Observed live (2026-11-12,\nDoiUpdaterCurrent): the release run ended at `MANIFEST_FAIL`\
+  \ with every\nrepo verified at its remote trunk tip and the candidate untested.\
+  \ The\nconflict is structural — the floor's build-tooling exclusivity sanctions\n\
+  the parent's own wrapper (`./gradlew` for Gradle repos), while the gate\npermits\
+  \ only manifest-discovered commands; `.opencode/AGENTS.md`, a common\nmanifest location,\
+  \ is prohibited from carrying rules or commands.\n\nThe developer's ruling (2026-11-12):\
+  \ only a real failure — an actual build\nor test failure, or an equivalent verified\
+  \ failure — should block a\nrelease. Manifest absence is not a real failure.\n\n\
+  ## Requirements\n\n1. The clean-room gate resolves the canonical build and test\
+  \ commands from\n   sanctioned, documented sources when the release tree declares\
+  \ no build\n   manifest: the declared build manifest when one exists; otherwise\
+  \ the\n   repository's own documented build framework — the wrapper the floor's\n\
+  \   build-tooling exclusivity rule sanctions for the repository's build\n   system\
+  \ — and session-init per-root facts where they supply\n   build/test commands. The\
+  \ resolution order is defined by the card text;\n   the gate never hardcodes a build\
+  \ system and never substitutes a\n   submodule's own tooling run in isolation for\
+  \ the parent's framework.\n2. Manifest absence ceases to be a blocking assertion:\
+  \ `MANIFEST_FAIL` as\n   a hard-fail-on-absence class is removed from the gate.\
+  \ Only real\n   failures block the release — `DRIFT_FAIL`, an actual `BUILD_FAIL`\n\
+  \   (non-zero build or test exit), a tree mismatch, or an equivalent\n   verified\
+  \ failure — under the existing no-retry-within-the-release\n   discipline for assertion\
+  \ failures.\n3. The gate text records which source supplied the resolved commands\
+  \ in\n   the gate's work record, so the zero-failure assertion's provenance is\n\
+  \   auditable.\n\n## Success criteria\n\n| SC | Class | Criterion | Verification\
+  \ |\n|----|-------|-----------|--------------|\n| SC-1 | Behavioral | On a release\
+  \ tree with no declared build manifest, the clean-room gate resolves build/test\
+  \ commands from the sanctioned documented sources and proceeds to execute the zero-failure\
+  \ build/test assertion — it does not stop at manifest absence. | Executed gate run\
+  \ on a manifest-less candidate tree (live or scripted scenario) reaching build/test\
+  \ execution and completing or failing only on real build/test outcomes. |\n| SC-2\
+  \ | Content | The release-promoter card and operating protocol no longer hard-fail\
+  \ on manifest absence: command discovery states the sanctioned resolution order,\
+  \ `MANIFEST_FAIL` is removed as an assertion-failure class, and the blocking-failure\
+  \ list names only real failures. | Fact-decidable read of the card text against\
+  \ the requirements. |\n| SC-3 | Content | The gate's work-record requirement states\
+  \ that the resolved commands and their supplying source are recorded. | Fact-decidable\
+  \ read of the card text. |\n\n## Scope\n\n- `skills/release-promoter/SKILL.md` (step\
+  \ 0 assertion-failure list)\n- `skills/release-promoter/references/operating-protocol.md`\
+  \ (steps 7, 8, 10)\n- Any related references citing `MANIFEST_FAIL`\n\nDeck-consumption\
+  \ boundary: the change is authored in the deck's own\nrepository (this store) and\
+  \ lands through the deck governance flow and a\nhuman-merged PR; consuming checkouts\
+  \ receive it only by pulling upstream.\n"
 created_at: '2026-11-12T18:25:17+00:00'
-updated_at: '2026-11-12T18:26:58+00:00'
+updated_at: '2026-11-12T18:27:00+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2736
