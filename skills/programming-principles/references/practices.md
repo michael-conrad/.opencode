@@ -16,9 +16,14 @@ patch; pre-release and build metadata follow the same spec's forms.
 
 - Choose the version that communicates the change honestly — a "patch" release
   that breaks consumers is a defect, not a version number.
+- Every repository this deck manages carries semver versioning across both
+  tracks: release PRs carry the release version, and regular PRs carry the
+  in-progress dev version — the version token leads the PR title
+  (`git-workflow-pr`).
 - The expectation lives here; the operations live in `version-manager` (finding
   version strings, choosing the level from the changelog category, updating
-  them consistently) and `changelog-generator` (the release-notes body). When a
+  them consistently, and the dev-line mechanics) and `changelog-generator` (the
+  release-notes body); `release-promoter` owns the release conversion. When a
   change needs a version bump, the expectation tells you which level is honest;
   those cards perform it.
 

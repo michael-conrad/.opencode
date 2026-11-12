@@ -222,5 +222,11 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
     standing (a discovered pending approving review is deleted). Any hit is a
     boundary violation: report it, and do not proceed to PR prep until the
     record is clean.
+8. **PR title version token.** The version token leads the PR title: bare
+    `vX.Y.Z` on release PRs (the release indicator), `vX.Y.Z-dev.N` on dev
+    PRs (the dev indicator). The remainder of the title follows the
+    commit-message shape `type(#issue): summary` — Read [the commit-message
+    shape in git-workflow-commit](../git-workflow-commit/SKILL.md) — applied
+    to PR titles.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
