@@ -165,10 +165,12 @@ repository).
   Instrument: executed
   `grep -rn "git-path work-record" skills/ guidelines/ agents/ floor.md` and
   `grep -rn "\.git/work-record" skills/ guidelines/ agents/ floor.md` → zero
-  matches; plus a fresh-context content review of the six revised card
-  sections confirming no prose form locates an agent-authored file in a git
-  directory. (The grep covers the mechanical path forms; the review covers
-  rephrasing.)
+  matches; plus a fresh-context content review over the full agent-facing
+  instruction surface (`skills/`, `guidelines/`, `agents/`, `floor.md`) for
+  git-directory-residency prescriptions — confirming no prose form locates
+  the work record or any other agent-authored file in a git directory.
+  (The greps cover the mechanical path forms; the surface-wide review covers
+  rephrasing and the prohibition's full breadth.)
 - **SC-2 (structural).** The deck prescribes no dedicated work-record file
   on any surface: every true work-record reference in the agent-facing
   instruction surface names a stateless carrier per R-2, and zero
@@ -208,7 +210,7 @@ repository).
 
 | ID | Criterion | Class | Instrument |
 |----|-----------|-------|------------|
-| SC-1 | No deck text prescribes an agent-authored file in a repository's git directory | structural | executed grep sweep (zero matches) + fresh-context content review of the six revised sections |
+| SC-1 | No deck text prescribes an agent-authored file in a repository's git directory | structural | executed grep sweep (zero matches) + fresh-context content review of the full agent-facing surface for git-directory-residency prescriptions |
 | SC-2 | No deck text prescribes a dedicated work-record file on any surface; every reference names a stateless carrier | structural | executed grep sweep enumerating the match set + content review classifying every match |
 | SC-3 | Record function survives for every existing consumer on stateless carriers, staleness prevented by construction | structural | content review of the six revised sections |
 | SC-4 | Issue/no-issue cases resolve identically with no repository-side file; no-new-machinery boundary and R-5 necessity gate preserved | structural | content review of the revised consumer passages and boundary statements |
