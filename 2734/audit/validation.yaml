@@ -98,3 +98,90 @@ spec:
       - family: safety
         classification: not-found
     outcome: revised in place; re-validation dispatched (round 2)
+  - round: 2
+    date: 2026-11-12
+    reviewer: fresh-context subagent (task ses_e2f0cca79ffeorFPY9TIrQ5Wtg)
+    criteria_set: .opencode/skills/spec/references/validation-standards.md
+    verdict: FAIL
+    findings:
+      - id: F-3
+        class: internal-contradiction (with gap-analysis consequence)
+        where: R-4 vs R-5; R-5's recording-consumer enumeration; SC-4
+        ground: R-4 promises consumers continue to function unconditionally
+          while R-5 abolishes the record on no-issue work with dispositions
+          stated for only two consumers; the short path runs on no-issue work
+          today, so the short-path scope statement (verify's primary
+          artifact), the outgrowth extension target, and implement's
+          dispatch-reason target would be left without a home on that path —
+          the requirements cannot be jointly satisfied as written
+        remediation: R-4 qualified (relocated home on issue-record cycles;
+          R-5's dispositions on no-issue cycles); R-5 rewritten to state the
+          no-issue disposition for every work-record consumer using only
+          already-sanctioned surfaces (session state + dispatch prompts for
+          mid-cycle needs; the PR body for what persists past the cycle; the
+          outgrowth transition's spec artifact in an issue record); SC-4
+          widened to review every revised consumer passage's no-issue branch;
+          SC-3 scoped to issue-record cycles with the no-issue branch
+          delegated to SC-4
+      - id: F-4
+        class: fabricated-claims
+        where: SC-2 instrument's exception-set claim
+        ground: the claim that the only grep matches outside the
+          relocated-home set are historical provenance comments is false —
+          `git-workflow-cleanup` rule 2 line 27 ("the branch's work recorded")
+          is a verb-phrase lexical coincidence in the match set that neither
+          category covers; a literal executor meets an unaccounted match
+        remediation: SC-2's instrument rewritten to classification-based
+          review — the sweep enumerates the match set and the content review
+          classifies every match (true references / provenance comments /
+          lexical coincidences) instead of asserting an exhaustive category
+          set
+      - id: F-5
+        class: fabricated-claims (executed-check misstatement)
+        where: Impact blast-radius claim
+        ground: the executed-grep claim named `commands/` — a directory that
+          does not exist in the checkout (removed by #2490 stage 4d); the
+          sweep could not have covered it (silently skipped)
+        remediation: claim restated over the surfaces that exist (skills/,
+          guidelines/, agents/, floor.md) with the commands/ removal noted;
+          R-1's surface enumeration and the SC-1/SC-2 sweep scopes aligned to
+          the same full agent-facing surface
+    classes_adjudicated:
+      - class: invented-requirement
+        classification: not-found
+      - class: untestable-criterion
+        classification: not-found
+      - class: either-or-criterion
+        classification: not-found
+      - class: ambiguous-criterion
+        classification: not-found
+      - class: incapable-instrument
+        classification: not-found
+      - class: self-containment-violation
+        classification: not-found
+      - class: trivially-true-restatement
+        classification: not-found
+      - class: state-undecidable-criterion
+        classification: not-found
+      - family: repo-boundary-containment
+        classification: pass (scope containment and home containment both
+          hold)
+      - family: traceability
+        classification: pass (both directions)
+      - family: problem-fit
+        classification: pass
+      - family: causal-sufficiency
+        classification: pass
+      - family: escape-hatches
+        classification: not-found
+      - family: feasibility
+        classification: not-found
+      - family: scope-narrowness
+        classification: not-found
+      - family: research-adequacy
+        classification: not-found
+      - family: decomposition
+        classification: not-found
+      - family: safety
+        classification: not-found
+    outcome: revised in place; re-validation dispatched (round 3)

@@ -29,8 +29,8 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ to `git status`, reads as an intrusion on owner audit, and its only\ncleanup is\
   \ a future session remembering a cleanup-card step — a\nlatent-residue failure mode.\n\
   \nProvenance of the mechanism (verified against live upstream history\n2026-11-12\
-  \ — the report's addendum, this triage's re-check, and the\nvalidation round's independent\
-  \ re-check): the work record as a mechanism\nconcept predates the #2657 cycle —\
+  \ — the report's addendum, this triage's re-check, and the\nvalidation rounds' independent\
+  \ re-checks): the work record as a mechanism\nconcept predates the #2657 cycle —\
   \ informal two-word references existed\nwithout any deck-prescribed location (`git-workflow-branch`\
   \ from #2490 stage\n2b, 2026-10-04; `work` from #2584, 2026-10-12), and at `ac5c4407^`\
   \ the deck\ncarries zero hyphenated `work-record` forms and zero `git-path` prescriptions\n\
@@ -48,18 +48,18 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \nRelocate the work record's content (provenance + scope statement) out of\nrepository\
   \ git directories into the cycle's issue record; revise every card\nthat references\
   \ the record, in the same change.\n\n## Requirements\n\n- **R-1** — The deck's agent-facing\
-  \ instruction surface (`skills/`,\n  `floor.md`) SHALL prescribe no agent-authored\
-  \ file — including the work\n  record — inside any repository's git directory: no\n\
-  \  `git rev-parse --git-path`-resolved record path, no `.git/`-resident record\n\
-  \  path, and no prose locating the record (or any agent-authored scratch file)\n\
-  \  in a repository's git directory.\n- **R-2** — The work record's content — the\
-  \ provenance (verified trunk tip,\n  branch, base tip, and issue) and the scope\
-  \ statement (path taken, criteria\n  that selected it, what changes, what \"done\"\
-  \ is checked against, what is out\n  of scope, order of work, recorded departure\
-  \ reasons) — SHALL be prescribed\n  at a location the repository owner sanctions.\
-  \ The triage-weighed home is the\n  cycle's issue record: the local store's issue\
-  \ folder on the `issues-data`\n  branch where the repository holds a store; the\
-  \ remote tracker's record where\n  it does not.\n- **R-3** — Every card referencing\
+  \ instruction surface (`skills/`,\n  `guidelines/`, `agents/`, `floor.md`) SHALL\
+  \ prescribe no agent-authored\n  file — including the work record — inside any repository's\
+  \ git directory:\n  no `git rev-parse --git-path`-resolved record path, no `.git/`-resident\n\
+  \  record path, and no prose locating the record (or any agent-authored\n  scratch\
+  \ file) in a repository's git directory.\n- **R-2** — The work record's content\
+  \ — the provenance (verified trunk tip,\n  branch, base tip, and issue) and the\
+  \ scope statement (path taken, criteria\n  that selected it, what changes, what\
+  \ \"done\" is checked against, what is out\n  of scope, order of work, recorded\
+  \ departure reasons) — SHALL be prescribed\n  at a location the repository owner\
+  \ sanctions. The triage-weighed home is the\n  cycle's issue record: the local store's\
+  \ issue folder on the `issues-data`\n  branch where the repository holds a store;\
+  \ the remote tracker's record where\n  it does not.\n- **R-3** — Every card referencing\
   \ the work record SHALL be revised in the\n  same change, agreeing on the one relocated\
   \ home: `work` (§4 and the\n  short-path outgrowth passage), `git-workflow-branch`\
   \ (trunk-freshness step,\n  its per-submodule recording clause, and rule 5), `implement`\
@@ -67,65 +67,80 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \  `verify` (§1 dispatch), `git-workflow-cleanup` (description and rule 5). No\n\
   \  card is left referencing a git-directory-resident record or a divergent\n  location.\n\
   - **R-4** — The record's consumers SHALL continue to function after\n  relocation:\
-  \ the short-path outgrowth extension (`work`), the implement\n  card's scoped-dispatch-reason\
-  \ recording, the version-manager card's\n  numbering-justification recording, and\
-  \ the verify card's short-path\n  primary artifact, which the dispatch can address\
-  \ by path.\n- **R-5** — For work with no issue record, the deck SHALL prescribe\
-  \ no\n  repository-side record file; every consumer that records into the record\n\
-  \  (`git-workflow-branch` rule 5, `version-manager` rule 7) SHALL state where\n\
-  \  its no-issue recording lands — the PR-preparation surface and git's own\n  evidence\
-  \ serve the provenance consumer — preserving the existing boundary\n  \"never create\
-  \ an issue, or initialize an issue store, to satisfy\n  provenance.\"\n\n## Approach\n\
-  \nRelocate the work record's content into the cycle's issue record (candidate 1\n\
-  from the report, weighed in the triage evidence): the provenance and scope\nstatement\
-  \ are issue-tracking metadata and belong with the cycle's other\nartifacts on the\
-  \ `issues-data` branch — agent-owned workspace under the deck's\nown governance,\
-  \ written through the `local-issues` tool; nothing lands in the\nworking tree or\
-  \ `.git/`. Where no issue record exists, no record file is\nprescribed at all (R-5).\
-  \ All six referencing cards move together, including\n`version-manager`'s rule 7.\
-  \ The `verify` dispatch names the relocated path;\nthe cleanup card's record-removal\
-  \ step becomes unnecessary for the record —\nstore artifacts follow the store's\
-  \ own lifecycle. Exact mechanics (the\nrecord's file naming inside the issue folder\
-  \ versus fields of the record\nitself) are plan-stage decisions bounded by R-1 and\
-  \ R-2.\n\n## Success criteria\n\nAll criteria are structural: the deliverable is\
-  \ the deck's instruction text,\nand each criterion's satisfaction is decidable from\
-  \ the changed text. The\nruntime effect — agents following the deck no longer write\
-  \ into `.git/` —\nfollows from the content criteria. Instruments run over the deck\
-  \ checkout.\n\n- **SC-1 (structural).** The deck's agent-facing instruction surface\n\
-  \  prescribes no work record — and no other agent-authored file — located\n  inside\
-  \ a repository's git directory. Instrument: executed\n  `grep -rn \"git-path work-record\"\
-  \ skills/ floor.md` and\n  `grep -rn \"\\.git/work-record\" skills/ floor.md` →\
-  \ zero matches; plus a\n  fresh-context content review of the six revised card sections\
-  \ confirming no\n  prose form locates an agent-authored file in a git directory.\n\
+  \ on cycles with an issue record, at the relocated home — the\n  short-path outgrowth\
+  \ extension (`work`), the implement card's\n  scoped-dispatch-reason recording,\
+  \ the version-manager card's\n  numbering-justification recording, and the verify\
+  \ card's short-path primary\n  artifact, which the dispatch can address by path;\
+  \ on no-issue cycles, per\n  the dispositions R-5 states.\n- **R-5** — For work\
+  \ with no issue record, the deck SHALL prescribe no\n  repository-side record file,\
+  \ and every work-record consumer SHALL have its\n  no-issue disposition stated in\
+  \ the revised deck text, using only surfaces\n  the deck already sanctions: the\
+  \ session's own state and the dispatch\n  prompts carry mid-cycle needs (the short-path\
+  \ scope statement reaching the\n  verify reviewer; the implement card's dispatch\
+  \ reason); the PR body carries\n  what must persist past the cycle (provenance,\
+  \ scope summary, version\n  justification); the outgrowth extension routes outgrown\
+  \ work to the full\n  path from the earliest missing stage, whose spec artifact\
+  \ lives in an issue\n  record — the transition itself supplies the relocated home.\
+  \ The preserved\n  boundary stands: \"never create an issue, or initialize an issue\
+  \ store, to\n  satisfy provenance.\"\n\n## Approach\n\nRelocate the work record's\
+  \ content into the cycle's issue record (candidate 1\nfrom the report, weighed in\
+  \ the triage evidence): the provenance and scope\nstatement are issue-tracking metadata\
+  \ and belong with the cycle's other\nartifacts on the `issues-data` branch — agent-owned\
+  \ workspace under the deck's\nown governance, written through the `local-issues`\
+  \ tool; nothing lands in the\nworking tree or `.git/`. Where no issue record exists,\
+  \ no record file is\nprescribed at all (R-5), with each consumer's no-issue disposition\
+  \ stated in\nthe revised text. All six referencing cards move together, including\n\
+  `version-manager`'s rule 7. The `verify` dispatch names the relocated path;\nthe\
+  \ cleanup card's record-removal step becomes unnecessary for the record —\nstore\
+  \ artifacts follow the store's own lifecycle. Exact mechanics (the\nrecord's file\
+  \ naming inside the issue folder versus fields of the record\nitself) are plan-stage\
+  \ decisions bounded by R-1 and R-2.\n\n## Success criteria\n\nAll criteria are structural:\
+  \ the deliverable is the deck's instruction text,\nand each criterion's satisfaction\
+  \ is decidable from the changed text. The\nruntime effect — agents following the\
+  \ deck no longer write into `.git/` —\nfollows from the content criteria. Instruments\
+  \ run over the deck checkout.\n\n- **SC-1 (structural).** The deck's agent-facing\
+  \ instruction surface\n  prescribes no work record — and no other agent-authored\
+  \ file — located\n  inside a repository's git directory. Instrument: executed\n\
+  \  `grep -rn \"git-path work-record\" skills/ guidelines/ agents/ floor.md` and\n\
+  \  `grep -rn \"\\.git/work-record\" skills/ guidelines/ agents/ floor.md` → zero\n\
+  \  matches; plus a fresh-context content review of the six revised card\n  sections\
+  \ confirming no prose form locates an agent-authored file in a git\n  directory.\n\
   - **SC-2 (structural).** Every card that references the work record references\n\
   \  the same relocated home; no card references a git-directory-resident record\n\
   \  or a divergent location. Instrument: executed\n  `grep -rni \"work.record\" skills/\
-  \ floor.md` — every match's surrounding text\n  names the relocated home (the only\
-  \ matches outside that set are the cards'\n  historical provenance comments, which\
-  \ state history, not prescriptions);\n  content review of the six revised sections\
-  \ confirms one consistent\n  mechanism.\n- **SC-3 (structural).** The record function\
-  \ survives relocation for every\n  existing consumer: the provenance parts and the\
-  \ scope statement remain\n  prescribed at the sanctioned home; the short-path outgrowth\
-  \ extension, the\n  implement card's dispatch-reason requirement, the version-manager\
-  \ card's\n  numbering-justification recording, and the verify card's short-path\
-  \ primary\n  artifact each continue to operate against it.\n  Instrument: content\
+  \ guidelines/ agents/ floor.md` enumerates\n  the match set; the content review\
+  \ classifies every match — true work-record\n  references (each must name the relocated\
+  \ home), historical provenance\n  comments (they state history, not prescriptions),\
+  \ and non-reference lexical\n  coincidences (e.g. the verb phrase \"work recorded\"\
+  \ at `git-workflow-cleanup`\n  rule 2) — and requires one consistent mechanism across\
+  \ the six revised\n  sections.\n- **SC-3 (structural).** The record function survives\
+  \ relocation for every\n  existing consumer on cycles with an issue record: the\
+  \ provenance parts and\n  the scope statement remain prescribed at the sanctioned\
+  \ home; the\n  short-path outgrowth extension, the implement card's dispatch-reason\n\
+  \  requirement, the version-manager card's numbering-justification recording,\n\
+  \  and the verify card's short-path primary artifact each continue to operate\n\
+  \  against it. (The no-issue branch is SC-4's criterion.)\n  Instrument: content\
   \ review of the six revised sections.\n- **SC-4 (structural).** The no-issue case\
-  \ resolves without a repository-side\n  record file for every consumer that records\
-  \ into the record: the revised\n  `git-workflow-branch` rule 5 and `version-manager`\
-  \ rule 7 each state where\n  their no-issue recording lands, and the no-new-machinery\
-  \ boundary is\n  preserved in intent. Instrument: content review of the two revised\
-  \ no-issue\n  passages.\n\n### Success-criteria table\n\n| ID | Criterion | Class\
-  \ | Instrument |\n|----|-----------|-------|------------|\n| SC-1 | No deck text\
-  \ prescribes an agent-authored file in a repository's git directory | structural\
-  \ | executed grep sweep (zero matches) + fresh-context content review of the six\
-  \ revised sections |\n| SC-2 | All work-record references agree on the one relocated\
-  \ home | structural | executed grep sweep over all work-record matches + content\
-  \ review |\n| SC-3 | Record function survives for every existing consumer (provenance\
-  \ parts, scope statement, outgrowth extension, dispatch-reason recording, numbering-justification\
-  \ recording, verify short-path artifact) | structural | content review of the six\
-  \ revised sections |\n| SC-4 | No-issue case resolves without a repository-side\
-  \ record file for every recording consumer, preserving the no-new-machinery boundary\
-  \ | structural | content review of the two revised no-issue passages |\n\n## Out\
+  \ resolves without a repository-side\n  record file for every work-record consumer:\
+  \ each revised consumer passage\n  (`git-workflow-branch` trunk-freshness step and\
+  \ rule 5, `version-manager`\n  rule 7, `work` §4's short-path scope statement and\
+  \ outgrowth passage,\n  `implement`'s short-path rule) states its no-issue disposition\
+  \ naming a\n  sanctioned carrier, and the no-new-machinery boundary is preserved\
+  \ in\n  intent. Instrument: content review of the revised consumer passages — every\n\
+  \  consumer's no-issue branch names its carrier and none directs a\n  repository-side\
+  \ file.\n\n### Success-criteria table\n\n| ID | Criterion | Class | Instrument |\n\
+  |----|-----------|-------|------------|\n| SC-1 | No deck text prescribes an agent-authored\
+  \ file in a repository's git directory | structural | executed grep sweep (zero\
+  \ matches) + fresh-context content review of the six revised sections |\n| SC-2\
+  \ | All work-record references agree on the one relocated home | structural | executed\
+  \ grep sweep enumerating the match set + content review classifying every match\
+  \ |\n| SC-3 | Record function survives for every existing consumer on issue-record\
+  \ cycles (provenance parts, scope statement, outgrowth extension, dispatch-reason\
+  \ recording, numbering-justification recording, verify short-path artifact) | structural\
+  \ | content review of the six revised sections |\n| SC-4 | No-issue case resolves\
+  \ without a repository-side record file for every work-record consumer, each naming\
+  \ a sanctioned carrier, preserving the no-new-machinery boundary | structural |\
+  \ content review of the revised consumer passages' no-issue branches |\n\n## Out\
   \ of scope\n\n- Removal of the residue file `.git/work-record.md` in\n  `NewsRx/hermes-ingest-pubmed`\
   \ — a different repository, outside this spec's\n  single-repo scope; the triage\
   \ verdict classifies it as residue of an\n  unauthorized mechanism, and it awaits\
@@ -140,17 +155,19 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ scope recording, implementation decisions, version\n  justification, verification\
   \ dispatch, cleanup).\n- **Risk:** low — instruction-text revision; no code, no\
   \ build. The functional\n  risk is a silently broken record function (mitigated\
-  \ by SC-3's consumer\n  enumeration) and a half-migrated deck (mitigated by SC-2's\
-  \ same-change\n  rule).\n- **Blast radius:** the six cards named in R-3. No other\
-  \ agent-facing card\n  references the work record (executed grep over `skills/`,\
-  \ `floor.md`,\n  `guidelines/`, `commands/`, `agents/`, 2026-11-12); one non-load-bearing\n\
-  \  descriptive comment in `tests-v2/behaviors/2557-sc17-supervised-polling.sh`\n\
-  \  mentions the work record and is not instruction text — it follows the\n  revision\
-  \ only if its scenario text needs updating for accuracy. The cards'\n  historical\
-  \ provenance comments state history, not prescriptions, and move\n  only where the\
-  \ revision touches them.\n\n> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2734/\n\
+  \ by SC-3's consumer\n  enumeration and SC-4's no-issue dispositions) and a half-migrated\
+  \ deck\n  (mitigated by SC-2's same-change rule).\n- **Blast radius:** the six cards\
+  \ named in R-3. No other agent-facing card\n  references the work record (executed\
+  \ grep over the checkout's agent-facing\n  instruction surfaces that exist — `skills/`,\
+  \ `guidelines/`, `agents/`, and\n  `floor.md` — 2026-11-12; `commands/` no longer\
+  \ exists in the checkout,\n  removed by #2490 stage 4d); one non-load-bearing descriptive\
+  \ comment in\n  `tests-v2/behaviors/2557-sc17-supervised-polling.sh` mentions the\
+  \ work\n  record and is not instruction text — it follows the revision only if its\n\
+  \  scenario text needs updating for accuracy. The cards' historical provenance\n\
+  \  comments state history, not prescriptions, and move only where the revision\n\
+  \  touches them.\n\n> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2734/\n\
   > Local artifacts: `.opencode/.issues/2734/`\n\n\U0001F916 Co-authored with AI:\
   \ OpenCode (huggingface/zai-org/GLM-5.3-Flash)\n"
 created_at: '2026-11-12T17:53:48+00:00'
-updated_at: '2026-11-12T18:09:09+00:00'
+updated_at: '2026-11-12T18:18:38+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2734
