@@ -10,9 +10,12 @@
 # submodule resolution to gitlink-pinned SHAs via
 # `git submodule update --init --depth 1` (never `--remote` or `--recursive`);
 # resolved-SHA == pinned-SHA drift assertion; execution of the
-# manifest-discovered canonical build and test commands asserting zero
-# failures. Assertion failures (DRIFT_FAIL, MANIFEST_FAIL, BUILD_FAIL) block
-# the release — no PR is filed for an unproven candidate.
+# canonical build and test commands resolved from the sanctioned sources
+# (declared manifest → session-init per-root facts → the repository's
+# documented build framework) asserting zero failures. Real failures
+# (DRIFT_FAIL, BUILD_FAIL, and the terminal no-source failure
+# NO_SOURCE_FAIL) block the release — no PR is filed for an unproven
+# candidate; manifest absence is not a blocking failure.
 #
 # SEEDED FAILURE: the fixture's Makefile `build` target exits 1 — the gate's
 # build step must fail with BUILD_FAIL and the release PR must NOT be filed
