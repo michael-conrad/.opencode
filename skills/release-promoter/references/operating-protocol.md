@@ -73,13 +73,18 @@ so the release PR is filed only for a state already proven from a clean room:
    branch's head SHA and its tree SHA
    (`git -C <tmpdir> rev-parse HEAD HEAD^{tree}`) go into the release work
    record.
-7. **Canonical build and test command discovery (build manifest):** discover
-   the canonical build and test commands from the **parent repository's build
-   manifest** — the file the parent repository itself declares as the source
-   of its canonical commands (its AGENTS.md or an equivalent the repository
-   names). The parent's build framework governs how the composed tree is
-   built and tested; never assume or hardcode a specific build system, and
-   never substitute a submodule's own tooling run in isolation for the
+7. **Canonical build and test command discovery (sanctioned sources):**
+   discover the canonical build and test commands from sanctioned, documented
+   sources in this fixed order: (a) first the **declared build manifest** of
+   the release tree, when one exists — the file the parent repository itself
+   declares as the source of its canonical commands (its AGENTS.md or an
+   equivalent the repository names); (b) next the **session-init per-root
+   facts**, where they supply build/test commands; (c) last the
+   **repository's own documented build framework** — the wrapper the floor's
+   build-tooling exclusivity rule sanctions for the repository's build
+   system. The parent's build framework governs how the composed tree is
+   built and tested; the gate never hardcodes a specific build system and
+   never substitutes a submodule's own tooling run in isolation for the
    parent's framework.
    1. Read the root build manifest of the temp checkout (the parent
       repository's) first and look for a build/test commands section.
@@ -87,12 +92,22 @@ so the release PR is filed only for a state already proven from a clean room:
       submodule manifests it names for the declared commands.
    3. Identify the canonical build command and the canonical test command
       from the discovered section.
-   4. If the commands cannot be discovered from the manifest, hard-fail:
-      state `MANIFEST_FAIL`, exit non-zero, and do NOT proceed — the release
-      PR is blocked. Manifest discoverability is a property of the release
-      tree, so `MANIFEST_FAIL` is an assertion failure: no retry within the
-      release.
-   5. All discovery reads happen inside `<tmpdir>` against the composed
+   4. If the manifest supplies no commands, resolve from the next sanctioned
+      source: the session-init per-root facts where they supply build/test
+      commands, else the repository's own documented build framework.
+      Manifest absence is NOT a blocking failure — only real failures block
+      the release (step 10).
+   5. Terminal no-source case: when no sanctioned source yields build/test
+      commands — no manifest, no session-init facts, no documented build
+      framework — the candidate cannot be proven tested: state
+      `NO_SOURCE_FAIL`, exit non-zero, and do NOT proceed — no PR is filed
+      for an unproven candidate. `NO_SOURCE_FAIL` is a real blocking failure
+      (an equivalent verified failure under the step-10 rule): no retry
+      within the release.
+   6. Record the resolved build and test commands and the sanctioned source
+      that supplied each in the release work record, so the zero-failure
+      assertion's provenance is auditable.
+   7. All discovery reads happen inside `<tmpdir>` against the composed
       checkout — never against the source working tree.
 8. **Build and test execution with zero-failure assertion:** execute the
    discovered build command, then the discovered test command, inside the
@@ -110,10 +125,12 @@ so the release PR is filed only for a state already proven from a clean room:
 9. All verification work happens inside `<tmpdir>`. The gate is read-only
    with respect to the source working tree — never touch, checkout, or
    reset the source repo.
-10. **Invocation guarantee:** assertion failures (`DRIFT_FAIL`,
-    `MANIFEST_FAIL`, `BUILD_FAIL`) block the release with NO retries within
-    the release run — a failed assertion must not be re-run, remediated
-    inline, or re-attempted in the same release. Environment/transport setup
+10. **Invocation guarantee:** real failures — assertion failures
+    (`DRIFT_FAIL`, `BUILD_FAIL`, `TREE_MISMATCH` in Phase B), an actual
+    build or test non-zero exit, a tree mismatch, or an equivalent verified
+    failure, including the terminal `NO_SOURCE_FAIL` — block the release
+    with NO retries within the release run — a failed assertion must not be
+    re-run, remediated inline, or re-attempted in the same release. Environment/transport setup
     failures (clone, checkout, transport policy) are NOT release-blockers:
     they are diagnosed and the gate is re-run. Only when the gate completes
     clean (`CHECKOUT_OK`, drift asserted, build and test zero-failure) is the

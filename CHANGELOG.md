@@ -4,6 +4,12 @@ All notable changes to the `.opencode/` directory (skills, guidelines, agent con
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Changed
+
+- **Release-promoter gate: canonical build/test commands resolve from sanctioned sources** (#2736) - The clean-room gate's command discovery now resolves build and test commands from sanctioned, documented sources in a fixed order — declared build manifest → session-init per-root facts → the repository's own documented build framework — instead of failing when no build manifest declares the commands. Manifest absence is no longer a blocking assertion: the `MANIFEST_FAIL` hard-fail-on-absence class is removed from the gate (a manifest is paperwork, not a real failure — only an actual build or test failure, drift, a tree mismatch, or an equivalent verified failure blocks a release). The terminal no-source case — no manifest, no session-init facts, no documented build framework — is a real blocking failure with its own class, `NO_SOURCE_FAIL`: an unproven candidate files no PR. The gate records the resolved commands and their supplying source in the release work record, keeping the zero-failure assertion's provenance auditable. The `2439-sc4` manifest-discovery fixture and the `2557-sc6` release-gate scenario were revised to the new resolution order and blocking-failure classes.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added

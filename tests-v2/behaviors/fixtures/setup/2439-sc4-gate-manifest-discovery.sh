@@ -5,9 +5,11 @@
 # table naming the canonical build and test commands, and the .opencode
 # submodule's AGENTS.md (already present in the real submodule) carries the
 # "Build / Lint / Test Commands" fallback source. The release-promoter
-# verification gate must DISCOVER the canonical build/test commands from these
-# manifests rather than assuming a build system; an undiscoverable manifest is
-# a hard fail (MANIFEST_FAIL).
+# verification gate must resolve the canonical build/test commands from the
+# sanctioned sources in the fixed order (declared manifest → session-init
+# per-root facts → the repository's documented build framework) rather than
+# assuming a build system; manifest absence is NOT a blocking failure — only
+# real failures block the release (.opencode#2736).
 #
 # Pattern: corrected 2439-sc3 fixture pattern — stable-path bare origins
 # (absolute path OUTSIDE the attempt workdir, because with-test-home MOVES the
