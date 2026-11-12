@@ -73,7 +73,8 @@ Consult before touching files.
    **The short path ends when the work outgrows it.** When the work acquires
    a second file, a second concern, a derived success criterion, a product
    decision the developer did not state, or a surface the request did not
-   name, the agent extends the scope statement in the work record with the
+   name, the agent extends the scope statement — held in the session's own
+   state and the dispatch prompts it issues, never in a stored file — with the
    expanded scope, re-applies these criteria, and takes the full path from
    the earliest missing stage — producing that stage's artifact — before any
    further implementation edit.
@@ -101,26 +102,40 @@ Consult before touching files.
    A recomposition voids any implementation or PR authorization carried for
    the pre-split scope — the parts wait for the authorization the developer
    states at split time; Read [the issues skill](../issues/SKILL.md).
-4. **The work record and the scope statement.** Every change records its path
-   and scope before implementation.
-   - **The work record** is one file in the repository's own git directory —
-     the path `git rev-parse --git-path work-record.md` reports — which is
-     not a working-tree path, so the record never appears in the repository's
-     status and needs no ignore-rule entry. It is scratch: the agent never
-     commits it, and the cleanup card removes it. It holds two parts.
+4. **The scope statement.** Every change records its path and scope before
+   implementation — on surfaces whose lifecycle already exists in the cycle,
+   never in a persistent agent-authored file: no record file in the
+   repository's git directory, its working tree, or the cycle's issue
+   folder. Stale stored state misleads the session that reads it; the deck
+   prescribes no mid-cycle record file at all.
    - **The provenance** — the verified trunk tip, which the
-     `git-workflow-branch` card writes at its trunk-freshness step, before
-     the branch exists, and the branch, the base tip, and the issue where
-     one exists, which the same card records alongside that tip at its
-     provenance step once the branch exists.
+     `git-workflow-branch` card verifies live at its trunk-freshness step,
+     before the branch exists, stating the result in that step's own output;
+     the branch, the base tip, and the issue where one exists, which the same
+     card states at its provenance step once the branch exists. Provenance
+     is verified and stated at the moment it is acted on — nothing is
+     written down for a later step to read back — and the PR body's
+     Provenance section carries the chain for what must persist past the
+     cycle.
    - **The scope statement** — the path taken, the criteria that selected it,
      what changes, what "done" is checked against, what is out of scope, the
-     order of the work, and any reason a card requires recorded for a
-     departure from a default — the agent writes before the first edit. On
-     the full path the spec artifact carries the scope and the scope
-     statement points at it; on the short path the scope statement is the
-     spec artifact itself, discharging the spec and plan stages together for
-     a one-file change whose completion the request has decided.
+     order of the work, and any reason a card requires stated for a
+     departure from a default. On the full path the spec artifact carries
+     the scope and the scope statement points at it; on the short path the
+     scope statement is the spec artifact itself, discharging the spec and
+     plan stages together for a one-file change whose completion the request
+     has decided — and it travels in the dispatch prompts that consume it,
+     supplied verbatim at dispatch time by the session that holds it, never
+     parked in a file for a later step to discover. A card requiring a
+     recorded reason (a scoped dispatch, a version justification) has that
+     reason stated in the surface that acts on it, at the moment of acting.
+
+   **No persistent mid-cycle file unless the developer sanctions one.** A
+   demonstrated failure showing no existing surface can carry a piece of
+   mid-cycle state is reported to the developer — never solved by inventing
+   a file. A prescription for such a file enters the deck only through the
+   governance process, with the developer's explicit approval of that
+   specific file mechanism.
 
    The check that "done" is verified against is the criterion the `verify`
    card's fresh-context reviewer measures the scope statement against, and

@@ -36,8 +36,9 @@ provenance: AI-authored, .opencode#2490
    dev points diffable. When accumulated changelog categories outgrow the dev
    base, the agent re-derives the base targeting the new next release.
 7. **Numbering authority.** The agent selects and justifies every version
-   number — counter advance, base selection, first base — in the work record;
-   an explicit developer version directive overrides any derivation.
+   number — counter advance, base selection, first base — stating the
+   justification in the PR body at version-bump time; an explicit developer
+   version directive overrides any derivation.
 8. **First-semver adoption.** A managed repo without a semver history adopts
    semver at its next versioned change or release; the agent selects and
    justifies the first version from repository evidence — `0.x` for

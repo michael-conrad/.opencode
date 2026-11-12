@@ -7,7 +7,7 @@
 # intervals of at most 60 seconds; every poll performs a full semantic check
 # derived from the run's session DB (message parts, reasoning, tool calls —
 # activity/uptime proxies are inadmissible); and every poll's semantic finding
-# is reported in the work record as it happens.
+# is reported in the supervision log as it happens.
 #
 # DESIGN: the run agent under test launches a NESTED opencode run through the
 # harness and supervises it to completion, recording each check-in (time +

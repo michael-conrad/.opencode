@@ -49,8 +49,10 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    executed comparison above, never the status listing. (c) when the parent has nothing to contribute beyond pointer
    bumps, create no branch and make no commit — the drift rides with the next
    real parent change. Verify the trunk tip before branching — sync and rebase
-   if the trunk moved; state the verified tip in the work record, whose
-   provenance part the agent writes at this step, before the branch exists.
+   if the trunk moved; state the verified tip in this step's own output —
+   verified live at execution time, never written to a record file for a
+   later step to read back — and carry it into the PR body's Provenance
+   section at PR preparation.
    When scanning
     branches, `issues-data` is a reserved orphan-branch issue-store ref, checked
    out in a linked worktree (the `+` marker in `git branch -a`) — never a
@@ -64,7 +66,8 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    read-only: verify the working repo's trunk tip against its remote (fetch
    and compare) and proceed to the branch decision on that evidence. The
    per-submodule remote-tip comparison runs as part of the same pass, and
-   its per-submodule outcomes are recorded in the work record (rule 5). A
+   its per-submodule outcomes are stated in this executed pass's output
+   (rule 5). A
    recorded-not-remediated outcome of that executed comparison — a
    `behind` or `no-remote-tip` result, or an execution failure such as an
    unreachable submodule remote — is recorded, not remediated, on this
@@ -133,12 +136,14 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    agents never legitimately hold uncommitted content in nested submodule
    worktrees. The card prescribes no restore path: restoring nested submodule
    worktrees is not an agent operation.
-5. **Provenance.** Record branch, base tip, and the issue in the work record,
-   alongside the verified tip the trunk-freshness step wrote there, so PR
-   preparation can verify the chain later. **When the work has no issue,
-   record branch and base tip only** — never create an issue, or initialize an
-   issue store, to satisfy provenance; the record is input to PR prep, not a
-   checklist that summons new machinery.
+5. **Provenance.** State the branch, the base tip, and the issue in the PR
+   body's Provenance section at PR preparation, alongside the verified tip
+   the trunk-freshness step stated in its output, so the chain is
+   verifiable from the cycle's own persistent surface — no record file
+   holds it. **When the work has no issue, state branch and base tip
+   only** — never create an issue, or initialize an issue store, to
+   satisfy provenance; provenance is input to PR prep, not a checklist
+   that summons new machinery.
 6. **Trunk protection.** The trunk commit/push check is enforced mechanically;
    the agent treats any block as the hard boundary it is. The
    check is the prohibition's backstop, not its source: the branch-first

@@ -14,9 +14,10 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance; externally-d
 1. **Dispatch one reviewer.** Fresh context, budget comparable to the
    implementor. The reviewer reads the primary artifacts directly — spec/SCs,
    the diff, the executed test output — not the implementor's summaries. On
-   the short path, where no spec artifact exists, the scope statement in the
-   work record is the primary artifact, and the dispatch names the work
-   record's path so the reviewer reaches it.
+   the short path, where no spec artifact exists, the scope statement is
+   the primary artifact, and the dispatch includes it verbatim — supplied
+   at dispatch time by the session that holds it — so the reviewer reads
+   current scope, never a stored copy.
 2. **The churn rule (include verbatim in the reviewer prompt):** *Flag only
    gaps that affect correctness or the stated requirements. A reviewer
    prompted to find gaps will always report some — do not chase style,
