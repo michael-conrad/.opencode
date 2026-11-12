@@ -1,0 +1,100 @@
+issue: .opencode#2734
+artifact: spec
+spec:
+  - round: 1
+    date: 2026-11-12
+    reviewer: fresh-context subagent (task ses_e2f150cc0ffelYbtoGBUQ866LO)
+    criteria_set: .opencode/skills/spec/references/validation-standards.md
+    verdict: FAIL
+    findings:
+      - id: F-1
+        class: blast-radius (with fabricated-claims and internal-contradiction
+          consequences)
+        where: R-3, R-4, SC-2 instrument, SC-3, Impact blast-radius claim
+        ground: the consumer/card enumeration omitted
+          `skills/version-manager/SKILL.md` rule 7 (lines 38–39) —
+          "The agent selects and justifies every version number — counter
+          advance, base selection, first base — in the work record" — a live
+          agent-facing consumer; the triage's initial grep sweep missed it.
+          The falsified negation claim ("no other deck surface references the
+          work record") is a fabricated claim; the scoped deliverable (five
+          cards revised, version-manager untouched) fails the spec's own
+          SC-2 instrument (every match names the relocated home); under R-5,
+          version-manager's rule 7 would direct recording into a record that
+          does not exist for no-issue work — an unexamined consumer (gap
+          analysis). Corroborating non-load-bearing match:
+          `tests-v2/behaviors/2557-sc17-supervised-polling.sh:10`.
+        remediation: R-3 revised to six cards (version-manager rule 7 added);
+          R-4 adds the numbering-justification consumer; R-5 covers every
+          recording consumer's no-issue landing; SC-2's instrument states the
+          provenance-comment carve-out; SC-3 adds the version-manager
+          consumer and reviews six sections; SC-4 covers both recording
+          consumers' no-issue passages; Impact blast radius corrected to six
+          cards with the non-load-bearing comment named; the triage evidence
+          table corrected in place with the same enumeration.
+      - id: F-2
+        class: fabricated-claims (with cross-reference-sufficiency consequence)
+        where: Problem provenance bullet ("pure addition ... zero matches")
+          and the triage evidence's matching ground
+        ground: the cited instrument cannot execute — `10711d95` is an
+          issues-data-branch commit whose tree contains no `skills/`;
+          `git show 10711d95^:skills/work/SKILL.md` errors ("path exists on
+          disk, but not in '10711d95^'"), the swallowed error made the grep
+          count empty input, and the recorded "0" evidenced nothing. The
+          underlying fact is false as stated: at `ac5c4407^` the work card
+          (line 24, from #2584) and the branch card (line 31, from #2490
+          stage 2b) already carry two-word work-record references — the
+          record concept predates #2657. What ac5c4407 adds is the
+          `.git`-residency definition (diff confirms), and at `ac5c4407^` the
+          deck carries zero hyphenated `work-record` forms and zero
+          `git-path` prescriptions (executed `git grep` at that revision).
+          The root-cause attribution (the `.git` residency entered via the
+          #2657 cycle) survives.
+        remediation: Problem provenance rewritten to the corrected history
+          (concept predates via #2490/#2584 informal references; the `.git`
+          residency definition is the #2657-cycle addition, evidenced by an
+          executable instrument — `git grep` at `ac5c4407^` and the
+          ac5c4407 diff); a closing sentence states what is on trial (the
+          `.git` residency, not the record concept); the triage evidence's
+          ground corrected in place with the broken-instrument disclosure.
+    classes_adjudicated:
+      - class: invented-requirement
+        classification: not-found
+      - class: untestable-criterion
+        classification: not-found
+      - class: either-or-criterion
+        classification: not-found
+      - class: ambiguous-criterion
+        classification: not-found
+      - class: incapable-instrument
+        classification: not-found
+      - class: self-containment-violation
+        classification: not-found
+      - class: trivially-true-restatement
+        classification: not-found
+      - class: state-undecidable-criterion
+        classification: not-found
+      - family: repo-boundary-containment
+        classification: pass (scope containment and home containment both
+          hold — all requirements target the .opencode checkout's files; the
+          spec is filed in .opencode's own store)
+      - family: traceability
+        classification: pass (both directions)
+      - family: problem-fit
+        classification: pass
+      - family: causal-sufficiency
+        classification: pass
+      - family: escape-hatches
+        classification: not-found
+      - family: feasibility
+        classification: not-found
+      - family: scope-narrowness
+        classification: not-found
+      - family: research-adequacy
+        classification: not-found (F-1/F-2 remediated the factual gaps the
+          family covers)
+      - family: decomposition
+        classification: not-found
+      - family: safety
+        classification: not-found
+    outcome: revised in place; re-validation dispatched (round 2)
