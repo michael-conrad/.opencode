@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382; recomposition protocol, .opencode#2661; self-triggering triage, .opencode#2699; self-firing evidence trigger + ticket-status semantics, .opencode#2702; work-entry conversion triage outcome, .opencode#2707 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382; recomposition protocol, .opencode#2661; self-triggering triage, .opencode#2699; self-firing evidence trigger + ticket-status semantics, .opencode#2702; work-entry conversion triage outcome, .opencode#2707; interrupted-sync remediate-on-discovery trigger (reported-with-commands-and-waited regression, 2026-11-12), .opencode#2731 -->
 
 # issues — issue operations
 
@@ -151,7 +151,17 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    repo#N`, mirror the remote-tracked content into `{N}/`, and correct the
    remote body's pointer through the platform skill — Read
    [the gh-cli skill](../gh-cli/SKILL.md) or Read
-   [the gb-cli skill](../gb-cli/SKILL.md) — per §1. Boundary: local-issues commands manage only the local
+   [the gb-cli skill](../gb-cli/SKILL.md) — per §1. **Interrupted-sync
+   trigger (.opencode#2731):** the trigger list also names an `issues-data`
+   worktree left mid-rebase or mid-merge by a failed `init`/`sync` — that
+   state is repaired on discovery in the same workflow, never reported with
+   remediation commands and waited on: complete or abort-then-reapply the
+   rebase per the tool's remediation output, re-sync, and re-verify the
+   store, reconciling to the remote tracker's truth where the aborted side
+   carries divergent content. A repair that fails on evidenced tool error is
+   a report-with-halt scoped to that store alone — the session's independent
+   work continues unaffected; the halt is never a waiting state for the
+   whole session's work. Boundary: local-issues commands manage only the local
    issues-data store — they never contact or update any remote issues-system
    API on any platform; `update --github` writes the local store's
    `github_url` field only and is never the mechanism for a remote-body
@@ -188,6 +198,9 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
   currency.
 - **Fail-fatal worktree:** if worktree establishment fails, the tool exits
   non-zero with a remediation command — never continue in plain-file mode.
+  The remediation command is agent-executed on discovery, in the same
+  workflow — the repair is agent-owned store maintenance (issues card §7),
+  never a developer-token wait (.opencode#2731).
 - **Mutation commands** (`create`, `update`, `comment`, `close`, `delete`,
   `link`, `renumber`) auto-commit and auto-push to the `issues-data` branch.
 - **Local-only registration warning (`.opencode#2723`):** `create` on a
