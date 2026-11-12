@@ -1,7 +1,8 @@
-title: 'release-promoter: gate hard-fails MANIFEST_FAIL on manifest absence — releases
-  should block only on real build/test failures'
+title: '[SPEC] release-promoter: resolve canonical build/test commands from sanctioned
+  documented sources — manifest absence is not a release-blocking failure'
 status: open
-labels: []
+labels:
+- needs-approval
 body: "## Summary\n\nThe release-promoter clean-room gate (step 7) requires discovering\
   \ canonical\nbuild/test commands from a parent-repo build manifest and hard-fails\n\
   `MANIFEST_FAIL` with no retry when none exists. Since step 8 forbids executing\n\
@@ -48,5 +49,5 @@ body: "## Summary\n\nThe release-promoter clean-room gate (step 7) requires disc
   \ absence from a\n  blocking assertion to a remediable entry-criteria item, or have\n\
   \  session-init emit per-root build/test commands as a declared source.\n\n"
 created_at: '2026-11-12T18:25:17+00:00'
-updated_at: '2026-11-12T18:25:45+00:00'
+updated_at: '2026-11-12T18:26:58+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2736
