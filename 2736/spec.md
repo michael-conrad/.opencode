@@ -82,7 +82,9 @@ release. Manifest absence is not a real failure.
 - `skills/release-promoter/SKILL.md` (step 0 assertion-failure list)
 - `skills/release-promoter/references/operating-protocol.md` (steps 7, 8, 10)
 - `tests-v2/behaviors/fixtures/setup/2439-sc4-gate-manifest-discovery.sh`
-  (fixture encoding manifest absence as `MANIFEST_FAIL` hard fail)
+  (manifest-discovery fixture — its header comment carries the removed
+  `MANIFEST_FAIL`-on-absence rule; the fixture's manifest-first setup
+  remains valid under the new resolution order)
 - `tests-v2/behaviors/2557-sc6-release-gate.sh` (scenario listing
   `MANIFEST_FAIL` as a blocking assertion failure)
 - `CHANGELOG.md` (deck changelog entry for the behavior change)

@@ -79,16 +79,17 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ the revised card text. |\n\n## Scope\n\n- `skills/release-promoter/SKILL.md` (step\
   \ 0 assertion-failure list)\n- `skills/release-promoter/references/operating-protocol.md`\
   \ (steps 7, 8, 10)\n- `tests-v2/behaviors/fixtures/setup/2439-sc4-gate-manifest-discovery.sh`\n\
-  \  (fixture encoding manifest absence as `MANIFEST_FAIL` hard fail)\n- `tests-v2/behaviors/2557-sc6-release-gate.sh`\
-  \ (scenario listing\n  `MANIFEST_FAIL` as a blocking assertion failure)\n- `CHANGELOG.md`\
-  \ (deck changelog entry for the behavior change)\n\n`attic/` content is unloaded\
-  \ archive pending soak and deletion — not in\nscope; the vector index is generated\
-  \ state, not source. A live grep for\n`MANIFEST_FAIL` outside `.issues/` surfaces\
-  \ exactly the files above (the\ntwo card files, the two test scripts, the changelog,\
-  \ and the archive) —\nno unexamined source surface remains.\n\nDeck-consumption\
-  \ boundary: the change is authored in the deck's own\nrepository (this store) and\
-  \ lands through the deck governance flow and a\nhuman-merged PR; consuming checkouts\
-  \ receive it only by pulling upstream.\n"
+  \  (manifest-discovery fixture — its header comment carries the removed\n  `MANIFEST_FAIL`-on-absence\
+  \ rule; the fixture's manifest-first setup\n  remains valid under the new resolution\
+  \ order)\n- `tests-v2/behaviors/2557-sc6-release-gate.sh` (scenario listing\n  `MANIFEST_FAIL`\
+  \ as a blocking assertion failure)\n- `CHANGELOG.md` (deck changelog entry for the\
+  \ behavior change)\n\n`attic/` content is unloaded archive pending soak and deletion\
+  \ — not in\nscope; the vector index is generated state, not source. A live grep\
+  \ for\n`MANIFEST_FAIL` outside `.issues/` surfaces exactly the files above (the\n\
+  two card files, the two test scripts, the changelog, and the archive) —\nno unexamined\
+  \ source surface remains.\n\nDeck-consumption boundary: the change is authored in\
+  \ the deck's own\nrepository (this store) and lands through the deck governance\
+  \ flow and a\nhuman-merged PR; consuming checkouts receive it only by pulling upstream.\n"
 created_at: '2026-11-12T18:25:17+00:00'
-updated_at: '2026-11-12T18:29:04+00:00'
+updated_at: '2026-11-12T18:30:51+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2736
