@@ -94,8 +94,11 @@ Out of scope:
   protocol.
 - R-5: git-workflow-pr SHALL carry the PR title form: the version token
   leads the title — bare `vX.Y.Z` on release PRs (the release indicator),
-  `vX.Y.Z-dev.N` on dev PRs (the dev indicator) — followed by the existing
-  title conventions.
+  `vX.Y.Z-dev.N` on dev PRs (the dev indicator) — with the remainder of the
+  title following the deck's commit-message shape (`type(#issue): summary`,
+  the convention git-workflow-commit defines for commit messages, applied to
+  PR titles). The deck states no PR-title convention today; this rule
+  establishes the title form.
 - R-6: version-manager SHALL carry the numbering-authority rule: the agent
   selects and justifies every version number — counter advance, base
   selection, first base — in the work record; an explicit developer version
@@ -166,8 +169,9 @@ initial-development convention (semver FAQ, npm, Cargo, changesets); PEP
   Instrument: read the protocol's tag-and-release section; each element is
   stated.
 - SC-5 (content): `skills/git-workflow-pr/SKILL.md` states the PR title form
-  of R-5 — version token leading, bare on release PRs, `-dev.N` on dev PRs.
-  Instrument: read the file; the form is stated.
+  of R-5 — version token leading, bare on release PRs, `-dev.N` on dev PRs,
+  remainder following the commit-message shape. Instrument: read the file;
+  the form is stated.
 - SC-6 (content): the numbering-authority rule of R-6 is stated where R-2
   and R-3 land — the agent selects and justifies every version number in the
   work record; a developer version directive overrides. Instrument: read
@@ -192,8 +196,10 @@ initial-development convention (semver FAQ, npm, Cargo, changesets); PEP
   justifies instead of halting.
 - Agents gain version-selection authority bounded by developer directive
   override — the delegation the triage addendum states.
-- The deck's own repository adopts at its next release under the same rule
-  (its tags today are parent-pointer and date tags).
+- The deck's own repository already carries a semver release line (`v0.1.0`,
+  `v0.1.1`, `v0.2.0` — latest `v0.2.0`), so it is not a first-semver
+  adoption case; its next release continues from `v0.2.0` under the existing
+  version-manager rules.
 - Risk: a stale dev base can misstate the target between re-derivations —
   bounded by R-4: the release PR's changelog-derived number is authoritative.
 

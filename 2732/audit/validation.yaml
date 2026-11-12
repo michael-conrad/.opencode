@@ -1,0 +1,46 @@
+artifact: spec
+rounds:
+  - round: 1
+    date: 2026-11-12
+    reviewer: fresh-context subagent (session ses_e2f394e75ffe33byEMSMQurm4P)
+    verdict: FAIL
+    findings:
+      - id: F1
+        class: fabricated-claims + ambiguous-criterion (defect class 4)
+        ground: >
+          R-5's "followed by the existing title conventions" rested on
+          conventions that do not exist: git-workflow-pr/SKILL.md governs the
+          PR body and states nothing about titles (zero matches for
+          title/subject/headline across skills/git-workflow-pr/); deck-wide
+          greps for PR-title conventions across skills/, floor.md, AGENTS.md,
+          guidelines/ return zero; the only title-like convention in the live
+          deck is git-workflow-commit's commit-message shape
+          (type(#issue): summary), a different surface the spec never
+          referenced. The requirement directed the implementer to compose the
+          token with nonexistent conventions and resolved neither what follows
+          the token nor which convention applies.
+        classification: finding
+        remediation: >
+          R-5 rewritten to state the title form concretely — version token
+          leading, remainder following the deck's commit-message shape
+          (type(#issue): summary, git-workflow-commit's convention, applied to
+          PR titles) — with the current-state fact stated (the deck states no
+          PR-title convention today; the rule establishes the form). SC-5 and
+          its table row aligned; local spec and remote body reconciled.
+      - id: F2
+        class: fabricated-claims + blast-radius (incorrect impact enumeration)
+        ground: >
+          The Impact section claimed the deck's own repository's tags "today
+          are parent-pointer and date tags" and derived first-semver adoption
+          for it. The .opencode repository carries plain semver release tags
+          (v0.1.0, v0.1.1, v0.2.0 — verified locally and via
+          git ls-remote --tags origin), so under R-3's own trigger it is not
+          an adoption case at all; an implementer treating the Impact as
+          record would apply first-semver selection where the spec's rule
+          dictates continuation from v0.2.0.
+        classification: finding
+        remediation: >
+          Impact bullet corrected: the deck's own repo already carries the
+          semver release line (latest v0.2.0), is not a first-semver adoption
+          case, and its next release continues from v0.2.0 under the existing
+          version-manager rules. Local spec and remote body reconciled.
