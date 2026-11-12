@@ -1,6 +1,6 @@
 title: '[SPEC] release-promoter: resolve canonical build/test commands from sanctioned
   documented sources — manifest absence is not a release-blocking failure'
-status: open
+status: closed
 labels:
 - needs-approval
 body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-Identifier:\
@@ -91,5 +91,5 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ the deck's own\nrepository (this store) and lands through the deck governance\
   \ flow and a\nhuman-merged PR; consuming checkouts receive it only by pulling upstream.\n"
 created_at: '2026-11-12T18:25:17+00:00'
-updated_at: '2026-11-12T18:30:51+00:00'
+updated_at: '2026-11-12T20:42:18+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2736
