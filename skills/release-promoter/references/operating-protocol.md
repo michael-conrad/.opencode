@@ -161,9 +161,12 @@ tag is created:
 ## Tag and release
 
 1. **Tag format:** `v{semver}` (v prefix — de facto standard, Semver FAQ)
-2. **Annotated tags:** always use `git tag -a` with a message
-3. **Release body:** changelog entries for that version (standard practice)
-4. **Post-merge only:** only create tags after the release PR has merged
+2. **Release conversion:** the release PR strips the dev suffix and carries
+   the bare version; the release number is re-derived from the changelog,
+   authoritative over the dev base's claim
+3. **Annotated tags:** always use `git tag -a` with a message
+4. **Release body:** changelog entries for that version (standard practice)
+5. **Post-merge only:** only create tags after the release PR has merged
 
 ## Exit criteria
 
