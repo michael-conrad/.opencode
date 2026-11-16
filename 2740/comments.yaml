@@ -1,1 +1,8 @@
-comments: []
+comments:
+- type: internal
+  body: 'Spec conversion + audit record: bug report converted in place into the governing
+    spec (work-entry conversion .opencode#2707) — .opencode/.issues/2740/spec.md;
+    composes with .opencode#2741''s delivered rule-1 text without restating it. Fresh-context
+    validation dispatch (ses_e1ac573c7ffd6ic1B3gNmWmnIm): PASS, zero findings. Waiting
+    at the developer approval gate before plan.'
+  timestamp: '2026-11-16T16:40:13+00:00'
