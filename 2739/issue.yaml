@@ -1,11 +1,11 @@
 title: 'floor: ambiguous-scope-word halt recurs on release-pipeline request — enumerated
   root repo not treated as fixing the target set'
-status: open
+status: closed
 labels:
 - needs-approval
 - bug
 body: ''
 created_at: '2026-11-16T16:38:31+00:00'
-updated_at: '2026-11-16T16:48:53+00:00'
+updated_at: '2026-11-16T18:00:23+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2739
 phase: pr
