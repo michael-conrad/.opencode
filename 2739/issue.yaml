@@ -1,0 +1,9 @@
+title: 'floor: ambiguous-scope-word halt recurs on release-pipeline request — enumerated
+  root repo not treated as fixing the target set'
+status: open
+labels:
+- needs-approval
+- bug
+body: ''
+created_at: '2026-11-16T16:38:31+00:00'
+updated_at: '2026-11-16T16:38:31+00:00'
