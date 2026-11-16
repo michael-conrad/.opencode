@@ -2,26 +2,41 @@
 name: git-workflow-pr
 description: "Load before opening any pull request, preparing work for review, or updating an existing PR — in any repo, whenever PR-boundary authorization arrives or the work reaches the review boundary. PRs are for completed and fully tested work; partial PRs require explicit special authorization. Squash the branch's work to one reviewable commit per issue, write a PR body with summary and executed-test evidence, then HALT — humans merge, never the agent."
 license: MIT
-provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; tag-pushed gate + bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658; dirty-pointer disposition gate, .opencode#2656
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; tag-pushed gate + bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658; dirty-pointer disposition gate, .opencode#2656; not-done-default state determination on PR-boundary authorization, .opencode#2741
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; issues-data remediation-first clause, .opencode#2681; tag-pushed gate + Submodule-bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658; dirty-pointer disposition gate, .opencode#2656 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; issues-data remediation-first clause, .opencode#2681; tag-pushed gate + Submodule-bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658; dirty-pointer disposition gate, .opencode#2656; not-done-default state determination on PR-boundary authorization, .opencode#2741 -->
 
 # git-workflow-pr
 
 1. **PR-completion invariant.** PRs are only for COMPLETED and FULLY TESTED
-   work. When PR-boundary authorization arrives, either (a) the issue's full
-   assigned scope is implemented and verified — proceed to the checklist — or
-   (b) scope is incomplete: continue implementation and open the PR only at
-   full scope completion and verification. Exceptions: (1) the developer
-   **explicitly** states the PR is partial — stage-gate phrases (`approved
-   for pr`, `go`, `proceed`) never qualify; (2) the spec defines
-   merge-boundary workflow and this PR covers exactly its spec-assigned
-   scope — the invariant still applies to the final PR. Also required:
-   verify pass PASS on the deliverable's SCs; structural checks
-   (lint/typecheck/build) ran clean. On the short path, where no spec
+   work. **Not-done default (.opencode#2741):** when PR-boundary authorization
+   arrives, the agent's starting assumption is that the work has **not** been
+   completed yet — completeness is never presumed, it is established by
+   checking evidence (the branch's commits, the session's executed test
+   records, the recorded verify PASS). The authorization implies one of two
+   operations, selected by that evidence-first state determination, never by
+   the assumption:
+   - **Complete the workflow** — the post-spec pipeline work (implementation,
+     verification, PR prep) has not reached its end state: the agent performs
+     the remaining stages in order and opens the PR only at full scope
+     completion and verification.
+   - **Resume the workflow** — the work is partially delivered across earlier
+     sessions: the agent re-establishes the state from the record (open
+     feature branch, delivered commits, captured test and verify records) and
+     continues from where it actually stands.
+   The state "already completed for PR" is a natural result of the completion
+   checks themselves — reached only when the checks establish the issue's
+   full assigned scope implemented and verified. When the checks find scope
+   incomplete, continue or resume implementation and open the PR only at full
+   scope completion and verification. Exceptions: (1) the developer **explicitly** states the PR
+   is partial — stage-gate phrases (`approved for pr`, `go`, `proceed`) never
+   qualify; (2) the spec defines merge-boundary workflow and this PR covers
+   exactly its spec-assigned scope — the invariant still applies to the final
+   PR. Also required: verify pass PASS on the deliverable's SCs; structural
+   checks (lint/typecheck/build) ran clean. On the short path, where no spec
    artifact exists, the assigned scope and the deliverable's SCs are the
    scope statement's scope and its check. Not ready → `verify` first, not a
    PR.
