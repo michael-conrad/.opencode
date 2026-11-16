@@ -43,3 +43,23 @@ plan:
       findings: zero
       classification: "terminal cycle — zero-finding verdict, no caveats"
       notes: "all four content REDs and both behavioral RED baselines live-verified by the validator (clone at 3642e2d5; reference-integrity fails standalone from the clone root exactly as Item 3's fallback anticipates)"
+
+implementation:
+  cycles:
+    - round: 1
+      date: "2026-11-16"
+      dispatch: "fresh-context verify reviewer (session ses_e1a2fcb31ffeFjSp6b8d8HquvM)"
+      verdict: FAIL
+      findings:
+        - class: "factual defect — misstated source path in deliverable text"
+          classification: finding
+          detail: "spec-structure-standards.md provenance comment carried a doubled path segment ('reference/reference/'); no such path exists (git ls-tree pre-rip holds reference/spec-structure-standards.md)"
+          remediation: "comment corrected to the verified path; committed (6e56b6c8)"
+      per_sc_verdicts: "SC-1..SC-6 all PASS on executed evidence; the finding touched no criterion"
+    - round: 2
+      date: "2026-11-16"
+      dispatch: "fresh-context verify reviewer, criteria-invariant re-review (session ses_e1a2d79c2ffenb9TZr4h0YS8MB)"
+      verdict: PASS
+      findings: zero
+      classification: "terminal cycle — zero-finding verdict, no caveats"
+      notes: "reviewer independently re-executed the tier-1 fact-checks (read both probe artifacts and a seeded prior; confirmed the mechanical layout-source trace) and the behavioral-instruments' contract conformity"
