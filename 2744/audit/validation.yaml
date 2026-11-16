@@ -1,0 +1,45 @@
+# Validation record — .opencode#2744 (YAML)
+# One file per issue; one top-level section per artifact under validation.
+# Recorded per the spec card's validation standards (Loop / validation record rule).
+
+spec:
+  cycles:
+    - round: 1
+      date: "2026-11-16"
+      dispatch: "fresh-context spec validator (session ses_e1a4afa00ffey1k9EjFDJdHH0n)"
+      verdict: FAIL
+      findings:
+        - class: "Analysis family — fabricated claims (factual defect: wrong count)"
+          classification: finding
+          detail: "§1/§7 claimed '34 parent-store specs' carry the 6-field preamble skeleton; validator's re-execution finds 9 specs carry all six fields (looser constructions reach 24-32; no construction reaches 34). Count materially overstated (~4x strict figure)."
+          remediation: "counts corrected to the verified operationalizations in §1 (9 strict; looser to 32, construction-dependent) and §7 sources row; remote body reconciled in the same action"
+        - class: "Analysis family — cross-reference sufficiency"
+          classification: finding
+          detail: "reconciliation register attributed 'orchestrator Dispatch Indicators and Z3-contract vocabulary' to the two declared attic source texts; Z3-contract vocabulary is in neither (it was auditor-criteria machinery, retired by #2211) — the register misstated the source inventory, and the misstatement propagated into SC-2's instrument premise."
+          remediation: "register Dropped bullet names only Dispatch Indicators (verified present in the plan-structure source text); SC-2's instrument references only the verified token"
+    - round: 2
+      date: "2026-11-16"
+      dispatch: "fresh-context spec validator (session ses_e1a46af66ffeNO3tAU97ayrG9V)"
+      verdict: FAIL
+      findings:
+        - class: "Defect class 3 — either/or criterion (decomposition family shares the ground)"
+          classification: finding
+          detail: "R-5/SC-5 bundled both authoring kinds ('a spec or a plan') in one behavioral criterion and one singular dispatch instrument — a deliverable verifying only the spec-authoring branch would pass every SC while the plan standard and plan card wiring received zero behavioral verification."
+          remediation: "split into R-5/SC-5 (spec-kind dispatch) and R-6/SC-6 (plan-kind dispatch), one tier-1 recorded dispatch per authoring kind; traceability and design-decision (3) updated; remote body reconciled"
+    - round: 3
+      date: "2026-11-16"
+      dispatch: "fresh-context spec validator (session ses_e1a40e42bffeLYnqO4TM7jHoMp)"
+      verdict: PASS
+      findings: zero
+      classification: "terminal cycle — zero-finding verdict, no caveats"
+      notes: "proactive repo-boundary containment check passed (single repo michael-conrad/.opencode; filing home coincides)"
+
+plan:
+  cycles:
+    - round: 1
+      date: "2026-11-16"
+      dispatch: "fresh-context plan validator (session ses_e1a3b4638ffexTS2derI1o07bK)"
+      verdict: PASS
+      findings: zero
+      classification: "terminal cycle — zero-finding verdict, no caveats"
+      notes: "all four content REDs and both behavioral RED baselines live-verified by the validator (clone at 3642e2d5; reference-integrity fails standalone from the clone root exactly as Item 3's fallback anticipates)"
