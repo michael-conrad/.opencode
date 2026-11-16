@@ -1,0 +1,9 @@
+title: 'floor: terminal-stage token (approved for pr) halts instead of executing when
+  the named phase has no surface for the deliverable (wiki-only)'
+status: open
+labels:
+- needs-approval
+- bug
+body: ''
+created_at: '2026-11-16T16:38:33+00:00'
+updated_at: '2026-11-16T16:38:33+00:00'
