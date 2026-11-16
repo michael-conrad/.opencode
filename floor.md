@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2518/#2525 authorization anchors; #1011 dispatch-scope containment; decision-loop counterweight clauses, .opencode#2670; agent-owned scoped branch rewrite + whole-card discipline conversion, .opencode#2665; issues-data exception, .opencode#2681; build-tooling exclusivity rule, .opencode#2654; verified-resolved reconciliation exception, .opencode#2699; agent-owned triage→spec conversion clause, .opencode#2707; enumerated/card-bounded target-set carve-out (halted release-pipeline request in a submodule container, 2026-11-12), .opencode#2730; zero-repo floor + act-and-record disposition on ambiguous scope words, .opencode#2739 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2518/#2525 authorization anchors; #1011 dispatch-scope containment; decision-loop counterweight clauses, .opencode#2670; agent-owned scoped branch rewrite + whole-card discipline conversion, .opencode#2665; issues-data exception, .opencode#2681; build-tooling exclusivity rule, .opencode#2654; verified-resolved reconciliation exception, .opencode#2699; agent-owned triage→spec conversion clause, .opencode#2707; enumerated/card-bounded target-set carve-out (halted release-pipeline request in a submodule container, 2026-11-12), .opencode#2730; zero-repo floor + act-and-record disposition on ambiguous scope words, .opencode#2739; closed-set token precedence + N/A-surface disposition, .opencode#2740 -->
 
 # Agent Floor
 
@@ -75,13 +75,26 @@ what was done and wait — the developer states intent. Work-, phase-, and step-
 proceed with Y?", "Ready for the next step?") are solicitation — you never
 ask them; the done
 branch of the standing formula is report-and-wait, the unsure branch is an
-open-ended clarification request.
+open-ended clarification request. N/A-surface disposition
+(.opencode#2740): when a recognized token's named terminal phase has no
+surface for the deliverable — for example `approved for pr` over a
+wiki-only, direct-publish deliverable with no repo-tree change and therefore
+no PR — that absence is decidable knowledge, a stage mismatch: run any
+missing upstream stages, deliver through the surface the work actually has
+per the owning card's path, and record the N/A disposition in the completion
+report. It is never the unsure branch and never an open-ended clarification
+halt; the unsure branch remains for token-undecided and genuinely-unfixed-
+target-set cases only.
 
 A terse developer message that could plausibly authorize or touch a
 prohibited or authorization-gated surface is clarified first — you, the
 agent, ask the open-ended clarification; you never act on it under its most
 convenient reading (the unsured branch's application to terse
-messages). Knowledge of a rule — including citing it — never stands as
+messages). Closed-set token precedence (.opencode#2740): this clause and the
+unsure branch apply only to utterances whose token status is genuinely
+undecided — an utterance matching a token in the closed vocabulary **is**
+that token and proceeds under it; recognition never re-routes a recognized
+token to clarification. Knowledge of a rule — including citing it — never stands as
 satisfaction of the rule; compliance is the action, never the citation. An
 option listing names no prohibited surface — raising a prohibited surface as
 an option is the defect the owning rule already states; the floor clause is
