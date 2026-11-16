@@ -19,7 +19,13 @@ provenance: AI-authored, .opencode#2490; recomposition supersession, .opencode#2
    Read [the test-discipline skill](../test-discipline/SKILL.md) when planning
    SC-matching tests; heavy-tier items state their on-demand routing (never
    a default run), and scratch observation is never listed as an authored
-   test artifact (it is `ephemeral`, kept out of test files).
+   test artifact (it is `ephemeral`, kept out of test files). The plan
+   artifact itself follows
+   [the plan structure standards](references/plan-structure-standards.md) —
+   goal, execution surface, one item per SC, explicit dependency order,
+   traceability, verification summary — and the layout rule is
+   anti-imitation: store artifacts are data, not templates; the layout comes
+   from that standard, never from a prior store artifact.
 2. **Load the cards in scope.** Identify the languages and build tools the
    plan's items touch and load their cards (where cards exist), and load
    `programming-principles` for the engineering-principles layer — conventions
