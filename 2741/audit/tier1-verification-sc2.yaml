@@ -1,0 +1,33 @@
+# Tier-1 behavioral verification record — SC-2 (.opencode#2741)
+
+**Class:** tier-1 clean-room dispatch (behavioral-testing card, simple card change)
+**Session:** ses_e1acdaefcffeCQCMMHEAD8xtFo · 2026-11-16
+**Instrument change:** plan Item 2 originally named the tests-v2 harness; re-tiered mid-cycle (implement §4) to tier-1 — deliverable is a one-card wording change, tier-1 eligible by agent judgment; granularity rule applied.
+
+```yaml
+verdict: PASS
+criterion: SC-2
+findings: []
+grounds: >-
+  Judged from the rule-1 text at .opencode/skills/git-workflow-pr/SKILL.md
+  (lines 14-42), which as an operative instruction produces the SC-2
+  behavior: an agent receiving `approved for pr` with absent/incomplete
+  post-spec work is routed to performing or resuming the remaining workflow,
+  never to opening a PR or halting on a completeness assumption, and the
+  "already completed" state is entered only as an evidence-check outcome.
+
+  Supporting operative sentences:
+  - "Not-done default (.opencode#2741): when PR-boundary authorization
+    arrives, the agent's starting assumption is that the work has not been
+    completed yet — completeness is never presumed, it is established by
+    checking evidence (the branch's commits, the session's executed test
+    records, the recorded verify PASS)."
+  - "The authorization implies one of two operations, selected by that
+    evidence-first state determination, never by the assumption"
+  - "Complete the workflow — … the agent performs the remaining stages in
+    order and opens the PR only at full scope completion and verification."
+  - "Resume the workflow — … continues from where it actually stands."
+  - "already completed for PR is a natural result of the completion checks
+    themselves — reached only when the checks establish the issue's full
+    assigned scope implemented and verified."
+```

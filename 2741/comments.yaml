@@ -3,3 +3,11 @@ comments:
   body: 'Fresh-context spec validation (ses_e1ad2bce4ffe47jJaievVXHIOH): PASS, zero
     findings. Spec waits at the developer approval gate before plan.'
   timestamp: '2026-11-16T16:25:45+00:00'
+- type: internal
+  body: 'Implementation record: Item 1 commit 4e3ec651 (.opencode branch 2741-pr-not-done-default)
+    — rule 1 rewritten with the not-done default + complete/resume framing; SC-1 grep
+    PASS; SC-3 diff touches only provenance + rule 1; reference-integrity PASS. Mid-cycle:
+    plan Item 2 re-tiered from tests-v2 harness to tier-1 clean-room dispatch (simple
+    card change; granularity rule) — record in audit/tier1-verification-sc2.yaml,
+    verdict PASS, zero findings.'
+  timestamp: '2026-11-16T16:30:59+00:00'
