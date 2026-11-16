@@ -6,3 +6,12 @@ comments:
     validation dispatch (ses_e1ac573c7ffd6ic1B3gNmWmnIm): PASS, zero findings. Waiting
     at the developer approval gate before plan.'
   timestamp: '2026-11-16T16:40:13+00:00'
+- type: internal
+  body: 'Implementation record: commit 1db5b6d1e on branch 2739-2740-floor-scoping-tokens
+    — closed-set token precedence stated in the terse-message clause; N/A-surface
+    disposition added at the standing formula with completion-report recording and
+    unsure-branch narrowing; merge boundary + genuinely-unfixed halt untouched. SC-1
+    grep PASS; SC-3 diff confined to the vocabulary/terse-message areas + provenance;
+    composition with #2741 rule-1 confirmed. SC-2 tier-1 clean-room dispatch (ses_e1abe5ee0ffdDOVAa9Fz51BTWs):
+    PASS, zero findings. Fresh-context verify pass: PASS (all SC, zero findings, ses_e1abdd5acffefYCh1PfgLtllu0).'
+  timestamp: '2026-11-16T16:48:21+00:00'
