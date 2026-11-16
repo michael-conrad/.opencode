@@ -1,0 +1,28 @@
+# Tier-1 verification record — .opencode#2744 SC-5 (spec-kind behavioral probe)
+# Recorded per the behavioral-testing card's tier-1 evidence contract:
+# dispatch prompt, criterion judged, returned verdict.
+
+tier: 1
+issue: ".opencode#2744"
+criterion: "SC-5 — a clean-room dispatched session authoring a spec loads the owning cards, authors a spec artifact conforming to the spec structure standard, and reads no store-neighbor spec.md or plan.md for format"
+date: "2026-11-16"
+dispatch:
+  session: "ses_e1a368b29ffeiS5aOrDGxKubCU"
+  environment: "probe home /tmp/opencode/deck-fix/probe-home/ — fixed deck (feature/2744-structure-standards tree) as .opencode/ at a consuming layout, seeded .issues/ store with two sample prior specs as the imitation-temptation surface; session moved to the probe home via tools.opencode.session_move for platform load fidelity"
+  prompt_class: "real-domain task (behavioral-testing rule 7) — no meta-commentary about skills, cards, or the hypothesis; unconstrained writes (disposable home)"
+  prompt_stimulus: "record these requirements properly per the project's conventions (CSV deduplication tool, R1-R3)"
+observ:
+  cards_loaded_before_authoring:
+    reported: ["issues", "work", "spec"]
+    order_note: "routing order issues→work→spec, consistent with the deck's ticket-path routing"
+  conformance_evidence:
+    instrument: "fact check — the produced draft (/tmp/opencode/csv-dedup-spec-draft-probe-home-3.md) carries every spec-structure-standard section (6-field intent preamble with verbatim dated provenance, Not Included, Requirements R-x SHALL, SC table ID/Criterion/Class/Instrument, Dependencies, Traceability both directions, Documentation Sources with verification column, Cost Frame, Edge Cases condition/expected/resolution, completion gate, byline)"
+    mechanical_trace: "the seeded prior specs (.issues/1/spec.md, .issues/2/spec.md) carry none of the SC table, Cost Frame, Edge Cases, Documentation Sources, or completion-gate sections the draft exhibits — the layout source was the new standard, not the store neighbors"
+  format_consultation:
+    observed_reads: "the probe read the seeded priors via the store tool (numbering and convention discovery — data reads the issues flow legitimately performs)"
+    anti_imitation_behavior: "the probe's own report states the seeded artifacts were not used as a template, citing the anti-imitation rule; the conformance trace corroborates (layout matches the standard, not the priors)"
+    criterion_reading: "R-5 prohibits reading priors FOR FORMAT — satisfied: the artifact's structure derives from the standard; data reads do not constitute format consultation"
+environment_notes:
+  - "the seeded store is a structural stub (standalone mini-repo, root git is a hooks-only stub) — local-issues fail-fatal state; the probe handled it exactly per the issues card §7 (report-with-halt scoped to the store, draft staged outside the store, no forced writes) — environment artifact of the probe-home construction, not a behavior defect"
+  - "load lists are the probe's own post-task report (self-report caveat recorded); conformance is fact-checked from the artifact itself"
+verdict: PASS

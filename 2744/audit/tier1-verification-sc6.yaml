@@ -1,0 +1,28 @@
+# Tier-1 verification record — .opencode#2744 SC-6 (plan-kind behavioral probe)
+# Recorded per the behavioral-testing card's tier-1 evidence contract:
+# dispatch prompt, criterion judged, returned verdict.
+
+tier: 1
+issue: ".opencode#2744"
+criterion: "SC-6 — a clean-room dispatched session authoring a plan loads the owning cards, authors a plan artifact conforming to the plan structure standard, and reads no store-neighbor spec.md or plan.md for format"
+date: "2026-11-16"
+dispatch:
+  session: "ses_e1a368b28ffexYWkX89b5YGdao"
+  environment: "same probe home as tier1-verification-sc5.yaml (fixed deck at a consuming layout, seeded store)"
+  prompt_class: "real-domain task (behavioral-testing rule 7) — no meta-commentary; unconstrained writes"
+  prompt_stimulus: "plan the work to add a nightly maintenance task archiving the .issues/ store (plan-authoring form)"
+observ:
+  cards_loaded_before_authoring:
+    reported: ["plan", "work", "spec", "issues", "test-discipline", "programming-principles"]
+    order_note: "plan card first; work-card routing produced spec-then-plan (spec missing, pipeline ran from the earliest missing stage) — full-path behavior correct per the work card"
+  conformance_evidence:
+    instrument: "fact check — the produced plan (/tmp/opencode/deck-fix/probe-home-standby/issue3/plan.md) carries the plan-structure-standard section inventory: Goal, Execution surface, Items (Deliverable/RED/GREEN/Tier marks/Instrument — the plan card rule 1 anatomy), Dependency order, Traceability, Verification summary, Status boundary; its companion spec carries the full spec-structure-standard inventory"
+    mechanical_trace: "the seeded priors carry no item anatomy, traceability, or verification-summary structure — the plan's layout source was the new standard"
+  format_consultation:
+    observed_reads: "the probe read the seeded priors as store data (listed among consulted artifacts)"
+    anti_imitation_behavior: "layout conformance to the new standard evidences the anti-imitation rule's behavior; the probe also explicitly consulted plan-structure-standards.md before authoring"
+  pipeline_behavior: "full path executed correctly from a plan-stage dispatch: spec authored first (missing upstream artifact), plan derived from the spec's SCs, validation dispatches correctly deferred (no sub-agent surface in that session), stages not re-asked or skipped"
+environment_notes:
+  - "same seeded-store stub as SC-5; handled per the issues card §7 — drafts staged at /tmp/opencode/deck-fix/probe-home-standby/ with a HANDOFF carrying the evidence chain"
+  - "load lists are self-report; conformance is fact-checked from the artifacts"
+verdict: PASS
