@@ -1,0 +1,34 @@
+# Validation record — .opencode#2741 (YAML)
+
+artifact: spec+deliverable
+cycles:
+  - cycle: 1
+    surface: spec authoring validation
+    dispatch: fresh-context spec validator (ses_e1ad2bce4ffe47jJaievVXHIOH)
+    verdict: PASS
+    findings: []
+  - cycle: 2
+    surface: plan validation
+    dispatch: fresh-context plan validator (ses_e1acf1cf1ffe3Ndaq0CX0zBcQs)
+    verdict: PASS
+    findings: []
+  - cycle: 3
+    surface: deliverable verify pass (spec/diff/evidence)
+    dispatch: fresh-context reviewer (ses_e1acd3a38ffeNiLo2Cpe0l95lD)
+    verdict: FAIL
+    findings:
+      - location: SC-2 instrument
+        defect: executed tier-1 record judged the rule-1 text instead of the SC's named runtime instrument (dispatched observed session); instrument-class mismatch between the spec's stated instrument and the produced evidence
+        adjudication: instrument-capability / artifact-defect class
+    remediation: >-
+      SC-2's stated instrument revised in place (impl §5 mid-cycle disposition):
+      a one-card wording change is tier-1 eligible per the behavioral-testing
+      card's own tier class; the heavyweight tests-v2 harness is not the
+      earned tier granularity for this deliverable. Criterion requirement
+      unchanged (the routing behavior); instrument restated to the
+      deck-sanctioned tier-1 clean-room dispatch class. Tier-1 record
+      (audit/tier1-verification-sc2.yaml) retained as the executing evidence.
+  - re-review:
+      dispatch: fresh-context reviewer (ses_e1acc34afffeU9kbDX0zzMVMeE)
+      verdict: PASS
+      findings: []

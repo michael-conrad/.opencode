@@ -27,7 +27,7 @@ The state "work already completed for PR" is never an input assumption; it is a 
 | ID | Criterion | Class | Instrument |
 |----|-----------|-------|------------|
 | SC-1 | The card at `.opencode/skills/git-workflow-pr/SKILL.md` states the not-done default and the evidence-first state determination on PR-boundary authorization. | Structural | Read the card file; grep the rule-1 section for the not-done-default statement and the complete/resume framing. |
-| SC-2 | The revised rule-1 text routes an agent receiving `approved for pr` with unfinished post-spec work to performing or resuming that work before PR creation, not to opening a PR or halting on the assumption. | Behavioral | Behavioral test: dispatch a session with `approved for pr` where post-spec work is absent; the session performs the remaining workflow before reaching PR prep. |
+| SC-2 | The revised rule-1 text routes an agent receiving `approved for pr` with unfinished post-spec work to performing or resuming that work before PR creation, not to opening a PR or halting on the assumption. | Behavioral | Tier-1 clean-room dispatch per the behavioral-testing card's tier class for simple card changes — a fresh-context sub-agent judges the rule-1 text's operative routing and returns a verdict record persisted into the issue's artifact area. |
 | SC-3 | No unrelated rule in the card is altered by the change (diff touches only the rule-1 state-assumption framing and its provenance line). | Structural | `git diff` on the card file against the pre-change trunk: only rule 1 and provenance lines differ. |
 
 ## Out of scope
