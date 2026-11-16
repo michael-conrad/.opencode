@@ -26,7 +26,7 @@ R-3. The spec card and the plan card SHALL each carry a `Read [Text](path)` dire
 
 R-4. The spec card's validation-standards reference and the plan card's validation-standards reference SHALL carry layout-conformance criteria that derive from the respective structure standard — the reviewer reads the standard and verifies conformance; the checker holds no hard-coded section list.
 
-R-5. A clean-room session under the post-change deck, dispatched to author a spec or a plan, SHALL load the owning cards, produce the artifact conforming to the applicable structure standard, and consult no store artifact for format.
+R-5. A clean-room session under the post-change deck state (the PR branch's checkout of michael-conrad/.opencode), dispatched to author a spec or a plan, SHALL load the owning cards, produce the artifact conforming to the applicable structure standard, and read no store-neighbor spec.md or plan.md for format.
 
 ### Reconciliation register
 
@@ -34,6 +34,7 @@ The adaptation encodes these section-by-section rulings:
 
 - **Retained from the attic inventory**, each purpose-anchored to a current validation family: the 6-field intent preamble (Problem Statement; Root Cause / Motivation; Approach Chosen; Alternatives Considered & Why Discarded; Key Design Decisions; User Intent / Original Prompt) — anchors validation class 1 (provenance) and the traceability, causal-sufficiency, problem-fit, and research-adequacy families; **Not Included** (exclusions, each with rationale); **Requirements** (R-x, RFC 2119 SHALL); **SC table** — columns ID / Criterion / Class / Instrument, the class vocabulary per the current spec card rule 4 (behavioral | structural); **Dependencies** (reference / relationship / status); **Traceability** (Requirement → SCs); **Documentation Sources** (source / type / location / verification — anchors the fabricated-claims family); **Cost Frame**; **Edge Cases** (gap-analysis family).
 - **Dropped**: spec-embedded Items (the current plan card owns item anatomy; the spec carries SCs, the plan carries items); the Phases column in traceability (phase-era vocabulary); the attic four-way evidence-type taxonomy (superseded by the current two-class rule); the orchestrator Dispatch Indicators and Z3-contract vocabulary (retired machinery).
+- **Adoption posture**: the standards bind new authoring and bind revisions that substantively touch an artifact (whole-artifact-on-touch, mirroring the writing-discipline card's adoption rule); existing store artifacts are not retroactively converted.
 - **Enforcement Gate**: retained as a completion-gate statement — all SCs pass before the deliverable is complete — phrased as spec content, not a tracking indicator; the issue's validation record stays the loop history's owner.
 
 ## 4. Success criteria
@@ -44,7 +45,7 @@ The adaptation encodes these section-by-section rulings:
 | SC-2 | `skills/plan/references/plan-structure-standards.md` exists; the `plan.md` structure carries item anatomy matching plan card rule 1; orchestrator-era dispatch vocabulary absent | structural | read + grep: rule-1 anatomy terms present; retired tokens (dispatch indicators, Z3 contract) absent |
 | SC-3 | The spec card carries a `Read` directive to its structure standard plus the anti-imitation rule; the plan card carries the same | structural | read both SKILL.md files: directive line and anti-imitation sentence present in each |
 | SC-4 | Both validation standards carry layout-conformance criteria that derive from their structure standards | structural | read both standards: the criteria name the standard as their source; no section list duplicated into the checker |
-| SC-5 | A clean-room dispatched session loads the owning cards, authors an artifact conforming to the standard, and consults no store artifact for format | behavioral | tier-1 recorded clean-room dispatch; prompt, criterion, and verdict persisted to `.issues/2744/audit/` |
+| SC-5 | A clean-room dispatched session loads the owning cards, authors an artifact conforming to the standard, and reads no store-neighbor spec.md or plan.md for format | behavioral | tier-1 recorded clean-room dispatch; prompt, criterion, and verdict persisted to `.issues/2744/audit/` |
 
 ## 5. Traceability
 
