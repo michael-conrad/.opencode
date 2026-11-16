@@ -1,0 +1,8 @@
+title: 'git-workflow-pr: default-to-not-done state assumption on PR-boundary authorization'
+status: open
+labels:
+- needs-approval
+- bug
+body: ''
+created_at: '2026-11-16T16:24:19+00:00'
+updated_at: '2026-11-16T16:24:19+00:00'
