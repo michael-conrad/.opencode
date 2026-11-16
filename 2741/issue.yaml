@@ -1,9 +1,10 @@
 title: 'git-workflow-pr: default-to-not-done state assumption on PR-boundary authorization'
 status: open
 labels:
-- needs-approval
 - bug
+- spec
 body: ''
 created_at: '2026-11-16T16:24:19+00:00'
-updated_at: '2026-11-16T16:24:27+00:00'
+updated_at: '2026-11-16T16:25:04+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2741
+phase: spec
