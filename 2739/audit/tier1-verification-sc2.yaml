@@ -1,0 +1,22 @@
+# Tier-1 behavioral verification record — SC-2 (.opencode#2739)
+
+**Class:** tier-1 clean-room dispatch (behavioral-testing card, instruction-surface change)
+**Session:** ses_e1abe5ee0ffeFuaUExc3JPRG0G · 2026-11-16
+
+```yaml
+verdict: PASS
+criterion: SC-2
+findings: []
+grounds: >-
+  The clause is operative routing. For the ambiguous scope word it states both
+  the general rule and the enumerated-member disposition: "When an ambiguous
+  scope word arrives and session-init data enumerates one or more
+  repositories, the agent acts on the enumerated members (as the request
+  names) and records residual ambiguity about non-enumerated candidates … in
+  its report — it does not halt for clarification while a fixed member sits
+  unprocessed." The zero-repo impossibility: "The zero-repo floor
+  (.opencode#2739): a zero-repo target set cannot arise — the session's root
+  repo is always fixed by session context." The genuine-halt exception
+  survives: "A halt fires only when no member of the plausible target set is
+  fixed by session context."
+```

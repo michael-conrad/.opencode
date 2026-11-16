@@ -6,3 +6,11 @@ comments:
     (ses_e1ac573c7ffeGCuJARigOQSIU0): PASS, zero findings. Waiting at the developer
     approval gate before plan.'
   timestamp: '2026-11-16T16:40:11+00:00'
+- type: internal
+  body: 'Implementation record: commit 222fd4a7a on branch 2739-2740-floor-scoping-tokens
+    — target-entity-scoping paragraph rewritten with the zero-repo floor + act-and-record
+    disposition; SC-1 grep PASS; SC-3 diff touches only that paragraph + provenance
+    line; reference-integrity PASS. SC-2 tier-1 clean-room dispatch (ses_e1abe5ee0ffeFuaUExc3JPRG0G):
+    PASS, zero findings — record audit/tier1-verification-sc2.yaml. Fresh-context
+    verify pass: PASS (all SC, zero findings, ses_e1abdd5acffefYCh1PfgLtllu0).'
+  timestamp: '2026-11-16T16:48:19+00:00'

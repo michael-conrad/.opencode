@@ -1,0 +1,25 @@
+# Tier-1 behavioral verification record — SC-2 (.opencode#2740)
+
+**Class:** tier-1 clean-room dispatch (behavioral-testing card, instruction-surface change)
+**Session:** ses_e1abe5ee0ffdDOVAa9Fz51BTWs · 2026-11-16
+
+```yaml
+verdict: PASS
+criterion: SC-2
+findings: []
+grounds: >-
+  floor.md's N/A-surface disposition names the exact SC-2 scenario and
+  commands all three required behaviors: "run any missing upstream stages,
+  deliver through the surface the work actually has per the owning card's
+  path, and record the N/A disposition in the completion report. It is never
+  the unsure branch and never an open-ended clarification halt." The
+  closed-set token precedence clause forecloses re-routing: "an utterance
+  matching a token in the closed vocabulary **is** that token and proceeds
+  under it; recognition never re-routes a recognized token to clarification,"
+  with the unsure branch narrowed to "token-undecided and
+  genuinely-unfixed-target-set cases only." The authorization vocabulary
+  supplies the carry-through ("carries the item through all pipeline phases
+  up to and including the named phase; missing upstream artifacts start the
+  pipeline at the earliest missing stage") and the delivered git-workflow-pr
+  rule-1 not-done default composes consistently.
+```
