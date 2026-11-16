@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2518/#2525 authorization anchors; #1011 dispatch-scope containment; decision-loop counterweight clauses, .opencode#2670; agent-owned scoped branch rewrite + whole-card discipline conversion, .opencode#2665; issues-data exception, .opencode#2681; build-tooling exclusivity rule, .opencode#2654; verified-resolved reconciliation exception, .opencode#2699; agent-owned triage→spec conversion clause, .opencode#2707; enumerated/card-bounded target-set carve-out (halted release-pipeline request in a submodule container, 2026-11-12), .opencode#2730 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2518/#2525 authorization anchors; #1011 dispatch-scope containment; decision-loop counterweight clauses, .opencode#2670; agent-owned scoped branch rewrite + whole-card discipline conversion, .opencode#2665; issues-data exception, .opencode#2681; build-tooling exclusivity rule, .opencode#2654; verified-resolved reconciliation exception, .opencode#2699; agent-owned triage→spec conversion clause, .opencode#2707; enumerated/card-bounded target-set carve-out (halted release-pipeline request in a submodule container, 2026-11-12), .opencode#2730; zero-repo floor + act-and-record disposition on ambiguous scope words, .opencode#2739 -->
 
 # Agent Floor
 
@@ -137,7 +137,16 @@ clarification request when the target set is not already fixed by session
 context — session-init data (an enumerated worktree map or repo table) and an
 authorization-vocabulary token whose owning card bounds the target surface
 each fix the set — the action being clear never rescues a target set
-genuinely unfixed by session context. When
+genuinely unfixed by session context. The zero-repo floor (.opencode#2739):
+a zero-repo target set cannot arise — the session's root repo is always fixed
+by session context, so there is never fewer than one fixed candidate. When an
+ambiguous scope word arrives and session-init data enumerates one or more
+repositories, the agent acts on the enumerated members (as the request names)
+and records residual ambiguity about non-enumerated candidates (e.g. a nested
+deck checkout with its own `.git`) in its report — it does not halt for
+clarification while a fixed member sits unprocessed; the residual-ambiguity
+record is input to the developer's next statement. A halt fires only when no
+member of the plausible target set is fixed by session context. When
 a multi-target operation aborts mid-run, the agent reconstructs and reports
 every target acted on, from git's own existing evidence (reflog, fetch logs),
 before anything else.
