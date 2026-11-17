@@ -1,0 +1,39 @@
+# (YAML) SC-4 executed evidence — .opencode#2746 default launch opens msedge backed by the durable profile
+issue: .opencode#2746
+criterion: SC-4
+executed: 2026-11-17T05:11:15Z
+instrument: "Execute the documented default launch command as written in skills/playwright-cli (post-edit deliverable), from the consuming repo root; capture the daemon session record and the binary actually launched."
+
+command_executed: >-
+  cd /home/muksihs/git/opencode-config && PATH=/home/muksihs/git/opencode-config/.tools/node/bin:$PATH
+  playwright-cli open 'https://archive.org/' --browser msedge --persistent
+  --profile ~/.cache/ms-playwright/daemon/ud-bl-persist --headed
+
+binary_launched: /opt/microsoft/msedge/msedge
+binary_evidence: "pgrep -a msedge shows /opt/microsoft/msedge/msedge … --user-data-dir=/home/muksihs/.cache/ms-playwright/daemon/ud-bl-persist --remote-debugging-pipe (pid 3727749, 2026-11-17 05:11 UTC)"
+
+daemon_session_record_source: /home/muksihs/.cache/ms-playwright/daemon/67385e43c02fed35/default.session (timestamp 1794892274954 ≈ 2026-11-17 05:11 UTC — written by this launch)
+daemon_session_record: |
+  {
+    "name": "default",
+    "version": "1.64.0-alpha-1789764292000",
+    "timestamp": 1794892274954,
+    "socketPath": "/tmp/pw-1d249088/cli/67385e43c02fed35-default.sock",
+    "cli": { "persistent": true },
+    "browser": {
+      "browserName": "chromium",
+      "launchOptions": {
+        "channel": "msedge",
+        "headless": false,
+        "chromiumSandbox": true,
+        "args": ["--disable-blink-features=AutomationControlled"]
+      },
+      "userDataDir": "/home/muksihs/.cache/ms-playwright/daemon/ud-bl-persist"
+    }
+  }
+
+outcome: PASS
+outcome_note: >-
+  Session record names channel msedge, headless false (headed), persistent true,
+  userDataDir = the durable profile of record; the live process names the msedge
+  binary with that exact --user-data-dir.
