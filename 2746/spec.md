@@ -1,0 +1,67 @@
+# Spec: .opencode#2746 — Playwright browser-session defaults: msedge + durable saved profile; research skill browser-first over curl
+
+## 1. Intent and Executive Summary
+
+- **Problem Statement.** Agent web research loses to anti-bot surfaces and can never reuse logins under the current deck's browser-session posture. Verified 2026-11-16 during the Cherokee-morphology thesis availability research: bare `playwright-cli open` dies (`Chrome distribution 'chrome' is not found at /opt/google/chrome/chrome`); headless chromium with a throwaway in-memory profile is blocked at WorldCat (Cloudflare HTTP 429), HathiTrust (Cloudflare 403 "Just a moment"), and JSTOR ("Client Challenge" — never cleared across 10s waits and reloads); deep-link search URLs reproduce the walls even after a headed warm-up with the *right* build. A headed chromium with a persistent profile clears the same walls. The developer-correct browser stack observed working 2026-11-16: **Microsoft Edge channel (`msedge`) + the durable saved Chromium profile** — it passed Google's browser-security check (Google OAuth to archive.org completed with the developer's 2FA; archive.org authenticated; sessions persisted in the profile after clean close — cookie store verified `accounts.google.com`/`.google.com`/`archive.org` rows on 2026-11-16 23:14) and cleared JSTOR's Client Challenge. By contrast a mismatched Firefox/core pairing hit Google's "This browser or app may not be secure"; the browser check is build-pairing-sensitive, which is why the default must name the specific channel and profile, not "a persistent browser".
+- **Root Cause / Motivation.** The deck's `playwright-cli` skill card states provisioning (vendored Node, install runbook) and session hygiene (snapshot-first, close-when-done) but names **no default channel, no default profile doctrine, and no default headless/headed posture** — so every composing session improvises, and the improvised form (bare `open` → chrome channel; headless; ephemeral default profile) is exactly the form the walls defeat and the form that discards login state. The research skill (`skills/research/SKILL.md`) likewise carries no browser-first posture: it dispatches search/fetch sub-agents and never says when a real browser is obligatory, so sessions fall back to curl/API-first attempts against JS-rendered, bot-walled sites and only reach playwright if ever. Developer directives this session make both gaps explicit mandates.
+- **Approach Chosen.** Land the default doctrine in the deck's `playwright-cli` card and its provisioning runbook — default launch = `--browser msedge --persistent` against a durable saved profile (the `ud-bl-persist` Chromium profile at the daemon cache path), headed by default for interactive web surfaces — plus the login-once flow that plants cookies into that profile, with named fallback behavior (per-API-endpoint curl, headless-only for API-clean checks) instead of improvised alternates; and land the corresponding browser-first posture sentence set in the research card (playwright/msedge used as needed, preferred over curl for most sites). Developer directive, 2026-11-16 (verbatim): "file a spec. playwright needs to default to using edge + saved profile so that saved logins work."; "the research skill need to clearly indicate to use playwright ms edge as needed and to assume it should be used in preference to curl for most sites".
+- **Alternatives Considered & Why Discarded.** (a) Headless UA spoofing / anti-detection patches — rejected: unreliable against Cloudflare-class and Google checks, brittle to their updates, and the observed evidence is that a headed real-channel browser is what passes. (b) Firefox as the default — rejected on observed 2026-11-16 evidence: the custom playwright Firefox build pairing triggers Google's OAuth browser rejection; the pairing sensitivity makes it a poor default. (c) Per-project throwaway profiles plus saved storage-state JSON files — rejected: the developer's directive is a saved profile that carries logins; state files add ceremony, drift, and per-site re-planting. (d) Installing real Chrome — rejected: absent on the observed machine and unnecessary; msedge is present (`/opt/microsoft/msedge/msedge`) and passed the same check.
+- **Key Design Decisions.** (1) The channel+profile pairing is stated as one unit — the pairing (real Vendor Chromium + one durable profile) is what passes the checks; defaults are stated, never left to per-session judgment. (2) The saved profile is shared across sessions, not per-project: logins planted once must be visible to every later session — the daemon-cache path (`~/.cache/ms-playwright/daemon/ud-bl-persist`) is the profile of record. (3) Credentials never enter the deck: the login-once step is developer-performed in the headed window; the card documents the flow, never credentials. (4) curl is not banned — the research card's preference is "most sites"; clean JSON APIs (search/metadata endpoints like archive.org's `advancedsearch.php`) remain legitimate direct calls; the card states the posture, the plan-stage wording decides the split sentence.
+- **User Intent / Original Prompt.** Developer statements, 2026-11-16 (verbatim): "file a spec. playwright needs to default to using edge + saved profile so that saved logins work." · "the research skill need to clearly indicate to use playwright ms edge as needed and to assume it should be used in preference to curl for most sites" · (preceding observed-failure session, same day: repeated bot-wall losses under default launches; "you are supposed to use playwright as a part of your research so that you don't have all these fucking bot blockers"; "why aren't you using the fucking persistent profile so that fucking login to jstor etc fucking works?"; Edge + saved-profile login completed by the developer with the report "logged in")
+
+## 2. Not Included
+
+- **Browser installation automation** — provisioning checks that msedge exists and names the fallback path; auto-installing vendor browsers is out of scope.
+- **Credential handling** — the flow documents the developer-performed login window; the deck never touches or stores credentials (unchanged floor boundary).
+- **JSTOR / archive.org / site-specific recipes** — the cards are site-agnostic; the 2026-11-16 working evidence lives in the research card of record, not in skill text.
+- **Firefox / chromium-for-testing profile migration or cleanup** — the `ud-default-firefox`, `ud-aqv15-*`, and `ud-default-chrome-for-testing` profiles stay as found; no retirement mechanic.
+- **Other cards' curl references** — the developer directive scopes the research card and the playwright-cli card; no sweep of other surfaces.
+
+## 3. Requirements
+
+R-1. The `playwright-cli` skill card SHALL state the default browser-session launch as one pairing: Microsoft Edge channel (`--browser msedge`) + durable persistent profile (`--persistent --profile ~/.cache/ms-playwright/daemon/ud-bl-persist`), headed for interactive web surfaces; headless and throwaway-profile launches SHALL appear only as documented, explicitly non-default fallbacks for API-clean checks.
+
+R-2. The `playwright-cli` provisioning runbook (`references/install.md`) SHALL carry, consistent with R-1: (a) the msedge-presence check; (b) the default launch command; (c) the login-once flow (headed window on the target site, developer signs in, cookies land in the durable profile and persist across sessions); (d) the fallback behavior when the msedge channel is absent or a target needs no interactive browser — the documented fallback path, never an improvised alternate channel.
+
+R-3. The `research` skill card SHALL state the browser-first posture: playwright sessions on msedge + the saved profile are used as needed for web research, and are assumed in preference to curl/raw page fetches for most sites; direct API calls remain appropriate for clean JSON endpoints. The card SHALL NOT leave browser usage as an undocumented, per-session discretionary step.
+
+R-4. The profile of record SHALL remain the live, login-bearing one — the doctrine SHALL NOT name a fresh profile path that would discard the 2026-11-16 planted Google/archive.org sessions; where the card cites a path it cites the live one.
+
+## 4. Precondition (evidence base)
+
+- msedge present at `/opt/microsoft/msedge/msedge` (verified 2026-11-16).
+- `~/.cache/ms-playwright/daemon/ud-bl-persist` holds planted Google + archive.org sessions (verified in the profile cookie store 2026-11-16 23:14; login executed by the developer this session).
+- Deck files in scope exist today (`skills/playwright-cli/SKILL.md`, `skills/playwright-cli/references/install.md`, `skills/research/SKILL.md`) and carry none of the R-1..R-3 doctrine.
+
+## 5. Success Criteria
+
+| ID | Criterion | Class | Verification instrument |
+|---|---|---|---|
+| SC-1 | The `playwright-cli` card, as written on the deliverable, states the R-1 default pairing (msedge + durable profile + headed-for-research) and presents headless/throwaway only as explicit fallbacks | structural | Read the card; quote the default-launch passage; confirm the fallback framing is present and the default is stated unambiguously |
+| SC-2 | The provisioning runbook contains all four R-2 elements (msedge check, default launch command, login-once flow, absent-channel fallback) | structural | Read `references/install.md`; quote each of the four elements |
+| SC-3 | The research card states the R-3 posture (playwright/msedge as needed; preferred over curl for most sites; clean JSON APIs the direct-call case) | structural | Read the card; quote the posture sentence(s); confirm no contradiction of the playwright card's default |
+| SC-4 | Executing the documented default launch opens an msedge session backed by the durable profile | behavioral | Execute the launch command as documented from the consuming repo; capture the daemon session record (`browser.launchOptions`, persistent-profile fields) to `2746/research/` as executed evidence; record the binary actually launched |
+| SC-5 | A login already saved in the profile is reused without any login interaction across a close/reopen cycle | behavioral | Two-cycle executed check: launch per default → assert archive.org authenticated state (Log out / Account settings present, no Log in) → clean `close` → relaunch per default → assert authenticated state again; record both cycles' evaluated page markers to `2746/research/` |
+
+## 6. Approach
+
+Card-content changes to three deck surfaces (`playwright-cli/SKILL.md`, `playwright-cli/references/install.md`, `research/SKILL.md`) implementing R-1..R-4, then execution of the SC-4/SC-5 behavioral instruments against the live machine. Skill-card edits follow the deck's own governance path at implementation time.
+
+## 7. Edge Cases
+
+- **Concurrent sessions on the shared profile** — a Chromium persistent profile locks to one live browser; the card's existing close-when-done hygiene plus the documented launch flow cover it; no additional criterion.
+- **Fresh machines without the planted logins** — SC-5's precondition is the 2026-11-16 profile state; on a fresh machine the runbook's login-once flow (R-2c) is how the profile gains state; SC-5 is evaluated where the precondition holds.
+- **Absent msedge** — the R-2d fallback path is the documented behavior; absence is a fallback trigger, not a spec failure.
+- **Profile of record drift** (daemon cache reorganization) — R-4 binds the doctrine to the live path; a future path change is a revision of the card text, not a silent divergence.
+
+## 8. Impact
+
+- **Consumers.** Every session in every consuming repo doing web research (research-card dispatches; playwright-cli launches) acquires the default posture; bot-wall losses and login-state discards stop being per-session reinventions.
+- **Surfaces.** Three deck files (R-1..R-3); no code, no tooling, no other cards.
+- **Risk.** Card-text drift between the three surfaces (mitigated: one pairing stated once, runbook references the card's default rather than restating variants); msedge absence on other machines (fallback documented).
+
+## 9. Completion gate
+
+All success criteria SHALL pass before this deliverable is complete; partial implementation is not permitted. The validation record at `.opencode/.issues/2746/audit/validation.yaml` carries the loop history.
+
+🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
