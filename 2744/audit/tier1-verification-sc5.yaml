@@ -26,3 +26,9 @@ environment_notes:
   - "the seeded store is a structural stub (standalone mini-repo, root git is a hooks-only stub) — local-issues fail-fatal state; the probe handled it exactly per the issues card §7 (report-with-halt scoped to the store, draft staged outside the store, no forced writes) — environment artifact of the probe-home construction, not a behavior defect"
   - "load lists are the probe's own post-task report (self-report caveat recorded); conformance is fact-checked from the artifact itself"
 verdict: PASS
+
+preserved_artifacts:
+  - audit/probe-s1-spec-draft.md
+  - audit/probe-p1-plan-draft.md
+  - audit/probe-p1-companion-spec.md
+note: "probe-session drafts preserved into the audit dir pre-cleanup; tmp work-state removed 2026-11-17 — the paths above are the durable evidence copies"

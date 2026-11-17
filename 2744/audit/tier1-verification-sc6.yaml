@@ -26,3 +26,8 @@ environment_notes:
   - "same seeded-store stub as SC-5; handled per the issues card §7 — drafts staged at /tmp/opencode/deck-fix/probe-home-standby/ with a HANDOFF carrying the evidence chain"
   - "load lists are self-report; conformance is fact-checked from the artifacts"
 verdict: PASS
+
+preserved_artifacts:
+  - audit/probe-p1-plan-draft.md
+  - audit/probe-p1-companion-spec.md
+note: "probe-session drafts preserved into the audit dir pre-cleanup; tmp work-state removed 2026-11-17 — the paths above are the durable evidence copies"
