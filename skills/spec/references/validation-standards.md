@@ -113,6 +113,16 @@ A criterion is defective when it exhibits any of the following:
    intent such criteria carry is preserved by full disclosure and by the
    post-fix continuation evidence — never by permanence, never by injecting
    the developer into verdict resolution (merge remains the human gate).
+9. **Layout non-conformance.** The spec's section structure does not conform
+   to [the spec structure standards](spec-structure-standards.md): a required
+   section is absent, the section's mandatory content is missing, or
+   normative content lives in a section the standard assigns elsewhere. The
+   reviewer reads the standard and verifies conformance — the checker never
+   hard-codes a section list; the standard is the single criteria source for
+   layout, and a conformance failure is a finding under the class-determined
+   finding bar. Adoption is the standard's own posture clause: artifacts
+   authored before the standard are not retro-converted, and a revision
+   touching an artifact substantially converts the whole artifact.
 
 ## Analysis families
 

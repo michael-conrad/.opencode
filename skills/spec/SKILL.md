@@ -65,7 +65,14 @@ provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2
    — sizing doctrine (fuller-but-still-exec-summary, self-sufficient for
    developer judgment), required sections, and the closing blockquoted
    artifacts link; the full spec and all artifacts live in
-   `.issues/{N}/` and stay local-authoritative. The
+   `.issues/{N}/` and stay local-authoritative. The local `spec.md` itself
+   follows
+   [the spec structure standards](references/spec-structure-standards.md) —
+   the mandatory section inventory (intent preamble, requirements, classified
+   success criteria with instruments, traceability, documentation sources) —
+   and the layout rule is anti-imitation: store artifacts are data, not
+   templates; the layout comes from that standard, never from a prior store
+   artifact, however similar the change. The
    local counter reserves numbers only in remoteless stores. On every remote
    filing into a synced store, advance `.counter` to max(counter, filed
    number); if it has drifted behind the store's highest `{N}/`, advance it to

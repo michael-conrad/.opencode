@@ -76,6 +76,16 @@ A plan is defective when it exhibits any of the following:
     unaccounted for: an item performs destructive operations without a
     rollback step, or the plan's order creates a data-loss window the
     spec's safety criteria do not cover.
+16. **Structure non-conformance.** The plan's section structure does not
+    conform to [the plan structure standards](plan-structure-standards.md):
+    a required element is absent, the element's mandatory content is
+    missing, or content lives where the standard assigns it elsewhere. The
+    reviewer reads the standard and verifies conformance — the checker never
+    hard-codes an element list; the standard is the single criteria source
+    for plan layout, and a conformance failure is a finding under the
+    class-determined finding bar. Adoption is the standard's own posture
+    clause: plans authored before the standard are not retro-converted, and
+    a revision touching a plan substantially converts the whole plan.
 
 ## Verdict contract
 
