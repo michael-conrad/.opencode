@@ -35,3 +35,28 @@ spec:
       (--browser msedge, --persistent, --profile; daemon session-record fields
       launchOptions/userDataDir), and repo-boundary containment both prongs.
     next_stage_awaited: developer approval gate
+  - round: 3
+    date: 2026-11-17
+    artifact: spec.md
+    verdict: PASS
+    findings: zero-findings
+    reviewer: fresh-context dispatch (subagent, ses_e181d900bffeUuO7qPU2HemsMu), criteria source skills/spec/references/validation-standards.md
+    revision_ground: >-
+      Developer content preference mid-approval-window: msedge does not need
+      to be the default when other browsers work better for a particular site
+      or sites. In-place revision — R-1 gains the per-site channel exception
+      (named, observation-bound, site-scoped; sites without such an
+      observation keep the default); R-3 references the R-1 channel-and-profile
+      doctrine instead of restating the channel; Alternatives (e), Key Design
+      Decision (5), SC-1, SC-3, Edge Cases, and Impact Risk revised to match;
+      the 2026-11-17 directive quoted verbatim. Remote body reconciled in the
+      same workflow.
+    notes: >-
+      Round-3 reviewer verified all cited paths live (the three in-scope deck
+      files carry none of the R-1..R-3 doctrine — grep zero matches; msedge
+      binary at the named path; ud-bl-persist cookie-store rows; daemon
+      session-record shape — channel msedge, headless false, persistent-
+      profile fields), the spec's negation claims, instrument capability
+      against the CLI flag surface (--browser msedge, --persistent, --profile,
+      --headed, close), and repo-boundary containment both prongs.
+    next_stage_awaited: developer approval gate
