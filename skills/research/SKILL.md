@@ -15,9 +15,15 @@ provenance: AI-authored, .opencode#2490
    confident answer (confidence ≥ 0.7, current) — reuse it before dispatching.
 2. **Dispatch scoped sub-agents** for web/heavy research: one clear question
    per dispatch, primary sources preferred, snippets never trusted without
-   fetching the page. JS-rendered or interaction-dependent pages → load
-   playwright-cli (browser rendering when search/fetch tooling returns shell
-   HTML).
+   fetching the page. **Browser-first posture:** playwright browser
+   sessions per [the Browser-session defaults](../playwright-cli/SKILL.md)
+   (the msedge + durable-saved-profile default and its per-site channel
+   exception) are used as needed for web research and assumed in preference
+   to curl or raw page fetches for **most sites** — bot-walled,
+   JS-rendered, and login-gated pages are the common case, not the
+   exception; an undocumented, per-session discretionary browser choice is
+   not permitted. Direct API calls remain appropriate for clean JSON
+   endpoints (search/metadata APIs responding without a wall).
 3. **Every finding carries its source** (URL, date) and an honest confidence
    level. Gaps are stated, not papered over.
 4. **Live verification.** Facts about the world, tools, or APIs are checked
