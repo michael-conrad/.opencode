@@ -20,7 +20,8 @@ cycle_1:
     button "Profile picture for Michael Conrad929" [ref=f5e91];
     links to archive.org/details/@michael_conrad929 (+ /loans, /favorites, /lists,
     /collections); no "Log in" link.
-  corroborating: in-page fetch('/services/user.php?op=whoami', credentials:include) →
+  corroborating: >-
+    in-page fetch('/services/user.php?op=whoami', credentials:include) →
     {success: true, username: m.conrad.202@gmail.com, screenname: Michael Conrad929}
     (2026-11-17 05:13 UTC)
   close: 'playwright-cli close → "Browser ''default'' closed"; pgrep msedge → 0'
