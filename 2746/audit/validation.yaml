@@ -14,3 +14,24 @@ spec:
       (.opencode/.issues/research-cards/2026-11-16-chapman-cherokee-morphology-
       thesis-availability.yaml) verified resolvable and corroborating.
     next_stage_awaited: developer approval gate
+  - round: 2
+    date: 2026-11-17
+    artifact: spec.md
+    verdict: PASS
+    findings: zero-findings
+    reviewer: fresh-context dispatch (subagent, ses_e183e6155ffeB6SjaH8oEOsjoS), criteria source skills/spec/references/validation-standards.md
+    remediation: none required
+    revision_ground: >-
+      Developer content preference mid-approval-window: browser installs into the
+      gitignored .tools/ tree are acceptable. In-place revision — R-2(d) now names
+      the .tools/ provisioning path (vendored-tooling precedent, mirroring the
+      runbook's own Node provisioning); Approach, Alternatives (d), Not Included,
+      Edge Cases, and Impact revised to match; superseded fallback wording deleted.
+      Remote body reconciled in the same workflow.
+    notes: >-
+      Round-2 reviewer verified all cited paths live (msedge binary, ud-bl-persist
+      cookie rows, .tools/ tree, runbook Node-vendoring precedent), instrument
+      capability against the vendored playwright-cli 0.1.21 flag surface
+      (--browser msedge, --persistent, --profile; daemon session-record fields
+      launchOptions/userDataDir), and repo-boundary containment both prongs.
+    next_stage_awaited: developer approval gate
