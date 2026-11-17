@@ -1,0 +1,43 @@
+# (YAML) SC-5 executed evidence — .opencode#2746 login reused across close/reopen with no interaction
+issue: .opencode#2746
+criterion: SC-5
+executed: 2026-11-17T05:11:15Z..2026-11-17T05:14:28Z
+instrument: "Two-cycle executed check: launch per the documented default, assert archive.org authenticated state, clean close, relaunch per the documented default, assert authenticated state again."
+
+precondition_checked: >-
+  Profile cookie store (~/.cache/ms-playwright/daemon/ud-bl-persist/Default/Cookies)
+  holds .archive.org logged-in-sig + logged-in-user rows, accounts.google.com/.google.com
+  rows, .jstor.org/www.jstor.org rows (planted 2026-11-16 by the developer's login).
+
+cycle_1:
+  launch: documented default command (see sc4-default-launch.yaml)
+  marker_page: https://archive.org/details/softwarecollection (server-rendered header; the
+    archive.org homepage SPA header fails to hydrate the user state under the automation
+    flags, so the details-page marker is the authoritative authenticated-state marker —
+    observed 2026-11-17)
+  markers: >-
+    snapshot .playwright-cli/page-2026-11-17T05-14-05-407Z.yml:
+    button "Profile picture for Michael Conrad929" [ref=f5e91];
+    links to archive.org/details/@michael_conrad929 (+ /loans, /favorites, /lists,
+    /collections); no "Log in" link.
+  corroborating: in-page fetch('/services/user.php?op=whoami', credentials:include) →
+    {success: true, username: m.conrad.202@gmail.com, screenname: Michael Conrad929}
+    (2026-11-17 05:13 UTC)
+  close: 'playwright-cli close → "Browser ''default'' closed"; pgrep msedge → 0'
+
+cycle_2:
+  launch: same documented default command (relaunch, pgrep pid 3751960,
+    /opt/microsoft/msedge/msedge --user-data-dir=.../ud-bl-persist)
+  marker_page: https://archive.org/details/softwarecollection
+  markers: >-
+    snapshot .playwright-cli/page-2026-11-17T05-14-28-311Z.yml:
+    button "Profile picture for Michael Conrad929" [ref=e91];
+    generic: Michael Conrad929 [ref=e93]; "Log out" [ref≈e100 text];
+    no "Log in" link.
+  login_interaction: none (no credential entry, no click-through login)
+
+outcome: PASS
+outcome_note: >-
+  Authenticated state asserted in both cycles across a clean close/reopen with zero
+  login interaction — the durable profile carried the login.
+hygiene: session closed after evidence capture (playwright-cli close).
