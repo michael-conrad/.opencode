@@ -1,0 +1,45 @@
+# Validation record — .opencode#2750
+# Loop history for the spec artifact. The verdict is recorded once per
+# round; this file is the loop's history, never a second verdict copy.
+
+spec:
+  - round: 1
+    date: 2026-11-18
+    reviewer: fresh-context validation dispatch (ses_e0f7395d6ffe3G0Ka4fGDcfBVq)
+    verdict: FAIL
+    findings:
+      - section: "§9 Edge Cases, row 1 (unreachable submodule remote at composition time)"
+        class: cross-reference sufficiency (analysis family)
+        classification: finding
+        ground: >-
+          The expected-behavior cell cited git-workflow-branch rule 2's
+          unreachable-remote handling as the halt's authority, but rule 2's
+          bounded-verification posture records an unreachable submodule
+          remote and continues ("recorded, not remediated... does not block
+          the branch decision"); rule 2's halt clause is conditioned on the
+          working repo's own trunk being unverifiable. The citation
+          misattributed the cited rule's semantics for the named condition.
+        remediation: >-
+          Revised the expected-behavior cell to attribute the halt to the
+          composition phase's own prescription and to state the deliberate
+          divergence from rule 2's record-and-continue posture: a branch
+          decision may proceed on recorded outcomes, but a release candidate
+          cannot be composed from unverifiable pointers (the developer's
+          stale-bitrotted-code prohibition). The resolution column now names
+          the composition phase, not rule 2, as the halt's authority.
+    adjudicated_clean:
+      - "repo-boundary containment (both prongs)"
+      - "layout conformance (all ten sections)"
+      - "traceability both directions"
+  - round: 2
+    date: 2026-11-18
+    reviewer: fresh-context validation dispatch (ses_e0f6e4cbbffePETICsTBYiXpEa)
+    verdict: PASS
+    findings: []
+    note: >-
+      Zero-finding round — terminal cycle. Reviewer verified every
+      load-bearing factual claim against the live deck content (all cited
+      cards and tests-v2 §12), layout conformance, the analysis families
+      (causal sufficiency, problem fit, internal consistency, escape
+      hatches, feasibility, gap coverage, research adequacy, blast radius,
+      decomposition, safety), and both repo-boundary containment prongs.
