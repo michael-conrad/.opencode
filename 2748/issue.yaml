@@ -1,10 +1,12 @@
 title: '[SPEC] Deck hygiene: README rewrite, .guidelines removal, .gitignore dedupe,
   plugin model verification'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec-draft
 body: ''
 created_at: '2026-11-18T19:27:45+00:00'
-updated_at: '2026-11-18T19:28:38+00:00'
+updated_at: '2026-11-18T20:09:09+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2748
+closed_at: '2026-11-18T20:09:09+00:00'
+close_reason: completed
