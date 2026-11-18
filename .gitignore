@@ -22,7 +22,5 @@ Thumbs.db
 .coverage
 htmlcov/
 /.issues/
-
-/.issues/
 vector_db/
 tests-v2/tmp/

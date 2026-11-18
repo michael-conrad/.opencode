@@ -1,287 +1,158 @@
-# opencode-config
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2748 -->
 
-Configuration, guidelines, and skills for OpenCode AI assistant.
+# .opencode — the OpenCode agent deck
 
-## Install as a Git Submodule
+An agent instruction deck for [OpenCode](https://opencode.ai): a minimal
+always-injected instruction floor plus self-contained, on-demand skill
+cards, guidelines, agent cards, tools, and hooks. It is consumed as a git
+submodule mounted at `.opencode/`.
+
+## Install
 
 ```bash
-git submodule add git@github.com:michael-conrad/opencode-config.git .opencode
+git submodule add git@github.com:michael-conrad/.opencode.git .opencode
 ```
 
-## Overview
+The submodule tracks the `main` branch — the single trunk. Keep the
+checkout on a tracked branch, never detached HEAD, so `git pull` receives
+updates.
 
-This repository provides a comprehensive framework for configuring and extending OpenCode with:
+## Architecture — floor plus on-demand cards
 
-- **Guidelines** - Core rules and protocols for AI agent behavior
-- **Skills** - Self-contained task-specific workflows
-- **Tools** - Utility scripts for session management
-- **Tests** - Enforcement test framework
+`floor.md` is the **entire always-injected instruction surface**: identity,
+the authorization vocabulary (a closed token set), default read-only
+scope, dispatch scope-bounding, the spec → plan → implement → PR
+pipeline, deck governance, and the safety irreducibles. `opencode.jsonc`
+loads exactly one instruction: the floor.
 
-## Features
+Everything else loads on demand — the agent matches its current intent
+against the available card descriptions and loads only what matches.
 
-- **Spec-Driven Development** - All code changes require approved specs
-- **Authorization Gates** - Explicit approval required before implementation
-- **Pair Mode** - Collaborative development on `pair-*` branches
-- **Session Enforcement** - TypeScript plugin validates agent identity and triggers
-- **Git Workflow** - Trunk-based development: `feature` → `$DEFAULT_BRANCH` → `main`
-- **Verification Gates** - Evidence-based completion verification
-- **Fragment Registry** - Synchronized content blocks across skills
-
-## Runtime Dependencies
-
-### Model Provider: Ollama (test tooling only)
-
-The deck's configuration wires no model provider at all — `opencode.jsonc` carries instructions, prompts, MCP servers, and permissions only. Provider and model selection come from the invoking opencode configuration. Ollama is a live dependency only where the deck actually touches it: the default test model for behavioral tests and the `ollama-probe` tool.
-
-| Layer | Ollama Footprint |
+| Directory | Contents |
 |---|---|
-| **Behavioral tests** (`tests-v2/behaviors/`) | Default test model: `ollama/qwen3.8:27b-256k-gguf4` (from `default-model.sh`); `helpers.sh` sources `default-model.sh` |
-| **Content-verification tests** (`test-enforcement.sh`) | Default model: `ollama/qwen3.8:27b-256k-gguf4` (from `default-model.sh`) |
-| **Tooling** (`tools/ollama-probe`) | Dedicated tool for probing the local Ollama server |
+| `skills/` | Skill cards (one `SKILL.md` each, YAML frontmatter: name, description, license, provenance) — the work lifecycle (`work`, `spec`, `plan`, `implement`, `verify`, `issues`, `correspondence`), the git-workflow family, release cards, platform CLI cards (`gh-cli`, `gb-cli`, `wiki-operations`), language/build cards, testing and research cards, ops cards, and the deck's own governance card (`skill-creator`). The inventory is the directory itself — the platform surfaces each card's description. |
+| `guidelines/` | Routed guidelines, loaded when the floor's trigger routes to them: `ainglish-writing-discipline.md` (authoring normative prose) and `deprecation-encounter-protocol.md` (deprecation encounters and `[BITROT]` tickets). |
+| `agents/` | Agent cards: `email-ops`, `math-ops`, `notebook-ops`, `visual-design-agent`. |
+| `tools/` | Deck tooling — see below. |
+| `hooks/` | The trunk-protection hook pair (`pre-commit`, `pre-push`) — the one surviving hook family, installed by `session-init` into each repo's git dir. |
+| `plugins/` | OpenCode V2 plugins — see below. |
+| `prompts/` | The `build` and `plan` agents' system prompt. |
+| `tests/` | pytest suite for the `local-issues` and `session-init` tools. |
+| `tests-v2/` | The behavioral test harness — see Testing. |
+| `docs/` | Supporting documentation (dispatch-audit schema, model dependency, ragsync service, secret detection). |
+| `attic/` | The pre-replacement deck, preserved unloaded (tag `pre-rip`) pending soak and deletion. |
+| `.issues/` | This repo's own issue store — see Issue stores. |
 
-### Prerequisites
+## Configuration (`opencode.jsonc`)
 
-| Requirement | Minimum | Recommended |
-|---|---|---|
-| **Ollama** (local) | Installed, reachable at `localhost:11434` | `curl -fsSL https://ollama.com/install.sh \| sh` |
-| **VRAM** (for local models) | 8 GB for a ≥7B model | 16 GB+ for multiple concurrent models |
+- **instructions**: `floor.md` only.
+- **agents**: `build` and `plan`, both using `prompts/default.txt` as
+  their system prompt. No model or provider is pinned anywhere in the
+  deck — the invoking session supplies the provider and model.
+- **MCP servers** (all local): `the-notebook-mcp` (Jupyter),
+  `editor` (viewport-editor), `ragsync` (retrieval over
+  `ragsync-config.yaml` — the deck's and the parent repo's agent-facing
+  text, chroma-backed), and `ollama-web-search`.
+- **permissions**: `gmail_*`, `math_*`, and `the-notebook-mcp_*` are
+  **denied** in the main session. Those capabilities route exclusively
+  through the `email-ops`, `math-ops`, and `notebook-ops` agent cards,
+  which hold the tool permissions — dispatch-bound authorization made
+  structural in the config.
 
-## Model Configuration
+## Plugins (V2)
 
-| Setting | Mechanism | Default |
-|---|---|---|
-| **Default test model** | `DEFAULT_TEST_MODEL` env var (sourced from `tests-v2/default-model.sh`) | `ollama/qwen3.8:27b-256k-gguf4` |
+Local plugins are **auto-discovered** from `.opencode/plugins/*.ts`. The
+`plugins` array in `opencode.jsonc` configures *additional* paths — an
+empty array is not a disable. The V2 plugin contract (and how to verify a
+plugin loads) is documented in `plugins/AGENTS.md`.
 
-Agent and subagent cards do not pin a model: they inherit the invoking session's provider and model configuration.
+- **env-loader** — reads the project's `.env` and injects all its
+  key-value pairs into every shell session (the shell `create.before`
+  hook). It is the sole provider of bash environment variables.
+- **session-enforcement** — runs `tools/session-init` and injects its
+  output (owner, repo, platform, credential status, hook inventory, the
+  repo routing table) into the model context per model request (the
+  session `context` hook).
 
-## Directory Structure
-
-```
-.
-├── AGENTS.md              # Main guidelines for AI agents
-├── opencode.jsonc         # OpenCode configuration
-├── guidelines/            # Core rule definitions
-├── skills/                # Self-contained skill modules
-├── tools/                 # Utility scripts
-├── scripts/               # Session context scripts
-├── plugins/               # TypeScript plugins
-├── hooks/                 # Git hooks
-├── tests-v2/              # Enforcement test suite
-├── docs/                  # Documentation
-└── .guidelines/           # Fragment registry
-```
-
-### Guidelines (`guidelines/`)
-
-Core rules organized by series:
-
-| Series | Category | Files |
-|--------|----------|-------|
-| 000-099 | Core Rules | critical-rules, approval-gate, go-prohibitions, scope-autonomy, tool-usage, environment, incremental-build |
-| 100-199 | Planning | planning-spec-creation, planning-status-tracking, planning-archive-workflow, planning-spec-templates, planning-spec-examples |
-| 200-299 | Error Handling | exception-handling, missing-data, logging-vs-raising, domain-exceptions |
-
-### Skills (`skills/`)
-
-Self-contained modules with YAML frontmatter for self-discovery:
-
-| Category | Skills |
-|----------|--------|
-| Workflow | `approval-gate`, `git-workflow`, `executing-plans`, `writing-plans`, `finishing-a-development-branch` |
-| Planning | `brainstorming`, `spec-creation` |
-| Quality | `spec-auditor`, `guideline-auditor`, `coherence-auditor`, `code-size-enforcement`, `plan-fidelity-auditor` |
-| Review | `requesting-code-review`, `receiving-code-review`, `issue-review` |
-| Debug | `systematic-debugging`, `conflict-resolution` |
-| Development | `test-driven-development`, `programming-principles`, `engineering-approach` |
-| Operations | `mcp-tool-usage`, `issue-operations`, `git-workflow-pr` |
-| Maintenance | `skill-creator`, `fragment-manager`, `sync-guidelines`, `changelog-generator` |
-| Audit | `verification`, `verification-before-completion`, `verification-enforcement` |
-| Other | `correspondence`, `multimodal-dispatch`, `sre-runbook`, `research` |
-
-### Tools (`tools/`)
+## Tools (`tools/`)
 
 | Tool | Purpose |
-|------|---------|
-| `session-init` | Emit session context (owner, repo, platform). **Canonical source for identity data including Sub-folder Repo Mappings.** |
-| `guidelines` | Guideline management |
-| `md` | Markdown utilities |
-| `py` | Python utilities |
-| `jupyter`, `jupyter-start`, `jupyter-stop` | Jupyter notebook management |
-| `memory` | Memory/state persistence |
-| `symbolic` | Symbolic link management |
-| `help` | Help documentation |
+|---|---|
+| `session-init` | Session context emitter — the canonical source for per-root identity data (owner, repo, platform, issue-store paths, the repo routing table). |
+| `local-issues` | Local issue-store CLI for `.issues/` stores — qualified `repo#N` names, sync/mirror mechanics, comments, links. |
+| `skildeck` | Deck lint (`lint`) and acceptance-criteria verification (`verify-acceptance`, `verify-issue`). |
+| `formal` | Vendored formal tooling: the z3 binary (SMT-LIB2) and unified-planning's `up` CLI. |
+| `reference-integrity` | Read-link validation for agent-facing markdown — run before committing agent-facing markdown edits. |
+| `jupyter`, `jupyter-start`, `jupyter-stop` | Jupyter server management. |
+| `ollama-probe` | Probe the local Ollama server. |
+| `schema-version` | Current UTC timestamp emitter. |
+| `session-to-timeline` | `session.yaml` → condensed tool-call timeline for behavioral evaluation. |
+| `detect-secrets-wrapper.sh` | Opt-in `detect-secrets` pre-commit wrapper (semaphore: runs only when `.secrets.baseline` exists in the repo root). |
+| `web-search-mcp.py` | The `ollama-web-search` MCP server script. |
+| `ensure-node`, `file-exists`, `py`, `help` | Node toolchain bootstrap, path existence checks, Python tools dispatcher, tool listing. |
 
-### Plugins (`plugins/`)
-
-| Plugin | Purpose |
-|--------|---------|
-| `session-enforcement.ts` | Identity validation, trigger injection, hook installation |
-| `env-loader.ts` | Environment variable loading |
-
-### Scripts (`scripts/`)
-
-| Script | Purpose |
-|--------|---------|
-| `session_context_triggers.py` | Trigger warning generation |
-
-## Configuration
-
-### `opencode.jsonc`
-
-```jsonc
-{
-  "$schema": "https://opencode.ai/config.json",
-  "instructions": [
-    ".opencode/AGENTS.md",
-    ".opencode/guidelines/000-critical-rules.md",
-    ".opencode/guidelines/010-approval-gate.md",
-    ".opencode/guidelines/020-go-prohibitions.md",
-    ".opencode/guidelines/060-tool-usage.md"
-  ],
-  "mcp": {
-    "the-notebook-mcp": { ... }
-  }
-}
-```
-
-## Session Context
-
-At session start:
-
-1. **Identity section** - `github.owner`, `github.repo`, `github.platform`, credential status
-2. **Identity-echo directive** - Mandatory identity echo
-3. **Trigger alerts** - Warnings for special states (main branch, uncommitted work, merge conflicts, etc.)
-
-## Pair Mode
-
-When branch starts with `pair-`, agent operates in collaborative mode:
-
-| Branch Pattern | Mode | Working Directory |
-|---|---|---|
-| `pair-feature/123-xyz` | Dev-pair | Main project dir |
-| `feature/789-xyz` | Autonomous | `.worktrees/` |
+Vendored, gitignored runtimes live under `.node/`, `.tools/` (z3, uv, the
+opencode standalone binary), and `.venv/`, provisioned per tool runbooks.
 
 ## Testing
 
-### Skill Enforcement Tests
+- **`tests-v2/` — behavioral harness** (spec: `tests-v2/AGENTS.md`):
+  artifact-only generators — scenario scripts run the model, collect
+  artifacts, and exit 0; evaluation is the orchestrator's job, never the
+  script's. `with-test-home` provides full isolation (`env -i` with an
+  explicit allowlist); tier-2 scenarios run in a Docker container with
+  only `tmp/` mounted; remote-API scenarios get a self-contained
+  GitBucket container. The default test model is defined solely by
+  `DEFAULT_TEST_MODEL` in `tests-v2/default-model.sh` — that file is the
+  single source of truth.
+- **`tests/` — pytest suite**: unit tests for `local-issues` and
+  `session-init` (`uv run pytest`).
+- **`skildeck lint`**: the deck's consistency gate — expected to report
+  zero findings.
+- **`reference-integrity`**: Read-link validation for agent-facing
+  markdown (harness spec §6c).
+
+## Governance
+
+- Every card carries SPDX headers and a provenance line citing the
+  upstream issue(s) that landed it — the deck is audit-traceable rule by
+  rule.
+- Deck changes are authored upstream (this repository) through the
+  pipeline — spec, plan, implementation, PR — with a human-only merge
+  boundary. Consuming checkouts are read-only: they receive deck updates
+  by pulling upstream, and agents never patch local `.opencode/` copies
+  to escape a mis-scoped mandate.
+- New cards, card edits, and card retirement go through the
+  `skill-creator` card (admission gate, retirement gate, vendor-card
+  boundary).
+- `CHANGELOG.md` (Keep a Changelog) documents notable deck changes; the
+  `[Unreleased]` section carries pending work.
+- Secret handling: `vibeguard.config.json` (pattern masking with
+  placeholder sessions), the opt-in detect-secrets wrapper, and
+  credential-file gitignore coverage verified by `session-init`'s
+  credential guard.
+
+## Issue stores
+
+Issue artifacts live in a `.issues/` orphan-branch worktree (the
+`issues-data` branch) — gitignored in its parent repo, never a submodule,
+and managed through `tools/local-issues` (never by hand). This repo's own
+store sits at `.issues/`; consuming repos get their own store at their
+root.
+
+## Submodule tracking
+
+`main` is the single trunk — the historical `dev` branch was removed.
 
 ```bash
-# Run all enforcement tests
-bash tests/test-enforcement.sh
-
-# Run by scenario
-bash tests/test-enforcement.sh --scenario NAME
-
-# Run by tag
-bash tests/test-enforcement.sh --tag TAG
-
-# Run for changed files
-bash tests/test-enforcement.sh --changed [--base BRANCH]
-
-# List scenarios
-bash tests/test-enforcement.sh --list
+git -C .opencode branch --show-current   # main
 ```
 
-### Behavioral Tests
-
-Behavioral tests generate model-run artifacts. Run individual scenario scripts:
-
-```bash
-bash tests/behaviors/<scenario>.sh
-```
-
-### Isolated Testing
-
-```bash
-# Run opencode in isolated environment
-bash tests-v2/with-test-home opencode run '<message>'
-
-# Clean test artifacts
-bash tests-v2/with-test-home --clean
-```
-
-## Critical Rules
-
-### Authorization Workflow
-
-1. **Branch Before Edit** - Create feature branch BEFORE any filesystem change
-2. **Explicit Authorization** - Wait for "approved" or "go" before implementing
-3. **Spec Required** - No implementation without approved spec
-4. **HALT After Tasks** - Silently halt after completing a task
-
-### Multi-Task Spec Workflow
-
-When parent issue has sub-issues, authorization cascades to ALL sub-issues:
-
-- User authorizes parent issue
-- Verify parent has sub-issues
-- Authorization cascades to ALL sub-issues
-- Complete ALL phases in sequence (NO HALT between phases)
-- Report ONCE after ALL phases complete
-- HALT ONCE at the end
-
-### Verification Gates
-
-Before completion claims:
-
-1. `verification-before-completion` - Evidence verification
-2. `finishing-a-development-branch` - Branch readiness check
-3. `git-workflow review-prep` - Push and prepare for review
-
-## Fragment Registry
-
-Duplicate content blocks synchronized across skills via `.guidelines/registry.yaml`.
-
-Use `fragment-manager` skill for CRUD operations:
-
-```bash
-# Create fragment from duplicate content
-`skill({name: "fragment-manager"})` then `task(..., prompt: "execute create-fragment task from fragment-manager")`
-
-# Sync fragment to destinations
-`skill({name: "fragment-manager"})` then `task(..., prompt: "execute sync-fragment task from fragment-manager with fragment-id <id>")`
-
-# Check for drift
-`skill({name: "fragment-manager"})` then `task(..., prompt: "execute check-drift task from fragment-manager")`
-```
-
-## Submodule Tracking
-
-When this repository is consumed as a submodule (e.g., `.opencode/`), it **must track the `$DEFAULT_BRANCH` branch** — never detached HEAD and never `main`.
-
-### Why
-
-- `$DEFAULT_BRANCH` is the active development branch with the latest guidelines, skills, and tools
-- `main` is reserved for stable releases and will lag behind ongoing work
-- Detached HEAD prevents `git pull` from receiving updates and makes local changes fragile
-
-### Verification
-
-```bash
-git submodule status          # Should show branch name, not a bare SHA
-cat .gitmodules               # branch = $DEFAULT_BRANCH
-cd .opencode && git branch --show-current  # Must print "$DEFAULT_BRANCH"
-```
-
-### Recovery
-
-If a submodule is detached or tracking `main`:
-
-```bash
-cd .opencode
-git checkout $DEFAULT_BRANCH
-git pull
-cd ..
-git add .opencode
-git commit -m "chore: fix submodule tracking to $DEFAULT_BRANCH"
-```
+Pointer updates in consuming repos ride with real consuming-repo changes
+in the same commit — never pointer-only commits.
 
 ## License
 
 MIT
-
-## See Also
-
-- [AGENTS.md](AGENTS.md) - Main guidelines
-- [tests/README.md](tests/README.md) - Test documentation
-- [.guidelines/README.md](.guidelines/README.md) - Fragment registry docs
