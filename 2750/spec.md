@@ -13,8 +13,12 @@ preparing a release PR. The `release-promoter` card starts at Phase A entry
 criteria that presuppose a pushed release branch with already-recorded
 pointers; every "pointer capture" mention in the card and its operating
 protocol verifies pointers the release branch already records — none
-performs capture against the submodules' remote trunk tips. No card
-instructs the agent to pull pointers to trunk tips first and then analyze.
+performs capture against the submodules' remote trunk tips. No card wires
+the trunk-tip pointer promotion into the release entry path:
+`git-workflow-branch` rule 2(b) mandates the sync in general — at branch
+creation — but the reported failure halts before any branch exists, and no
+card instructs promoting pointers to trunk tips before release analysis and
+gate.
 In a consumer repo whose real deliverables live in git submodules, an agent
 asked to create a release PR surveys the parent trunk, finds zero
 parent-repo commits since the last release tag, and halts with "there's
