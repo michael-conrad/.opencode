@@ -70,5 +70,12 @@ spec:
     - round: 4
       date: 2026-11-19
       artifact: spec.md
-      verdict: PENDING
-      notes: fresh-context re-dispatch after single-sourcing the row-composition count
+      verdict: PASS
+      findings: []
+      classes_adjudicated: []
+      re_evaluation: none
+      notes: >-
+        terminal zero-finding verdict — structure conformance, defect classes,
+        analysis families, and repo-boundary containment all examined clean;
+        reviewer independently re-verified the card's current text, the binary
+        error string, the precedent record, and the tests-v2 harness surface.
