@@ -4,20 +4,80 @@
 
 # Release Promotion — Operating Protocol
 
-Promotion runs in two verification phases around the human merge gate: the
-clean-room gate proves the release candidate before the release PR exists,
-and a reduced re-check confirms the merge delivered exactly that verified
-state before any tag is created. The release PR, the tag, and the GitHub
+Promotion runs in three phases around the human merge gate: composition
+promotes the release candidate from the submodules' remote trunk tips
+before any analysis, branching, or gate; the clean-room gate proves the
+release candidate before the release PR exists; and a reduced re-check
+confirms the merge delivered exactly that verified state before any tag is
+created. The release PR, the tag, and the GitHub
 Release are parent-repository artifacts; a submodule repository never hosts
 them.
+
+## Phase C-0 — release-candidate composition
+
+Composition runs before any release analysis, branching, or gate — it is
+never performed against stale recorded pointers.
+
+Procedure — pull and promote, then record:
+
+1. Pull the parent repository's trunk to its remote tip (`git fetch origin`
+   plus the fetch-compare of trunk freshness; record the verified tip in
+   this phase's output).
+2. For every registered submodule per the parent's `.gitmodules` (per-path
+   and non-recursive — no `--remote`, no `--recursive`), run
+   `git-workflow-branch` rule 2's executed per-submodule remote-tip
+   comparison as the evidence instrument: fetch the submodule's origin
+   (`git -C <submodule> fetch origin`); resolve the tracked branch — the
+   `submodule.<name>.branch` field read from the parent repo's
+   `.gitmodules`; when no branch field exists, the submodule's current
+   checked-out branch (valid only while HEAD is symbolic); when the checkout
+   is detached, the submodule remote's default branch
+   (`refs/remotes/origin/HEAD`; guard ref existence before comparing); then
+   compare the checkout's HEAD SHA against the fetched remote-tracking tip,
+   recording `at-tip`, `behind`, or `no-remote-tip`. `git submodule status`
+   is pointer-state only and is never this comparison's evidence.
+3. Promote: a `behind` checkout is synced to the resolved remote tip; `at-tip`
+   is a no-op for that pointer; `no-remote-tip` is synced when a branch
+   resolves, else recorded as the instrument's own outcome. Composition
+   promotes only registered top-level pointers — nested submodules below a
+   registered submodule are never promoted.
+4. An unreachable submodule remote halts composition for developer direction
+   — never a skip, and never a nothing-to-release verdict. This halt is the
+   composition phase's own prescription, deliberately diverging from
+   `git-workflow-branch` rule 2's bounded record-and-continue posture: a
+   branch decision may proceed on recorded outcomes, but a release candidate
+   cannot be composed from unverifiable pointers.
+5. When the parent trunk has commits since the last release tag while
+   submodules also moved, or when only one family moved, the composition
+   composes both into the release either way; when every submodule is
+   at-tip and the parent trunk has no commits since the last release tag,
+   composition is a pointer-and-parent no-op and the composition outcome is
+   stated explicitly — the phase never blocks a plain parent-only release by
+   invention, and it never invents a nothing-to-release verdict by omission:
+   the release that composes exists because the phase's promotion created it.
+7. The order is fixed and non-swappable: compose (promote pointers at trunk
+   tips), record the release branch, run the clean-room gate on the composed
+   tree, file the release PR. A release PR is never filed from pointers that
+   were not promoted at composition time.
+8. The promoted pointer bumps are the release's real content and are
+   recorded in the release branch as pointer-capture commits — the recorded
+   SHA carries its pushed hash-permanence tag per
+   `git-workflow-branch` rule 3's tagged-SHA pointer discipline (the release
+   exemption `git-workflow-pr` §2(e) already states), so every recorded
+   pointer stays name-reachable. Read [git-workflow-branch — the tagged-SHA
+   pointer discipline and its pull-only clause](../git-workflow-branch/SKILL.md)
+   before recording any pointer bump, and govern every pull-only submodule
+   origin by that clause.
 
 ## Phase A — clean-room verification gate
 
 Entry criteria:
 
+- The composition phase (Phase C-0) has run — pointers promoted at trunk
+  tips
 - The parent repository's release branch has been pushed to the remote
 - The release branch records the submodule pointers for the release
-  candidate (pointer capture)
+  candidate (pointer capture — the promoted pointers)
 - Next version determined
 - The release PR has NOT been filed yet
 
