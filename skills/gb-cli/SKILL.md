@@ -41,6 +41,17 @@ provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .openco
    shell first; it is an agent-runnable route, not a developer handoff.
    `gb pr edit` without `--web` reports "REST PR edit is unavailable" on
    GitBucket.
+   GitBucket's issue-label REST routes, by contrast, work through the `gb api`
+   passthrough — evidenced 2026-11-18 (NewSRX-Tech-LLC/CrossrefAbstracts#78):
+   `GET repos/{owner}/{repo}/issues/{n}/labels` lists an issue's labels, and
+   `PUT repos/{owner}/{repo}/issues/{n}/labels` replaces the label set via the
+   `--input` JSON payload pattern (e.g. `--input <file|-` holding
+   `{"labels":["spec"]}`). Do not generalize the plain-issue state-mutation gap
+   (`PATCH .../issues/{n}` → 404) to the label endpoints. Label-endpoint
+   methods other than the two evidenced above (e.g.
+   `POST repos/{owner}/{repo}/issues/{n}/labels`, label-add) are attempt-first
+   subjects under rule 7 — attempt them and report only evidenced results;
+   they are asserted-working never.
    The merge itself is a human gate — the agent merges nothing; read the
    human-merge-gate statements in this deck's PR card and its instruction
    floor. Closing a pull request is not merging
@@ -62,6 +73,12 @@ provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .openco
    limitation — the sanctioned command is attempted in the session's own
    shell first, and work routes to the developer (report-with-halt) only on
    an evidenced failure. (.opencode#2722: a false "prompts for password"
-   premise stood behind two run-vs-handoff misdecisions in one session.)
+   premise stood behind two run-vs-handoff misdecisions in one session.) A
+   capability conclusion about an endpoint class *different* from the one that
+   failed — or whose failure came from a web fallback — requires an attempted
+   `gb api` passthrough call in the session's own shell before any
+   "unsupported"/"cannot edit" report: the generalization from one unavailable
+   endpoint to its sibling endpoints is the observed fabrication shape
+   (.opencode#2751).
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
