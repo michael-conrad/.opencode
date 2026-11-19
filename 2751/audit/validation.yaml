@@ -1,0 +1,30 @@
+spec:
+  rounds:
+    - round: 1
+      date: 2026-11-19
+      artifact: spec.md
+      verdict: FAIL
+      findings:
+        - class: incapable-instrument (weaker-question shape) with internal inconsistency between requirements and criteria
+          ground: >-
+            SC-4's byte-exact guard scoped to three preserved passages, while R-3
+            enumerates four preserved statement groups — the non-interactive
+            issue-state comments route (card item 5) was guarded by no other SC,
+            so that prong of R-3 was verifiable only by assertion. The row's
+            prose ("three preserved passages") also misdescribed R-3's four-item
+            enumeration.
+          remediation: >-
+            SC-4's criterion and instrument widened to cover all four enumerated
+            groups (plain-issue state-mutation gap, PR-state mutation guidance,
+            non-interactive issue-state comments route, attempt-first general
+            sentences); Traceability §6 note states the guard's coverage.
+            Remote body SC-4 row reconciled to the same content.
+      classes_adjudicated:
+        - class: incapable-instrument (weaker-question shape) with internal inconsistency between requirements and criteria
+          classification: finding
+      re_evaluation: none
+    - round: 2
+      date: 2026-11-19
+      artifact: spec.md
+      verdict: PENDING
+      notes: fresh-context re-dispatch after SC-4 remediation

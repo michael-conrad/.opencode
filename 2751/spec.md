@@ -47,7 +47,7 @@
 | SC-1 | The known-gaps passage states the working GitBucket issue-label endpoints (`GET`/`PUT`/`POST repos/{owner}/{repo}/issues/{n}/labels` via `gb api` passthrough), sets them against the unavailable `PATCH .../issues/{n}` issue-state mutation, and carries the evidence date 2026-11-18 | structural | read `skills/gb-cli/SKILL.md`, locate the added statement, and check its three content elements: endpoints named, distinction stated, evidence date present — one binary check of the statement's required content |
 | SC-2 | The attempt-first rule states that a capability conclusion about a different endpoint class requires an attempted passthrough call in the session's own shell before any "unsupported"/"cannot edit" report | structural | read `skills/gb-cli/SKILL.md`, locate the attempt-first rule's added sentence, check it names the cross-endpoint-class probe requirement |
 | SC-3 | A session facing the `gb` web fallback's label-refusal attempts the REST label passthrough (`gb api` against the label endpoints) before reporting any label-editing limitation, and reports a limitation only on evidenced failure of that attempt | behavioral | tests-v2 behavioral scenario exercising the label-edit flow against the harness's GitBucket container (§12), asserting the passthrough attempt precedes any limitation report |
-| SC-4 | The preserved statements of R-3 survive the edit byte-for-byte | structural | `git diff` of `skills/gb-cli/SKILL.md` scoped to the three preserved passages (plain-issue gap, PR-state guidance, attempt-first general sentences) — byte-exact, a same-file section guard over passages the change edits around |
+| SC-4 | The preserved statements of R-3 — all four enumerated groups — survive the edit byte-for-byte | structural | `git diff` of `skills/gb-cli/SKILL.md` scoped to each passage R-3 preserves: the plain-issue state-mutation gap, the PR-state mutation guidance, the non-interactive issue-state comments route, and the attempt-first rule's existing general sentences — byte-exact, a same-file section guard over passages the change edits around |
 
 ## 5. Dependencies
 
@@ -64,7 +64,7 @@
 |-------------|------------------|
 | R-1 | SC-1 |
 | R-2 | SC-2, SC-3 |
-| R-3 | SC-4 |
+| R-3 | SC-4 — SC-4's guard covers every passage group R-3 enumerates (the state-mutation gap, the PR-state guidance, the non-interactive comments route, the attempt-first general sentences) |
 
 Root-cause coverage: cause 1 (missing card grounding for the next route) → R-1/SC-1; cause 2 (fallback string's can't-run framing plus the unnamed cross-class generalization shape) → R-2/SC-2, SC-3. The observed failure (a fabricated limitation reported without attempting) is the failure SC-3 exercises. The change's blast radius on existing card content is guarded by R-3/SC-4; no stated root cause is uncovered.
 
