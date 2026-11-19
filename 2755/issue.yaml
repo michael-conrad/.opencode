@@ -1,0 +1,9 @@
+title: '[BUG] Issues-data store maintenance: validate-yaml-surfaced artifact-content
+  defects fall outside every on-discovery repair trigger — agents report them instead
+  of repairing'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-11-19T18:14:37+00:00'
+updated_at: '2026-11-19T18:14:37+00:00'
