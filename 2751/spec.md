@@ -18,7 +18,7 @@
 
 **Key Design Decisions.**
 - Route classes, not instance claims: the new known-gaps statement distinguishes endpoint classes (working label endpoints vs. unavailable issue-state mutation) without asserting instance-wide guarantees; the attempt-first rule, extended, decides remaining cases by attempt and evidence.
-- The known-gaps content is prose, not a literal table: the required "row" binds content — a statement within the passage carrying the three content elements R-1 names — never a specific layout form.
+- The known-gaps content is prose, not a literal table: the required "row" binds content — a statement within the passage carrying exactly the content elements R-1 enumerates — never a specific layout form.
 - The attempt-first extension is scoped to capability conclusions about a *different endpoint class* than the one that failed; the rule's existing general sentences are preserved unchanged (verified by a byte-exact guard, SC-4).
 - Evidenced-only capability statements: the spec's own authoring applies the attempt-first discipline it requires of the card — only runtime-evidenced routes (`PUT`/`GET`, 2026-11-18) are documented as working; unevidenced sibling label-endpoint methods (e.g. `POST .../labels`) are named as attempt-first subjects, never as asserted-working routes. The source report's R-1 listed `POST` alongside `GET`/`PUT` with no recorded evidence for it; this spec corrects that scope so the deliverable passage cannot itself carry an unevidenced capability claim.
 - Evidence date carried in the passage (2026-11-18), matching the card's provenance convention for observed gaps (.opencode#2382, .opencode#2722 style).

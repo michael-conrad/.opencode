@@ -51,5 +51,24 @@ spec:
     - round: 3
       date: 2026-11-19
       artifact: spec.md
+      verdict: FAIL
+      findings:
+        - class: internal contradiction (wrong/stale count)
+          ground: >-
+            Key Design Decisions bound the required row to "the three content
+            elements R-1 names" while R-1 (after the round-2 POST-demotion
+            remediation) enumerates four and SC-1 checks four — sections
+            disagreed on the same deliverable statement's composition.
+          remediation: >-
+            The design-decision bullet's count reference removed — it now binds
+            the row to the content elements R-1 itself enumerates, restoring
+            single-sourcing (the composition lives once, in the requirement).
+      classes_adjudicated:
+        - class: internal contradiction (wrong/stale count)
+          classification: finding
+      re_evaluation: none
+    - round: 4
+      date: 2026-11-19
+      artifact: spec.md
       verdict: PENDING
-      notes: fresh-context re-dispatch after POST-scope remediation
+      notes: fresh-context re-dispatch after single-sourcing the row-composition count
