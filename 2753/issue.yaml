@@ -1,0 +1,9 @@
+title: 'release-promoter: composition must promote every registered submodule to its
+  remote trunk tip — no-remote-tip pointers and git-add re-resolution shipped unfetchable
+  gitlinks twice in one release (2026-11-19)'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-11-19T18:14:39+00:00'
+updated_at: '2026-11-19T18:14:39+00:00'
