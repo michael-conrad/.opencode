@@ -1,0 +1,11 @@
+artifact: verify
+date: 2026-11-19
+dispatch: ses_e0b3e8fa2ffe7TuiOYLq2UqWJ6
+checks:
+  SC-1: {class: structural, verdict: PASS, evidence: "known-gaps statement carries all four content elements; no unevidenced route (POST) asserted working; date 2026-11-18 with CrossrefAbstracts#78 anchor present"}
+  SC-2: {class: structural, verdict: PASS, evidence: "rule 7 appended sentence names cross-endpoint-class trigger, gb api passthrough instrument, and pre-report gate"}
+  SC-3: {class: behavioral, verdict: PASS, instrument: tests-v2 tier-2 harness + clean-room evaluation, dispatch: "evaluator ses_e0b3fef6dffehO58SjK0a0C11n", evidence: "RED run (pinned f486caae1): refusal faced, passthrough attempted unprompted, no limitation report; GREEN run: PUT returned spec, GET confirmed exactly [spec], labels-report.md committed; clean-room evaluation-20261119T121500Z.yaml verdict PASS; RED hypothesis not reproduced recorded and plan Item 4 amended in place"}
+  SC-4: {class: structural, verdict: PASS, evidence: "two hunks, pure insertions only; all four R-3 preserved groups byte-identical (fixed-string checks by implementer and reviewer)"}
+  suite-green: {verdict: PASS, evidence: "uv run pytest -> 194 passed; reference-integrity -> PASS (80 files); executed 2026-11-19"}
+notes:
+  - completion gate §10 satisfied; zero findings

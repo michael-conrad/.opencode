@@ -1,1 +1,6 @@
-comments: []
+comments:
+- type: internal
+  body: 'PR filed: https://github.com/michael-conrad/.opencode/pull/2754 (Closes #2751
+    on merge; branch squashed to one per-issue commit; verify PASS zero findings;
+    SC-3 behavioral RED+GREEN with clean-room evaluation PASS)'
+  timestamp: '2026-11-19T17:03:50+00:00'
