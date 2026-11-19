@@ -12,7 +12,11 @@ provenance: AI-authored, .opencode#2490; release-PR body pairing, .opencode#2615
 # changelog-generator
 
 1. **Source of truth:** the commit log since the last release tag
-   (`git log <last-tag>..HEAD --oneline`) — every entry maps to a commit.
+   (`git log <last-tag>..HEAD --oneline`) — every entry maps to a commit. In
+   a parent/submodule repository family, the source of truth composes the
+   parent repository's commit range with each submodule's commit range
+   between the recorded pointer and the promoted trunk tip; the
+   no-fabrication rule 4 governs the submodule entries identically.
 2. **Categorize** Added / Changed / Fixed / Removed, in human-readable
    language; group by issue where commits carry issue numbers.
 3. **Breaking changes lead** and are stated plainly with migration impact.

@@ -48,7 +48,11 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    tracked-branch remote tip; this step's freshness evidence is the
    executed comparison above, never the status listing. (c) when the parent has nothing to contribute beyond pointer
    bumps, create no branch and make no commit — the drift rides with the next
-   real parent change. Verify the trunk tip before branching — sync and rebase
+   real parent change. **Release carve-out (.opencode#2750):** this deferral
+   does NOT apply while the session is preparing a release — release
+   preparation is itself the real parent change that carries the drift; the
+   `release-promoter` card's composition phase performs the same executed
+   comparison in the release entry path. Verify the trunk tip before branching — sync and rebase
    if the trunk moved; state the verified tip in this step's own output —
    verified live at execution time, never written to a record file for a
    later step to read back — and carry it into the PR body's Provenance
