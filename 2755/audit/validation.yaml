@@ -1,0 +1,25 @@
+# Validation record — .opencode#2755
+# Loop history for the spec artifact. The verdict is recorded once per
+# round; this file is the loop's history, never a second verdict copy.
+
+spec:
+  - round: 1
+    date: 2026-11-19
+    reviewer: fresh-context validation dispatch (ses_e0af82965ffeAzEuvt63JUu85X)
+    verdict: PASS
+    findings: []
+    note: >-
+      Zero-finding round — terminal cycle. Reviewer verified repo-boundary
+      containment (both prongs: single repo michael-conrad/.opencode, filing
+      home coincides with scope), live current-state claims (issues card
+      trigger inventory carries no artifact-content-defect trigger;
+      validate-yaml absent from the card; CLI reference carries the taxonomy
+      with no disposition binding; validation-standards record contract
+      without emission guidance; floor exception present), per-criterion
+      classes (no invented, untestable, either/or, ambiguous, incapable,
+      trivially-true, or state-undecidable criteria; byte-exactness is
+      preservation), layout conformance to all ten mandatory sections,
+      traceability both directions, and the analysis families (causal
+      sufficiency, problem fit, internal consistency, escape hatches,
+      feasibility, gap coverage, scope narrowness, research adequacy, blast
+      radius, cross-reference sufficiency, decomposition, safety).

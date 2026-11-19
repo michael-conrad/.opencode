@@ -1,0 +1,30 @@
+# Validation record — .opencode#2753
+# Loop history for the spec artifact. The verdict is recorded once per
+# round; this file is the loop's history, never a second verdict copy.
+
+spec:
+  - round: 1
+    date: 2026-11-19
+    reviewer: fresh-context validation dispatch (ses_e0af5bebdffep7ePgpyaRDuvQU)
+    verdict: PASS
+    findings: []
+    note: >-
+      Zero-finding round — terminal cycle. Reviewer verified repo-boundary
+      containment (both prongs: every requirement targets files under the
+      .opencode path prefix; spec filed in that repo's store), defect
+      classes 1-9 (every R and SC traces to the filed report's R-1..R-5,
+      the quoted developer statements — verified verbatim against the
+      preserved report — and the observed field failures; instruments
+      executable and observing their guarded failures; R-3's
+      plumbing-or-checkout choice converges on one outcome verified by the
+      mandatory assertion; no criterion can pass against the current card
+      state; layout conforms with no orphan traceability rows), and the
+      analysis families: all current-state claims about the delivered card
+      text verified exact against the checkout (rule 0's "else recorded",
+      Phase C-0 step 2's chain, step 3's "else recorded as the instrument's
+      own outcome", step 4's halt scope, step 8's mechanism-less capture,
+      rule 2(b')/carve-out/rule 3); negation claims' exhaustiveness
+      verified by grep; .opencode#2750's delivered status confirmed in git
+      history (merged via PR #2752); tests-v2 harness present; the
+      DRIFT_FAIL triage / no-retry interaction internally consistent; the
+      two-card drift risk is the stated cause R-5/SC-7 closes.
