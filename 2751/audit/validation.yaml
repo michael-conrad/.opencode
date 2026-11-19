@@ -26,5 +26,30 @@ spec:
     - round: 2
       date: 2026-11-19
       artifact: spec.md
+      verdict: FAIL
+      findings:
+        - class: fabricated-claims / cross-reference sufficiency
+          ground: >-
+            R-1, Root Cause 1, and SC-1 asserted POST repos/{owner}/{repo}/issues/{n}/labels
+            as a working endpoint with no cited evidence — the evidence chain
+            (filed report / session transcript) records only PUT .../issues/78/labels
+            succeeding and GET .../labels confirming ["spec"]; no POST attempt,
+            result, or source row existed. Verifiable at write time, so a finding
+            regardless of POST's actual status; load-bearing because SC-1 as then
+            written would bake an unevidenced capability claim into the passage
+            whose purpose is ending unevidenced capability claims.
+          remediation: >-
+            R-1 scoped to the evidenced pair (PUT/GET, observed 2026-11-18); sibling
+            label-endpoint methods (e.g. POST) named as attempt-first subjects only;
+            Root Cause 1 and SC-1 (local and remote-body rows) reconciled; new
+            Key Design Decision records the evidenced-only-authoring correction of
+            the source report's R-1.
+      classes_adjudicated:
+        - class: fabricated-claims / cross-reference sufficiency
+          classification: finding
+      re_evaluation: none
+    - round: 3
+      date: 2026-11-19
+      artifact: spec.md
       verdict: PENDING
-      notes: fresh-context re-dispatch after SC-4 remediation
+      notes: fresh-context re-dispatch after POST-scope remediation
