@@ -2,12 +2,12 @@
 name: issues
 description: "Load when creating, reading, updating, commenting on, linking, or closing any issue — local .issues/ stores, GitHub, or GitBucket. Covers qualified issue names, platform routing via the authenticated CLIs, the local-issues tool, and the comment gate: a remote comment is posted only when the correspondence card's channel rule qualifies it as a stakeholder notice, and the gate is evaluated before the agent commits to posting."
 license: MIT
-provenance: AI-authored, .opencode#2490; tooling contract consolidated per .opencode#2543; .opencode#2382; recomposition protocol, .opencode#2661
+provenance: AI-authored, .opencode#2490; tooling contract consolidated per .opencode#2543; .opencode#2382; recomposition protocol, .opencode#2661; search-before-filing mandate in §5 work-entry conversion, .opencode#2756
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382; recomposition protocol, .opencode#2661; self-triggering triage, .opencode#2699; self-firing evidence trigger + ticket-status semantics, .opencode#2702; work-entry conversion triage outcome, .opencode#2707; interrupted-sync remediate-on-discovery trigger (reported-with-commands-and-waited regression, 2026-11-12), .opencode#2731 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382; recomposition protocol, .opencode#2661; self-triggering triage, .opencode#2699; self-firing evidence trigger + ticket-status semantics, .opencode#2702; work-entry conversion triage outcome, .opencode#2707; interrupted-sync remediate-on-discovery trigger (reported-with-commands-and-waited regression, 2026-11-12), .opencode#2731; search-before-filing mandate in work-entry conversion, .opencode#2756 -->
 
 # issues — issue operations
 
@@ -136,7 +136,15 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    operates on the remote tracker record alone, through the platform CLI.
    No bug report is left detached from the spec governing its work:
    re-triage and work requests land on the spec record, not on a stale
-   pre-spec ticket. (.opencode#2707)
+   pre-spec ticket. (.opencode#2707) The conversion inherits the spec
+   card's search-before-filing mandate (.opencode#2756): before converting
+   a report into a spec, the triaging agent searches the repository's local
+   issue store and its linked remote tracker for a spec already covering
+   the same requirement or behavior class, and on a match routes the
+   report's requirement into that existing spec in place — amended or
+   extended under the spec card's revision discipline, or this clause's
+   conversion mechanics — instead of filing a new spec record when a match
+   exists.
 6. **Ticket-state hygiene.** A stale ticket state — the local store mirror's
    record diverging from the remote tracker's state — is corrected on
    discovery, reconciling both sides to the true state. The remote tracker

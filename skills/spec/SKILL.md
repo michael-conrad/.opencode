@@ -2,12 +2,12 @@
 name: spec
 description: "Load when creating or revising a specification document — success criteria, evidence types, traceability. Also load when a spec needs revision from review findings. Success criteria come from the developer's stated requirements and observed failures only — inventing extra criteria is scope creep. Every criterion is classified behavioral (runtime effect) or structural by its nature, and carries a verification instrument."
 license: MIT
-provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2660; triage-conversion spec-stage entry, .opencode#2707; SC subject-matter discipline, .opencode#2713; single-repo scope rule, .opencode#2712
+provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2660; triage-conversion spec-stage entry, .opencode#2707; SC subject-matter discipline, .opencode#2713; single-repo scope rule, .opencode#2712; search-before-filing mandate, .opencode#2756
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2550 validate step, validation-standards reference; #2557 language/tool call out; pointer-resolution guarantee, .opencode#2597; producer-side self-check, .opencode#2601; single-sourcing discipline in self-containment, .opencode#2660; SC subject-matter discipline in rule 4, .opencode#2713; single-repo scope rule, .opencode#2712 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2550 validate step, validation-standards reference; #2557 language/tool call out; pointer-resolution guarantee, .opencode#2597; producer-side self-check, .opencode#2601; single-sourcing discipline in self-containment, .opencode#2660; SC subject-matter discipline in rule 4, .opencode#2713; single-repo scope rule, .opencode#2712; search-before-filing mandate in rule 5, .opencode#2756 -->
 
 # spec — specification creation and revision
 
@@ -78,6 +78,16 @@ provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2
    number); if it has drifted behind the store's highest `{N}/`, advance it to
    that number — the counter is reserve state, and a stale counter corrupts
    numbering.
+   **Search before filing .opencode#2756.** Before filing any new spec —
+   this flow, a triage conversion, or any other filing path — the agent
+   searches the repository's issue store specs (the `.issues/{N}/` folders'
+   spec artifacts) and the repository's linked remote tracker for a spec
+   already covering the same requirement or behavior class, matching on the
+   requirement or behavior class rather than the filing's wording. When a
+   match exists, the requirement routes into that existing spec — amended
+   or extended in place under rule 6's revision discipline, or under the
+   `issues` card's conversion mechanics when the situation is a conversion
+   — and no new spec number is filed.
 6. **Revision discipline.** Findings from review produce targeted revisions;
    superseded criteria are removed, never accumulated. **Self-containment
    (normative):** the artifact is the single source of truth and must read
