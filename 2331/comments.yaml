@@ -1,1 +1,12 @@
-comments: []
+comments:
+- type: internal
+  body: 'Reopened 2026-11-20 by triage of .opencode#2761: the 2026-10-05 CLOSE-MOOT
+    ground (defective old-format cards removed by the #2490 rewrite) is refuted by
+    dated evidence — the rewrite also dropped the required body-edit guidance the
+    spec''s safe-pattern section required, and the 2026-11-20 GitBucket incident re-observed
+    the defect class in the live deck (fabricated unavailability claim + spec corrections
+    routed to tracker comments). The spec artifact is reconverted to the current spec-structure
+    standards (whole-artifact-on-touch) with the #2761 requirement routed in: R-1
+    label deviations, R-2 body route, R-3 label-flag prohibition, R-4 in-place reconciliation
+    route. Status: spec awaiting developer plan/implementation gates.'
+  timestamp: '2026-11-20T21:56:41+00:00'
