@@ -85,8 +85,10 @@ behavioral-testing card.
   semantics stay), and `skills/git-workflow-pr/SKILL.md` §4's Submodule bump
   (the per-bump tag-naming duty stays).
 - **RED:** grep each site → an inline
-  `<parent-repo>/<issue-number>-<submodule-dir>` restatement is present
-  (commit:31, cleanup:30, pr:104, pr:212).
+  `<parent-repo>/<issue-number>-<submodule-dir>` restatement is present in
+  each of the four card texts: the commit card's staging-time tagged-SHA
+  duty, the cleanup card's deletion backstop, `git-workflow-pr` §2(d-2), and
+  `git-workflow-pr` §4's Submodule bump.
 - **GREEN:** replace the inline form with the rule-3 naming reference at
   each of the four sites.
 - **Tier marks:** no authored test; instrument fact check (grep).
