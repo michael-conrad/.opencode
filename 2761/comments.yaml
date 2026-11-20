@@ -9,3 +9,8 @@ comments:
     spec record (see store links). This record closes as duplicate-of .opencode#2331;
     no new spec number was filed for the primary requirement.'
   timestamp: '2026-11-20T21:56:58+00:00'
+- type: internal
+  body: 'Follow-up to the triage verdict (2026-11-20): the secondary observation from
+    this report is filed and spec-authored as .opencode#2763 (remote-first, registered
+    locally, spec at the store folder).'
+  timestamp: '2026-11-20T21:57:58+00:00'
