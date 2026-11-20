@@ -1,0 +1,15 @@
+validation_record:
+  artifact: spec
+  rounds:
+    - round: 1
+      date: '2026-11-20'
+      verdict: PASS
+      findings: []
+      notes: >-
+        Fresh-context reviewer dispatch. Factual claims live-verified against
+        the two target card texts; negation claim ("no card text mandates a
+        store search before filing") grep-verified across skills. Proactive
+        repo-boundary containment check (#2712) ran: scope containment held
+        (one repo, michael-conrad/.opencode — both target files under the
+        .opencode path prefix) and home containment held (spec filed at
+        .opencode/.issues/2756/, same repo's store).
