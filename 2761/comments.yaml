@@ -1,1 +1,11 @@
-comments: []
+comments:
+- type: internal
+  body: 'Triage verdict 2026-11-20: actionable, routed per the spec card''s search-before-filing
+    mandate — the primary requirement (document gb issue edit; route post-create reconciliation
+    in place, never comments) is already specified in record #2331, now reopened with
+    the spec reconverted to the current structure standards and extended with the
+    routed requirements (R-1..R-4). The secondary observation in this report (validate-yaml
+    findings print store-relative paths with no repo qualifier) is filed as its own
+    spec record (see store links). This record closes as duplicate-of .opencode#2331;
+    no new spec number was filed for the primary requirement.'
+  timestamp: '2026-11-20T21:56:58+00:00'
