@@ -1,0 +1,6 @@
+number: 42
+title: '[BUG] duplicate artifacts emitted by the build pipeline'
+status: open
+labels:
+- bug
+- ci

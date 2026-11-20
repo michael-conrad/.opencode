@@ -1,0 +1,2 @@
+problem: The quickstart page references PIPELINE_CACHE_DIR, removed in release 2.4
+severity: minor

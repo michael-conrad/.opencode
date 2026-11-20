@@ -1,0 +1,8 @@
+artifact: validation
+round: 1
+verdict: fail
+---
+round: 2
+verdict: partial
+findings:
+- windows path separator handling untested
