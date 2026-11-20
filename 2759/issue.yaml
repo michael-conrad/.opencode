@@ -1,11 +1,11 @@
-title: '[BUG] Hash-permanence tag naming has no no-issue fallback — release path halts
-  on a deck-internal naming question'
+title: '[SPEC] No-issue hash-permanence tag naming — branch-slug fallback; the release
+  path never halts on deck-internal naming'
 status: open
 labels:
-- needs-approval
-- bug
+- spec
 - regression
+- needs-approval
 body: ''
 created_at: '2026-11-20T15:07:16+00:00'
-updated_at: '2026-11-20T15:07:23+00:00'
+updated_at: '2026-11-20T17:24:42+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2759
