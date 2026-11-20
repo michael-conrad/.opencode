@@ -1,1 +1,11 @@
-comments: []
+comments:
+- type: internal
+  body: 'validate-yaml disposition record (2026-11-20, 2755 work cycle): 3 files repaired
+    byte-exactly on issues-data this cycle — 378/audit/validation.yaml + research-cards/toothbrush-app-free
+    (cf918f02), research-cards/2026-11-19-electric-toothbrushes-app-free-2026.yaml
+    (e0a02745, '': ''-quoting repair). 4 remaining sweep findings (4210/issue.yaml
+    invalid-yaml, 4211/issue.yaml schema-violation, _legacy/4210-sc3-unrelated-a invalid-yaml,
+    _legacy/4211-sc3-unrelated-b schema-violation) are self-describing deliberate
+    invalid fixtures required by .opencode#2450 SC-3 — preserved by intent, never
+    repaired; disposition recorded here per 2755 SC-6 re-verification duty.'
+  timestamp: '2026-11-20T06:49:13+00:00'
