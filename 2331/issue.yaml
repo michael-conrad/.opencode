@@ -5,7 +5,7 @@ status: open
 labels:
 - spec
 - needs-approval
-body: '# GitBucket label/body REST deviations documented; post-create reconciliation
+body: '# GitBucket label/body REST deviations completed; post-create reconciliation
   routes in place
 
 
@@ -13,15 +13,17 @@ body: '# GitBucket label/body REST deviations documented; post-create reconcilia
 
 
   Two documentation gaps leave agents unguided on GitBucket-backed stores. The live
-  gb-cli card carries no GitBucket issue-mutation deviation documentation: an agent
-  following GitHub-standard payload forms silently destroys all existing labels (raw-array
-  body on the label route), is rejected with HTTP 500 (object-form POST), and hits
-  an undocumented HTTP 404 on the issue-body REST `PATCH` route, with no pointer to
-  the working `gb issue edit` fallback. And the issues/spec flow names no correction
-  route for the filed remote body whose number-dependent artifacts pointer can be
-  unresolvable when GitBucket skips consumed numbers (observed 2026-11-20: predicted
-  17, assigned 20) — the observed agent then mis-routed its pointer correction and
-  spec-content reconciliation into tracker comments.
+  gb-cli card carries the label-route deviation set incompletely and the issue-body
+  edit route not at all: it documents the plain-issue `PATCH .../issues/{n}` → 404
+  state-mutation gap and the working object-form PUT label route (rule 4, evidenced
+  2026-11-18), but an agent following GitHub-standard patterns still has no documentation
+  for the label forms that silently destroy all existing labels (raw-array body) or
+  are rejected with HTTP 500 (object-form POST), no read-back-after-write guidance,
+  and no pointer from the body-route gap to the working `gb issue edit` fallback.
+  And the issues/spec flow names no correction route for the filed remote body whose
+  number-dependent artifacts pointer can be unresolvable when GitBucket skips consumed
+  numbers (observed 2026-11-20: predicted 17, assigned 20) — the observed agent then
+  mis-routed its pointer correction and spec-content reconciliation into tracker comments.
 
 
   ## Root cause
@@ -39,11 +41,10 @@ body: '# GitBucket label/body REST deviations documented; post-create reconcilia
   ## Scope
 
 
-  - Restore the label deviation and safe-pattern documentation in `.opencode/skills/gb-cli/SKILL.md`
+  - Complete the label deviation documentation in `.opencode/skills/gb-cli/SKILL.md`
   (R-1, with the R-3 prohibition)
 
-  - Restore the issue-body route documentation in `.opencode/skills/gb-cli/SKILL.md`
-  (R-2)
+  - Document the issue-body route in `.opencode/skills/gb-cli/SKILL.md` (R-2)
 
   - Name the in-place post-create reconciliation route in `.opencode/skills/issues/SKILL.md`
   (R-4)
@@ -57,16 +58,18 @@ body: '# GitBucket label/body REST deviations documented; post-create reconcilia
   ## Requirements
 
 
-  - **R-1** — Labels: the gb-cli card SHALL document object-form POST (`{"labels":
-  [...]}`) → HTTP 500, raw-array body (`["label-a", ...]`) silently wipes all existing
-  labels, object-form PUT via the `gb api` passthrough as the exclusive sanctioned
-  form, and read-back-after-write guidance for every GitBucket label mutation.
+  - **R-1** — Labels: the gb-cli card SHALL complete its label-route deviation set
+  for the outcomes its rule 4 does not yet carry: object-form POST (`{"labels": [...]}`)
+  → HTTP 500, raw-array body (`["label-a", ...]`) silently wiping all existing labels,
+  and read-back-after-write guidance for every GitBucket label mutation — with the
+  already-documented object-form PUT route (via the `gb api` passthrough) carried
+  as the sanctioned form these deviations complete.
 
-  - **R-2** — Bodies: the gb-cli card SHALL document the REST `PATCH .../issues/{n}`
-  → HTTP 404 deviation and `gb issue edit <N> -t/--title` / `-b/--body` as the sanctioned
-  body-edit route whose web fallback ("REST issue edit is unavailable on this GitBucket
-  instance; using web fallback") is an agent-runnable, non-interactive success path
-  under stored token credentials.
+  - **R-2** — Bodies: the gb-cli card SHALL extend its documented `PATCH .../issues/{n}`
+  → 404 gap to the body case and name the working route: `gb issue edit <N> -t/--title`
+  / `-b/--body` is the sanctioned body-edit route whose web fallback ("REST issue
+  edit is unavailable on this GitBucket instance; using web fallback") is an agent-runnable,
+  non-interactive success path under stored token credentials.
 
   - **R-3** — The gb-cli card SHALL NOT present `gb issue edit`''s label/assignee
   flags as a working label-mutation path (evidenced failing 2026-10-05; attempt-first
@@ -87,12 +90,12 @@ body: '# GitBucket label/body REST deviations documented; post-create reconcilia
   |---|---|---|---|
 
   | SC-1 | Label deviation docs present in the live gb-cli card: object-POST → 500,
-  raw-array wipe hazard, object-form PUT exclusivity, read-back-after-write | structural
-  | `grep -n` the card for each element; every element hits |
+  raw-array wipe hazard, read-back-after-write | structural | `grep -n` the card for
+  each element; every element hits |
 
-  | SC-2 | Body-route docs present in the live gb-cli card: `gb issue edit`, the PATCH-404
-  note, web-fallback wording as the agent-runnable success path | structural | `grep
-  -n` the card for the three elements |
+  | SC-2 | Body-route docs present in the live gb-cli card: `gb issue edit`, the body-case
+  PATCH-404 wording, web-fallback wording as the agent-runnable success path | structural
+  | `grep -n` the card for the three elements |
 
   | SC-3 | No label-flag capability claim for `gb issue edit` anywhere in the card
   | structural | `grep -n` label-flag capability wording; hits only within the deviation
@@ -135,7 +138,7 @@ body: '# GitBucket label/body REST deviations documented; post-create reconcilia
 
   '
 created_at: '2026-08-26T05:07:13Z'
-updated_at: '2026-11-20T21:56:39+00:00'
+updated_at: '2026-11-20T22:03:29+00:00'
 remote_issue: 2331
 remote_url: https://github.com/michael-conrad/.opencode/issues/2331
 promoted_at: '2026-08-27T03:25:12.609107+00:00'

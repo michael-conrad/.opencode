@@ -29,19 +29,19 @@
 
 ## 3. Requirements
 
-- **R-1** — `local-issues validate-yaml` SHALL present every finding's file path qualified with its owning repository's identity (the store registry's qualifier), such that in any run — single-store or multi-store — findings from different stores holding identical store-relative paths are unambiguously distinguishable from the output alone.
+- **R-1** — `local-issues validate-yaml` SHALL present every finding's file path qualified with its owning repository's identity (the store registry's qualifier), such that no run's output presents a finding whose owning repository cannot be determined from that output line alone, and findings from two stores holding identical store-relative paths are distinguishable when their runs' outputs are read together.
 
 ## 4. Success criteria
 
 | ID | Criterion | Class | Instrument |
 |---|---|---|---|
-| SC-1 | In a `validate-yaml` run covering two stores that each hold a defective file at the same relative path (e.g. `20/artifacts/pre-spec-inspection.yaml`), every emitted finding names its repository and the identical-path pair resolves to two distinct qualified paths from the output alone | behavioral | Shell repro: seed a malformed YAML file at an identical relative path in each registered store, run `local-issues validate-yaml`, parse the findings, assert per-line repo qualification and distinct resolution for the identical-path pair; then repair the seeded files and re-run to exit 0 |
+| SC-1 | In per-store `validate-yaml` runs over two stores that each hold a defective file at the same relative path (e.g. `20/artifacts/pre-spec-inspection.yaml`), every emitted finding in each run names its repository from the output line alone, and the two stores' outputs present the identical-path pair under distinct qualifiers | behavioral | Shell repro: seed a malformed YAML file at an identical relative path in each registered store, run `local-issues validate-yaml` once per store, parse each run's findings, and assert per-line repo qualification plus distinct qualifiers for the identical-path pair across the two outputs; clean up seeded artifacts afterward |
 
 ## 5. Dependencies
 
 | Reference | Relationship | Status |
 |---|---|---|
-| Store registry (session-init `path`/`owner`/`repo` mapping; `.opencode/tools/local-issues-host-maps.conf`) | Supplies the qualifier composed into findings | Satisfied (exists) |
+| Store registry (session-init `path`/`owner`/`repo` mapping; the tool's own repo-discovery qualifier emission) | Supplies the qualifier composed into findings — the qualifier is the tool's repo identity (e.g. `opencode-config`, `.opencode`), not the host-maps conf, which is a host→browser-base table carrying no store data | Satisfied (exists) |
 | Issues card §7 repair workflow | Consumer contract: findings seed per-file repair dispatches and the re-verification sweep | Satisfied (card wording in place) |
 
 ## 6. Traceability
@@ -66,7 +66,7 @@
 
 | Condition | Expected behavior |
 |---|---|
-| Findings from both stores in one run (sweep over the whole workspace) | Every finding self-identifies its repository; identical store-relative paths resolve distinctly |
+| One run per store (`validate-yaml` walks one registered store per invocation) | Every line in each run's output self-identifies its repository; the identical-path pair across the two stores' outputs resolves distinctly |
 | Single-store run (one repo visible) | Output carries the qualifier unchanged — no format fork between single- and multi-store runs |
 | Truncation/tail views of findings (large sweeps) | Per-line qualification survives cropping; no header-block dependency |
 
