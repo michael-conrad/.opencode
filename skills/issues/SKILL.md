@@ -174,6 +174,36 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    artifacts per the store's workspace guide. This rule governs a record's
    absence;
    ticket-state hygiene (§6) governs state divergence for an existing record.
+   **Artifact-content-defect trigger (.opencode#2755):** the trigger list
+   also names record-content defects that the store's own validator
+   (`local-issues validate-yaml`) names in a store-holding repo — invalid-YAML
+   artifacts, malformed frontmatter, schema violations, the validator's whole
+   named taxonomy. That state is repaired on discovery in the same workflow
+   (agent-owned store maintenance) — the discovering session never reports
+   the validator's findings to the developer and waits, and the store never
+   stays knowingly defective across sessions. The emission-side half of this
+   trigger is the spec card's validation-record contract guidance — prose
+   scalars carrying embedded `key:`-pattern text are emitted quoted or folded
+   (Read [the validation-standards reference](../spec/references/validation-standards.md))
+   — so a session emitting validation records does not create the next
+   finding.
+   Repair procedure: mechanical content repairs — the validator's
+   whole named taxonomy, not a syntax-only subset — dispatch per file to a
+   sub-agent under the dispatch-scope doctrine; each repair preserves the
+   record's content byte-exactly except the defect itself (syntax-only
+   rewrites — quoted or folded scalars, separator removal, shape dedent —
+   each asserted against the pre-repair captured text); the discovering
+   session — never the repair sub-agent alone — re-verifies the full store
+   sweep clean (`validate-yaml` exit 0) at the store's synced HEAD and
+   records the repair disposition with the work that discovered the
+   findings. A repair that fails on evidenced tool error is a
+   report-with-halt scoped to that store alone, matching this section's
+   existing repair-failure posture.
+   Sweep completeness: before repairing, the discovering session counts the
+   validator's full output and verifies the count — a sampled or
+   tail-truncated view of the findings is never the repair dispatch's
+   premise; the re-verification after repair likewise runs against the
+   full sweep, not a sample.
 8. **Email actions.** Mid-flow email work — drafting, sending, or mailbox
    checks — dispatches to the `email-ops` subagent, which holds the gmail
    tool permissions; the flow itself never calls gmail tools directly.

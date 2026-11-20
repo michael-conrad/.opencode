@@ -317,7 +317,12 @@ spec or plan body, and it is never a second copy of the verdict — the
 verdict is recorded once per the verify card's recording rule, and the
 record is the loop's history. A cycle whose artifact belongs to no issue in
 a store records its verdict per the verify card's own recording rule and
-appends no store record. A cycle's judgment cites the record.
+appends no store record. A cycle's judgment cites the record. Emission constraint: prose scalars
+carrying embedded `key:`-pattern text are emitted as quoted or folded
+scalars, never plain — a plain scalar whose prose contains a `key:`-pattern
+sequence makes the emitted record unparseable — so every validation record
+emits in a shape the store's own validator (`local-issues validate-yaml`)
+parses clean.
 
 ## Criteria invariance
 

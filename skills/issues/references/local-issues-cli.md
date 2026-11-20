@@ -28,7 +28,7 @@ remains the flag-level source of truth. All numbers use the qualified
 | `renumber` | `--from repo#N`, `--to repo#M` | Rename the directory; rewrites matching links |
 | `url` | `--number repo#N`, `--artifacts` | Emit the platform-correct issue URL; `--artifacts` emits the branch-root artifacts URL (`tree/issues-data/N/`) |
 | `doctor` | — | Per-repo health markers (read-only): branch state, merge-base delta, worktree presence |
-| `validate-yaml` | `--number` (optional) | Validate YAML across issue directories; `**/*.yaml` subtree sweep; scoped mode on a remote-only issue prints `no-local-records` and exits 0 |
+| `validate-yaml` | `--number` (optional) | Validate YAML across issue directories; `**/*.yaml` subtree sweep; scoped mode on a remote-only issue prints `no-local-records` and exits 0. The findings this validator names are the evidence instrument of the issues card §7 artifact-content-defect trigger — they are repaired on discovery per that trigger, never reported to the developer and awaited |
 
 ### Host→browser-base mapping (`url`)
 
