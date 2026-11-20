@@ -19,7 +19,8 @@ traceability:
     verdict: PASS
   sc_2:
     criterion: work card carries R-1..R-5, R-7; criteria stated once; removals deck-wide
-    checked: skills/work/SKILL.md tip — six numbered criteria in rule 1's body;
+    checked: >-
+      skills/work/SKILL.md tip — six numbered criteria in rule 1's body;
       frontmatter/bullet/paragraph refer to them; both uncertainty rules qualified;
       missing-artifact clause qualified; "short path ends when outgrown" + "no
       ceremony, no waived stage" clauses present; criterion-assessment binding
@@ -94,7 +95,8 @@ traceability:
     verdict: PASS
   sc_11:
     criterion: scenario set aligned
-    checked: tests-v2/behaviors/ — 2657-sc5-short-path-single-file.sh absent;
+    checked: >-
+      tests-v2/behaviors/ — 2657-sc5-short-path-single-file.sh absent;
       2584-sc4 present with both criteria in its header and the re-scope record;
       five new scenarios each with the " # .opencode#2657 SC-N" header naming its
       own criterion; five per-scenario fixtures + 2657-common.sh, each per-scenario

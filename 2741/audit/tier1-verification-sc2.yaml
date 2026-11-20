@@ -1,10 +1,10 @@
 # Tier-1 behavioral verification record — SC-2 (.opencode#2741)
 
-**Class:** tier-1 clean-room dispatch (behavioral-testing card, simple card change)
-**Session:** ses_e1acdaefcffeCQCMMHEAD8xtFo · 2026-11-16
-**Instrument change:** plan Item 2 originally named the tests-v2 harness; re-tiered mid-cycle (implement §4) to tier-1 — deliverable is a one-card wording change, tier-1 eligible by agent judgment; granularity rule applied.
+# **Class:** tier-1 clean-room dispatch (behavioral-testing card, simple card change)
+# **Session:** ses_e1acdaefcffeCQCMMHEAD8xtFo · 2026-11-16
+# **Instrument change:** plan Item 2 originally named the tests-v2 harness; re-tiered mid-cycle (implement §4) to tier-1 — deliverable is a one-card wording change, tier-1 eligible by agent judgment; granularity rule applied.
 
-```yaml
+# ```yaml
 verdict: PASS
 criterion: SC-2
 findings: []
@@ -30,4 +30,4 @@ grounds: >-
   - "already completed for PR is a natural result of the completion checks
     themselves — reached only when the checks establish the issue's full
     assigned scope implemented and verified."
-```
+# ```

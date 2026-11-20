@@ -1,1 +1,12 @@
-comments: []
+comments:
+- type: internal
+  body: 'Store hygiene repair disposition (issues card §7 artifact-content-defect
+    trigger, discovered during this spec''s filing sync): the full validate-yaml sweep
+    named 18 invalid-YAML artifacts across the .opencode store (13 audit/research
+    records, 5 nested). Defect class: emission-constraint — unquoted prose scalars
+    carrying colon-space, space-prefixed #, alias-mark and flow-token sequences, plus
+    two structural key-placement defects. Repaired via per-file sub-agent dispatches
+    with byte-exact preservation assertions (backups at /tmp/opencode/yaml-repair-backup/);
+    prose content byte-identical in every file. Discovering-session re-verification:
+    full-sweep validate-yaml exit 0, zero findings.'
+  timestamp: '2026-11-20T22:26:23+00:00'

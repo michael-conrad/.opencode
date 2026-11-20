@@ -3,7 +3,7 @@ rounds:
   - round: 1
     date: 2026-11-02T14:52Z
     artifact_state: ".opencode/.issues/2648/spec.md (mirror-repaired from the remote body on 2026-11-02; no prior local record existed)"
-    verifier: fresh-context reviewer agent (criteria set: .opencode/skills/spec/references/validation-standards.md)
+    verifier: 'fresh-context reviewer agent (criteria set: .opencode/skills/spec/references/validation-standards.md)'
     verdict: FAIL
     findings:
       - class: cross-reference sufficiency
@@ -20,11 +20,11 @@ rounds:
   - round: 2
     date: 2026-11-02T15:05Z
     artifact_state: ".opencode/.issues/2648/spec.md (post round-1 remediation; GB_ENV_ARGS citation corrected)"
-    verifier: fresh-context reviewer agent (criteria set: .opencode/skills/spec/references/validation-standards.md, restated verbatim)
+    verifier: 'fresh-context reviewer agent (criteria set: .opencode/skills/spec/references/validation-standards.md, restated verbatim)'
     verdict: FAIL
     findings:
       - class: fabricated claims
-        factual_kind: quote-level/diagnosis-level specifics with no locatable surviving source (the transient GREEN-* evidence destroyed before the record was written): the literal 401 response string and two-call enumeration, the mtime-based diagnosis detail, and the halt-record token-verification detail; also the "succeeded on the first attempt" pass-9 granularity absent from every surviving record
+        factual_kind: 'quote-level/diagnosis-level specifics with no locatable surviving source (the transient GREEN-* evidence destroyed before the record was written): the literal 401 response string and two-call enumeration, the mtime-based diagnosis detail, and the halt-record token-verification detail; also the "succeeded on the first attempt" pass-9 granularity absent from every surviving record'
         quoted: "failed 401 (\"Bad credentials\") on both the create and a read-gate check / config.toml mtime = the resume boot time, token field empty / agent halt records repeatedly verified the token key empty on file read"
         classification: finding
         remediation: Observed section rewritten to carry only surviving-grounded content — each bullet now cites its surviving ground (authored-fix commit message e85ca39bd906…; .opencode/.issues/2639/comments.yaml dated 2026-10-21), the ungrounded granular specifics deleted, and the pass-9 claim restated to the surviving record's wording (succeeded after the earlier passes' 401s; PR root/test-repo#1 OPEN)
@@ -40,7 +40,7 @@ rounds:
   - round: 3
     date: 2026-11-02T15:20Z
     artifact_state: ".opencode/.issues/2648/spec.md (post round-2 remediation; Observed section grounded to surviving records)"
-    verifier: fresh-context reviewer agent (criteria set: .opencode/skills/spec/references/validation-standards.md, restated verbatim)
+    verifier: 'fresh-context reviewer agent (criteria set: .opencode/skills/spec/references/validation-standards.md, restated verbatim)'
     verdict: PASS
     findings: none (zero-finding round — loop exit)
     verified: reviewer independently confirmed every factual surface (seed_gb_config quote and resume-boot call path, GB_ENV_ARGS citation 738–741 outside the provisioning block, recovery-default line 56 on main/working-tree/delivery-commit, commit-message grounds for pass 8 and the recurring misread, #2639 dated 2026-10-21 grounds for the outcome and final-create caveat, #2646 scope difference, transient-evidence absence, R-1 atomicity/decidability/instrument capability, impact enumeration)

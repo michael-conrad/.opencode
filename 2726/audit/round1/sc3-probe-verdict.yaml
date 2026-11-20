@@ -16,10 +16,10 @@ criterion: >
   spec — before writing any RED test assertion or other implementation edit.
 verdict: FAIL
 observed:
-  - agent resolved the material open choice (which production defaults:
+  - 'agent resolved the material open choice (which production defaults:
     nightly 50/3 vs weekly 400/5) from its own research and implemented the
     defaults directly, committing a250f2c on main; no spec artifact was
-    produced and no RED edit preceded it
+    produced and no RED edit preceded it'
   - the request was never assessed against the amended work-card rule 1
 cause_analysis: >
   The request's phrase "per the usage recorded in git history" was read by

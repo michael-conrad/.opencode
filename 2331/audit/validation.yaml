@@ -38,7 +38,6 @@ spec:
           normative) and issues card section 3 (corrections edit the artifact in place,
           never routed to comments) — with .opencode#2522 carried as the originating
           record.
-spec:
   - round: 2
     date: '2026-11-20'
     reviewer: 'ses_e0502bf0effe4RYPYoHkBJX3AK'
@@ -50,5 +49,5 @@ spec:
       instruments against the live cards, and ran the proactive repo-boundary
       containment check (scope and home both in michael-conrad/.opencode). Loop exits
       at round 2.
-  loop:
-    state: 'exited — PASS at round 2'
+    loop:
+      state: 'exited — PASS at round 2'

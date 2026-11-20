@@ -15,7 +15,7 @@ loop:
     findings: []
 execution_evidence:
   - item 1-4 (structural): per-item RED/GREEN cycles with greps/reads; commits b267c9a21, 58f1bf310, 84c923ad8, f3103559b; working tree clean
-  - suite_green: bash .opencode/tests-v2/test-enforcement.sh — "PASSED: 19 / FAILED: 0 / SKIPPED: 0" on 2026-11-10 (log: /home/muksihs/git/opencode-config/tmp/issue-2728/artifacts/suite-green.log)
+  - suite_green: 'bash .opencode/tests-v2/test-enforcement.sh — "PASSED: 19 / FAILED: 0 / SKIPPED: 0" on 2026-11-10 (log: /home/muksihs/git/opencode-config/tmp/issue-2728/artifacts/suite-green.log)'
   - SC-8 RED (pre-change deck 45f9268b9): harness scenario 2728-sc8-root-wrapper-routing, tier-2 docker, run completed; clean-room eval PASS; failure class did NOT reproduce pre-change in this run — recorded as evidence capture, not a reproduced RED; the failure class stays documented by the spec's developer-reported session (doaj#100). Divergence from plan item 5's committed RED statement recorded here; the operative SC-8 instrument is the post-change (GREEN) run.
   - SC-8 GREEN (post-change, pinned f3103559b): same scenario; run completed; session-isolation PASS; clean-room eval PASS (root ./gradlew build + test executed at repo root; zero submodule-gradlew adoption despite AGENTS.md lure; zero --recursive occurrences).
 verify_dispatch:

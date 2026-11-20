@@ -96,5 +96,5 @@ spec:
       verbatim, confirmed the two named test files pin the shape and no other test
       routes through validate-yaml, and ran the proactive repo-boundary containment
       check (scope and home both michael-conrad/.opencode). Loop exits at round 5.
-  loop:
-    state: 'exited — PASS at round 5'
+loop:
+  state: 'exited — PASS at round 5'

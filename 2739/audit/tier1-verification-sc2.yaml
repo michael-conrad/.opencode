@@ -1,9 +1,9 @@
 # Tier-1 behavioral verification record — SC-2 (.opencode#2739)
 
-**Class:** tier-1 clean-room dispatch (behavioral-testing card, instruction-surface change)
-**Session:** ses_e1abe5ee0ffeFuaUExc3JPRG0G · 2026-11-16
+# **Class:** tier-1 clean-room dispatch (behavioral-testing card, instruction-surface change)
+# **Session:** ses_e1abe5ee0ffeFuaUExc3JPRG0G · 2026-11-16
 
-```yaml
+# ```yaml
 verdict: PASS
 criterion: SC-2
 findings: []
@@ -19,4 +19,4 @@ grounds: >-
   repo is always fixed by session context." The genuine-halt exception
   survives: "A halt fires only when no member of the plausible target set is
   fixed by session context."
-```
+# ```

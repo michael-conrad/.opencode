@@ -62,13 +62,16 @@ spec:
           original ordering binds" condition), and reconcile SC-11's SC-9 anchor
           declaration with the amended criterion.
     factual_accuracy_checked:
-      - SC-6 amendment vs evaluation-20261030183856.yaml: PASS verdict and all three
+      - >-
+        SC-6 amendment vs evaluation-20261030183856.yaml: PASS verdict and all three
         amended facts (spec file written with retry content; no implementation edit;
         composition reached) match the recorded evaluation. Confirmed.
-      - SC-7 amendment vs evaluation-20261030183943.yaml: PASS under the amended
+      - >-
+        SC-7 amendment vs evaluation-20261030183943.yaml: PASS under the amended
         route bar matches the recorded evaluation (full path announced before any edit;
         no edit to src/search.py; one explore-stage question). Confirmed.
-      - SC-9 route facts vs evaluation-20261030193637.yaml: the run-7 observed facts
+      - >-
+        SC-9 route facts vs evaluation-20261030193637.yaml: the run-7 observed facts
         the note records (second-file need identified; full path announced; no edits;
         one explore-stage question; run ended exit 0) match the FAIL evaluation's
         per-fact resolutions. Confirmed (the run's FAIL was on the unamended artifact
@@ -152,27 +155,32 @@ spec:
           declared anchor to an observable that is present in every criterion-compliant
           run).
     factual_accuracy_checked:
-      - SC-7 amended Verify vs directory content: coherent in place — the Verify
+      - >-
+        SC-7 amended Verify vs directory content: coherent in place — the Verify
         header's "the instrument note's SC-7 bullet governs where it differs" plus
         the appended amended bar with "if the spec artifact does appear, the original
         ordering still binds" scopes each clause to a case; no conflicting two-bar
         reading survives. Adjudicated not defective (class 6 examined, not present).
-      - SC-9 rewritten body/Verify vs evaluation-20261030193637.yaml: every amended
+      - >-
+        SC-9 rewritten body/Verify vs evaluation-20261030193637.yaml: every amended
         route fact matches the recorded per-fact resolutions (second-file need at
         seqs 55/79/231; full pipeline announced seqs 111-112/216/231; zero write/edit
         calls across all 237 rows; one open-ended explore-stage question ending the
         run; exit_code 0). Confirmed.
-      - SC-6 amended instrument vs evaluation-20261030183856.yaml: PASS verdict, spec
+      - >-
+        SC-6 amended instrument vs evaluation-20261030183856.yaml: PASS verdict, spec
         file written at seqs 344/359 with retry content, src/upload.py read-only
         throughout, composition reached (work/spec cards loaded, work record written
         seq 330) — matches the spec's amended SC-6 facts. The run is real; its
         recording gap in evidence.md's table is captured under the cross-reference
         finding above.
-      - SC-7 amended route facts vs evaluation-20261030183943.yaml: full path announced
+      - >-
+        SC-7 amended route facts vs evaluation-20261030183943.yaml: full path announced
         before any edit (work record write seq 135-138, closing announcement seq 149);
         no edit to src/search.py (tool inventory bash/grep/read/skill only); one
         open-ended explore question. Confirmed.
-      - Spec citation "tests-v2/AGENTS.md §3a.4's re-scope surfaces" verified: the
+      - >-
+        Spec citation "tests-v2/AGENTS.md §3a.4's re-scope surfaces" verified: the
         re-scope-on-need rule (bounded-generation raise, Docker passthrough, classifier
         seeder) sits at §3a item 4. Confirmed.
     testability: Amended SC-6, SC-7, SC-9 facts each carry per-fact observables judged
@@ -194,7 +202,8 @@ spec:
     verdict: FAIL
   - round: 3
     date: 2026-10-30
-    artifact_state: REVISED spec at store commit 6e536a545 ("validation round-2
+    artifact_state: >-
+      REVISED spec at store commit 6e536a545 ("validation round-2
       remediation") — instrument note's run enumeration conformed ("the first four
       GREEN runs on the branch tip (2026-10-30: one sc1 run, one sc2 run, and two
       sc3 runs ...)" + "the five capped runs are recorded in the issue's evidence.md
@@ -218,11 +227,13 @@ spec:
     adjudications:
       - class: cross-reference sufficiency / fabricated claims
         classification: finding
-      - class: fabricated claims / cross-reference sufficiency (factual kind:
+      - class: >-
+          fabricated claims / cross-reference sufficiency (factual kind:
           mis-scoped run attribution)
         classification: finding
     factual_accuracy_checked:
-      - Round-2 remediation claim 1 — instrument note's run enumeration vs the
+      - >-
+        Round-2 remediation claim 1 — instrument note's run enumeration vs the
         "Runs of 2026-10-30" table: the parenthetical "(2026-10-30: one sc1 run,
         one sc2 run, and two sc3 runs ...)" matches table rows 1-4 (SC-6 4k sc1,
         SC-7 4k sc2, SC-8 4k sc3, SC-8 12k sc3); the never-written fact for the
@@ -231,26 +242,31 @@ spec:
         their artifact directories" resolves to the five capped-exit sc1/sc3 runs
         the record holds (Oct-23: sc1 RED, sc1 GREEN, sc3 RED; 2026-10-30: sc1 4k,
         sc3 4k), each with a recorded directory. Conformed.
-      - Round-2 remediation claim 2 — SC-11's SC-9 anchor declaration: the body
+      - >-
+        Round-2 remediation claim 2 — SC-11's SC-9 anchor declaration: the body
         paragraph now states the anchor's role (determination-direction evidence
         for a run still working; its unmet state on a compliant explore-stage stop
         is never read as a verdict; the clean-room evaluation is the verdict
         surface) and the Verify clause's structural declaration (SC-9 among the
         known-path anchor declarers) is consistent with it; the round-2 finding's
         compliant-run contradiction is resolved. Conformed.
-      - SC-9's amended body/Verify facts vs evaluation-20261030193637.yaml:
+      - >-
+        SC-9's amended body/Verify facts vs evaluation-20261030193637.yaml:
         second-file need (seqs 55/79/231), full-path announcement with expanded
         scope before any edit (seqs 79/111-112/216/231), zero write/edit calls
         across all 237 rows, one open-ended explore-stage question, exit_code 0 —
         each matches the recorded per-fact resolutions. Confirmed.
-      - SC-7's amended Verify vs evaluation-20261030183943.yaml: PASS under the
+      - >-
+        SC-7's amended Verify vs evaluation-20261030183943.yaml: PASS under the
         amended route bar (full path announced before any edit; no src/search.py
         edit; one explore-stage question). Confirmed.
-      - SC-6's raised-budget facts vs evaluation-20261030183856.yaml: PASS; spec
+      - >-
+        SC-6's raised-budget facts vs evaluation-20261030183856.yaml: PASS; spec
         written at seqs 344/359 with retry content (on-disk check recorded in the
         evaluation); src/upload.py read-only throughout; composition reached
         (work record seq 330, validation re-dispatch seqs 371-386). Confirmed.
-      - Finding A (recurring from round 2 — named remediation not performed).
+      - >-
+        Finding A (recurring from round 2 — named remediation not performed).
         evidence.md item 1 still reads "six capped-exit runs across sc1/sc3"
         (line 177, textually unchanged from the state round 2 flagged); the
         recorded evidence supports five capped-exit sc1/sc3 runs (Oct-23 sc1 RED,
@@ -260,7 +276,8 @@ spec:
         truncations, not a capped exit). A wrong count misstates the record.
         Outcome: reconcile the figure to the recorded runs (five across both
         tables, two within the 2026-10-30 table).
-      - Finding B (new instance of the round-1/2 class — factual kind: mis-scoped
+      - >-
+        Finding B (new instance of the round-1/2 class — factual kind: mis-scoped
         run attribution). The instrument note presents the enumerated four runs as
         "the 4,000-budget runs [that] still end capped" whose "spec-composition
         and card-deliberation turns truncate with `finish: length`, the R-13
@@ -331,7 +348,8 @@ spec:
       criteria unchanged from rounds 1-3. Finding bar: factual defects and
       enumerated classes only, never preferences.
     adjudications:
-      - class: fabricated claims / cross-reference sufficiency (factual kind:
+      - class: >-
+          fabricated claims / cross-reference sufficiency (factual kind:
           mis-scoped run attribution — wrong count)
         classification: finding
         detail: >-
@@ -349,7 +367,8 @@ spec:
         outcome: remediation required — swap the parenthetical's distribution
           (two on the branch tip, three from 2026-10-23).
     factual_accuracy_checked:
-      - Remediated passage 2 (instrument note budget scoping) vs the exports:
+      - >-
+        Remediated passage 2 (instrument note budget scoping) vs the exports:
         verified. sc1-4k export (session.yaml, 128k dir) records finish:length
         truncations (12 message-level, output 4,000 ×20) and zero
         write/edit/patch tool calls — "docs/upload-retry-spec.md is never
@@ -365,9 +384,11 @@ spec:
         step-finish reason "stop" and exit_code 0 — its "ended cleanly on the
         amended route" exception is accurate (the note claims no truncation
         facts for it). The Oct-23 slug reference (256k) matches the directories.
-      - Remediated passage 1 (evidence item 1): total count five is correct;
+      - >-
+        Remediated passage 1 (evidence item 1): total count five is correct;
         the per-table split is swapped — see the finding above.
-      - Prior-round remediations re-checked for survival: SC-7's amended Verify,
+      - >-
+        Prior-round remediations re-checked for survival: SC-7's amended Verify,
         SC-9's rewritten body/Verify, SC-11's anchor-role statement, and the
         round-3 note conformance remain in place at the store commit.
     testability: Unchanged from round 3 — the amended criteria's facts are judged
@@ -376,7 +397,8 @@ spec:
     weakening: No — the remediations narrow run-fact claims to what the exports
       record; no developer-stated property is touched.
     reevaluation_ran: false
-    spin_judgment: Not spinning — round 3's findings genuinely resolved (budget
+    spin_judgment: >-
+      Not spinning — round 3's findings genuinely resolved (budget
       scoping now matches the exports; count corrected six→five), and this
       round's finding is a residual mis-scoped split inside the sentence the
       last remediation touched, not a reshuffled or recurring finding in kind.
@@ -398,7 +420,8 @@ spec:
       previously-verified passages remain untouched (instrument note).
     adjudications: []
     factual_accuracy_checked:
-      - Remediated passage (evidence item 1's parenthetical) vs the tables:
+      - >-
+        Remediated passage (evidence item 1's parenthetical) vs the tables:
         verified. Three capped-exit sc1/sc3 runs from 2026-10-23 (sc1 RED, sc1
         GREEN, sc3 RED — "Runs completed" table and its cause analysis) and two
         on the branch tip (SC-6 4k sc1 and SC-8 4k sc3 rows — "Runs of
@@ -406,7 +429,8 @@ spec:
         raised SC-6 run is PASS, both correctly outside the count). The
         distribution now matches the instrument note's own statement (one sc1
         plus one sc3 on the branch tip; Oct-23 runs pre-repair). Conformed.
-      - Previously-verified passages re-checked for survival at the current
+      - >-
+        Previously-verified passages re-checked for survival at the current
         state: the instrument note's budget scoping (4,000-budget truncation
         scoped to the branch tip's sc1/sc3 4k runs, Oct-23 runs noted as
         pre-repair, sc2/sc3/sc4 exceptions), the "five capped runs ... with
@@ -424,7 +448,8 @@ spec:
     verdict: PASS
   - round: 6
     date: 2026-10-30
-    artifact_state: REVISED spec at store commit "validation round-3 re-scope
+    artifact_state: >-
+      REVISED spec at store commit "validation round-3 re-scope
       amendment" era — the new surface this round adds: SC-12's rewritten
       body/Verify (placement-archaeology vs wording-precedent split, naming
       .opencode#2657 commit 172d571e8), the instrument note's "Re-scoping
@@ -445,7 +470,8 @@ spec:
       (.opencode/skills/skill-creator/SKILL.md as of commit 172d571e8); (d)
       no weakening of the developer's underlying properties.
     adjudications:
-      - class: fabricated claims / cross-reference sufficiency (factual kind:
+      - class: >-
+          fabricated claims / cross-reference sufficiency (factual kind:
           misquote — quoted fragments not matching the recorded sources)
         classification: finding
         detail: >-
@@ -474,14 +500,16 @@ spec:
           as paraphrase), and scope the history-reading framing to the run
           whose record shows it.
     factual_accuracy_checked:
-      - Round-3 paragraph, run identification: run 1 = the 2584-sc4 base
+      - >-
+        Round-3 paragraph, run identification: run 1 = the 2584-sc4 base
         artifact directory's evaluation-20261030T212058Z.yaml (BLOCKED; no
         edit/write call anywhere; card's numbered list still ends at rule 4;
         skill-creator loaded + history archaeology seqs 28-39/66-103; final
         text seq 114 asks the placement question, session ends there) —
         exactly the run the paragraph's "run 1 halted on the instructed
         placement" asserts. Confirmed.
-      - Run 2 = the "-1" directory: abort-diagnosis-20261030.yaml records the
+      - >-
+        Run 2 = the "-1" directory: abort-diagnosis-20261030.yaml records the
         §14 layered-hang abort (event stream flat, client wedged after last
         completed generation) on commit 172d571e8; session-aborted.yaml
         records finish:length with output 12,000 (the truncation claim holds)
@@ -493,7 +521,8 @@ spec:
         172d571e8) verified: 172d571e8's parent is 8744b49b4, and run 1's
         manifest timestamp (21:18:48Z) precedes the 172d571e8 commit time
         (21:21:50Z). Confirmed.
-      - Run 3 = evaluation-20261030224534.yaml in the "-2" directory: verdict
+      - >-
+        Run 3 = evaluation-20261030224534.yaml in the "-2" directory: verdict
         PASS, 323 event rows, exit 0, rule 6 added via editor_edit_text with
         the instructed placement executed, no issue filing / spec document /
         validation dispatch / halt, placement-free hunting recorded (git
@@ -501,7 +530,8 @@ spec:
         classed as permitted wording-precedent reads), fixture comment
         present and correctly self-reported. It supports SC-12's amended
         Verify. Confirmed.
-      - Amplifying artifact surfaces match the paragraph: the scenario file's
+      - >-
+        Amplifying artifact surfaces match the paragraph: the scenario file's
         re-scope record (runs 8–9 = commits 8744b49b4, 172d571e8; run 1
         halted on placement, run 2 wedged after a truncated turn) and the
         fixture script pre-supplying the byline-precedent facts as a comment
@@ -536,7 +566,8 @@ spec:
       the deck clause contradicts); no conflicting two-bar reading survives
       in the checked surface.
     reevaluation_ran: false
-    spin_judgment: Not spinning — this round checked a previously
+    spin_judgment: >-
+      Not spinning — this round checked a previously
       unvalidated addition; the single finding is a quotation-accuracy
       defect in a new sentence family (SC-12's rewritten body), not a
       reshuffled or recurring round-1–5 finding; rounds 1–5's remediated
@@ -544,16 +575,18 @@ spec:
       count trigger's judgment remains with the loop runner, and
       convergence on the artifact's run-fact surface has been incremental
       and genuine.
-    findings: [fabricated claims / cross-reference sufficiency, factual kind
-      misquote (SC-12's two quoted run phrases — "which existing number list
-      is the most plausible target" and "how do you want the rule
-      positioned?" — are not verbatim in their recorded sources, and the
-      first is framed as card-history reading where the record places it in
-      run-2 reasoning)]
+    findings:
+      - >-
+        fabricated claims / cross-reference sufficiency, factual kind misquote (SC-12's
+        two quoted run phrases — "which existing number list is the most plausible
+        target" and "how do you want the rule positioned?" — are not verbatim in their
+        recorded sources, and the first is framed as card-history reading where the
+        record places it in run-2 reasoning)
     verdict: FAIL
   - round: 7
     date: 2026-10-30
-    artifact_state: REVISED spec at store commit a6f095cdb ("2657: validation
+    artifact_state: >-
+      REVISED spec at store commit a6f095cdb ("2657: validation
       round-6 remediation — SC-12 quotes verbatim and correctly attributed
       (run 2's numbered-list reasoning; run 1's full halt question)").
     scope: |
@@ -568,7 +601,8 @@ spec:
       1; (3) no new misquote or factual defect in the surrounding paragraph,
       compared with round 6's confirmed-accurate list.
     adjudications:
-      - class: fabricated claims / cross-reference sufficiency (factual kind:
+      - class: >-
+          fabricated claims / cross-reference sufficiency (factual kind:
           misquote — checked for recurrence after remediation)
         classification: no-finding
         detail: >-
@@ -612,13 +646,16 @@ spec:
           All confirmed; no new misquote or factual defect introduced by the
           remediation diff (the diff touches only the two quote framings).
     factual_accuracy_checked:
-      - Fragment 1 attribution and wording: run 2's reasoning at seq 59,
+      - >-
+        Fragment 1 attribution and wording: run 2's reasoning at seq 59,
         session-aborted.yaml — verbatim substring modulo sentence-initial
         capital. Confirmed.
-      - Fragment 2 attribution and wording: run 1's halt at seq 114,
+      - >-
+        Fragment 2 attribution and wording: run 1's halt at seq 114,
         evaluation-20261030T212058Z.yaml and session.yaml — verbatim
         substring modulo quote-nesting. Confirmed.
-      - Remediation diff scope (a6f095cdb, 5+/3-): only the two quoted
+      - >-
+        Remediation diff scope (a6f095cdb, 5+/3-): only the two quoted
         framings in SC-12's body; no other paragraph content changed.
         Confirmed.
       - Round-6 confirmed-accurate run-fact list re-verified in the current

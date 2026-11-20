@@ -1,9 +1,9 @@
 # Tier-1 behavioral verification record — SC-2 (.opencode#2740)
 
-**Class:** tier-1 clean-room dispatch (behavioral-testing card, instruction-surface change)
-**Session:** ses_e1abe5ee0ffdDOVAa9Fz51BTWs · 2026-11-16
+# **Class:** tier-1 clean-room dispatch (behavioral-testing card, instruction-surface change)
+# **Session:** ses_e1abe5ee0ffdDOVAa9Fz51BTWs · 2026-11-16
 
-```yaml
+# ```yaml
 verdict: PASS
 criterion: SC-2
 findings: []
@@ -22,4 +22,4 @@ grounds: >-
   up to and including the named phase; missing upstream artifacts start the
   pipeline at the earliest missing stage") and the delivered git-workflow-pr
   rule-1 not-done default composes consistently.
-```
+# ```

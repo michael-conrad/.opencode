@@ -11,19 +11,19 @@ spec:
         class: blast-radius (with fabricated-claims and internal-contradiction
           consequences)
         where: R-3, R-4, SC-2 instrument, SC-3, Impact blast-radius claim
-        ground: the consumer/card enumeration omitted
+        ground: "the consumer/card enumeration omitted
           `skills/version-manager/SKILL.md` rule 7 (lines 38–39) —
-          "The agent selects and justifies every version number — counter
-          advance, base selection, first base — in the work record" — a live
+          \"The agent selects and justifies every version number — counter
+          advance, base selection, first base — in the work record\" — a live
           agent-facing consumer; the triage's initial grep sweep missed it.
-          The falsified negation claim ("no other deck surface references the
-          work record") is a fabricated claim; the scoped deliverable (five
+          The falsified negation claim (\"no other deck surface references the
+          work record\") is a fabricated claim; the scoped deliverable (five
           cards revised, version-manager untouched) fails the spec's own
           SC-2 instrument (every match names the relocated home); under R-5,
           version-manager's rule 7 would direct recording into a record that
           does not exist for no-issue work — an unexamined consumer (gap
           analysis). Corroborating non-load-bearing match:
-          `tests-v2/behaviors/2557-sc17-supervised-polling.sh:10`.
+          `tests-v2/behaviors/2557-sc17-supervised-polling.sh:10`."
         remediation: R-3 revised to six cards (version-manager rule 7 added);
           R-4 adds the numbering-justification consumer; R-5 covers every
           recording consumer's no-issue landing; SC-2's instrument states the
@@ -36,11 +36,11 @@ spec:
         class: fabricated-claims (with cross-reference-sufficiency consequence)
         where: Problem provenance bullet ("pure addition ... zero matches")
           and the triage evidence's matching ground
-        ground: the cited instrument cannot execute — `10711d95` is an
+        ground: "the cited instrument cannot execute — `10711d95` is an
           issues-data-branch commit whose tree contains no `skills/`;
-          `git show 10711d95^:skills/work/SKILL.md` errors ("path exists on
-          disk, but not in '10711d95^'"), the swallowed error made the grep
-          count empty input, and the recorded "0" evidenced nothing. The
+          `git show 10711d95^:skills/work/SKILL.md` errors (\"path exists on
+          disk, but not in '10711d95^'\"), the swallowed error made the grep
+          count empty input, and the recorded \"0\" evidenced nothing. The
           underlying fact is false as stated: at `ac5c4407^` the work card
           (line 24, from #2584) and the branch card (line 31, from #2490
           stage 2b) already carry two-word work-record references — the
@@ -49,14 +49,14 @@ spec:
           deck carries zero hyphenated `work-record` forms and zero
           `git-path` prescriptions (executed `git grep` at that revision).
           The root-cause attribution (the `.git` residency entered via the
-          #2657 cycle) survives.
-        remediation: Problem provenance rewritten to the corrected history
+          #2657 cycle) survives."
+        remediation: "Problem provenance rewritten to the corrected history
           (concept predates via #2490/#2584 informal references; the `.git`
           residency definition is the #2657-cycle addition, evidenced by an
           executable instrument — `git grep` at `ac5c4407^` and the
           ac5c4407 diff); a closing sentence states what is on trial (the
           `.git` residency, not the record concept); the triage evidence's
-          ground corrected in place with the broken-instrument disclosure.
+          ground corrected in place with the broken-instrument disclosure."
     classes_adjudicated:
       - class: invented-requirement
         classification: not-found
@@ -139,9 +139,9 @@ spec:
       - id: F-5
         class: fabricated-claims (executed-check misstatement)
         where: Impact blast-radius claim
-        ground: the executed-grep claim named `commands/` — a directory that
+        ground: "the executed-grep claim named `commands/` — a directory that
           does not exist in the checkout (removed by #2490 stage 4d); the
-          sweep could not have covered it (silently skipped)
+          sweep could not have covered it (silently skipped)"
         remediation: claim restated over the surfaces that exist (skills/,
           guidelines/, agents/, floor.md) with the commands/ removal noted;
           R-1's surface enumeration and the SC-1/SC-2 sweep scopes aligned to
@@ -195,12 +195,12 @@ spec:
       - family: repo-boundary-containment
         classification: pass (scope containment and home containment both
           hold)
-      - all eight defect classes and all analysis families
-        classification: not-found / pass — zero findings; every factual and
+      - family: all eight defect classes and all analysis families
+        classification: "not-found / pass — zero findings; every factual and
           historical claim independently verified against live sources
           (six-card blast radius, ac5c4407^ history, PR #2693 metadata,
-          issue #2657 comment count, R-1 breadth)
-      - prior-round fixes
+          issue #2657 comment count, R-1 breadth)"
+      - family: prior-round fixes
         classification: all three round-2 fixes and both round-1 fixes
           adjudicated as genuinely resolved; no new defect introduced by the
           revisions
