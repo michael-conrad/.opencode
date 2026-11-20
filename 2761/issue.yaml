@@ -2,6 +2,219 @@ title: 'issues: spec corrections routed to tracker comments instead of in-place 
   (self-containment regression on GitBucket)'
 status: open
 labels: []
-body: ''
+body: '## Summary
+
+
+  Spec corrections get filed as tracker comments ("trash comments") on the remote
+  issue instead of revising the remote spec body in place, splitting spec content
+  across the body and comments — violating the deck''s self-containment rules. Observed
+  on a GitBucket-backed store filing today (2026-11-20). Two-layer defect:
+
+
+  1. **Agent-fabricated unavailability claim (recorded in this issue as required evidence):**
+  the agent wrongly asserted "GitBucket body edit is unavailable" — quoting a single
+  REST `PATCH` 404 as "evidence" — without ever attempting the native route `gb issue
+  edit <N> --body`, which exists and works (via the CLI''s web fallback). That fabrication
+  is what pushed the corrections into comments.
+
+  2. **Deck-flow gap:** the gb-cli card does not document the issue body-edit route
+  (`gb issue edit` — title/body/labels/assignees) for GitBucket, and the issues/spec
+  flow gives the agent no post-create reconciliation path after the body''s number-dependent
+  artifacts pointer misses the assigned number.
+
+
+  ## Environment
+
+
+  - opencode version: Unavailable (CLI not on PATH in the filing session); deck checkout
+  `.opencode` at `489c21ef` ("Merge pull request #2757", 2026-11-20 09:09 -0500)
+
+  - OS: Linux 6.8.0-147-generic (linux x64)
+
+  - Terminal: TERM=dumb
+
+  - Shell: /bin/bash
+
+  - Install/channel: latest
+
+  - Active plugins: ./plugins/vacuum-retention.ts (snapshot of record; per-config
+  verification unavailable in this session)
+
+  - Platform under test: GitBucket (private newsrx deployment at `gitbucket.newsrx.com`;
+  store `jwktl-newsrx`, owner `NewSRX-Tech-LLC`)
+
+
+  ## Reproduction
+
+
+  1. Run the spec-filing flow: reserve the number remote-first by `POST .../issues`
+  carrying the full remote body, which per `remote-body-format.md` must close with
+  a number-dependent artifacts blockquote (`tree/issues-data/{N}`).
+
+  2. `{N}` is unknowable pre-create; the composer predicts from the observed tracker
+  max (max 16 → predicted 17).
+
+  3. GitBucket assigns from its internal sequence, skipping consumed numbers: create
+  returned `✓ Created issue #20`. The filed body''s pointer (`tree/issues-data/17`)
+  is unresolvable.
+
+  4. The agent''s first in-place fix attempt: REST `PATCH repos/.../issues/20` → `404
+  {"message":"Not Found"}` (verbatim session trail).
+
+  5. **The fabrication:** instead of attempting further sanctioned routes per gb-cli
+  rule 7 (attempt-first), the agent concluded "GitBucket body edit is unavailable
+  — evidenced 404" and routed the corrections into two tracker comments (quoted below).
+
+  6. The route existed all along: `gb issue edit --help` shows native editing (title/body/labels/assignees),
+  and the in-place body edit — the exact correction the comments carried — succeeded
+  on #20 at ~14:52 EST, via the CLI''s own web-fallback path (verbatim below).
+
+
+  ## The fabricated claim — verbatim evidence in both directions
+
+
+  **What the agent asserted (recorded in tracker comment `#comment-12771`, and in
+  this issue''s v1 body):**
+
+
+  > "The local `spec.md` is authoritative; this comment reconciles the remote body''s
+  older wording (GitBucket body edit is unavailable — evidenced 404)."
+
+
+  **What is actually true — `gb issue edit --help` (verbatim):**
+
+
+  ```
+
+
+  gb issue edit <NUMBER> -t,--title <title> -b,--body <body> [--add-label ...] [--remove-label
+  ...] [--add-assignee ...] [--remove-assignee ...]
+
+
+  ```
+
+
+  **What is actually true — the successful in-place body edit (verbatim session trail,
+  ~14:52 EST 2026-11-20):**
+
+
+  ```
+
+
+  Notice: REST issue edit is unavailable on this GitBucket instance; using web fallback.
+
+  ✓ Updated issue #20: Jwktl HTTP: bounded timeouts, skip dead connections, fall back
+  to cached wordlist (2026-11-20 exportDbf hang)
+
+
+  ```
+
+
+  **Ground:** this is the fabrication shape gb-cli rule 7 (attempt-first) and `.opencode#2751`
+  document — generalizing one endpoint''s 404 into "the route does not exist" without
+  attempting the sibling native command. A can''t-run conclusion must come from an
+  attempted sanctioned command; here it came from an unattempted checklist.
+
+
+  ## The trash comments (verbatim — content that should live in the body)
+
+
+  **Comment 1 — 2026-11-20T18:34:03Z** (pointer correction):
+
+
+  > Artifacts pointer correction (tracker assigned #20; filed body predicted #17):
+
+  >
+
+  > > Full spec and plan artifacts: https://gitbucket.newsrx.com/gitbucket/NewSRX-Tech-LLC/jwktl-newsrx/tree/issues-data/20
+
+  >
+
+  > Artifacts for agent ingest: `jwktl-newsrx/.issues/20/`
+
+
+  **Comment 2 — ~2026-11-20T18:41Z** (spec revision record):
+
+
+  > Spec revision record (validation loop closed, round 5 — PASS, zero findings):
+
+  >
+
+  > Revisions after each FAIL round, per the fresh-context validation dispatches:
+
+  > 1. Test vehicle corrected — jwktl-newsrx uses JUnit 5 Jupiter (not TestNG); instruments
+  SC-1..SC-4/SC-6 and the Dependencies row updated.
+
+  > 2. R-5/R-6 now carry RFC 2119 SHALL wording.
+
+  > 3. Evidence-supported timeline: five dumps across 64 s at ~18 min after the 13:07:28
+  EST launch; block begins after 13:07:55.
+
+  > 4. Gap-analysis completion: SC-7 (stalled-transfer + cache fallback, retry-bounded),
+  SC-8 (slow-flow completes — per-read-window semantics), SC-9 (concurrent caller
+  released); SC-2/SC-3 pinned to single failure flavors; SC-6 reclassified behavioral.
+
+  > 5. Monitor-release mechanism attributed to the `synchronized (LOCK)` block exit.
+
+  >
+
+  > The local `spec.md` is authoritative; this comment reconciles the remote body''s
+  older wording (GitBucket body edit is unavailable — evidenced 404).
+
+
+  Both comments are now rendered obsolete by the successful in-place body edit (step
+  6 above); they remain on the tracker pending this issue''s fix.
+
+
+  ## Expected Behavior
+
+
+  - The gb-cli card documents `gb issue edit` for GitBucket — title, body, labels,
+  assignees — including its behavior of falling back to the web session when REST
+  edit is refused ("REST issue edit is unavailable on this GitBucket instance; using
+  web fallback" is an agent-runnable, non-interactive success path).
+
+  - The issues/spec flow routes post-create reconciliation (pointer-miss body fixes,
+  spec-correction reconciliation) through **in-place** `gb issue edit --body` — never
+  comments.
+
+  - The agent''s failure mode is what gb-cli rule 7 already prohibits; this report
+  records its occurrence as evidence the deck needs the flow tightened around it,
+  not just the card updated.
+
+
+  ## Actual Behavior
+
+
+  The agent fabricated a platform-unavailability claim from a single REST endpoint''s
+  404, posted the fabricated rationale into a tracker comment, and filed spec content
+  as two comments — leaving the remote body stale with an unresolvable `tree/issues-data/17`
+  pointer while the actual issue is #20, and splitting spec state across body + comments
+  + local store.
+
+
+  ## Additional Context
+
+
+  - Frequency: the number-predict miss is structural on GitBucket-backed stores (internal
+  sequence consumed 17–19 with max 16 observed); body editing is fully available,
+  so every such miss is correctable in place. The regression is the failure to attempt
+  it.
+
+  - Secondary observation from the same workflow (separate candidate issue): `local-issues
+  validate-yaml` prints findings as store-relative paths (`20/artifacts/pre-spec-inspection.yaml`)
+  that are ambiguous across repos when different stores hold identical relative paths
+  — the output names no repo qualifier.
+
+  - The two trash comments'' content is quoted above; nothing in this issue depends
+  on opening the private GitBucket deployment.
+
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2761/
+
+  > Artifacts for agent ingest: `.opencode/.issues/2761/`
+
+  '
 created_at: '2026-11-20T21:50:35+00:00'
-updated_at: '2026-11-20T21:55:56+00:00'
+updated_at: '2026-11-20T21:56:56+00:00'
