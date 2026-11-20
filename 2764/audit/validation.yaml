@@ -1,0 +1,37 @@
+spec:
+  - round: 1
+    verdict: FAIL
+    findings:
+      - finding: >
+          R-1's third triage trigger surface (the deprecation-encounter
+          protocol's triggered triage) does not exist as an issues-card
+          agent triage path; the protocol assigns triage authority to the
+          developer, so the mandated gate is not implementable as written
+          against the stated target file, and no SC covers that part of R-1.
+        class: fabricated claim / cross-reference sufficiency
+        classification: finding
+        remediation: >
+          Removed the deprecation-encounter surface from R-1 and from the
+          root-cause field; the gate binds the issues card's two agent
+          triage paths (closure triage, work-entry conversion).
+  - round: 2
+    verdict: FAIL
+    findings:
+      - finding: >
+          R-2 was internally contradictory and jointly unsatisfiable in the
+          deck's sanctioned pointer-drift state: it required both that each
+          checkout sit at the registered pointer of the pulled parent tip and
+          that it be synced to the submodule's remote trunk tip; when the
+          gitlink lags the trunk tip — the normal state per #2563 — no
+          satisfying assignment exists without a pointer-only commit the
+          deck prohibits at the triage moment.
+        class: internal contradiction / feasibility
+        classification: finding
+        remediation: >
+          R-2 restated: the trunk-tip checkout governs per the #2563
+          ruling; pointer drift is recorded in the verdict grounds rather
+          than resolved by the gate; a matching edge case was added.
+  - round: 3
+    verdict: PASS
+    findings: []
+    note: Zero-finding round; fresh-context reviewer verified cited sources.
