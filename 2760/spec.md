@@ -63,7 +63,7 @@ The structural criteria are content checks run against the amended card. The beh
 | Reference | Relationship | Status |
 |---|---|---|
 | `skills/git-workflow-pr/SKILL.md` | The amended surface — all requirements edit this file's rules 1–3. | satisfied (exists at HEAD 49b8f9f60, 2026-11-20) |
-| .opencode#2639 (delivered scope-boundary provision) | The amendments extend rule 3's existing scope text; the delivered boundary stays intact — the companion provision adds to, never rewrites, its split condition. | satisfied (merged to trunk 2026-11-20 per the card's provenance line) |
+| .opencode#2639 (delivered scope-boundary provision) | The amendments extend rule 3's existing scope text; the delivered boundary stays intact — the companion provision adds to, never rewrites, its split condition. | satisfied (provision on the deck's trunk since 2026-10-20 — commit `b71a8c1c4`, "feat(#2639): scope-boundary provisions and stacked-PR behavioral scenarios", touching `skills/git-workflow-pr/SKILL.md`; ticket closed 2026-10-21) |
 | tests-v2 behavioral harness | SC-7's instrument provisioned and executed under the behavioral-testing card. | satisfied (harness exists; exercised by #2639 SC-7/SC-8 runs last 2026-10-20) |
 | skill-creator card (governance admission gates) | The amendments are deck-content changes; the gates bind the implementation flow (admission evidence, predicate classification). | pending (loads at plan/implementation) |
 

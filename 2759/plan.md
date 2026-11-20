@@ -123,7 +123,10 @@ behavioral-testing card.
   records the observed naming failure. The field halt (2026-11-20 release
   composition, developer verdict in the spec's User Intent) corroborates
   only.
-- **GREEN:** after items 1–2, evaluation asserts the `v0.4.0`-component tag
+- **GREEN:** after items 1–3 (the card set complete — the run agent's
+  always-load surfaces include the commit card's staging-time tagged-SHA
+  duty, live at the capture commit, so a surviving rigid restatement would
+  re-fire the naming wall), evaluation asserts the `v0.4.0`-component tag
   name and the absence of a naming halt; generator exits 0; evaluation is
   the clean-room dispatch's job.
 - **Tier marks:** tier-2 behavioral (heavy, supervised, cycle-time RED+GREEN
@@ -151,7 +154,10 @@ behavioral-testing card.
   commit: the run agent faces the same naming wall — no lawful tag name is
   produced (halt question, invented issue number, or issue-number-form name
   fabricated); the executed run records the observed naming failure.
-- **GREEN:** after item 1 (and item 3's deferral consistency), evaluation
+- **GREEN:** after items 1 and 3 (the set item 5's surfaces need — rule 3's
+  fallback plus the commit card's deferral swap; the commit card is the
+  always-load surface live at the capture commit, so item 3 must have
+  replaced its rigid restatement), evaluation
   asserts the branch-slug tag name and no naming halt; generator exits 0.
 - **Tier marks:** tier-2 behavioral (heavy, supervised, cycle-time RED+GREEN
   runs; on demand thereafter).
@@ -169,8 +175,12 @@ pre-card deck pinned via `BEHAVIOR_SUBMODULE_COMMIT` (the harness's
 sanctioned pin, verified against the remote) — the scenario scripts and
 fixtures authored on this branch run host-side while the run agent's cloned
 deck comes from the pinned pre-card commit; among them the scenarios are
-independent, executed in either order; their GREEN evaluation depends on the
-card items (item 4 on items 1–2; item 5 on items 1 and 3).
+independent, executed in either order; their GREEN evaluation requires the
+card set complete (all three card items delivered) — the run agent's
+always-load surfaces include the commit card's staging-time tagged-SHA duty,
+live at the capture commit in both scenarios, so any surviving rigid
+restatement re-fires the naming wall the GREEN asserts absent; item 4
+additionally carries item 2's release instance.
 
 ## Traceability
 
