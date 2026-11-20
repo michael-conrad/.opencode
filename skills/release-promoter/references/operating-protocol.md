@@ -27,18 +27,32 @@ Procedure — pull and promote, then record:
    and non-recursive — no `--remote`, no `--recursive`), run
    `git-workflow-branch` rule 2's executed per-submodule remote-tip
    comparison as the evidence instrument: fetch the submodule's origin
-   (`git -C <submodule> fetch origin`); resolve the tracked branch — the
+   (`git -C <submodule> fetch origin`); resolve the trunk branch — the
    `submodule.<name>.branch` field read from the parent repo's
-   `.gitmodules`; when no branch field exists, the submodule's current
-   checked-out branch (valid only while HEAD is symbolic); when the checkout
-   is detached, the submodule remote's default branch
-   (`refs/remotes/origin/HEAD`; guard ref existence before comparing); then
-   compare the checkout's HEAD SHA against the fetched remote-tracking tip,
-   recording `at-tip`, `behind`, or `no-remote-tip`. `git submodule status`
-   is pointer-state only and is never this comparison's evidence.
-3. Promote: a `behind` checkout is synced to the resolved remote tip; `at-tip`
-   is a no-op for that pointer; `no-remote-tip` is synced when a branch
-   resolves, else recorded as the instrument's own outcome. Composition
+   `.gitmodules`; when no branch field exists, the submodule remote's
+   default branch (`refs/remotes/origin/HEAD`; guard ref existence before
+   use) — the release path never resolves the trunk branch from the
+   submodule checkout's current checked-out branch, however
+   well-remoted the checkout's branch is; then compare the checkout's HEAD
+   SHA against the fetched remote-tracking tip, recording `at-tip`,
+   `behind`, or `unresolvable` (no branch field, no resolvable
+   `refs/remotes/origin/HEAD`, or an unfetchable tip). `git submodule
+   status` is pointer-state only and is never this comparison's evidence.
+3. Promote: a `behind` checkout is synced to the resolved remote tip;
+   `at-tip`
+   is a no-op for that pointer; a registered submodule whose trunk branch is
+   unresolvable (`unresolvable`) halts
+   composition for developer direction — the release path carries no
+   recorded-and-continue posture: the outcome is never "recorded as the
+   instrument's own outcome" while composition proceeds, and the halt comes
+   before any gate, release branch, or PR. Composition is done when the
+   executed comparison returns `at-tip` for every registered submodule; that
+   outcome is the composition's success evidence. `unresolvable` is exact: no
+   `.gitmodules` branch field AND no resolvable `refs/remotes/origin/HEAD`
+   after fetch (absent or pointing at a nonexistent ref), or a tip that
+   cannot be fetched. There is no fallback: enumerated remote refs,
+   `ls-remote` listings, and the checkout's own HEAD are never the trunk
+   tip. Composition
    promotes only registered top-level pointers — nested submodules below a
    registered submodule are never promoted.
 4. An unreachable submodule remote halts composition for developer direction
@@ -68,6 +82,25 @@ Procedure — pull and promote, then record:
    pointer discipline and its pull-only clause](../git-workflow-branch/SKILL.md)
    before recording any pointer bump, and govern every pull-only submodule
    origin by that clause.
+
+   **Recording mechanism — plumbing-first, never `git add` over a divergent
+   checkout:** a capture commit records a promoted pointer through index
+   plumbing alone (`git rm --cached <path>` plus `git update-index --add
+   --cacheinfo 160000,<promoted-SHA>,<path>`), or by checking out the
+   promoted SHA in the submodule first — `git add <submodule-path>` is
+   prohibited whenever the submodule checkout's HEAD differs from the
+   promoted SHA; over a dirty foreign-HEAD checkout it silently re-resolves
+   the gitlink from the checkout HEAD and reverts the promotion (the field
+   failure this prohibition closes, 2026-11-19, commit `888d664`).
+   **Mandatory post-capture assertion, before push:** after the capture
+   commit, for every promoted submodule run
+   ```bash
+   recorded=$(git ls-tree HEAD <path> | awk '{print $3}')
+   [ "$recorded" = "$promoted-SHA" ] || { echo "CAPTURE_ASSERT_FAIL: <path> recorded $recorded != promoted $promoted-SHA"; exit 1; }
+   ```
+   A failing assertion aborts the capture — name the mismatching submodule,
+   exit non-zero, perform no push — and is remediated by re-recording via
+   plumbing before the push attempt is retried.
 
 ## Phase A — clean-room verification gate
 
@@ -128,7 +161,20 @@ so the release PR is filed only for a state already proven from a clean room:
    Repeat for EVERY submodule. Any mismatch is a hard fail: state
    `DRIFT_FAIL`, exit non-zero, and do NOT proceed — the release PR is
    blocked. `git submodule status` may be used as a cross-check (a `+`
-   prefix on a submodule line indicates drift from the gitlink).
+   prefix on a submodule line indicates drift from the gitlink). The
+   `DRIFT_FAIL` triage names which failure class fired, and its route:
+   - **Composition defect** — the pinned SHA is not fetchable from the
+     submodule's remote at all (the remote refuses the object: `Server does
+     not allow request for unadvertised object`) — the recorded pointer was
+     never consumable and is behind the submodule's real trunk tip. Route:
+     recompose per Phase C-0 (promote the submodule to its resolved remote
+     trunk tip), re-record the pointer, and file no PR this run.
+   - **Candidate defect** — the pinned SHA is fetchable remotely but the
+     resolved SHA mismatches it (stale or altered release branch content):
+     fetch works, pointer does not. Route: release blocked for developer
+     direction — the gate's no-retry rule stands.
+   Either route files no release PR; the no-retry rule is unchanged in both
+   classes.
 6. Record the verified state for the post-merge re-check: the release
    branch's head SHA and its tree SHA
    (`git -C <tmpdir> rev-parse HEAD HEAD^{tree}`) go into the release work

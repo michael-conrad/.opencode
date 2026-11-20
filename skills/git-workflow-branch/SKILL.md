@@ -52,7 +52,19 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    does NOT apply while the session is preparing a release — release
    preparation is itself the real parent change that carries the drift; the
    `release-promoter` card's composition phase performs the same executed
-   comparison in the release entry path. Verify the trunk tip before branching — sync and rebase
+   comparison in the release entry path, and on the release path the
+   comparison is governed by that phase's mandate, not this rule's general
+   posture: every registered submodule is promoted to its remote trunk tip —
+   always, all registered repos at trunk tips in a release PR, no partial
+   composition — and a registered submodule whose remote trunk tip cannot be
+   resolved or fetched blocks composition for developer direction (an
+   unresolvable tip is never recorded-and-continue in a release). The
+   release path's resolution chain diverges deliberately from this rule's
+   general chain above: it resolves the trunk branch through the parent's
+   `submodule.<name>.branch` field, else the submodule remote's default
+   branch (`refs/remotes/origin/HEAD`), and never resolves the tip from the
+   submodule checkout's current checked-out branch — a feature-branch
+   checkout is never promoted into a release. Verify the trunk tip before branching — sync and rebase
    if the trunk moved; state the verified tip in this step's own output —
    verified live at execution time, never written to a record file for a
    later step to read back — and carry it into the PR body's Provenance
