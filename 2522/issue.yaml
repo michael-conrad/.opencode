@@ -1,8 +1,112 @@
 title: '[REGRESSION] spec revision posted as a comment — spec body left non-self-contained'
-status: open
+status: closed
 labels:
 - needs-approval
 - bug
-body: ''
+body: '## Observed behavior
+
+
+  In the spec audit of this issue (#2519, session 2026-10-06), the agent revised the
+  audited spec by **posting a comment** ("Spec revision R2 — new SC + fix-1 rescoping")
+  rather than integrating the revision into the spec itself. The spec then existed
+  as three disconnected surfaces: the issue body (original proposed fixes), an amendment
+  comment (developer refinement, revising fix 1), and the R2 revision comment (new
+  SC-PD, second revision of fix 1). Reading the spec required replaying the comment
+  chain in order and mentally merging superseded text — the body carried a "superseded
+  by comment" pointer and process metadata (a revision-history block plus a comment-policy
+  sentence) that no spec artifact should contain.
+
+
+  A second symptom in the same chain: the agent asserted a comment policy ("comments
+  record decisions and evidence") in the spec body itself — the old deck explicitly
+  forbids process/tracking indicators in the body (`spec-creation/tasks/create.md`:
+  *Body footer allowlist — no process/tracking indicators (NORMATIVE)*; footer allowlist
+  = byline only) and classifies spec corrections as internal routing (*issue-operations-comments/tasks/comment.md*:
+  "Revising/correcting spec → Correction updates the issue body, not a comment").
+
+
+  Developer-stated norm (this session): **comments should never be needed in most
+  circumstances — only for major substantive changes that need special attention.
+  Comment spam is unwanted.**
+
+
+  ## Root cause (deck defect)
+
+
+  **`spec` card gap — revision discipline has no self-containment rule.** Point 4
+  says revisions are targeted and superseded criteria are removed, but never states
+  *where* the revision lands: nothing requires revised text to be integrated into
+  the spec artifact itself. An agent can satisfy point 4''s letter while leaving the
+  spec body stale and comment-dependent. The rewrite also dropped the old deck''s
+  normative body-footer allowlist (no process/tracking indicators) and lost the old
+  deck''s comment classification (spec/plan corrections are internal body edits, never
+  comments), so the path of least resistance was comment-chaining plus process metadata
+  in the body.
+
+
+  ## Spec
+
+
+  ### SC-BODY — spec artifacts carry spec content only (structural)
+
+
+  The spec artifact — remote issue body or local `.issues/{N}/spec.md` — contains
+  no process or tracking indicators of any kind: no revision-history blocks, no approval-state
+  markers, no comment-policy statements, no superseded-content pointers. The allowlist
+  is spec content (behavior, analysis, SCs, fixes, evidence) plus the byline footer.
+
+
+  *Verification instrument (fact-decidable): text search of the artifact for process/tracking
+  markers (`revision history`, `superseded by`, `approved-for`, `comment`) — every
+  hit outside spec content is a defect.*
+
+
+  ### SC-REV — revisions edit the artifact in place (behavioral)
+
+
+  A spec revision integrates its text into the artifact and deletes the superseded
+  text in the same action. Spec content never appears in comments, and a comment is
+  never required to make the artifact readable.
+
+
+  *Verification instrument (behavioral): `opencode run` scenario — issue a spec revision
+  mid-discourse; the outcome must be an edited artifact with zero remote comment posts
+  containing spec text.*
+
+
+  ### SC-GATE — comments are rare and substantive (behavioral)
+
+
+  A remote comment is posted only for a major substantive change that needs special
+  attention — findings or decisions a stakeholder must see. Progress narration, spec
+  revisions, internal reasoning, and routine status never become comments.
+
+
+  *Verification instrument (behavioral): `opencode run` scenario spanning a full spec-audit
+  cycle — the session must produce zero remote comments except at most one carrying
+  a major substantive finding.*
+
+
+  ## Fixes
+
+
+  **Fix 1 — `spec` card, revision discipline (point 4):** add self-containment — the
+  artifact is the single source of truth and must be readable standalone; revisions
+  edit in place, superseded text is deleted, spec content never lives in comments;
+  plus the old deck''s normative body-footer allowlist (no process/tracking indicators;
+  footer = byline only), restored verbatim in meaning.
+
+
+  **Fix 2 — `issues` card, comment gate (point 3):** tighten to the developer''s norm
+  — comments only for major substantive changes needing special attention; progress
+  narration and internal findings stay in chat or the local store; spec/plan corrections
+  always route to the artifact, never to comments.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+
+  '
 created_at: '2026-11-20T21:55:19+00:00'
-updated_at: '2026-11-20T21:55:19+00:00'
+updated_at: '2026-11-20T21:55:21+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2522
