@@ -4,6 +4,93 @@ status: open
 labels:
 - needs-approval
 - spec
-body: ''
+body: '# local-issues validate-yaml findings are ambiguous across stores — paths carry
+  no repo qualifier
+
+
+  ## Problem
+
+
+  `local-issues validate-yaml` prints findings as store-relative paths (observed verbatim:
+  `20/artifacts/pre-spec-inspection.yaml`), and the output names no repo qualifier.
+  Different repositories'' stores hold identical relative paths under their own `{N}/`
+  folders, so an agent reading a finding cannot resolve which store the named file
+  lives in — a mis-repair hazard precisely in the workflow (issues card §7''s artifact-content-defect
+  trigger) that consumes these findings to dispatch repairs.
+
+
+  ## Root cause
+
+
+  The tool''s finding emission formats paths relative to each store root without composing
+  the owning repository''s qualified identity into the output; the defect surfaces
+  only when the consumer holds more than one store (session-init registers two here),
+  so single-store testing never caught it.
+
+
+  ## Scope
+
+
+  - `local-issues` finding-emission path for `validate-yaml`: print each finding''s
+  path qualified with its owning repository''s identity.
+
+
+  **Out of scope:** reformatting other `local-issues` verbs'' output; changing which
+  findings `validate-yaml` emits (detection logic); YAML content of records; anything
+  beyond the tool''s finding output.
+
+
+  ## Requirements
+
+
+  - **R-1** — `local-issues validate-yaml` SHALL present every finding''s file path
+  qualified with its owning repository''s identity (the store registry''s qualifier),
+  such that in any run — single-store or multi-store — findings from different stores
+  holding identical store-relative paths are unambiguously distinguishable from the
+  output alone.
+
+
+  ## Success criteria
+
+
+  | ID | Criterion | Class | Instrument |
+
+  |---|---|---|---|
+
+  | SC-1 | validate-yaml findings name one unambiguous repo-qualified path per finding:
+  in a run covering two stores that each hold a defective file at the same relative
+  path (e.g. `20/artifacts/pre-spec-inspection.yaml`), every emitted finding names
+  its repository and the two findings are distinguishable | behavioral | Shell repro:
+  seed a malformed file at an identical relative path in each registered store, run
+  `validate-yaml`, parse the findings output, and assert every finding line names
+  its repo and the identical-path pair resolves to distinct qualified paths |
+
+
+  ## Approach
+
+
+  Compose the store registry''s qualifier into the finding path at emission time (the
+  registry owns `owner`/`repo`/`issues:` per session-init). Detection logic is unchanged.
+
+
+  ## Impact
+
+
+  The §7 repair workflow dispatches per-file repairs from these findings — an ambiguous
+  path can route a repair dispatch at the wrong store''s file, and the discovering
+  session''s re-verification sweep (full `validate-yaml` exit 0) can pass on the wrong
+  store''s cleanup. Consumers: every session running store hygiene across the two
+  registered stores.
+
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2763/
+
+  > Artifacts for agent ingest: `.opencode/.issues/2763/`
+
+  '
 created_at: '2026-11-20T21:57:39+00:00'
-updated_at: '2026-11-20T21:57:39+00:00'
+updated_at: '2026-11-20T21:57:56+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2763
