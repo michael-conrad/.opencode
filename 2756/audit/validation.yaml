@@ -13,3 +13,45 @@ validation_record:
         (one repo, michael-conrad/.opencode — both target files under the
         .opencode path prefix) and home containment held (spec filed at
         .opencode/.issues/2756/, same repo's store).
+    - round: 2
+      date: '2026-11-20'
+      artifact: plan
+      verdict: PASS
+      findings: []
+      notes: >-
+        Fresh-context reviewer dispatch. The plan's RED statements were
+        live-verified against the current card texts (grep -i "search" finds no
+        pre-filing search step in either target clause); item↔SC coverage held
+        in both directions; all 16 plan defect classes judged clean; layout
+        conforms to the plan structure standards.
+    - round: 3
+      date: '2026-11-20'
+      artifact: plan
+      verdict: FAIL, remediated
+      findings:
+        - class: internal inconsistency (factual accuracy of execution surface)
+          remediation: >-
+            The plan's branch line stated a base of 489c21ef8 but the branch
+            was cut from the stale local main (e237255c0); the branch was
+            rebased onto origin/main tip 489c21ef8, the plan §2 line corrected
+            to record the actual base and the rebase, and the suite
+            re-verified green (194 passed) post-rebase.
+      round3_verdict: PASS
+      round3_notes: >-
+        Re-dispatch after remediation: zero findings; branch base verified
+        against origin/main by executed git comparison.
+    - round: 4
+      date: '2026-11-20'
+      artifact: plan
+      verdict: PASS
+      findings: []
+      notes: >-
+        Final plan-validation verdict (zero findings, round 3 re-dispatch
+        confirmed branch base 489c21ef8 == origin/main and all 16 classes
+        clean). Plan consumed by implement.
+      notes: >-
+        Re-validation after the Item-3 instrument amendment (tests-v2 harness
+        route to the behavioral-testing card's tier-1 route; spec SC-6's own
+        "mock" wording satisfied). One finding (stale branch base) fixed
+        in the plan and in the repository; re-dispatch running for the
+        zero-finding verdict.
