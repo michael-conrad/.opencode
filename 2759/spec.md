@@ -85,6 +85,17 @@ tag from its feature branch's slug the same way.
    create-if-untagged, push, `git ls-remote --tags` verification, tag
    targets the commit the gitlink records — is preserved and inherited
    unchanged by fallback-named tags.
+4. Naming authority is single-sourced with an ownership split: rule 3 owns
+   the naming rule (issue-number component, fallback component, and the
+   no-issue trigger); the `release-promoter` operating protocol owns the
+   release-path instance (`v{semver}` from the release branch); every other
+   site that names the tag defers to rule 3 by reference and restates no
+   form of its own — matching the deck's existing pointer style (the
+   protocol already names "rule 3's tagged-SHA pointer discipline" without
+   restating a form) and the single-sourcing discipline. Deferral is
+   naming-only: each site's own procedural content (the commit card's
+   never-staged-while-untagged gate, the cleanup card's backstop behavior)
+   stays where it lives.
 
 **User Intent / Original Prompt.**
 - "create a release PR" (developer, 2026-11-20) — the release whose
@@ -130,10 +141,17 @@ tag from its feature branch's slug the same way.
   and `release-promoter` §1's no-release-issue allowance: a release with no
   release issue and a pointer capture with no issue each name their tags
   lawfully, with no deadlock and no invented issue number.
-- **R-3**: The fallback SHALL appear on every card carrying the naming
-  discipline — `git-workflow-branch` rule 3, `release-promoter` Phase C-0
-  step 8 (via the operating protocol), `git-workflow-pr` §2(d-2) and §4 —
-  such that no card pair re-creates the gap.
+- **R-3**: The fallback SHALL reach every card that names the
+  hash-permanence tag, and no card pair SHALL re-create the gap:
+  `git-workflow-branch` rule 3 carries the fallback clause (the naming
+  rule's single source); the `release-promoter` operating protocol
+  (Phase C-0 step 8) carries the release-path instance; and every other
+  site that names the tag — `git-workflow-pr` §2(d-2) and §4,
+  `git-workflow-commit`'s staging-time tagged-SHA duty,
+  `git-workflow-cleanup`'s deletion backstop — SHALL name the tag by
+  reference to rule 3's naming discipline, restating no issue-number-only
+  form as the lawful name (the complete restatement set, grep-verified
+  2026-11-20: branch:115, pr:104, pr:212, commit:32, cleanup:30).
 - **R-4**: The amendment SHALL preserve rule 3's existing semantics
   unchanged for all tags, with fallback-named tags inheriting each:
   idempotent create-if-untagged (a present tag is verified, never
@@ -147,7 +165,7 @@ tag from its feature branch's slug the same way.
 |----|-----------|-------|------------|
 | SC-1 | `git-workflow-branch` rule 3's tag-naming discipline names the fallback: when the recording work has no issue number, the issue-number component is the recording work's branch slug, in the `<parent-repo>/<branch-slug>-<submodule-dir>` form | structural | card-text inspection of rule 3: the fallback clause (branch-slug component + no-issue trigger condition) is present; grep for the clause, locate by its wording |
 | SC-2 | `release-promoter`'s operating protocol (Phase C-0 step 8) names the release-path instance: a release with no release issue records its promoted pointers with tag `<parent-repo>/v{semver}-<submodule-dir>`, `v{semver}` derived from the release branch | structural | card-text inspection of the protocol's pointer-capture step: the release-instance naming is present |
-| SC-3 | `git-workflow-pr` §2(d-2)'s tag-pushed gate and §4's Submodule-bump section carry the fallback form (or defer their naming to rule 3's amended discipline) at both sites | structural | card-text inspection of §2(d-2) and §4: neither site restates the issue-number form as the only lawful name |
+| SC-3 | Every non-owner site that names the hash-permanence tag — `git-workflow-pr` §2(d-2), `git-workflow-pr` §4, `git-workflow-commit`'s staging-time tagged-SHA duty, `git-workflow-cleanup`'s deletion backstop — defers the tag's name to `git-workflow-branch` rule 3's naming discipline by reference, and no site restates an issue-number-only form as the lawful name (naming-only deferral; each site's own procedural content untouched) | structural | card-text inspection of the four enumerated sites: each carries the rule-3 naming reference; grep each site for a rigid-form-only restatement, PASS requires none |
 | SC-4 | A no-release-issue release-composition run, executed under the amended rules, names the promoted pointer's hash-permanence tag `<parent-repo>/v{semver}-<submodule-dir>` from the release branch and proceeds to capture with no developer-facing naming question | behavioral | behavioral test scenario under `tests-v2/` (tier-2, per the behavioral-testing card), asserting the emitted tag name and the absence of a naming halt in the run's evidence |
 | SC-5 | A non-release pointer capture whose work has no issue number, executed under the amended rules, names the recorded pointer's hash-permanence tag with the branch-slug component and proceeds with no developer-facing naming question | behavioral | behavioral test scenario under `tests-v2/` (tier-2), asserting the emitted tag name and the absence of a naming halt |
 | SC-6 | Rule 3's post-amendment text preserves the discipline's machinery for all tags: idempotent create-if-untagged with the report-never-re-create clause, the `git ls-remote --tags` remote verification, and the tag-targets-gitlink rule | structural | card-text inspection of rule 3: all three clauses present in the amended text; grep for each clause |
@@ -183,14 +201,18 @@ tag from its feature branch's slug the same way.
 | #2683 restoration spec (R-1 naming, R-4 carve-out) | issue store | `.opencode/.issues/2683/spec.md` | read this session, 2026-11-20 |
 | #2489 suffix rule ("issue title, phase name, or any ad-hoc string SHALL NOT be used") | issue store | `.opencode/.issues/2489/spec.md` | read this session, 2026-11-20 |
 | No-scripts ruling | issue store | michael-conrad/.opencode#2664, cited by #2683 | read via #2683's spec this session, 2026-11-20 |
+| `git-workflow-commit` §Staging-time tagged-SHA duty (rigid-form restatement) | deck card | `.opencode/skills/git-workflow-commit/SKILL.md` line 32 | grep-verified this session, 2026-11-20 (complete-restatement sweep) |
+| `git-workflow-cleanup` deletion backstop (rigid-form restatement) | deck card | `.opencode/skills/git-workflow-cleanup/SKILL.md` line 30 | grep-verified this session, 2026-11-20 (complete-restatement sweep) |
+| Restatement-set completeness (no card outside the five named sites mentions the tag form) | deck-wide sweep | `.opencode/skills/`, `.opencode/guidelines/`, `.opencode/floor.md` | grep sweep executed this session, 2026-11-20: five sites, no others |
 | 2026-11-20 release composition evidence | executed session output | parent trunk `385a8a70d`; submodule tip `49b8f9f602`; gitlink `7e50437bb`; developer verdict quoted in User Intent | executed this session (fetch-compare, ls-tree, ls-remote), 2026-11-20 |
 
 ## Cost Frame
 
 - **SC-1, SC-2, SC-3, SC-6** — grep-cost card-text checks, seconds each.
-  Skipping one leaves the gap live on that card pair: the defect this spec
-  closes is exactly a card-pair composition, so each unverified site is a
-  live regression vector.
+  Skipping one leaves the gap live at that site: the defect this spec
+  closes is exactly a card-pair composition across the restatement set,
+  so each unverified site is a live regression vector — the incomplete
+  site list this revision closed (commit, cleanup) is the case in point.
 - **SC-4, SC-5** — tier-2 scenario authoring plus one harness run each.
   Skipping them leaves the deadlock undetectable at runtime: the defect's
   own evidence is a live agent halt that no structural grep on the pre-fix
