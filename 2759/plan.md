@@ -94,8 +94,11 @@ behavioral-testing card.
 - **Tier marks:** no authored test; instrument fact check (grep).
 - **Instrument:** grep the four sites — no inline rigid-form restatement
   remains and each carries the rule-3 naming reference; then a deck-wide
-  sweep (`grep -rn 'parent-repo>/'` over `skills/`, `guidelines/`,
-  `floor.md`) confirms no site outside rule 3 carries the form.
+  sweep (`grep -rn '<issue-number>-<submodule-dir>'` over `skills/`,
+  `guidelines/`, `floor.md`) confirms the issue-number rigid form survives
+  only in rule 3's own naming text (the single source) — the release
+  instance item 2 adds (`<parent-repo>/v{semver}-<submodule-dir>`) names no
+  issue-number form and is not a match.
 - Item 3 lands after item 1: the deferral target must exist before the
   references.
 
