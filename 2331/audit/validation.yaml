@@ -1,0 +1,54 @@
+spec:
+  - round: 1
+    date: '2026-11-20'
+    reviewer: 'ses_e05086edaffeR73pCHWVS2K3dp'
+    verdict: FAIL
+    findings:
+      - class: 'fabricated claims'
+        classification: finding
+        ground: >-
+          Problem Statement overbroad negation — "documents no GitBucket issue-mutation
+          deviations" and "undocumented HTTP 404" mischaracterize the live gb-cli card,
+          whose rule 4 carries the plain-issue PATCH 404 as a state-mutation gap, the
+          working object-form PUT label route (2026-11-18 evidence), and the POST-label
+          attempt-first warning; the genuinely absent set is the 500-rejection, the
+          raw-array wipe, read-back-after-write, and the body-case route pointer.
+        remediation: >-
+          Problem Statement reworded to the current-state delta; R-1 restated as
+          completing the rule 4 set with the PUT route carried as the sanctioned form;
+          R-2 restated as extending the documented 404 gap to the body case; SC-1 and
+          SC-2 criterion and instrument wording updated to the genuinely absent
+          elements.
+      - class: 'cross-reference sufficiency'
+        classification: finding
+        ground: >-
+          The Not Included gh-cli bullet named R-3 for the platform-neutral
+          reconciliation route; the route requirement is R-4 (R-3 is the gb-cli
+          label-flag prohibition).
+        remediation: reference corrected to R-4.
+      - class: 'cross-reference sufficiency'
+        classification: finding
+        ground: >-
+          The self-containment citation "the deck's self-containment rules
+          (.opencode#2522, SC-REV/SC-GATE)" did not resolve — the SC ids exist only in
+          the originating record, not in any live deck rule the spec cites; the
+          prohibition is load-bearing for R-4.
+        remediation: >-
+          Citation rewired to the live rules — spec card rule 6 (self-containment
+          normative) and issues card section 3 (corrections edit the artifact in place,
+          never routed to comments) — with .opencode#2522 carried as the originating
+          record.
+spec:
+  - round: 2
+    date: '2026-11-20'
+    reviewer: 'ses_e0502bf0effe4RYPYoHkBJX3AK'
+    verdict: PASS
+    findings: []
+    detail: >-
+      Zero-finding verdict; the reviewer verified current-state claims live, verified
+      provenance quotes against store-record git history, exercised the grep
+      instruments against the live cards, and ran the proactive repo-boundary
+      containment check (scope and home both in michael-conrad/.opencode). Loop exits
+      at round 2.
+  loop:
+    state: 'exited — PASS at round 2'

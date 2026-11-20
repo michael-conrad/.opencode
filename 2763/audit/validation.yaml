@@ -1,0 +1,69 @@
+spec:
+  - round: 1
+    date: '2026-11-20'
+    reviewer: 'ses_e05086edaffdIVJVS1vvUsTllt'
+    verdict: FAIL
+    findings:
+      - class: 'feasibility + internal contradiction'
+        classification: finding
+        ground: >-
+          SC-1 and the edge-case row premised "a validate-yaml run covering two
+          stores" — a run mode that does not exist; the tool's validate-yaml walks one
+          registered store per invocation (cmd_validate_yaml resolves one issues
+          directory; the reviewer executed the scripted repro and each run emitted
+          one store's findings only), so the criterion's discriminating property was
+          not observable in any output the scoped deliverable can produce.
+        remediation: >-
+          R-1, SC-1, and the edge-case row restated as per-store runs — each run's
+          output must self-identify its repository per finding line, with the
+          identical-path pair distinguishable across the two runs' outputs; no scope
+          widening (detection logic and single-store-per-invocation behavior stay
+          unchanged).
+      - class: 'fabricated claims + cross-reference sufficiency'
+        classification: finding
+        ground: >-
+          The Dependencies row cited the host-maps conf as the qualifier source; the
+          conf is a host-to-browser-base mapping table with no store or qualifier
+          data — the qualifier actually comes from session-init's path/owner/repo
+          mapping and the tool's own repo-discovery emission.
+        remediation: >-
+          Dependencies row and the Approach wording rewritten to name the real
+          sources and to state explicitly that the host-maps conf is not the source.
+  - round: 2
+    date: '2026-11-20'
+    reviewer: 'ses_e0502bf0effd7EKnrOBEhS0eFa'
+    verdict: FAIL
+    findings:
+      - class: 'layout non-conformance (defect class 9)'
+        classification: finding
+        ground: >-
+          The Not Included section names three exclusions as bare noun phrases with no
+          one-line rationale; spec-structure-standards section 2 mandates every
+          exclusion carry a rationale, so the section mandatory content is missing for
+          those entries.
+        remediation: >-
+          A one-line rationale added to each of the three excluded entries; the
+          rationale text states the ground (no failure implicates other verbs;
+          presentation-only requirement; the conf is no store-data source and path
+          resolution is not the defect).
+  - round: 3
+    date: '2026-11-20'
+    reviewer: 'ses_e04fffeabffev6SDL0DH24ALh7'
+    verdict: FAIL
+    findings:
+      - class: 'gap-analysis'
+        classification: finding
+        ground: >-
+          R-1 quantifies over every validate-yaml run — including the scoped
+          --number invocation, which is a second, separate emission site in the tool
+          printing the same unqualified path shape — while SC-1 exercises only the
+          unscoped per-store sweep; an implementation passing SC-1 could ship the
+          scoped branch unqualified and violate R-1 as written with the criteria set
+          verifying nothing about it.
+        remediation: >-
+          R-1 unchanged (it correctly covers every emission site); SC-1 and the
+          edge-case table extended — the instrument now exercises both modes (the
+          unscoped sweep and the scoped --number form on the seeded path) and asserts
+          no run mode emits an unqualified finding.
+  loop:
+    state: 're-dispatching — round 4 pending'

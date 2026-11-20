@@ -58,12 +58,13 @@ body: '# local-issues validate-yaml findings are ambiguous across stores — pat
   |---|---|---|---|
 
   | SC-1 | In per-store `validate-yaml` runs over two stores holding a defective file
-  at the same relative path, every finding names its repository from the output line
+  at the same relative path — exercised through both the unscoped sweep and the scoped
+  `--number` invocation — every finding names its repository from the output line
   alone, and the two runs'' outputs present the identical-path pair under distinct
   qualifiers | behavioral | Shell repro: seed a malformed file at the same relative
-  path in each registered store, run `validate-yaml` once per store, assert per-line
-  qualification and distinct qualifiers across the two outputs; clean up seeded artifacts
-  afterward |
+  path in each registered store, run `validate-yaml` per store in both modes, assert
+  per-line qualification in every emitted finding and distinct qualifiers across the
+  two stores'' outputs; clean up seeded artifacts afterward |
 
 
   ## Approach
@@ -94,5 +95,5 @@ body: '# local-issues validate-yaml findings are ambiguous across stores — pat
 
   '
 created_at: '2026-11-20T21:57:39+00:00'
-updated_at: '2026-11-20T22:03:46+00:00'
+updated_at: '2026-11-20T22:10:35+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2763

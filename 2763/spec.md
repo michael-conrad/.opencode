@@ -22,10 +22,10 @@
 
 ## 2. Not Included
 
-- Detection-logic changes — which findings `validate-yaml` emits is unchanged; only path presentation changes.
-- Output reformatting of other `local-issues` verbs.
-- Record-content changes to any store.
-- Host-maps conf or path-resolution semantics of the stores themselves.
+- Detection-logic changes — which findings `validate-yaml` emits is unchanged; only path presentation changes, so detector behavior is out of this finding's cause.
+- Output reformatting of other `local-issues` verbs — no stated failure implicates any other verb's output; this finding names only the validate-yaml emission path.
+- Record-content changes to any store — the requirement is presentation-only; record content is the hygiene workflows' surface and is not the defect's cause.
+- The host-maps conf and the stores' path-resolution semantics — the dependency row shows the conf carries no store data, and resolving paths to the store root is the behavior that produces the findings; only their presentation is defective.
 
 ## 3. Requirements
 
@@ -35,7 +35,7 @@
 
 | ID | Criterion | Class | Instrument |
 |---|---|---|---|
-| SC-1 | In per-store `validate-yaml` runs over two stores that each hold a defective file at the same relative path (e.g. `20/artifacts/pre-spec-inspection.yaml`), every emitted finding in each run names its repository from the output line alone, and the two stores' outputs present the identical-path pair under distinct qualifiers | behavioral | Shell repro: seed a malformed YAML file at an identical relative path in each registered store, run `local-issues validate-yaml` once per store, parse each run's findings, and assert per-line repo qualification plus distinct qualifiers for the identical-path pair across the two outputs; clean up seeded artifacts afterward |
+| SC-1 | In per-store `validate-yaml` runs over two stores that each hold a defective file at the same relative path (e.g. `20/artifacts/pre-spec-inspection.yaml`) — exercised through both the unscoped sweep and the scoped single-issue invocation (`--number`) — every emitted finding in each run names its repository from the output line alone, and the two stores' outputs present the identical-path pair under distinct qualifiers | behavioral | Shell repro: seed a malformed YAML file at an identical relative path in each registered store, run `local-issues validate-yaml` per store in both modes (the unscoped sweep and the scoped `--number` form on the seeded path), parse each run's findings, and assert per-line repo qualification plus distinct qualifiers for the identical-path pair across the two stores' outputs — no run mode emits an unqualified finding; clean up seeded artifacts afterward |
 
 ## 5. Dependencies
 
@@ -68,6 +68,7 @@
 |---|---|
 | One run per store (`validate-yaml` walks one registered store per invocation) | Every line in each run's output self-identifies its repository; the identical-path pair across the two stores' outputs resolves distinctly |
 | Single-store run (one repo visible) | Output carries the qualifier unchanged — no format fork between single- and multi-store runs |
+| Scoped single-issue run (`--number`) — the tool's second finding-emission site | The scoped branch's findings carry the same per-line qualification; no emission site ships unqualified |
 | Truncation/tail views of findings (large sweeps) | Per-line qualification survives cropping; no header-block dependency |
 
 ## 10. Completion gate
