@@ -15,7 +15,11 @@
 
 set -euo pipefail
 # .opencode#2717: locate the V2 adapter module for the session-store read.
-BEHAVIOR_HELPERS_DIR="${BEHAVIOR_HELPERS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+# The adapter (v2rows.py) lives in behaviors/ — the script's own directory is
+# the parent (tests-v2/), so the default appends it. An explicit caller export
+# still wins (observed 2026-11-20, .opencode#2759: the bare tests-v2 default
+# made every poll dispatch fail with ModuleNotFoundError: v2rows).
+BEHAVIOR_HELPERS_DIR="${BEHAVIOR_HELPERS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/behaviors}"
 export BEHAVIOR_HELPERS_DIR
 DB="${1:?usage: poll-run.sh <session.yaml> [poll_number]}"
 POLL="${2:-?}"

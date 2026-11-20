@@ -2,12 +2,12 @@
 name: git-workflow-pr
 description: "Load before opening any pull request, preparing work for review, or updating an existing PR — in any repo, whenever PR-boundary authorization arrives or the work reaches the review boundary. PRs are for completed and fully tested work; partial PRs require explicit special authorization. Squash the branch's work to one reviewable commit per issue, write a PR body with summary and executed-test evidence, then HALT — humans merge, never the agent."
 license: MIT
-provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; tag-pushed gate + bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658; dirty-pointer disposition gate, .opencode#2656; not-done-default state determination on PR-boundary authorization, .opencode#2741
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; tag-pushed gate + bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658; dirty-pointer disposition gate, .opencode#2656; tag-naming deferral, .opencode#2759; not-done-default state determination on PR-boundary authorization, .opencode#2741
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; issues-data remediation-first clause, .opencode#2681; tag-pushed gate + Submodule-bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658; dirty-pointer disposition gate, .opencode#2656; not-done-default state determination on PR-boundary authorization, .opencode#2741 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; issues-data remediation-first clause, .opencode#2681; tag-pushed gate + Submodule-bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658; dirty-pointer disposition gate, .opencode#2656; tag-naming deferral, .opencode#2759; not-done-default state determination on PR-boundary authorization, .opencode#2741 -->
 
 # git-workflow-pr
 
@@ -99,10 +99,13 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    Zero-unaccounted holds over the set assembled at creation; pointer
    movement between the branch's capture and the PR's creation stays under
    (g)'s window.
-   (d-2) **Tag-pushed gate (restored, .opencode#2683):** PR creation that
+   (d-2) **Tag-pushed gate (restored, .opencode#2683; naming
+   deferral, .opencode#2759):** PR creation that
    carries submodule pointer bumps is blocked until each recorded pointer
-   SHA's hash-permanence tag (`<parent-repo>/<issue-number>-<submodule-dir>`,
-   the `git-workflow-branch` rule 3 discipline) is verifiably on the
+   SHA's hash-permanence tag — named per the
+   `git-workflow-branch` rule 3 discipline (that rule owns the name: the
+   issue-number component with its branch-slug fallback when the recording
+   work has no issue number) — is verifiably on the
    submodule's remote — evidence is one `git ls-remote --tags` invocation
    listing a tag whose commit (or peel) is the recorded SHA. A bump whose
    recorded SHA carries no pushed tag blocks creation until the tag is
@@ -208,9 +211,10 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
      results. Assertions in place of output are not accepted.
    - `## Submodule bump` — required exactly when the PR carries pointer
      bumps, omitted otherwise. Per bump: the old→new SHA, the pushed
-     hash-permanence tag naming the new SHA
-     (`<parent-repo>/<issue-number>-<submodule-dir>` — named for each bump,
-     per the `git-workflow-branch` rule 3 discipline), the submodule
+     hash-permanence tag naming the new SHA — named for each bump,
+     per the `git-workflow-branch` rule 3 discipline (that rule owns the
+     name: the issue-number component with its branch-slug fallback when the
+     recording work has no issue number), the submodule
      PRs/issues it delivers (one line each), and the effect on the project.
    - `## Provenance` — spec path, verify record; on the short path, the
      scope statement's content in place of the spec path, because the work
