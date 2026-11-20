@@ -48,10 +48,18 @@ validation_record:
       notes: >-
         Final plan-validation verdict (zero findings, round 3 re-dispatch
         confirmed branch base 489c21ef8 == origin/main and all 16 classes
-        clean). Plan consumed by implement.
+        clean). Plan consumed by implement. The Item-3 instrument amendment
+        (tests-v2 harness route to the behavioral-testing card's tier-1
+        route; spec SC-6's own "mock" wording satisfied) rode this round.
+    - round: 5
+      date: '2026-11-20'
+      artifact: implementation
+      verdict: PASS
+      findings: []
       notes: >-
-        Re-validation after the Item-3 instrument amendment (tests-v2 harness
-        route to the behavioral-testing card's tier-1 route; spec SC-6's own
-        "mock" wording satisfied). One finding (stale branch base) fixed
-        in the plan and in the repository; re-dispatch running for the
-        zero-finding verdict.
+        Verify-card dispatch: one fresh-context reviewer read the spec, plan,
+        branch diff, tier-1 behavioral evidence records, and executed test
+        output; judged SC-1..SC-6 all PASS with independently re-executed
+        greps; confirmed provenance registration on both cards and the
+        remediated branch base. Zero findings. Churn rule included verbatim
+        in the dispatch.
