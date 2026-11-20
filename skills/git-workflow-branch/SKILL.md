@@ -2,12 +2,12 @@
 name: git-workflow-branch
 description: "Always load before creating any git branch or starting any work on a task in any repo — however small the task seems. Branch naming, trunk-freshness checks, submodule sync, provenance recording. Never commit directly to the trunk-identified primary branch; the feature branch exists before the first file modification."
 license: MIT
-provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; scope-boundary provision, .opencode#2639; tagged-SHA pointer discipline, .opencode#2683
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; scope-boundary provision, .opencode#2639; tagged-SHA pointer discipline, .opencode#2683; issue-number fallback, .opencode#2759
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; scope-boundary provision, .opencode#2639; tagged-SHA pointer discipline, .opencode#2683 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; scope-boundary provision, .opencode#2639; tagged-SHA pointer discipline, .opencode#2683; issue-number fallback, .opencode#2759 -->
 
 # git-workflow-branch
 
@@ -110,10 +110,21 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    `git submodule --recursive`) is forbidden at the severity class the
    floor's Build-tooling exclusivity bullet states — no utterance authorizes
    the recursion.
-   **Tagged-SHA pointer discipline (restored, .opencode#2683).** Before a
-   parent commit records a submodule pointer, the recorded SHA carries a
-   pushed annotated hash-permanence tag `<parent-repo>/<issue-number>-<submodule-dir>`
-   in the submodule repository: create the tag if the commit is untagged
+   **Tagged-SHA pointer discipline (restored, .opencode#2683; issue-number
+   fallback, .opencode#2759).** Before a parent commit records a submodule
+   pointer, the recorded SHA carries a pushed annotated hash-permanence tag
+   `<parent-repo>/<issue-number>-<submodule-dir>` in the submodule
+   repository — the issue-number component falls back to the recording
+   work's **branch slug** (the branch name's final path component:
+   `feature/<slug>` → `<slug>`, `release/v{semver}` → `v{semver}`) when the
+   recording work has no issue number, so the tag names as
+   `<parent-repo>/<branch-slug>-<submodule-dir>`: no issue number is needed
+   to name a tag, and the agent never halts to ask the developer for a
+   tag-naming decision or mints an issue to name one. This rule owns the
+   tag's name (issue-number component, branch-slug fallback, no-issue
+   trigger); every other deck site that names the hash-permanence tag defers
+   here by reference and restates no form of its own: create the tag if the
+   commit is untagged
    (idempotent — a present tag is verified, never re-created; a name that
    exists pointing elsewhere is reported, never silently re-created),
    push it to the submodule's remote, and verify it on the remote

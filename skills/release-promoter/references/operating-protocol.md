@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: restored from the pre-rip release-promoter operating protocol (tag pre-rip; gate implemented as .opencode#2439), re-homed and root-agnosticized, .opencode#2557; gate moved pre-PR with no-retry rescope and TREE_MISMATCH re-check, .opencode#2590; parent-checkout boundary — the initial clone is of the parent repository and submodules resolve through its recorded pointers, .opencode#2592 -->
+<!-- Provenance: restored from the pre-rip release-promoter operating protocol (tag pre-rip; gate implemented as .opencode#2439), re-homed and root-agnosticized, .opencode#2557; gate moved pre-PR with no-retry rescope and TREE_MISMATCH re-check, .opencode#2590; parent-checkout boundary — the initial clone is of the parent repository and submodules resolve through its recorded pointers, .opencode#2592; no-release-issue tag naming instance in Phase C-0 step 8, .opencode#2759 -->
 
 # Release Promotion — Operating Protocol
 
@@ -78,7 +78,14 @@ Procedure — pull and promote, then record:
    SHA carries its pushed hash-permanence tag per
    `git-workflow-branch` rule 3's tagged-SHA pointer discipline (the release
    exemption `git-workflow-pr` §2(e) already states), so every recorded
-   pointer stays name-reachable. Read [git-workflow-branch — the tagged-SHA
+   pointer stays name-reachable. A release with no release issue names its
+   promoted pointers' hash-permanence tags
+   `<parent-repo>/v{semver}-<submodule-dir>` — the version component derived
+   from the release branch's own name (`release/v{semver}` → `v{semver}`),
+   the fallback instance of rule 3's naming discipline: no release issue
+   exists to name the tag, so the release branch names it — no issue is
+   invented and no developer-facing naming halt occurs; a release with a
+   release issue keeps the issue-number component. Read [git-workflow-branch — the tagged-SHA
    pointer discipline and its pull-only clause](../git-workflow-branch/SKILL.md)
    before recording any pointer bump, and govern every pull-only submodule
    origin by that clause.
