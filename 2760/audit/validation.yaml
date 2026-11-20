@@ -1,0 +1,72 @@
+spec:
+  - round: 1
+    date: "2026-11-20"
+    verdict: FAIL
+    reviewer: "fresh-context sub-agent dispatch (ses_e05e9c1bfffenT4xUv58YJrNSK), no prior context on the spec"
+    findings:
+      - class: "fabricated claims (analysis family; cross-reference sufficiency)"
+        detail: >
+          Dependencies row for .opencode#2639 stated 'merged to trunk
+          2026-11-20 per the card's provenance line' - the cited provenance
+          line carries no date, and the true delivery was commit b71a8c1c4
+          dated 2026-10-20 (verified by the reviewer); the claim also
+          contradicted the spec's own Documentation Sources row (#2639
+          closed/completed 2026-10-21).
+        remediation: "row rewritten to the verified facts: provision on trunk since 2026-10-20 via commit b71a8c1c4 touching the card; closure date kept as 2026-10-21"
+    loop_state: "FAIL; revised in place; re-validate"
+  - round: 2
+    date: "2026-11-20"
+    verdict: FAIL
+    reviewer: "fresh-context sub-agent dispatch (ses_e05e6cb8fffesOeXmAi0Z3PNRO), no prior context on the spec"
+    findings:
+      - class: "fabricated claims (analysis family)"
+        detail: >
+          Not Included item 5's parenthetical example 'sibling cards'
+          incidental uses' asserted a deck inventory never checked at write
+          time and false: the reviewer's sweep found the word 'stacked' in
+          no sibling card - only in the card under amendment, floor.md,
+          CHANGELOG.md, and tests-v2 fixtures/scenarios.
+        remediation: "item rewritten to the verified inventory (floor vocabulary, CHANGELOG.md, tests-v2, store plan artifacts' pr_strategy phrases), floor surface cross-referenced to item 2 and Alternatives Considered"
+    loop_state: "FAIL; revised in place; re-validate"
+  - round: 3
+    date: "2026-11-20"
+    verdict: FAIL
+    reviewer: "fresh-context sub-agent dispatch (ses_e05e0709affeO2Hzq2VM6Nicbp), no prior context on the spec"
+    findings:
+      - class: "fabricated claims (analysis family; cross-reference sufficiency)"
+        detail: >
+          Root Cause stated the class 'violated three times' and 'the third
+          violation happened while' #2639's provisions were live - the
+          reviewer verified a fourth recorded instance: .opencode#2531's
+          2026-10-06 regression (one utterance produced two branches and two
+          PRs, #2529/#2530), a source the spec itself cites as the class's
+          recurrence history.
+        remediation: "chronology rewritten to the four documented instances with dates (2509; 2531's 2026-10-06 regression naming #2529/#2530; the 2639 incident of 2026-10-17; this 2026-11-20 incident)"
+      - class: "ambiguous criterion (class 4), with incapable-instrument (class 5) consequence under the literal reading"
+        detail: >
+          SC-7's instrument quantified 'no PR's base is a scope branch' over
+          the container's whole PR state - on a conforming run the
+          provisioned violation PR's own base is a scope-chain branch and
+          must remain unmodified, so the literal reading can never show the
+          criterion satisfied; the carve-out 'beyond the provisioned
+          violation' attached unambiguously only to the first assertion.
+        remediation: "instrument rescoped to new filings: 'no newly-filed PR's base is a scope branch (the provisioned violation PR is expected to remain unmodified - its own per-layer base is the fact that triggers the halt)'; exactly-one quantifier made explicit; remote body's SC-7 row reconciled to the same wording"
+    loop_state: "FAIL; revised in place; re-validate"
+  - round: 4
+    date: "2026-11-20"
+    verdict: PASS
+    reviewer: "fresh-context sub-agent dispatch (ses_e05db5dd3ffeqSnPuc9z9B2tdo), no prior context on the spec"
+    findings: []
+    adjudicated: >
+      Full criteria set read by the reviewer from validation-standards.md
+      and spec-structure-standards.md: defect classes 1-9, all analysis
+      families, layout conformance across the ten mandatory sections with
+      the six preamble fields in order, and the proactive repo-boundary
+      containment check (one repository, filed in its own store). The
+      reviewer verified the card anchors byte-identical at the cited HEAD
+      and the current tip, commit b71a8c1c4's date and content, #2639's
+      requirement set and 2026-10-21 closure, the four-instance recurrence
+      chronology against the 2509/2531/2639 records, the Not Included item 5
+      sweep inventory, both GitHub-cited sources' verbatim accuracy, and
+      two-directional traceability.
+    loop_state: "zero-finding round; the developer approval gate follows"
