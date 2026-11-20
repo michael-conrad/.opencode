@@ -6,7 +6,7 @@
 
 **Root Cause / Motivation.** The tool's finding emission formats paths relative to each store root without composing the owning repository's qualified identity into the output. The defect surfaces only where a consumer holds more than one store, so single-store exercise never exposed it. Observed 2026-11-20 during the `.opencode#2761` triage session, which ran hygiene sweeps across both registered stores.
 
-**Approach Chosen.** Compose the store registry's qualifier into each finding's path at emission time. Detection logic (which findings the validator emits) is unchanged.
+**Approach Chosen.** Compose the store registry's qualifier into each finding's path at emission time. Detection logic (which findings the validator emits) is unchanged. The committed tests that pin the current emission shape (the scoped report-line tests and the report-line exit-code test in `.opencode/tests/test_local_issues/`) are updated to the qualified form with the change and carried green under the canonical build/test command.
 
 **Alternatives Considered & Why Discarded.**
 - Prefix output with a per-repo header block instead of qualifying each finding — rejected: findings are consumed per-line by dispatch tooling; per-line qualification survives cropping, sorting, and tail-truncated views (the sweep-completeness rule reads full output).
@@ -36,19 +36,21 @@
 | ID | Criterion | Class | Instrument |
 |---|---|---|---|
 | SC-1 | In per-store `validate-yaml` runs over two stores that each hold a defective file at the same relative path (e.g. `20/artifacts/pre-spec-inspection.yaml`) — exercised through both the unscoped sweep and the scoped single-issue invocation (`--number`) — every emitted finding in each run names its repository from the output line alone, and the two stores' outputs present the identical-path pair under distinct qualifiers | behavioral | Shell repro: seed a malformed YAML file at an identical relative path in each registered store, run `local-issues validate-yaml` per store in both modes (the unscoped sweep and the scoped `--number` form on the seeded path), parse each run's findings, and assert per-line repo qualification plus distinct qualifiers for the identical-path pair across the two stores' outputs — no run mode emits an unqualified finding; clean up seeded artifacts afterward |
+| SC-2 | The committed test suite passes at the change's HEAD under the canonical build/test command, with the tests that pinned the old unqualified emission shape updated to the qualified form as part of the change | behavioral | Run `cd .opencode && uv run pytest` at the change's HEAD and assert exit 0 — a red suite fails the criterion, and the updated test files are listed in the change's diff |
 
 ## 5. Dependencies
 
 | Reference | Relationship | Status |
 |---|---|---|
 | Store registry (session-init `path`/`owner`/`repo` mapping; the tool's own repo-discovery qualifier emission) | Supplies the qualifier composed into findings — the qualifier is the tool's repo identity (e.g. `opencode-config`, `.opencode`), not the host-maps conf, which is a host→browser-base table carrying no store data | Satisfied (exists) |
+| Committed test suite (`.opencode/tests/test_local_issues/test_validate_yaml_scoped.py`, `test_validate_yaml_exit_codes.py`) | Pins the current unqualified emission shape at named tests; the change updates those pins and carries the suite green — the at-risk dependent surface of the emission change | Satisfied (suite exists; its update is part of the change) |
 | Issues card §7 repair workflow | Consumer contract: findings seed per-file repair dispatches and the re-verification sweep | Satisfied (card wording in place) |
 
 ## 6. Traceability
 
 | Requirement | SCs |
 |---|---|
-| R-1 | SC-1 |
+| R-1 | SC-1, SC-2 |
 
 ## 7. Documentation Sources
 
@@ -61,6 +63,7 @@
 ## 8. Cost Frame
 
 - SC-1: a seeded two-store repro costs minutes; skipping leaves the repair-dispatch surface resolving to the wrong store — an observed-class hazard already reachable from both registered stores.
+- SC-2: one canonical-command suite run per change; skipping delivers a red suite that blocks every subsequent task in the repo and can pass the completion gate with at-risk behavior unpreserved.
 
 ## 9. Edge Cases
 

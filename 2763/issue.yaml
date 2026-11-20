@@ -32,12 +32,17 @@ body: '# local-issues validate-yaml findings are ambiguous across stores — pat
 
 
   - `local-issues` finding-emission path for `validate-yaml`: print each finding''s
-  path qualified with its owning repository''s identity.
+  path qualified with its owning repository''s identity — both emission sites (the
+  unscoped per-store sweep and the scoped `--number` branch)
+
+  - The committed tests pinning the current emission shape (`test_validate_yaml_scoped.py`,
+  `test_validate_yaml_exit_codes.py`) update to the qualified form and carry green
+  under the canonical command
 
 
   **Out of scope:** reformatting other `local-issues` verbs'' output; changing which
   findings `validate-yaml` emits (detection logic); YAML content of records; anything
-  beyond the tool''s finding output.
+  beyond the tool''s finding output and its test pins.
 
 
   ## Requirements
@@ -65,6 +70,12 @@ body: '# local-issues validate-yaml findings are ambiguous across stores — pat
   path in each registered store, run `validate-yaml` per store in both modes, assert
   per-line qualification in every emitted finding and distinct qualifiers across the
   two stores'' outputs; clean up seeded artifacts afterward |
+
+  | SC-2 | The committed test suite passes at the change''s HEAD under the canonical
+  command, with the tests pinning the old unqualified emission shape updated to the
+  qualified form as part of the change | behavioral | Run `cd .opencode && uv run
+  pytest` at the change''s HEAD and assert exit 0, with the updated test files in
+  the change''s diff |
 
 
   ## Approach
@@ -95,5 +106,5 @@ body: '# local-issues validate-yaml findings are ambiguous across stores — pat
 
   '
 created_at: '2026-11-20T21:57:39+00:00'
-updated_at: '2026-11-20T22:10:35+00:00'
+updated_at: '2026-11-20T22:14:54+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2763

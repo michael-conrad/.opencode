@@ -65,5 +65,25 @@ spec:
           edge-case table extended — the instrument now exercises both modes (the
           unscoped sweep and the scoped --number form on the seeded path) and asserts
           no run mode emits an unqualified finding.
+  - round: 4
+    date: '2026-11-20'
+    reviewer: 'ses_e04fcf472ffegUzksK43ITjcvR'
+    verdict: FAIL
+    findings:
+      - class: 'blast radius'
+        classification: finding
+        ground: >-
+          The committed test suite pins the current unqualified emission shape —
+          test_validate_yaml_scoped.py scoped report-line tests and
+          test_validate_yaml_exit_codes.py report-line test — so a spec-faithful
+          delivery breaks the suite under the canonical command while SC-1's
+          instrument never exercises it; a dependent surface of the change was left
+          out of the plan of record.
+        remediation: >-
+          The plan of record now carries the test pins: SC-2 added (suite green at
+          change HEAD under cd .opencode with the pinned tests updated to the
+          qualified form; instrument runs uv run pytest and asserts exit 0), the
+          Approach and the Scope/Out-of-scope statements name the test-carry, the
+          Dependencies table gains the suite row, and the Cost Frame gains SC-2.
   loop:
-    state: 're-dispatching — round 4 pending'
+    state: 're-dispatching — round 5 pending'
