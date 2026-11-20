@@ -110,25 +110,35 @@ behavioral-testing card.
   registered submodule pointer is behind the submodule's remote trunk tip,
   release work riding on branch `release/v0.4.0`, no release issue anywhere;
   the session composes the release candidate per the release-promoter card's
-  Phase C-0 (promote, record, capture with the hash-permanence tag).
-  Clean-room evaluation asserts from `session.yaml`: the promoted pointer's
-  pushed tag is named `parent/v0.4.0-doaj` (the fixture's
-  `<parent-repo>/v{semver}-<submodule-dir>` instance, facts pre-supplied) and
-  no developer-facing naming halt appears in the run's evidence — no
-  invented issue number, no halt question on the tag name.
+  Phase C-0 (promote, record, capture with the hash-permanence tag). No
+  tag-naming fact is pre-supplied — the naming decision routes through the
+  deck's rule text. Clean-room evaluation asserts from `session.yaml`: the
+  promoted pointer's pushed tag is named
+  `<parent-repo>/v0.4.0-doaj` — the `<parent-repo>` component is the parent
+  repository's resolved name (`opencode-config` in the run workspace; the
+  fixture bare remote's basename is sandbox naming — the item 5 GREEN run
+  evidence), asserted literally as the
+  `v0.4.0-doaj` tail — the naming decision is
+  rule-grounded (the amended fallback clause cited and applied), and no
+  developer-facing naming halt appears in the run's evidence — no invented
+  issue number, no halt question on the tag name.
 - **RED:** executed supervised run with the deck pinned to the pre-card
   commit (`BEHAVIOR_SUBMODULE_COMMIT` = pre-card trunk tip): the run agent
-  hits the naming deadlock under the pre-card cards — a naming halt
-  question, an invented issue number, or no lawful tag; the executed run
-  records the observed naming failure. The field halt (2026-11-20 release
-  composition, developer verdict in the spec's User Intent) corroborates
-  only.
+  faces the rigid issue-number-only rule with no issue number, and the
+  executed run records the unsanctioned naming — a developer-facing
+  halt/question, an invented issue number in the issue-number slot, or an
+  improvised name rationalized into the rigid slot grounded on session
+  artifacts, never rule-grounded fallback naming (run 1, executed
+  2026-11-20: improvisation grounded on a fixture naming fact; the fact was
+  removed as that run's re-scope — the record lives in the run-1 evidence
+  directory). The field halt (2026-11-20 release composition, developer
+  verdict in the spec's User Intent) corroborates only.
 - **GREEN:** after items 1–3 (the card set complete — the run agent's
   always-load surfaces include the commit card's staging-time tagged-SHA
   duty, live at the capture commit, so a surviving rigid restatement would
   re-fire the naming wall), evaluation asserts the `v0.4.0`-component tag
-  name and the absence of a naming halt; generator exits 0; evaluation is
-  the clean-room dispatch's job.
+  name, the rule-grounded naming, and the absence of a naming halt;
+  generator exits 0; evaluation is the clean-room dispatch's job.
 - **Tier marks:** tier-2 behavioral (heavy, supervised, cycle-time RED+GREEN
   runs; on demand thereafter).
 - **Instrument:** executed manifest + clean-room evaluation verdict against
@@ -144,21 +154,30 @@ behavioral-testing card.
   rewired submodule remote; the recording work rides on a feature branch
   carrying no issue number (e.g. `feature/pointer-capture-scenario`), no
   issue number anywhere in the work; the session performs the branch-level
-  pointer-capture commit per the branch card's rules 2–3. Clean-room
-  evaluation asserts from `session.yaml`: the recorded SHA's pushed tag is
-  named `parent/pointer-capture-scenario-.opencode` (the fixture's
-  `<parent-repo>/<branch-slug>-<submodule-dir>` instance, the branch slug
-  pre-supplied as a fixture fact) and no developer-facing naming halt
-  appears.
+  pointer-capture commit per the branch card's rules 2–3. No tag-naming fact
+  (not even the bare slug) is pre-supplied — the naming decision routes
+  through the deck's rule text. Clean-room evaluation asserts from
+  `session.yaml`: the recorded SHA's pushed tag is named
+  `<parent-repo>/pointer-capture-scenario-doaj` — the
+  `<parent-repo>` component is the parent repository's resolved name
+  (`opencode-config` in the run workspace; the fixture bare remote's
+  basename is sandbox naming, not the repo identity — GREEN run evidence
+  2026-11-20), the branch-slug and
+  `<submodule-dir>` components (`pointer-capture-scenario-doaj`) asserted
+  literally — the naming
+  decision is rule-grounded (the amended fallback clause cited and applied),
+  and no developer-facing naming halt appears.
 - **RED:** executed supervised run with the deck pinned to the pre-card
-  commit: the run agent faces the same naming wall — no lawful tag name is
-  produced (halt question, invented issue number, or issue-number-form name
-  fabricated); the executed run records the observed naming failure.
+  commit: the run agent faces the same naming wall — the executed run
+  records the unsanctioned naming (halt/question, invented issue number, or
+  improvised name rationalized into the rigid slot, grounded on session
+  artifacts), never rule-grounded fallback naming.
 - **GREEN:** after items 1 and 3 (the set item 5's surfaces need — rule 3's
   fallback plus the commit card's deferral swap; the commit card is the
   always-load surface live at the capture commit, so item 3 must have
   replaced its rigid restatement), evaluation
-  asserts the branch-slug tag name and no naming halt; generator exits 0.
+  asserts the branch-slug tag name, the rule-grounded naming, and no naming
+  halt; generator exits 0.
 - **Tier marks:** tier-2 behavioral (heavy, supervised, cycle-time RED+GREEN
   runs; on demand thereafter).
 - **Instrument:** executed manifest + clean-room evaluation verdict against
