@@ -1,0 +1,8 @@
+title: 'issues: spec corrections routed to tracker comments instead of in-place revision
+  (self-containment regression on GitBucket)'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-11-20T21:50:35+00:00'
+updated_at: '2026-11-20T21:50:35+00:00'
