@@ -1,10 +1,12 @@
 title: '[SPEC] No-issue hash-permanence tag naming — branch-slug fallback; the release
   path never halts on deck-internal naming'
-status: open
+status: closed
 labels:
 - spec
 - regression
 body: ''
 created_at: '2026-11-20T15:07:16+00:00'
-updated_at: '2026-11-20T17:39:52+00:00'
+updated_at: '2026-11-20T21:49:20+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2759
+closed_at: '2026-11-20T21:49:20+00:00'
+close_reason: completed
