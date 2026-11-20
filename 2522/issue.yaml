@@ -1,7 +1,6 @@
 title: '[REGRESSION] spec revision posted as a comment — spec body left non-self-contained'
 status: closed
 labels:
-- needs-approval
 - bug
 body: '## Observed behavior
 
@@ -108,5 +107,5 @@ body: '## Observed behavior
 
   '
 created_at: '2026-11-20T21:55:19+00:00'
-updated_at: '2026-11-20T21:55:21+00:00'
+updated_at: '2026-11-20T21:55:35+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2522
