@@ -1,0 +1,9 @@
+title: '[SPEC] Pre-triage freshness: pull all session-enumerated repos to remote trunk
+  tip and confirm submodule status before any triage'
+status: open
+labels:
+- needs-approval
+- '[SPEC]'
+body: ''
+created_at: '2026-11-20T22:15:27+00:00'
+updated_at: '2026-11-20T22:15:27+00:00'
