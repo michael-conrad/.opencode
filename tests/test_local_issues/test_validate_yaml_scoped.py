@@ -184,7 +184,7 @@ def test_scoped_report_lines_target_only(violating_target_workspace: Path) -> No
     )
     output = result.stdout + result.stderr
     for rel, error_class in VIOLATING_TARGET_FILES.items():
-        path_str = str(rel)
+        path_str = f"{REPO_QUALIFIER}/{rel}"
         assert f"{path_str}: {error_class}" in output, (
             f"scoped validate-yaml missing report line {path_str!r}: "
             f"{error_class!r}; stdout: {result.stdout!r} stderr: {result.stderr!r}"
@@ -233,9 +233,9 @@ def test_scoped_report_lines_match_format(violating_target_workspace: Path) -> N
     for line in report_lines:
         assert ": " in line, f"report line missing '<path>: <class>' shape: {line!r}"
         path_str, _, error_class = line.partition(": ")
-        assert path_str == f"{VIOLATING_TARGET_NUMBER}/{Path(path_str).name}", (
-            f"report path not in '<issue>/<file>' form: {line!r}"
-        )
+        assert path_str == (
+            f"{REPO_QUALIFIER}/{VIOLATING_TARGET_NUMBER}/{Path(path_str).name}"
+        ), f"report path not in '<repo>/<issue>/<file>' form: {line!r}"
         assert error_class in {
             MALFORMED_FRONTMATTER,
             INVALID_YAML_SYNTAX,
@@ -255,7 +255,7 @@ def test_scoped_output_equals_filtered_workspace(
     )
     workspace = _run_tool(violating_target_workspace, "validate-yaml")
 
-    target_prefix = f"{VIOLATING_TARGET_NUMBER}/"
+    target_prefix = f"{REPO_QUALIFIER}/{VIOLATING_TARGET_NUMBER}/"
     expected = sorted(
         line
         for line in workspace.stdout.splitlines()
