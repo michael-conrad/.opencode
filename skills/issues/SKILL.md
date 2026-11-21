@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382; recomposition protocol, .opencode#2661; self-triggering triage, .opencode#2699; self-firing evidence trigger + ticket-status semantics, .opencode#2702; work-entry conversion triage outcome, .opencode#2707; interrupted-sync remediate-on-discovery trigger (reported-with-commands-and-waited regression, 2026-11-12), .opencode#2731; search-before-filing mandate in work-entry conversion, .opencode#2756 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382; recomposition protocol, .opencode#2661; self-triggering triage, .opencode#2699; self-firing evidence trigger + ticket-status semantics, .opencode#2702; work-entry conversion triage outcome, .opencode#2707; interrupted-sync remediate-on-discovery trigger (reported-with-commands-and-waited regression, 2026-11-12), .opencode#2731; search-before-filing mandate in work-entry conversion, .opencode#2756; pre-triage freshness gate, .opencode#2764 -->
 
 # issues — issue operations
 
@@ -117,6 +117,26 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    evidence; closure to tidy up stays prohibited. A verdict-backed closure
    reconciles the remote tracker to the same closed state in the same
    workflow; the local store is authoritative (#2561).
+   **Pre-triage freshness gate.** Every triage path in this card — closure
+   triage and work-entry conversion alike, self-triggered or
+   developer-directed — is preceded by a freshness sync before the triage
+   verdict is rendered. The gate pulls every session-enumerated repo to its
+   remote trunk tip — the target set is exactly session-init's enumerated
+   repo set (root repo plus registered submodules, the `#2544` strict
+   discovery), no more and no less — and runs `git submodule status` over
+   the registered submodules, syncing each submodule checkout to its own
+   remote trunk tip (the `#2563` ruling's definition of up to date — never a
+   possibly-stale recorded pointer: syncing to the recorded pointer
+   reproduces the bitrot the gate exists to remove). Where the pulled parent
+   tip's registered gitlink differs from a submodule's remote trunk tip —
+   the sanctioned pointer-drift state — the trunk-tip checkout governs the
+   triage's reading and the drift is recorded in the verdict's grounds
+   rather than resolved by the gate (pointer resolution rides with real
+   parent-repo changes, outside the triage moment). A triage whose freshness
+   sync fails (network or auth) is a cannot-continue state under the floor's
+   existing report-with-evidence-and-halt rule. The verdict is rendered
+   against the post-sync state, and the verdict's recorded grounds state
+   that the freshness gate ran.
    **Work-entry conversion — the second triage outcome class.** When a
    triage verdict classifies a triaged bug report as actionable work, the
    triaging agent converts the report's record in place into the governing
@@ -144,7 +164,9 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    report's requirement into that existing spec in place — amended or
    extended under the spec card's revision discipline, or this clause's
    conversion mechanics — instead of filing a new spec record when a match
-   exists.
+   exists. The conversion's triage runs the §5 pre-triage freshness gate
+   before rendering its verdict, and the conversion record's grounds state
+   that the freshness gate ran.
 6. **Ticket-state hygiene.** A stale ticket state — the local store mirror's
    record diverging from the remote tracker's state — is corrected on
    discovery, reconciling both sides to the true state. The remote tracker
