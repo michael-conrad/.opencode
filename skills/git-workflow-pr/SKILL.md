@@ -2,12 +2,12 @@
 name: git-workflow-pr
 description: "Load before opening any pull request, preparing work for review, or updating an existing PR — in any repo, whenever PR-boundary authorization arrives or the work reaches the review boundary. PRs are for completed and fully tested work; partial PRs require explicit special authorization. Squash the branch's work to one reviewable commit per issue, write a PR body with summary and executed-test evidence, then HALT — humans merge, never the agent."
 license: MIT
-provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; tag-pushed gate + bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658; dirty-pointer disposition gate, .opencode#2656; tag-naming deferral, .opencode#2759; not-done-default state determination on PR-boundary authorization, .opencode#2741
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; tag-pushed gate + bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658; dirty-pointer disposition gate, .opencode#2656; tag-naming deferral, .opencode#2759; not-done-default state determination on PR-boundary authorization, .opencode#2741, stacked-PR term anchor, precedent stance, same-scope enumeration, companion disposition, .opencode#2760
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; issues-data remediation-first clause, .opencode#2681; tag-pushed gate + Submodule-bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658; dirty-pointer disposition gate, .opencode#2656; tag-naming deferral, .opencode#2759; not-done-default state determination on PR-boundary authorization, .opencode#2741 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639; merge+approval boundary and completion-gate check, .opencode#2668; agent-owned scoped branch rewrite, .opencode#2665; pointer currency at the PR, .opencode#2679; issues-data remediation-first clause, .opencode#2681; tag-pushed gate + Submodule-bump tag naming + release carve-out, .opencode#2683; closing-keyword contract, .opencode#2658; dirty-pointer disposition gate, .opencode#2656; tag-naming deferral, .opencode#2759; not-done-default state determination on PR-boundary authorization, .opencode#2741, stacked-PR term anchor, precedent stance, same-scope enumeration, companion disposition, .opencode#2760 -->
 
 # git-workflow-pr
 
@@ -39,7 +39,11 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    checks (lint/typecheck/build) ran clean. On the short path, where no spec
    artifact exists, the assigned scope and the deliverable's SCs are the
    scope statement's scope and its check. Not ready → `verify` first, not a
-   PR.
+   PR. **Stacked-PR term anchor:** a card-scoped token reading "stacked PR"
+   ("approved for stacked PR", `pr_strategy: stacked`, equivalents) carries
+   the definition rule 3 defines — one PR against the trunk carrying one
+   squashed commit per issue in the scope — and never the wider ecosystem's
+   per-layer reading; that reading does not govern the token.
 2. **Pre-create checklist — every item before `gh pr create` / `gb` create.**
    (a) every item assigned to this PR by the spec or by recorded special
    authorization has an implementation commit or an explicit N/A — on the
@@ -136,8 +140,23 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    creation — obliges the PR's update to the moved pointer, with the parent's
    verification re-run against the composed state before the update; a PR
    representing a stale pointer is the defect this rule names (bitrot).
+   (h) **Same-scope enumeration (.opencode#2760):** before creating any PR,
+   the agent enumerates the repository's open pull requests intersecting the
+   authorization scope — by head or base branch, by closing-keyword
+   reference to a scope issue, or by stacked-chain membership with the
+   scope's branches — using the platform CLI (`gh pr list` / `gb`
+   equivalent); each intersecting PR is resolved against rule 3's provisions
+   (the term contrast, the precedent stance, the scope boundary, the
+   companion disposition) before creation, and PR creation is blocked until
+   every intersecting PR is dispositioned.
 3. **Shape.** A stacked PR is **one PR against the trunk containing one
    squashed commit per issue ticket** — the body closes every stacked issue.
+   **Term contrast:** the wider ecosystem's "stacked pull requests" pattern —
+   a series of pull requests where each pull request targets the branch of
+   the pull request below it, forming a chain that lands on the trunk (the
+   shape GitHub's own documentation defines) — is the per-layer shape this
+   rule names as the violation; this card's definition, not that pattern,
+   governs every "stacked PR" token this card reads.
    Squash WIP to one commit per issue at PR creation; a stacked branch chain
    rides in that one PR, never as one PR per stacked layer.
    **Agent-owned per-issue squash on a published branch.** The producing agent —
@@ -159,7 +178,12 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    agent-owned authorization covers `git push --force-with-lease` only: an
    unleased `git push --force` proceeds only under the floor's general gate. Issues authorized
    together share that one branch and that one PR — N branches / N PRs for one
-   authorization scope is the violation. **Scope boundary.** The
+   authorization scope is the violation. **Precedent stance:** an existing
+   open per-layer PR in a repository — including one filed by an earlier
+   agent session of the same repo — is a shape violation under this rule,
+   not precedent or house style; when the creating agent discovers one, the
+   agent halts for developer direction on that PR's disposition rather than
+   imitating its shape or closing it agent-side. **Scope boundary.** The
    authorization scope is the developer directive that produced the work —
    the single message covering it — never a per-item decomposition of that
    directive. A later message that adds work while that scope's PR is open
@@ -167,7 +191,15 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    never a second branch or PR. A commit with no issue ticket rides in the
    scope's stacked PR — it never justifies its own PR. When in doubt, one
    PR; splitting into multiple PRs requires the developer to have named the
-   split. The mandate is universal: it applies
+   split. **Companion disposition:** a second PR-shaped deliverable that the
+   approved spec explicitly names as its own deliverable — stating its head,
+   base, and sequencing — is the developer's named split: permitted as a
+   distinct deliverable, not a stacked-PR layer, and filed per the
+   sequencing the spec states; a spec requirement that does not explicitly
+   name the second PR's head, base, and sequencing, and any PR-shaped work
+   outside a spec mandate, defaults to the one-PR rule, and PR-adjacent
+   phrasing without that naming is raised for developer direction rather
+   than filed as a second PR. The mandate is universal: it applies
    to all PRs, including release PRs. **Hazard guard:**
    the single PR for an issue exists only at that PR's assigned-scope
    completion — a partial-scope PR that merges closes the linked issue as
