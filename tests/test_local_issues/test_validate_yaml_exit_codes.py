@@ -161,7 +161,7 @@ def test_validate_yaml_report_lines(dirty_sandbox: Path) -> None:
     result = _run_tool(dirty_sandbox, "validate-yaml")
     output = result.stdout + result.stderr
     for rel, error_class in MALFORMED_FILES.items():
-        path_str = str(rel)
+        path_str = f"opencode-config/{rel}"
         assert f"{path_str}: {error_class}" in output, (
             f"validate-yaml missing report line {path_str!r}: "
             f"{error_class!r}; stdout: {result.stdout!r} "
