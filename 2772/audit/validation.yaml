@@ -1,0 +1,19 @@
+# Validation record — .opencode#2772 (spec)
+# One top-level section per artifact under validation; one entry per completed cycle.
+spec:
+  - round: 1
+    timestamp: "20261124183015"
+    verdict: "FAIL"
+    findings:
+      - class: "layout non-conformance (defect class 9), corroborated by cross-reference sufficiency analysis family"
+        classification: "finding"
+        detail: "Documentation Sources section lacked a mandatory row for the platform tool-call batching instruction — a load-bearing current-state claim cited in the root cause and depended on by R-2's override element and SC-5; every external source a load-bearing claim cites requires a Source/Type/Location/Verification row per spec structure standards section 7."
+        remediation: "Added the missing Documentation Sources row for the platform-injected batching instruction with its dated verification statement; artifact revised in place; store synced."
+    containment: "scope containment satisfied (requirements touch only .opencode-prefix files owned by the .opencode repo); home containment satisfied (spec filed in .opencode store at .issues/2772/)"
+    re_evaluation: "none — in-place revision resolved the finding; loop continued"
+  - round: 2
+    timestamp: "20261124183016"
+    verdict: "PASS"
+    findings: []  # zero-finding round
+    containment: "scope containment satisfied (R-1..R-5 and SC-5 touch only .opencode/floor.md under the .opencode repo, instruments under the same prefix); home containment satisfied (spec filed in .opencode store at .issues/2772/)"
+    re_evaluation: "none — clean verdict; loop exits"
