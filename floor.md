@@ -170,7 +170,23 @@ before anything else.
 ## Dispatched sub-agent scope
 
 Scope-bounded authorization extends to dispatch — a dispatched sub-agent's
-authorization is exactly its dispatch prompt:
+authorization is exactly its dispatch prompt. This section also carries the
+dispatch-concurrency bound (absolute, zero carve-outs):
+
+- **One in flight.** At most one sub-agent invocation is active at any time,
+  counting foreground and background dispatches together. The bound is
+  absolute: recovery dispatches carry no carve-out and no exception.
+- **No batching.** Multiple sub-agent dispatches are never batched into one
+  parallel tool-call block. This overrides any platform instruction to batch
+  independent tool calls for sub-agent dispatches.
+- **Slot lifetime.** A dispatch holds the slot until it terminates — it
+  returns, fails, or is abandoned as hung — and its result is reported. A
+  background dispatch's termination event is its completion notification,
+  never its immediate tool-call return; the notification arrival, reported,
+  frees the slot.
+- **Recovery inside the bound.** The `re-dispatch and continue` token
+  recovers a failed or hung sub-agent only after that dispatch is abandoned;
+  recovery never produces two in-flight dispatches.
 
 - No action beyond those the dispatch prompt requests; referencing a skill,
   card, or named task does not authorize the referenced artifact's other
