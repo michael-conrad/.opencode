@@ -57,6 +57,19 @@ MALFORMED_FRONTMATTER = "malformed-frontmatter"
 INVALID_YAML = "invalid-yaml"
 SCHEMA_VIOLATION = "schema-violation"
 
+# Record-identity divergence classes (.opencode#2769 SC-2): a tracker-host
+# store's record must carry a resolvable remote_url naming the store repo's
+# own tracker identity (issue number == folder number, owner/repo == origin).
+MISSING_REMOTE_IDENTITY = "missing-remote-identity"
+REMOTE_NUMBER_MISMATCH = "remote-number-mismatch"
+REMOTE_REPO_MISMATCH = "remote-repo-mismatch"
+
+# Tracker issue URL shape a record's remote_url must parse to be resolvable
+# (locally decidable facts only — the sweep never contacts a remote API).
+_TRACKER_ISSUE_URL_RE = re.compile(
+    r"^(?:https?://[^/]+/)([^/]+)/([^/]+?)/issues/(\d+)/?$"
+)
+
 
 def _warn_skip(rel: str, error_class: str, detail: Any = None) -> None:
     """Emit a warn-and-skip warning for a malformed record (SC-05).
@@ -109,7 +122,9 @@ def _validate_issue_dir(entry: Path) -> None:
             _warn_skip(_rel_issue_path(entry, "spec.md"), MALFORMED_FRONTMATTER)
 
 
-def _scan_issue_dir_errors(entry: Path) -> list[tuple[str, str]]:
+def _scan_issue_dir_errors(
+    entry: Path, expected_slug: str | None = None
+) -> list[tuple[str, str]]:
     """Collect (path, error-class) findings for one issue directory (SC-06).
 
     Sweeps **/*.yaml under the issue directory: every YAML found is
@@ -119,19 +134,35 @@ def _scan_issue_dir_errors(entry: Path) -> list[tuple[str, str]]:
     (malformed-frontmatter, invalid-yaml, schema-violation) without
     emitting warn-and-skip warnings — callers own reporting. Read-only:
     never mutates files.
+
+    With ``expected_slug`` (the store's origin-derived owner/repo, set on
+    tracker-host stores only, .opencode#2769 SC-2), numeric record
+    directories additionally carry one record-identity divergence class
+    from the record's stored ``remote_url`` (missing-remote-identity /
+    remote-number-mismatch / remote-repo-mismatch); a record whose
+    issue.yaml already failed shape parsing is not identity-checked in
+    the same pass — the shape defect dominates and the repair cycle
+    re-sweeps.
     """
     errors: list[tuple[str, str]] = []
     canonical = set(YAML_FILES)
+    issue_valid = None
     for f in sorted(entry.rglob("*.yaml")):
         rel = f"{entry.name}/{f.relative_to(entry)}"
         content = read_file(f)
+        if f.name == "issue.yaml":
+            issue_valid = content.strip() != ""
         if not content.strip():
             continue
         try:
             data = yaml.safe_load(content)
         except yaml.YAMLError:
             errors.append((rel, INVALID_YAML))
+            if f.name == "issue.yaml":
+                issue_valid = False
             continue
+        if f.name == "issue.yaml" and not isinstance(data, dict):
+            issue_valid = False
         if f.name in canonical:
             problem = _schema_problem(f.name.removesuffix(".yaml"), data)
             if problem:
@@ -141,6 +172,14 @@ def _scan_issue_dir_errors(entry: Path) -> list[tuple[str, str]]:
         spec = read_file(spec_file)
         if spec.startswith("---") and len(spec.split("---", 2)) < 3:
             errors.append((_rel_issue_path(entry, "spec.md"), MALFORMED_FRONTMATTER))
+    if expected_slug is not None and issue_valid is not False:
+        issue_data = None
+        issue_yaml = entry / "issue.yaml"
+        if issue_yaml.exists():
+            issue_data = yaml.safe_load(read_file(issue_yaml))
+        identity = _scan_identity_errors(entry, expected_slug, issue_data)
+        if identity:
+            errors.append((_rel_issue_path(entry, "issue.yaml"), identity))
     return errors
 
 
@@ -160,6 +199,14 @@ def cmd_validate_yaml(args: argparse.Namespace) -> None:
     When the target directory does not exist locally (remote-only
     issue), exits 0 printing a no-local-records status line. Bare
     unqualified numbers are rejected.
+
+    On a tracker-host store (origin resolves to github.com or a
+    host-mapped tracker base, .opencode#2769 SC-2), numeric record
+    directories additionally carry one record-identity divergence
+    class — missing-remote-identity, remote-number-mismatch, or
+    remote-repo-mismatch — decided from locally stored facts (origin,
+    host-maps conf, record fields); no remote issues-system API is
+    contacted; non-tracker-host stores skip the identity classes.
     """
     scoped_number = getattr(args, "number", None)
     if scoped_number is not None:
@@ -169,7 +216,9 @@ def cmd_validate_yaml(args: argparse.Namespace) -> None:
         if target is None:
             print(f"no-local-records: {repo_name}#{num}")
             return
-        errors = _scan_issue_dir_errors(target)
+        errors = _scan_issue_dir_errors(
+            target, expected_slug=_tracker_repo_slug(repo_path)
+        )
         for rel, error_class in errors:
             print(f"{repo_name}/{rel}: {error_class}")
         if errors:
@@ -179,10 +228,11 @@ def cmd_validate_yaml(args: argparse.Namespace) -> None:
     issues_dir = Path(ISSUES_DIR)
     errors: list[tuple[str, str]] = []
     if issues_dir.is_dir():
+        expected_slug = _tracker_repo_slug(Path.cwd())
         for entry in sorted(issues_dir.iterdir()):
             if not entry.is_dir():
                 continue
-            errors.extend(_scan_issue_dir_errors(entry))
+            errors.extend(_scan_issue_dir_errors(entry, expected_slug=expected_slug))
     for rel, error_class in errors:
         print(f"{_resolve_repo_name()}/{rel}: {error_class}")
     if errors:
@@ -2157,6 +2207,76 @@ def _remote_tracker_platform(repo_path: Path) -> str | None:
     mapped = maps.get(host)
     if mapped:
         return mapped
+    return None
+
+
+def _tracker_repo_slug(repo_path: Path | None = None) -> str | None:
+    """Return the store repo's ``owner/repo`` slug when it is a tracker host.
+
+    Record-identity anchor context for the validation sweep (.opencode#2769
+    SC-2): tracker-host fact comes from the existing platform predicate
+    (#2723 — origin URL classifies as a live remote tracker), the slug from
+    the same origin's parsed owner/repo. Locally stored facts only; no
+    remote issues-system API contact is made. Returns None on a
+    non-tracker-host store (no remote, unparseable origin, unmapped
+    non-github host) — identity divergence classes are skipped there.
+    """
+    if _remote_tracker_platform(repo_path or PROJECT_DIR) is None:
+        return None
+    result = subprocess.run(
+        [
+            "git", "-C", str(repo_path or PROJECT_DIR),
+            "remote", "get-url", "origin",
+        ],
+        capture_output=True, text=True, timeout=15,
+    )
+    if result.returncode != 0:
+        return None
+    parsed = _parse_origin_url(result.stdout.strip())
+    if parsed is None:
+        return None
+    _host, owner, repo_name = parsed
+    return f"{owner}/{repo_name}"
+
+
+def _scan_identity_errors(
+    entry: Path, expected_slug: str, issue_data: Any
+) -> str | None:
+    """Return one identity-divergence error class for a record, or None.
+
+    .opencode#2769 SC-2: on a tracker-host store (expected_slug resolved),
+    a record may carry only one identity finding, checked in order:
+    (a) ``missing-remote-identity`` — no resolvable ``remote_url`` in the
+    record's issue mapping (absent, empty, or unparseable as a tracker
+    issue URL); (b) ``remote-number-mismatch`` — the URL parses but names
+    an issue number other than the record's folder number; (c)
+    ``remote-repo-mismatch`` — the URL parses but names an owner/repo
+    slug other than the store's origin-derived owner/repo. Decided from
+    locally stored facts (record fields, origin); no remote contact.
+    Non-numeric record directories carry no folder number to anchor and
+    are skipped by the caller.
+    """
+    folder_number = _parse_number(entry)
+    if folder_number is None:
+        return None
+    # issue.yaml's on-disk mapping is flat (title/status/remote_url at the
+    # top level) — read_issue_data wraps it as the "issue" entry only in
+    # memory (cmd_update writes the same flat shape back).
+    if not isinstance(issue_data, dict):
+        issue_mapping = {}
+    else:
+        issue_mapping = issue_data
+    remote_url = issue_mapping.get("remote_url")
+    if not isinstance(remote_url, str) or not remote_url.strip():
+        return MISSING_REMOTE_IDENTITY
+    match = _TRACKER_ISSUE_URL_RE.match(remote_url.strip())
+    if match is None:
+        return MISSING_REMOTE_IDENTITY
+    url_owner, url_repo, url_number_text = match.groups()
+    if int(url_number_text) != folder_number:
+        return REMOTE_NUMBER_MISMATCH
+    if f"{url_owner}/{url_repo}" != expected_slug:
+        return REMOTE_REPO_MISMATCH
     return None
 
 
