@@ -20,3 +20,40 @@ spec:
         (created_at 2026-11-21T05:08:58Z). No class adjudications to carry
         forward; no structural re-evaluation ran (no triggers fired).
       remediation: none required
+
+plan:
+  cycles:
+    - round: 1
+      date: '2026-11-25'
+      artifact: plan.md (written at plan stage under `approved for pr` carry-through)
+      criteria_set: skills/plan/references/plan-validation-standards.md + plan-structure-standards.md
+      reviewer: fresh-context sub-agent (session ses_decf9bef4ffehkculvWUCZqJMX)
+      verdict: PASS
+      findings: []
+      notes: >-
+        Zero-finding round; all 16 defect classes walked; coverage, ordering,
+        instruments, and surface coverage verified against the spec and the
+        live card texts at the verified trunk tip 9b84a7670.
+      remediation: none required
+
+implement_verify:
+  cycles:
+    - round: 1
+      date: '2026-11-25'
+      artifact: branch 2768-filed-pr-unfinished-scope (diff 9b84a7670..HEAD)
+      criteria_set: skills/spec/references/validation-standards.md (SCs 1-4 verbatim)
+      reviewer: fresh-context sub-agent (session ses_deb2caaebffeB77UJM3OSI18ac)
+      verdict: PASS
+      findings: []
+      per_sc:
+        SC-1: PASS (four foreclosure elements asserted by the reviewer's own read)
+        SC-2: PASS (cross-reference names git-workflow-pr rule 3; resolves)
+        SC-3: PASS (confined hunks; one provenance addition; root-agnostic; reference-integrity re-run PASS)
+        SC-4: PASS (behavioral; harness artifacts + clean-room evaluation session ses_deb2e4d8effeZX01PoaMOzzm06 PASS zero findings)
+      notes: >-
+        Suite green at branch tip (203 passed, reviewer's own run). Behavioral
+        evidence from tests-v2 harness (session.yaml primary + clean-room
+        evaluation); one disclosed post-halt mechanical completion (PR body
+        PATCH) recorded in orchestrator-note.md and judged not a gap against
+        SC-4's assertions (formatting write, not the behavioral decision).
+      remediation: none required
