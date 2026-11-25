@@ -1,7 +1,10 @@
-title: 'deck: stacked-PR authorization mishandled — parallel PR filed instead of stack-into-existing'
+title: 'deck: git-workflow-branch forecloses the complete-at-filing reading — filed-but-unmerged
+  PR is unfinished scope'
 status: open
 labels:
+- spec
 - bug
+- regression
 body: '## Summary
 
 
@@ -135,5 +138,5 @@ body: '## Summary
 
   '
 created_at: '2026-11-25T04:39:35+00:00'
-updated_at: '2026-11-25T04:39:48+00:00'
+updated_at: '2026-11-25T04:44:13+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2768

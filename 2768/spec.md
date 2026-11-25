@@ -1,0 +1,106 @@
+# [SPEC] git-workflow-branch: filed-but-unmerged PR is unfinished scope — foreclose the complete-at-filing reading
+
+## Intent and Executive Summary
+
+**Problem Statement.** `git-workflow-branch` rule 1's scope-extension provision ("A later message that adds work while that scope is unfinished extends that scope: its commits land on the scope's open branch, and no new branch opens") does not state when a PR-bearing authorization scope remains unfinished. In the CherokeeLessons incident recorded in this issue's report (2026-11-21), the agent read "PR filed" as "scope closed", treated a mid-flight work directive in the same authorization scope as new work, opened a second feature branch, filed a second parallel PR, and created a spurious new spec record — three rounds of developer correction before consolidation. The PR-side defenses delivered since (.opencode#2760: the rule-1 stacked-PR term anchor, rule 2's create-time same-scope enumeration, and the halt posture for discovered open PRs) block the second PR at the creation moment, but the branch-side misreading stands unguarded at its earlier decision point: nothing in the branch rule names the reading and forecloses it, and nothing binds "stacked"-worded approval to the stacked-PR shape at branch-extension time rather than PR-creation time.
+
+**Root Cause / Motivation.** The scope-extension rule's operative predicate is "while that scope is unfinished" — and the deck's records repeatedly show that "unfinished" is read by agents through whatever closure evidence is nearest. A filed-but-unmerged PR is visible closure evidence that is not closure: the PR records completed, verified, review-pending work, and merging is a human-only act (the merge boundary), yet no card text states that an unmerged PR leaves its scope open. The misread is recorded five times across the deck's history: .opencode#2509 (two PRs for stacked work — "stacked PR ceremony is forbidden"), .opencode#2529/#2530 (one authorization utterance → two branches and two PRs), .opencode#2639 (per-layer chain incident, 2026-10-17), .opencode#2760 (per-layer filing under one stacked authorization, 2026-11-20), and this incident (2026-11-21). .opencode#2760's spec explicitly excluded `git-workflow-branch` amendments on the ground "no branch-creation gap is observed in this incident's record" — a ground bound to the 2026-11-20 incident's record, which this incident's record now invalidates with a fresh branch-creation observation. The residual requirement (#2768 hardening suggestion 2) is therefore uncovered by delivered work.
+
+**Approach Chosen.** Amend `git-workflow-branch` rule 1's scope-boundary passage in place: after the existing extension sentence, state the foreclosure — a filed-but-unmerged pull request leaves its authorization scope unfinished; "PR filed" is not scope closure; until the scope's PR merges or the developer names a split, a later work directive in the same scope is scope-extension, its commits land on the scope's open branch, no new branch opens, and the scope's open PR is amended into the stacked-PR shape (one PR carrying one squashed commit per issue, the body closing every stacked issue) rather than a parallel PR. Add the one-line cross-reference to `git-workflow-pr` rule 3's stacked-PR definition so the term of art is visible at branch-extension time, never only at PR-shaping time.
+
+**Alternatives Considered & Why Discarded.**
+
+- *Route the requirement into .opencode#2760's delivered spec in place (search-before-filing).* Discarded: that spec is closed with its completion gate delivered (its six structural criteria and behavioral criterion are delivered and their provenance is on the trunk); amending a delivered spec under a closed gate mixes delivered and pending work — the same recorded ground #2760 used to reject amending #2639 in place. #2760's coverage does not include any `git-workflow-branch` surface (its Not-Included item 3 excludes the card), so the match fails on requirement class, not on wording.
+- *Floor-vocabulary alias/cross-reference (#2768 hardening suggestions 1 and 3, verbatim).* Discarded with recorded rationale: #2760's spec deliberated exactly this route for the same recognition failure and discarded it — deck governance keeps card-scoped directives out of the always-injected floor (the skill-creator admission gate; recorded in #2760's Alternatives Considered), and the card is load-triggered exactly when PR-boundary authorization arrives. The delivered card-side anchor at rule 1's token-arrival step carries the recognition fix; re-opening the floor route here would re-litigate a delivered disposition without new evidence.
+- *Mechanical gate — a hook or script blocking branch creation while an open PR exists.* Discarded: whether a directive is the "same scope" is intent-decidable (the same recorded ground #2760 carries for rejecting a mechanical same-scope-PR gate); judgment decides and mechanisms verify facts only. The foreclosure clause directs judgment at the decision moment; facts (open PR, its head/base, its closing references) stay under the platform-CLI instruments the PR card already prescribes.
+- *Amend the spec card's revision-in-place discipline to cover the spurious-record failure mode.* Discarded: the spec card's search-before-filing mandate (.opencode#2756) is delivered on the trunk and binds every new-spec filing path, including mid-flight additions routed through a record-driven decision — the incident's "new spec record where the existing spec should have gained the SC" failure mode is covered by delivered doctrine; this spec needs no duplicate requirement.
+
+**Key Design Decisions.**
+
+- *The foreclosure lives in the branch rule, not only at PR creation.* Tradeoff: the same-scope enumeration (#2760 rule 2) already stops a second PR downstream; the branch rule stops the misread upstream, before the new branch and its spurious artifacts exist. Defense at two decision points is deliberate for a five-instance recurrence class, not redundancy.
+- *The foreclosure predicate is fact-decidable; its scope resolution is judgment.* "The scope's PR is open (filed, unmerged)" is a platform-CLI fact; "does this directive fall in that scope" routes to the same-scope resolution path the PR card defines (rule 2's enumeration provisions, resolved against rule 3). The card text directs where judgment operates; no script classifies scopes.
+- *The foreclosure names the amendment-in-place obligation on the open PR.* The correct repair for scope-extension while a PR stands open is amending the open PR into the stacked shape, not merely "stack the branch" — the incident's own consolidation (cherry-pick onto the first branch, one PR carrying both per-issue commits, the second PR closed) is the shape the text prescribes, so the rule carries it.
+- *Whole-artifact layout per the structure standard.* The converted record is a new spec-stage artifact; nothing survives from the report's layout except quoted extracts (User Intent) — the report body remains verbatim in the store's issue record, not imported.
+
+**User Intent / Original Prompt.**
+
+- 2026-11-24 — the developer directive opening this workflow: `triage and spec audit .opencode#2768`.
+- 2026-11-21 — the filed report (verbatim extracts of the record's disposition-bearing passages; the full record persists in the issue body and the local `issue.yaml`): title "deck: stacked-PR authorization mishandled — parallel PR filed instead of stack-into-existing"; reproduction step 3: "instead of extending the open scope per git-workflow-branch's scope-boundary rule … the agent opens a **new branch** (`feature/65-…` stacked on the first), files the requirement as a **new spec record** (issue #65), and files a **second PR** (#66)"; expected behavior: "The second directive's commits should have landed on the open #63 branch; the PR should have been amended into the stacked shape — one PR, one commit per issue, body closing every stacked issue — and no second PR or branch should ever have existed"; actual behavior: "Two parallel PRs (#64, #66) for one stacked chain; a new spec record created where the existing spec should have gained the SC via revision-in-place; and three rounds of developer correction before the misreading was conceded"; surface finding quoted from the report: "git-workflow-branch §1 scope boundary … the session defeated it with a complete-at-filing reading of the scope (PR filed ⇒ scope closed), which the rule does not explicitly foreclose"; hardening suggestion 2 quoted: "State explicitly in git-workflow-branch §1 that filed-but-unmerged PRs are unfinished scope (closing the complete-at-filing reading)." Suggestions 1 and 3 route to delivered coverage (see Alternatives Considered); suggestion 2 is this spec's scope.
+
+## Not Included
+
+1. *Floor authorization-vocabulary changes* — the recognition-time fix (#2768 suggestions 1 and 3) is delivered by .opencode#2760 at `git-workflow-pr` rule 1's token-arrival step; the floor-side route was deliberated and discarded with recorded rationale in that spec.
+2. *`git-workflow-pr` amendments* — the PR card's stacked-PR term anchor, same-scope enumeration, and halt posture are delivered (#2760) and on the trunk at the freshness-gate tip (9b84a7670); no new PR-card surface is opened by this incident's residual.
+3. *The spurious-spec-record failure mode as a new requirement* — covered by the spec card's delivered search-before-filing mandate (.opencode#2756) and revision-in-place discipline; a duplicate requirement here would restate delivered doctrine.
+4. *Remediation in the consuming repository (CherokeeLessons)* — completed under the developer's direction before filing (the report records PR #64 consolidated into the stacked shape and #66 closed); the consuming repo is outside this spec's repository scope.
+5. *Hooks, scripts, or CI enforcement of the branch-extension rule* — the scope resolution is intent-decidable; card text directs judgment and platform-CLI fact work (see Key Design Decisions).
+
+## Requirements
+
+- R-1. `git-workflow-branch` rule 1's scope-boundary passage SHALL state the foreclosure: a filed-but-unmerged pull request leaves its authorization scope unfinished — "PR filed" is not scope closure, and the complete-at-filing reading does not govern the rule's "unfinished" predicate; until the scope's PR merges or the developer names a split, a later work directive adding work to that scope is scope-extension: its commits land on the scope's open branch, no new branch opens, and the scope's open PR is amended into the stacked-PR shape — one PR carrying one squashed commit per issue in the scope, the body closing every stacked issue — rather than a parallel PR.
+- R-2. The amended passage SHALL cross-reference `git-workflow-pr` rule 3's stacked-PR definition by name at the branch-extension moment, so the term of art binds when stacked-worded approval or stacked work is read on the branch side, never only at PR-shaping time.
+- R-3. The amendments SHALL be confined to `git-workflow-branch` rule 1's scope-boundary passage and the card's provenance line: every other clause of the card survives unchanged; the provenance line gains exactly one entry citing this issue; and the amended text stays root-agnostic — no repository names, no absolute paths.
+
+## Success criteria
+
+| ID | Criterion | Class | Instrument |
+|---|---|---|---|
+| SC-1 | `git-workflow-branch` rule 1's scope-boundary passage states all four elements of the foreclosure: (a) a filed-but-unmerged PR leaves its scope unfinished and "PR filed" is not closure; (b) the complete-at-filing reading is named as not governing the unfinished predicate; (c) a later same-scope directive's commits land on the scope's open branch with no new branch opening; (d) the scope's open PR is amended into the stacked shape — one PR, one squashed commit per issue, the body closing every stacked issue — rather than a parallel PR (R-1). | structural | Read the amended rule 1 text; assert the four elements (a)–(d) are each stated with the amendment's language, and that the foreclosure sentence extends the existing extension rule rather than replacing it. |
+| SC-2 | The amended passage names `git-workflow-pr` rule 3's stacked-PR definition at the branch-extension moment: the cross-reference is present in the scope-boundary text, names the stacked shape and its defining rule, and binds the shape's meaning for stacked-worded approval read on the branch side (R-2). | structural | Read the amended rule 1 text; assert the cross-reference names `git-workflow-pr` rule 3 and the stacked-PR shape. |
+| SC-3 | The card changes are confined to the stated surfaces: the diff against the card's pre-amendment trunk state removes or rewrites only rule 1's scope-boundary passage, the provenance line gains exactly one new entry citing this issue, every other clause is unchanged, and the diff text contains no repository names and no absolute paths (R-3). | structural | Diff the amended `git-workflow-branch/SKILL.md` against its pre-amendment trunk state; assert the diff's hunks fall only in the rule 1 scope-boundary passage and the provenance line, count exactly one provenance addition, and sweep the diff for repository names and absolute paths — none present. |
+| SC-4 | In a live opencode run given an open PR for a scope's feature branch (provisioned by the harness), a later mid-scope work directive in the same authorization scope, and the terminal token `approved for stacked PR`, the agent extends the scope's open branch — the new commits land on it, no new branch opens, and the scope's single open PR is amended to carry one squashed commit per issue with a body closing every stacked issue; no second branch, no second PR, and no new spec record for the added work exists at run end (R-1, R-2). | behavioral | tests-v2 behavioral scenario against the harness-provisioned container; assert from the container's branch and PR API state and the session record that exactly one feature branch and one PR exist for the scope at run end, the PR's commits equal one per stacked issue, the PR body carries closing keywords for every stacked issue, and the session record shows no new branch creation and no new spec filing. |
+
+The structural criteria are content checks run against the amended card. The behavioral criterion runs under the tests-v2 harness; the behavioral-testing card governs the instrument at implementation time.
+
+## Dependencies
+
+| Reference | Relationship | Status |
+|---|---|---|
+| `skills/git-workflow-branch/SKILL.md` | The amended surface — all requirements edit rule 1's scope-boundary passage. | satisfied (exists at the freshness-gate tip 9b84a7670, read 2026-11-25) |
+| `skills/git-workflow-pr/SKILL.md` rule 3 | The stacked-PR definition the cross-reference (R-2) names; delivered lineage #2509/#2639/#2760. | satisfied (on trunk at the freshness-gate tip; rule 1's term anchor and rule 2's enumeration read 2026-11-25) |
+| .opencode#2760 (delivered sibling spec in the same behavior class) | The search-before-filing routing anchor: its coverage carries the PR-side surfaces and the floor-route disposition this spec composes with and extends toward the branch surface. | satisfied (closed 2026-11-21; provenance on trunk) |
+| tests-v2 behavioral harness | SC-4's instrument provisioned and executed under the behavioral-testing card. | satisfied (harness exists; exercised by #2639 and #2760 behavioral runs — most recent recorded run in #2760's revision note, 2026-11-21) |
+| skill-creator card (governance admission gates) | The amendments are deck-content changes; the gates bind the implementation flow (admission evidence, predicate classification). | pending (loads at plan/implementation) |
+
+## Traceability
+
+| Requirement | Success criteria |
+|---|---|
+| R-1 | SC-1, SC-4 |
+| R-2 | SC-2, SC-4 |
+| R-3 | SC-3 |
+
+Every requirement traces to at least one SC; every SC traces to at least one requirement — no orphans in either direction.
+
+## Documentation Sources
+
+| Source | Type | Location | Verification |
+|---|---|---|---|
+| .opencode#2768 filed report | The triaged incident record this spec was converted from | Remote issue 2768 body; local record `.opencode/.issues/2768/issue.yaml` | Read in full 2026-11-25 (this triage); reproduction chain, expected/actual behavior, and hardening suggestions quoted verbatim into User Intent |
+| `git-workflow-branch` card rule 1 | The amended surface's live text | `.opencode/skills/git-workflow-branch/SKILL.md` rule 1 | Read in full 2026-11-25 at the freshness-gate tip (9b84a7670); the extension sentence and its "unfinished" predicate verified verbatim |
+| `git-workflow-pr` card rules 1–3 | The delivered PR-side defenses and the stacked-PR definition | `.opencode/skills/git-workflow-pr/SKILL.md` rules 1–3 | Read in full 2026-11-25; rule 1's stacked-PR term anchor (#2760), rule 2's same-scope enumeration, and rule 3's definition verified present on trunk |
+| .opencode#2760 spec | Delivered sibling spec — coverage routing and the floor-route disposition | `.opencode/.issues/2760/spec.md` | Read in full 2026-11-25 (this triage); Not-Included item 3's git-workflow-branch exclusion and its incident-bound ground verified verbatim |
+| .opencode#2639 spec | Delivered scope-boundary provision (the extension rule's originating amendment) | `.opencode/.issues/2639/spec.md` (title/status read via store) | Status closed 2026-10-21 read 2026-11-25; its delivered extension sentence lives in the branch card's current rule 1 text |
+| .opencode#2509, #2529, #2531 | Prior recurrence records of the multi-PR behavior class | Store search results (titles and statuses) | Searched 2026-11-25 via the store's `search` command; all closed; recurrence framing confirmed from titles |
+| Floor authorization vocabulary | The closed-set token surface the incident's recognition failure named | `.opencode/floor.md` authorization vocabulary block | Read in full 2026-11-25; `stack into existing work: refs` and `approved for stacked implementation` present; no stacked-PR alias present — consistent with the report's surface finding |
+
+## Cost Frame
+
+- SC-1/SC-2/SC-3 (structural): acting — reading the amended rule and running one diff against the pre-amendment trunk state: minutes. Skipping: the foreclosure exists only as prose intent; the next mid-scope directive during an open PR can repeat the branch-side misreading, and each recurrence costs a developer-correction round plus the unwind of misshaped branches, PRs, and spec records.
+- SC-4 (behavioral): acting — one harness scenario: container provisioning plus a live run, minutes of compute. Skipping: the branch-extension behavior the amendment prescribes is never observed under the incident's actual decision chain (open PR + mid-flight directive + stacked approval), so a conforming-text/non-conforming-behavior gap can persist invisibly; text-only criteria cannot fail on it.
+
+## Edge Cases
+
+| Condition | Expected behavior | Resolution |
+|---|---|---|
+| The scope's PR merges before the directive's commits exist | The scope is genuinely finished; the next directive is a new scope with a new branch — the foreclosure never applies | Covered by SC-1(a): the predicate is filed-but-unmerged |
+| The developer explicitly splits the scope (names the new work's own branch, base, and sequencing) | The named split governs (the named-split lineage from the PR card's scope provision); no foreclosure applies to a split the developer made | Covered by SC-1's "until the developer names a split" predicate |
+| The directive's work belongs to a different issue's scope | Not scope-extension; the same-scope resolution is judgment — routed to the PR card rule 2's enumeration provisions as amended by #2760 | Covered by SC-2's cross-reference (the resolution path is named, not redefined) |
+| The scope's open PR carries partial or unverified work | The PR card's not-done default (#2741) applies on resumption; the extension still amends the open PR into the stacked shape at completion — never a second PR | Covered by SC-1(c)/(d); no new reading |
+| No PR exists at directive arrival | The delivered extension rule applies as-is; the foreclosure adds no obligation beyond it | Covered by SC-1(a)'s scope: the foreclosure only names the PR-bearing state |
+
+## Completion gate
+
+Every success criterion (SC-1 through SC-4) passes before the deliverable is complete; partial implementation is not permitted — a card whose foreclosure, cross-reference, or confinement passes while the behavioral criterion is unrun is not completion.
+
+🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
