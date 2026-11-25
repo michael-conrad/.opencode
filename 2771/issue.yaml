@@ -3,7 +3,6 @@ title: '[SPEC] local-issues sync''s up_to_date claim self-scopes — store-branc
 status: closed
 labels:
 - spec
-- needs-approval
 body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-Identifier:\
   \ MIT -->\n\n# [SPEC] local-issues sync's up_to_date claim self-scopes — store-branch\
   \ currency only, record status workflow-local\n\n## Problem\n\n`local-issues sync`\
@@ -79,5 +78,5 @@ body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-I
   \ https://github.com/michael-conrad/.opencode/tree/issues-data/2771/\n\nAI-facing\
   \ artifacts pointer: `.opencode/.issues/2771/`\n"
 created_at: '2026-11-25T03:22:52+00:00'
-updated_at: '2026-11-25T03:54:21+00:00'
+updated_at: '2026-11-25T03:54:27+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2771
