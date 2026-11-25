@@ -2,7 +2,62 @@ title: 'issues-card: mirror-repair runs backwards — agent deletes correct loca
   certifies spec audit on phantom number'
 status: open
 labels: []
-body: ''
+body: "## Summary\n\nTwo agent sessions on a consuming repository's root issue store\
+  \ violated the\nissues card's number-space discipline: (1) on 2026-09-18 a session\
+  \ minted the\nlocal record under a stale counter number (`2440`) while the remote\
+  \ tracker had\nreserved `#1`, and wrote the phantom path into the remote body; (2)\
+  \ on\n2026-11-23 a session executed mirror-repair backwards — it created the correct\n\
+  local `1/` record and deleted it 44 seconds later, wrote a spec-audit\nvalidation\
+  \ record onto the phantom `2440/` folder, and reconciled the remote\nticket to closed.\
+  \ The store stayed knowingly defective for 2+ months.\n\n## Environment\n\n- Deck:\
+  \ `.opencode` @ `cfdf4467` (consuming-repo checkout)\n- Host repo: NewSRX-Tech-LLC/ClinicaltrialsStagingLoader;\
+  \ GitBucket tracker at tomcat-0002.newsrx.com\n- Store: `.opencode/tools/local-issues`;\
+  \ issues-data orphan branch\n- Agent sessions: 2026-09-18 (creation), 2026-11-23\
+  \ 11:22–11:26 EST (backwards repair + audit), 2026-11-23 later (discovery)\n\n##\
+  \ Reproduction (forensic, evidenced from store git history)\n\n1. 2026-09-18 11:03\
+  \ EST — remote issue **#1** filed (\"[SPEC] Upgrade root repo\n   to Gradle 9.7…\"\
+  ); number reserved.\n2. 2026-09-18 11:58 EST — store commit `f30a11a` \"auto: create\n\
+  \   #ClinicaltrialsStagingLoader#2440\" bumps `.counter` and creates `2440/` —\n\
+  \   local record minted from the counter, not the remote number; the remote\n  \
+  \ body's artifacts pointer names `.issues/2440/`.\n3. All downstream work records\
+  \ under `2440/`; remote `issues/2440` has never\n   existed (API 404 confirmed 2026-11-23).\n\
+  4. 2026-11-23 11:22:02 EST — session creates local `1/` (commit `c6c2dbd`):\n  \
+  \ evidence it discovered the mismatch.\n5. 2026-11-23 11:22:46 EST — same session\
+  \ deletes `1/` (commit `c6fad10`),\n   44 seconds later; keeps the phantom.\n6.\
+  \ 2026-11-23 11:25 EST — same session writes `audit/validation.yaml`\n   (spec round\
+  \ 1, `issue: 2440`) onto the phantom, then \"reconciles\" remote #1\n   to closed\
+  \ (16:26:50Z update).\n7. Later session: `issues/2440` → 404; no resolvable match\
+  \ for the record's\n   number anywhere. Renumber + pointer corrections then performed\
+  \ as\n   agent-owned hygiene repair (`validate-yaml` sweep exit 0).\n\n## Expected\
+  \ Behavior\n\n- issues card §2: reservation is remote-first; the store never hand-derives\n\
+  \  the number; the local `{N}/` follows the remote-assigned number.\n- issues card\
+  \ §7 mirror-repair: on discovery that a remote issue's local\n  record is absent,\
+  \ create the record **at the remote-assigned number**,\n  mirror content, and correct\
+  \ the remote body's pointer — the remote number is\n  the identity anchor; a stored\
+  \ pointer naming a different folder is the\n  defect to repair, not the precedent\
+  \ to follow.\n- Record-content-defect trigger: \"the store never stays knowingly\
+  \ defective\n  across sessions\" — repair on discovery, in the same workflow.\n\n\
+  ## Actual Behavior\n\n- The 2026-09-18 session minted the local record from `.counter`\
+  \ despite an\n  existing remote reservation; the corrupted pointer then propagated\
+  \ into\n  every artifact, the remote body, and the audit record.\n- The 2026-11-23\
+  \ session created the correct `1/`, deleted it in favor of the\n  phantom, and certified\
+  \ ticket state against it — mirror-repair inverted,\n  with the corrupted remote-body\
+  \ pointer treated as authoritative over the\n  remote issue number itself.\n- No\
+  \ deck mechanism flagged the divergence across 2+ months and several store\n  contacts\
+  \ (`init`/`sync` runs, an audit round); only a downstream developer\n  question\
+  \ (\"fake #2440\") surfaced it.\n\n## Additional Context\n\n- Observations for triage\
+  \ (not a proposed rule set): (a) whether the 2026-09-18\n  tooling allowed counter-minting\
+  \ on a remote-tracker repo (current `create`\n  requires `--number`; tool history\
+  \ check belongs to triage); (b) the\n  2026-11-23 failure is agent judgment — what\
+  \ makes \"remote number is the\n  identity anchor\" unmissable during mirror-repair,\
+  \ and what forbids deleting\n  a just-created correct record in favor of a phantom;\
+  \ (c) whether a\n  fact-decidable check (local record number vs. resolvable remote;\
+  \ pointer\n  resolvability) belongs in `doctor`/`validate-yaml` per the deck's predicate\n\
+  \  classification.\n- Post-discovery repair, 2026-11-23: `local-issues renumber\
+  \ …#2440 …#1`,\n  identity/pointer corrections inside the record (merged branch\
+  \ name\n  `feature/2440-gradle-9.7` and deleted `tmp/2440/` scratch paths left as\
+  \ true\n  history), `validate-yaml` exit 0, store synced.\n\n\U0001F916 Co-authored\
+  \ with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)\n\n"
 created_at: '2026-11-25T03:57:17+00:00'
-updated_at: '2026-11-25T03:57:57+00:00'
+updated_at: '2026-11-25T03:57:59+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2770
