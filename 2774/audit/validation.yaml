@@ -20,3 +20,13 @@ spec:
       findings: []
       remediation: "none required — round 1 remediations re-verified (attic-era attribution corrected; R-4/SC-4 sites pinned to both tracker-conditional blocks); load-bearing current-state claims independently re-verified (three card sites, tracker-conditionals, remote-first mandate, #2723 warn-only create, sibling 2769 open); proactive repo-boundary containment clean (single repo, home store coincides); layout conformance clean"
       loop_state: "zero-finding round; loop exits clean"
+    - round: 3
+      date: "2026-11-24"
+      artifact: ".opencode/.issues/2774/spec.md"
+      verdict: "FAIL"
+      reviewer: "fresh-context dispatch (subagent ses_def5fdbd1ffeyoZs1VccaIwDpO)"
+      findings:
+        - class: "fabricated claims (analysis family)"
+          ground: "spec section 7 Documentation Sources row attributed the stale counter-derivation mechanism to a tool docstring plus the attic deck; exhaustive live-tool verification shows zero counter tokens anywhere in .opencode/tools/ code and docstrings — the mechanism is attic-deck-only (the attribution section 1 itself carries), so the row cited a live source that does not exist and contradicted its own Location cell"
+      remediation: "section 7 row re-pinned to the attic-deck-only attribution (Type cell aligned with section 1); Location cell now records both the attic source paths and the live-tool absence evidence (no _next_number or counter-reading in .opencode/tools/ code or docstrings; create mints nothing, requires --number); Verification cell records the absence sweep"
+      loop_state: "revised; re-validation dispatch (round 4) follows in same workflow"

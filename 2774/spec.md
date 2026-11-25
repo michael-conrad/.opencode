@@ -81,7 +81,7 @@
 | issues card §2 + operating-contract boundary sentence | deck card | `.opencode/skills/issues/SKILL.md` lines 26–34, 190–204 | read, 2026-11-24 |
 | `local-issues` flag surface | tool argparse | `--github`/`--remote-url` on `update`; field map `github`→`github_url`, `remote_url` field; `create --number` required (tool mints nothing) | grep, 2026-11-24 |
 | `github_url`/`github_issue` read sites | tool code | `_legacy_item_removable` only (legacy-residue cleanup path; no live behavior reads the field) | grep, 2026-11-24 |
-| stale counter-derivation mechanism | tool docstring + attic deck | current `_next_number` mechanism absent from live tool; attic `spec-creation`/`issue-operations` task cards teach `.counter` reserve | grep, 2026-11-24 |
+| stale counter-derivation mechanism | attic deck (preserved pre-rip task lists) | attic `spec-creation`/`issue-operations` task cards teach `.counter` reserve; live tool carries none — `_next_number`/counter-reading absent from `.opencode/tools/` code and every docstring (`create` mints nothing, requires `--number`) | grep (absence sweep incl. all docstrings), 2026-11-24 |
 | store workspace guide remote-first mandate | store doc | `.opencode/.issues/AGENTS.md` Workflow section (precedent: issue 2450 divergence, `opencode-config#373` recurrence) | read, 2026-11-24 |
 | remote issue 2769 body | tracker record | `gh issue view 2769 -R michael-conrad/.opencode` (tool-side repair + migration items) | read, 2026-11-24 |
 | session-init routing table | runtime data | per-repo platform + writability fields in session-init output | read, 2026-11-24 |
