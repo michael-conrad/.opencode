@@ -1,0 +1,45 @@
+spec:
+  artifact: .issues/2769/spec.md
+  criteria_source: .opencode/skills/spec/references/validation-standards.md
+  rounds:
+    - round: 1
+      date: 2026-11-24
+      reviewer: fresh-context foreground dispatch (subagent session ses_def1b9f5effedTZU1QwY3xZGA4)
+      sc_verdicts:
+        - "SC-1": PASS
+        - "SC-2": PASS
+        - "SC-3": PASS
+        - "SC-4": PASS
+      verdict: FAIL
+      findings:
+        - class: blast radius
+          kind: analysis family (validation standards)
+          classified_as: finding
+          ground: >-
+            The change reaches skills/issues/references/local-issues-cli.md
+            (its validate-yaml behavior row and taxonomy enumeration document the
+            very validator R-2 extends) yet the impact enumeration in
+            Dependencies, Documentation Sources, the Approach statement, and the
+            record body's Impact section omitted the reference entirely.
+            Delivering every SC as written would leave the deck's routing
+            reference stale on the taxonomy it documents. The reviewer verified
+            the absence against the live reference text.
+      remediation: >-
+        Spec revised in place per the finding: R-2 carries the
+        reference-consistency clause; SC-5 added (structural, read/grep
+        instrument over the reference's validate-yaml row and taxonomy
+        enumeration); traceability updated (R-2 to SC-2 and SC-5); Dependencies
+        and Documentation Sources rows added; Approach enumerates the carried
+        reference; completion gate extended to SC-5; record body reconciled on
+        both surfaces (local issue.yaml and remote tracker issue 2769) with the
+        SC-5 row and the blast-radius line. No artifact content negotiated away;
+        the finding's surface is now in scope, not excluded.
+      repo_boundary_containment: PASS
+      notes: >-
+        Reviewer verified every load-bearing current-state claim directly
+        (tool source, issues card section 2 and 7, CLI reference, both sibling
+        records, host-maps conf, trunk-tip state); incident forensics
+        corroborated via the two filed records carrying identical SHAs;
+        existing validate-yaml pytest sandboxes unaffected (git-init sandboxes
+        carry no origin, so the tracker-host predicate is false); new test
+        coverage is plan-stage work.
