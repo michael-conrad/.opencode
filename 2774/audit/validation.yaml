@@ -30,3 +30,11 @@ spec:
           ground: "spec section 7 Documentation Sources row attributed the stale counter-derivation mechanism to a tool docstring plus the attic deck; exhaustive live-tool verification shows zero counter tokens anywhere in .opencode/tools/ code and docstrings — the mechanism is attic-deck-only (the attribution section 1 itself carries), so the row cited a live source that does not exist and contradicted its own Location cell"
       remediation: "section 7 row re-pinned to the attic-deck-only attribution (Type cell aligned with section 1); Location cell now records both the attic source paths and the live-tool absence evidence (no _next_number or counter-reading in .opencode/tools/ code or docstrings; create mints nothing, requires --number); Verification cell records the absence sweep"
       loop_state: "revised; re-validation dispatch (round 4) follows in same workflow"
+    - round: 4
+      date: "2026-11-24"
+      artifact: ".opencode/.issues/2774/spec.md"
+      verdict: "PASS"
+      reviewer: "fresh-context dispatch (subagent ses_def5a0b1affeLKPRnX2r2EQkkP)"
+      findings: []
+      remediation: "none required — round 3 remediation re-verified (section 7 row now attic-deck-only; live-tool absence independently reproduced — zero counter or _next_number tokens across .opencode/tools/ code and docstrings; create mints nothing, requires --number; both cited attic task cards present and teaching .counter reserve); full criteria sweep clean (classes 1-9, all analysis families, layout conformance, traceability both directions, blast radius for the --github-to-agnostic spelling change enumerated complete); both containment prongs clean"
+      loop_state: "zero-finding round; loop exits clean"
