@@ -1,0 +1,8 @@
+title: 'local-issues: store-local .counter numbers diverge from remote tracker numbers
+  (remote API should be authoritative)'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-11-25T00:51:01+00:00'
+updated_at: '2026-11-25T00:51:01+00:00'
