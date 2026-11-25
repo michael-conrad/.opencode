@@ -85,8 +85,58 @@ body: '### Summary
   reconciled in-workflow
 
 
+  ### Routed triage ground (canonicalized from .opencode#2770, 2026-11-24 triage)
+
+
+  Same incident, same requirement class: the remote-tracker-assigned number is the
+  store record''s identity anchor for any live-tracker store — divergence must be
+  prevented at derivation (#2774''s delivered card-doctrine half; this report''s tool
+  half), detected when it slips through, and unmissable during mirror-repair. `.opencode#2770`''s
+  report ground routes here in place (its record closes duplicate; re-triage and work
+  requests land here). Triage rendered against post-freshness-sync state: root `opencode-config`
+  @ `385a8a70` (= `origin/main`), submodule `.opencode` trunk-tip checkout @ `6c12d378`
+  (= its `origin/main`); sanctioned parent-gitlink drift (`7e50437b`) recorded, not
+  resolved.
+
+
+  Evidence addition (2026-11-23 11:22–11:26 EST session, store git history `c6c2dbd`
+  → `c6fad10`): the session executed mirror-repair backwards — created the correct
+  local `1/` record, deleted it 44 seconds later, kept phantom `2440/`, wrote the
+  spec-audit validation record (`issue: 2440`) onto the phantom, and reconciled remote
+  `issues/1` to closed against the phantom state. No tool surface (`init`/`sync`,
+  audit round) flagged the divergence for 2+ months; a downstream developer question
+  surfaced it.
+
+
+  Fix facets added:
+
+
+  4. **Mirror-repair identity anchor (card — issues §7):** state what makes "the remote-assigned
+  number is the identity anchor" unmissable during mirror-repair and forbid deleting
+  a just-created correct record in favor of a stored phantom folder; the stored pointer
+  naming a different folder is the defect to repair, never the precedent to follow.
+
+  5. **Divergence detection (tool — `doctor`/`validate-yaml`):** a fact-decidable
+  divergence check — local record number vs resolvable remote identity (`remote_url`),
+  record-pointer resolvability — surfaced by the read-only health/validation sweep;
+  open design inputs for the spec: predicate classification (fact-decidable per the
+  floor) against the tool''s remote-API-contact boundary (issues §7: local-issues
+  commands never contact a remote issues-system API).
+
+
   Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+
+  Sibling card-doctrine fix (filed 2026-11-24): https://github.com/michael-conrad/.opencode/issues/2774
+  — number-acquisition recipe and prohibition in card text; this report keeps the
+  tool-side fixes (1) and the diverged-store migration (3).
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2769/
+
+  AI ingest: read `.opencode/.issues/2769/` (local-authoritative).
+
 
   '
 created_at: '2026-11-25T00:51:01+00:00'
-updated_at: '2026-11-25T00:51:03+00:00'
+updated_at: '2026-11-25T04:00:10+00:00'
