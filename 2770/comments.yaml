@@ -1,1 +1,9 @@
-comments: []
+comments:
+- type: internal
+  body: 'Triage verdict 2026-11-24: actionable class, canonicalized into .opencode#2769
+    (the class governing record per #2774 delivered partition). Freshness gate ran:
+    root 385a8a70 = origin/main; submodule trunk-tip checkout 6c12d378; parent-gitlink
+    drift 7e50437b recorded. Facets (b) mirror-repair identity-anchor unmissability
+    and (c) doctor/validate-yaml divergence-detection routed into #2769 ground 2026-11-24.
+    No pending work of its own; re-triage lands on #2769.'
+  timestamp: '2026-11-25T04:00:29+00:00'
