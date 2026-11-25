@@ -1,0 +1,9 @@
+title: '[BUG] local-issues sync reports up_to_date while local status diverges from
+  remote closure (closed/completed)'
+status: open
+labels:
+- needs-approval
+- triage
+body: ''
+created_at: '2026-11-25T03:22:52+00:00'
+updated_at: '2026-11-25T03:22:52+00:00'
