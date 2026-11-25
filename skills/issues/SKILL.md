@@ -23,11 +23,18 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    origin is `http`/`https`) holds no local issue store; the local store's
    operations never target it, and its issues are read and written through
    the platform CLI against its own tracker.
-2. **Creation.** Remote first: when the store has a remote tracker, file the
+2. **Creation.** Tracker existence is fact-decidable from the
+   session-init routing table (per-repo platform + writability), never
+   determined by listing remote or local issues. Remote first: when the store has a remote tracker, file the
    remote issue to reserve the number before any local folder setup — every
-   issue type; the local `{N}/` mirror follows, its `github_url` field
-   written locally via `update --github` (a local-store write — see §1's
+   issue type; the local `{N}/` mirror follows, its `remote_url` field
+   written locally via `update --remote-url` (a local-store write — see §1's
    boundary; the remote body itself is edited through the platform CLI).
+   After every remote filing into a synced store, advance `.counter` to
+   max(counter, filed number) as post-filing store maintenance; if it has
+   drifted behind the store's highest `{N}/`, advance it to that number —
+   the counter is reserve-state hygiene (the remoteless-selection semantics
+   unchanged), never a number-selection input.
    Remoteless stores pick the next free number in that repo's own namespace.
    The local-artifacts pointer written into the remote body must resolve to
    the actual local folder at write time — an unresolvable pointer is a flow
@@ -193,8 +200,8 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    work continues unaffected; the halt is never a waiting state for the
    whole session's work. Boundary: local-issues commands manage only the local
    issues-data store — they never contact or update any remote issues-system
-   API on any platform; `update --github` writes the local store's
-   `github_url` field only and is never the mechanism for a remote-body
+   API on any platform; `update --remote-url` writes the local store's
+   `remote_url` field only and is never the mechanism for a remote-body
    correction. The repair is fact work performed on discovery — never a
    blocker or fail reason by itself. **Registration-on-demand:** pipeline
    work targeting an issue — spec creation, plan, implementation, or an
