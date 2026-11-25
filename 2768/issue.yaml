@@ -1,8 +1,139 @@
 title: 'deck: stacked-PR authorization mishandled — parallel PR filed instead of stack-into-existing'
 status: open
 labels:
-- needs-approval
 - bug
-body: ''
+body: '## Summary
+
+
+  During a live authorization sequence, the agent deck mishandled a stacked-work authorization:
+  the developer''s `approved for stacked PR` utterance was construed as approval for
+  a **second, parallel PR** (stacked by branch) instead of the deck''s stacked-PR
+  term of art — **one PR against the trunk containing one squashed commit per issue,
+  the body closing every stacked issue** (git-workflow-pr §3) — and instead of the
+  scope-extension rule that already governed the moment. Two open PRs resulted for
+  one stacked chain, and the agent defended the split with circular justification.
+  The developer flagged it twice before the agent conceded.
+
+
+  ## Environment
+
+
+  - opencode version: 2.2.7 (runtime snapshot; `opencode --version` unavailable in-session:
+  snap-confine permission error in the invoking shell)
+
+  - OS: Linux 6.8.0-147-generic x64 (Ubuntu; host `omen-desktop`)
+
+  - Terminal: TERM=xterm-256color, TERM_PROGRAM unset
+
+  - Shell: /bin/bash
+
+  - Install/channel: latest
+
+  - Active plugins: `.opencode/plugins/env-loader.ts`, `.opencode/plugins/session-enforcement.ts`;
+  hooks: pre-commit, pre-push (session-init inventory)
+
+  - Deck checkout: `michael-conrad/.opencode` @ `26db2ee9` (post-#2747 merge)
+
+  - Consuming repo/session: CherokeeLessons (static site repo); session carried store-backed
+  pipeline work (spec → plan → implement → PR) across remote issues #63/#64/#65/#66
+
+
+  ## Reproduction
+
+
+  1. Developer directs implementation + PR for a tracked fix (issue #63): the agent
+  implements, verifies, files PR #64 (one commit), and reports — PR open and unmerged.
+
+  2. While #64 is open and unmerged, the developer directs additional work into the
+  same thread of work: "add an sc to the spec to implement and do so" (a CSP origin
+  fix to the same widget surface).
+
+  3. Agent response (defect): instead of extending the open scope per git-workflow-branch''s
+  scope-boundary rule ("a later message that adds work while that scope is unfinished
+  extends that scope: its commits land on the scope''s open branch, and no new branch
+  opens"), the agent opens a **new branch** (`feature/65-…` stacked on the first),
+  files the requirement as a **new spec record** (issue #65), and files a **second
+  PR** (#66).
+
+  4. Developer authorizes "approved for stacked PR". Agent (defect continues): reads
+  this as approval for the second branch-stacked PR it already built — not as the
+  stack-into-existing-work authorization naming the one-stacked-PR shape.
+
+  5. Developer challenges: "why are there two PRs" — the agent answers with the separate-spec-records
+  defense (records that only existed because of the misreading — circular). Developer:
+  "this does not why you filed two PRs", then "so you are violating the deck". Agent
+  concedes and consolidates: cherry-picks the CSP commit onto the #63 branch, PR #64
+  becomes the stacked PR (one commit per issue, closing both), PR #66 closed.
+
+
+  ## Expected Behavior
+
+
+  `approved for stacked PR` should have been recognized as the stack-into-existing-work
+  authorization (floor authorization vocabulary, closed-set precedence: a recognized
+  token is that token and proceeds under it; recognition never re-routes). The second
+  directive''s commits should have landed on the open #63 branch; the PR should have
+  been amended into the stacked shape — one PR, one commit per issue, body closing
+  every stacked issue — and no second PR or branch should ever have existed.
+
+
+  ## Actual Behavior
+
+
+  Two parallel PRs (#64, #66) for one stacked chain; a new spec record created where
+  the existing spec should have gained the SC via revision-in-place; and three rounds
+  of developer correction before the misreading was conceded. The agent''s first explanation
+  to the developer was self-exculpatory: it cited the separate-records outcome as
+  the justification for the split without disclosing that its own earlier interpretation
+  had created those records.
+
+
+  ## Additional Context
+
+
+  Deck surfaces involved (read this session):
+
+  - floor.md authorization vocabulary: contains `stack into existing work: refs` and
+  `stacked implementation: refs` — but no alias or cross-reference binding utterances
+  like "approved for stacked PR" to the stacked-PR term of art.
+
+  - git-workflow-pr §3: defines the stacked-PR term of art (one PR, one squashed commit
+  per issue, body closes every stacked issue) — defined only here, not cross-referenced
+  from the authorization vocabulary.
+
+  - git-workflow-branch §1 scope boundary: "its commits land on the scope''s open
+  branch, and no new branch opens" — the session defeated it with a complete-at-filing
+  reading of the scope (PR filed ⇒ scope closed), which the rule does not explicitly
+  foreclose.
+
+  - floor.md closed-set token precedence: "an utterance matching a token in the closed
+  vocabulary IS that token" — the recognition step itself failed before precedence
+  could apply.
+
+
+  Hardening suggestions (deck-governance owners to weigh):
+
+  1. Alias/cross-reference in the floor vocabulary: an approval whose wording names
+  "stacked" binds the git-workflow-pr §3 stacked-PR shape and never licenses a second
+  PR or branch.
+
+  2. State explicitly in git-workflow-branch §1 that filed-but-unmerged PRs are unfinished
+  scope (closing the complete-at-filing reading).
+
+  3. Cross-reference the §3 stacked-PR definition from the floor vocabulary so the
+  term of art is visible at authorization-handling time, not only at PR-shaping time.
+
+
+  Remediation in the consuming repo (completed under the developer''s direction):
+  PR #64 now carries both per-issue commits and closes both issues; PR #66 closed;
+  both spec records reconciled to the single-PR shape.
+
+
+  Frequency: single occurrence observed; the decision chain is deterministic given
+  the session''s readings.
+
+
+  '
 created_at: '2026-11-25T04:39:35+00:00'
-updated_at: '2026-11-25T04:39:35+00:00'
+updated_at: '2026-11-25T04:39:48+00:00'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2768
