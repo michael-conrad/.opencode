@@ -1,142 +1,160 @@
-title: 'local-issues: store-local .counter numbers diverge from remote tracker numbers
-  (remote API should be authoritative)'
+title: 'local-issues: remote-tracker number as record identity anchor (diverged-store
+  migration, sweep detection, mirror-repair doctrine)'
 status: open
 labels:
+- spec
 - needs-approval
-body: '### Summary
+body: '### Problem
 
 
-  The `local-issues` tool derives local issue-store folder numbers from a store-local
-  `.counter`, even when the repository has a live remote tracker that assigns its
-  own number via the API. The two number spaces diverge, so a ticket carries two non-matching
-  identities (e.g. GitBucket `issues/1` vs local `.issues/2440/`), and operations
-  literally targeting the remote number — read, audit dispatch, `create --number repo#N`
-  mirror-repair — either miss the existing local record or fabricate a duplicate record
-  for the ticket.
+  For every issue store with a live remote tracker (host-mapped GitBucket via `local-issues-host-maps.conf`,
+  or github.com), the tracker-assigned number is the record''s identity anchor in
+  doctrine (issues card §2; sync-mirroring "remote-first"), but three surfaces do
+  not hold the anchor: no tool surface detects a record whose folder number disagrees
+  with its tracker identity, no doctrine text guards the mirror-repair moment against
+  following a stored phantom-folder precedent, and no disposition exists for stores
+  already diverged when discovery arrives.
 
 
-  ### Expected behavior
+  Observed: `NewSRX-Tech-LLC/ClinicaltrialsStagingLoader` minted its ticket record
+  at counter-derived `2440/` (2026-09-18, `.counter` bump 1→2442 in store commit `f30a11a`)
+  while the tracker had assigned the same ticket `issues/1`; no tool surface flagged
+  the divergence for 2+ months — a downstream developer question surfaced it. The
+  2026-11-23 mirror-repair session then created the correct local `1/` record, deleted
+  it 44 seconds later (store history `c6c2dbd` → `c6fad10`), kept the phantom, wrote
+  a spec-audit validation record onto the phantom, and reconciled remote `issues/1`
+  to closed against the phantom state.
 
 
-  Per the deck''s own rule (issues card §2 creation; sync-mirroring "Remote-first
-  number reservation"), when a host-mapped remote tracker exists the remote API should
-  be the authoritative source for the spec/ticket number: the local folder and all
-  local identities derive from the tracker''s API-assigned number. `.counter` sequence
-  numbering is reserved for remoteless stores.
+  Fact-check note (2026-11-24 triage): the derivation mechanism the original report
+  names no longer exists in the live tool — `create` requires an explicit `--number`,
+  mints nothing, and carries zero `.counter` references; the mechanism was the attic-era
+  deck''s, removed with the pre-rip task lists (`.opencode#2774`''s audit-verified
+  sweep, re-verified this triage). The residual defect class — divergence detection,
+  repair doctrine, reconciliation disposition — is real and undelivered, and is what
+  this spec governs.
 
 
-  ### Actual behavior (observed)
+  ### Scope
 
 
-  Repo `NewSRX-Tech-LLC/ClinicaltrialsStagingLoader`, store initialized 2026-09-18
-  (`issues-data` commit `f30a11a` "auto: create #ClinicaltrialsStagingLoader#2440"):
+  Three deliverables, all in `.opencode` (single-repo scope):
 
 
-  - The creation commit bumped `.counter` from `1` to `2442` and registered the ticket
-  as `.issues/2440/` — the remote tracker (GitBucket, host-mapped) had assigned, and
-  still carries, the same ticket as **issue #1** (`https://gitbucket.newsrx.com/gitbucket/NewSRX-Tech-LLC/ClinicaltrialsStagingLoader/issues/1`,
-  whose body correctly points to the local artifacts at `.issues/2440/`).
+  1. **Tool — `validate-yaml` identity classes (R-2):** on a tracker-host store, the
+  read-only sweep flags records that (a) lack a resolvable `remote_url`, (b) carry
+  a `remote_url` whose issue number disagrees with the record''s folder number, or
+  (c) carry a `remote_url` whose repo slug disagrees with the store''s repo — each
+  a named error class in the existing machine-greppable report; locally decidable
+  facts only (host maps, origin, record fields), never a remote issues-system API
+  contact; scoped `--number` form and exit semantics per `.opencode#2450`. `doctor`
+  may roll up a repo-level marker.
 
-  - Consequence observed in a session on 2026-11-23: reading "spec audit #1" resolved
-  against the tracker number, found no local record (#1 absent, "recent issue numbers:
-  #2440"), and a follow-up `create --number repo#1` produced a **spurious duplicate
-  local record** (deleted after reconciliation). The store''s own docs (`sync-mirroring.md`
-  remote-first reservation) are contradicted by the tool''s actual number-derivation
-  path when a tracker exists.
+  2. **Card — issues §7 doctrine (R-3, R-4):** the identity-anchor doctrine at the
+  mirror-repair moment (the just-created correct record is never deleted in favor
+  of a stored phantom folder; a stored pointer naming a different folder is the defect
+  to repair, never the precedent to follow) and the diverged-store reconciliation
+  disposition (renumber local folders and in-record pointers to the tracker-assigned
+  number via the existing `renumber` command; pointer corrections — remote body via
+  the platform CLI, local cross-references — in the same workflow; alias-keeping is
+  not the disposition; collisions resolved from record identities, never silently
+  overwritten).
+
+  3. **Preserved write-side invariant (R-1):** `create` requires explicit `--number
+  repo#N`, never mints/derives/defaults a number from store state (`.counter`, folder
+  enumeration, anything local), and the #2723 creation-time divergence warning remains
+  in force.
+
+
+  ### Requirements
+
+
+  - **R-1** (tool) — the remote-tracker-assigned number is the only registration identity
+  on tracker-host stores; explicit `--number` required; no store-state derivation;
+  #2723 warning preserved.
+
+  - **R-2** (tool) — `validate-yaml` detects record-identity divergence (missing `remote_url`,
+  issue-number mismatch, repo-slug mismatch) as named error classes; local facts only;
+  no remote API contact; #2450 scan/exit semantics.
+
+  - **R-3** (card, §7) — diverged-store reconciliation disposition: renumber to the
+  tracker-assigned number, same-workflow pointer corrections, no alias disposition,
+  identity-decided collision resolution.
+
+  - **R-4** (card, §7) — identity-anchor doctrine: the anchor statement, the anti-phantom-precedent
+  prohibition, and the stored-pointer-is-the-defect rule.
+
+
+  ### Success criteria
+
+
+  | ID | Criterion (summary) | Class | Instrument |
+
+  |----|---------------------|-------|------------|
+
+  | SC-1 | `create` requires `--number`; no store-state derivation input; #2723 warning
+  wording present in the create path | structural | `create -h` read + emission-site
+  read + symbol sweep |
+
+  | SC-2 | Sweep flags seeded divergent records; silent on consistent records; runs
+  offline | behavioral | seeded scratch-store `validate-yaml` run (offline) |
+
+  | SC-3 | Issues card §7 carries the reconciliation disposition per R-3 | structural
+  | read/grep of `skills/issues/SKILL.md` §7 |
+
+  | SC-4 | Issues card §7 carries the anchor doctrine per R-4 | structural | read/grep
+  of `skills/issues/SKILL.md` §7 |
+
+
+  ### Out of scope
+
+
+  The #2723 warn→refuse redecision (unimplementable without widening the tool''s remote-API-contact
+  boundary); tool-side remote-body pointer correction (same boundary); `renumber`
+  behavior changes (existing primitive unchanged); attic cleanup (pending soak/deletion
+  under its own plan); root-repo (`opencode-config`) source changes (none — root store
+  unaffected); the delivered #2774 card-doctrine acquisition half (composes; re-opened
+  by nothing here).
+
+
+  ### Approach
+
+
+  Detection + doctrine over the preserved invariant: prevention is delivered (#2774,
+  closed 2026-11-25), and this spec adds the three unheld surfaces the triage ground
+  names — detection when divergence slips through (R-2), unmissability at the mirror-repair
+  moment (R-4), and the reconciling disposition for the diverged-store population,
+  decided for renumber over aliases (R-3). Alternatives weighed and discarded: #2723
+  refuse redecision, alias disposition, bulk automated migration, extending #2774''s
+  delivered change.
 
 
   ### Impact
 
 
-  - Cross-identity confusion for any workflow keyed on the tracker number (audits,
-  dispatches, mirror repair).
-
-  - Potential duplicate local records / forked number space per the tool''s own local-only-registration
-  warning.
-
-  - Affects every store-host with a host-mapped tracker (GitBucket via `local-issues-host-maps.conf`,
-  github.com).
+  Consumers: every validating session (sweep exit codes gate record hygiene per `.opencode#2755`),
+  §7-governed repair sessions, and stores carrying legacy counter-derived folders.
+  Blast radius: `.opencode/tools/local-issues` (sweep classes), `.opencode/skills/issues/SKILL.md`
+  §7 (doctrine), and this store''s artifacts — no root-repo source, no remote API
+  contract change, counter semantics untouched.
 
 
-  ### Suggested fix (deck-governance)
+  ### Provenance
 
 
-  1. **Tool:** `.opencode/tools/local-issues` — when a live tracker exists for the
-  store host, folder numbers derive from the tracker''s API-assigned number (remote-first,
-  remote-authoritative); keep `.counter` only for remoteless stores.
-
-  2. **Cards:** amend issues card §2 and `sync-mirroring.md` to state remote-API number
-  authority explicitly.
-
-  3. **Migration:** define the reconciling disposition for already-diverged stores
-  — either renumber local folders to tracker numbers, or keep legacy folders and register
-  both numbers as cross-linked aliases (one open design choice).
-
-
-  ### Evidence
-
-
-  - `git -C .issues show f30a11a -- .counter` — counter bump 1→2442 at creation
-
-  - local store: `.issues/2440/issue.yaml` (closed); remote: `gb api repos/NewSRX-Tech-LLC/ClinicaltrialsStagingLoader/issues/1`
-  (same ticket, state closed)
-
-  - session transcript 2026-11-23: audit-target resolution miss + duplicate registration,
-  reconciled in-workflow
-
-
-  ### Routed triage ground (canonicalized from .opencode#2770, 2026-11-24 triage)
-
-
-  Same incident, same requirement class: the remote-tracker-assigned number is the
-  store record''s identity anchor for any live-tracker store — divergence must be
-  prevented at derivation (#2774''s delivered card-doctrine half; this report''s tool
-  half), detected when it slips through, and unmissable during mirror-repair. `.opencode#2770`''s
-  report ground routes here in place (its record closes duplicate; re-triage and work
-  requests land here). Triage rendered against post-freshness-sync state: root `opencode-config`
-  @ `385a8a70` (= `origin/main`), submodule `.opencode` trunk-tip checkout @ `6c12d378`
-  (= its `origin/main`); sanctioned parent-gitlink drift (`7e50437b`) recorded, not
-  resolved.
-
-
-  Evidence addition (2026-11-23 11:22–11:26 EST session, store git history `c6c2dbd`
-  → `c6fad10`): the session executed mirror-repair backwards — created the correct
-  local `1/` record, deleted it 44 seconds later, kept phantom `2440/`, wrote the
-  spec-audit validation record (`issue: 2440`) onto the phantom, and reconciled remote
-  `issues/1` to closed against the phantom state. No tool surface (`init`/`sync`,
-  audit round) flagged the divergence for 2+ months; a downstream developer question
-  surfaced it.
-
-
-  Fix facets added:
-
-
-  4. **Mirror-repair identity anchor (card — issues §7):** state what makes "the remote-assigned
-  number is the identity anchor" unmissable during mirror-repair and forbid deleting
-  a just-created correct record in favor of a stored phantom folder; the stored pointer
-  naming a different folder is the defect to repair, never the precedent to follow.
-
-  5. **Divergence detection (tool — `doctor`/`validate-yaml`):** a fact-decidable
-  divergence check — local record number vs resolvable remote identity (`remote_url`),
-  record-pointer resolvability — surfaced by the read-only health/validation sweep;
-  open design inputs for the spec: predicate classification (fact-decidable per the
-  floor) against the tool''s remote-API-contact boundary (issues §7: local-issues
-  commands never contact a remote issues-system API).
-
-
-  Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
-
-
-  Sibling card-doctrine fix (filed 2026-11-24): https://github.com/michael-conrad/.opencode/issues/2774
-  — number-acquisition recipe and prohibition in card text; this report keeps the
-  tool-side fixes (1) and the diverged-store migration (3).
+  Routed canonical record for `.opencode#2770` (closed duplicate — re-triage and work
+  requests land here; that record''s forensic grounds live in its own store folder).
+  History: filed report → routed triage 2026-11-24 (fix facets 1–5) → converted in
+  place to the governing spec (work-entry conversion, 2026-11-24). Original report
+  filed 2026-11-24; sibling card-doctrine fix `.opencode#2774` filed and delivered
+  same day.
 
 
   > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2769/
 
-  AI ingest: read `.opencode/.issues/2769/` (local-authoritative).
 
+  AI ingest: read `.opencode/.issues/2769/` (local-authoritative).
 
   '
 created_at: '2026-11-25T00:51:01+00:00'
-updated_at: '2026-11-25T04:00:10+00:00'
+updated_at: '2026-11-25T04:08:14+00:00'
