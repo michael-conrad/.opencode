@@ -54,10 +54,22 @@ provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2
    fat jar contains the service registration) stays a content criterion — the
    toolchain prohibition targets what the toolchain guarantees by
    construction, never what an artifact contains.
-5. **Write and persist.** Reserve the number from the store's remote tracker
-   first — file the remote issue (`gh`/`gb`) for EVERY issue creation when a
-   remote tracker exists; the local `{N}/` folder and `spec.md` follow, linked
-   via `update --github`. The local-artifacts pointer written into the remote
+ 5. **Write and persist.** Acquire the number from the store's remote
+   tracker first — tracker existence is fact-decidable from the
+   session-init routing table (per-repo platform + writability), never
+   determined by listing remote or local issues. When a tracker exists,
+   the acquisition recipe is imperative, in this order: (1) file the
+   remote issue (`gh`/`gb`) as the *first* create, carrying the remote
+   body at that first create (never a bare-placeholder filing); (2) the
+   number the remote create returns **is** the number — no verification
+   pass, no second-guessing; (3) register the local record at that number
+   via `create --number repo#N`; (4) write the pointer via
+   `update --remote-url`. `.issues/.counter` and `{N}/` folder enumeration
+   are **never inputs to a new issue's number**; deriving or predicting a
+   number from local store state when a tracker exists is a defect,
+   however the prediction is framed. The counter reserves numbers only in
+   remoteless stores.
+   The local-artifacts pointer written into the remote
    body must resolve to the actual local folder at write time; a mid-flow
    local write failure BLOCKs the flow — the remote body is never left
    carrying an unresolvable pointer. The remote body follows
@@ -72,12 +84,7 @@ provenance: AI-authored, .opencode#2490; single-sourcing discipline, .opencode#2
    success criteria with instruments, traceability, documentation sources) —
    and the layout rule is anti-imitation: store artifacts are data, not
    templates; the layout comes from that standard, never from a prior store
-   artifact, however similar the change. The
-   local counter reserves numbers only in remoteless stores. On every remote
-   filing into a synced store, advance `.counter` to max(counter, filed
-   number); if it has drifted behind the store's highest `{N}/`, advance it to
-   that number — the counter is reserve state, and a stale counter corrupts
-   numbering.
+   artifact, however similar the change.
    **Search before filing .opencode#2756.** Before filing any new spec —
    this flow, a triage conversion, or any other filing path — the agent
    searches the repository's issue store specs (the `.issues/{N}/` folders'
