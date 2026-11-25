@@ -1,1 +1,18 @@
-comments: []
+comments:
+- type: internal
+  body: 'Triage verdict 2026-11-25: actionable work — converted in place into the
+    governing spec (.opencode/.issues/2768/spec.md; remote body retitled and reconciled;
+    labels bug+spec+regression). Freshness gate RAN before the verdict: root repo
+    pulled to trunk tip 385a8a70; .opencode checkout synced to its own remote trunk
+    tip 9b84a7670 (submodule pointer drift +9b84a7670 vs the parent''s recorded gitlink
+    is the sanctioned state, recorded here rather than resolved). Search-before-filing:
+    spec #2760 (delivered, closed) covers the PR-side surfaces and dispositions the
+    floor-vocabulary route with recorded rationale; #2639''s delivered extension rule
+    lacks the complete-at-filing foreclosure; residual = git-workflow-branch rule
+    1 foreclosure (R-1/R-2/R-3, SC-1..SC-4). Spurious-record failure mode covered
+    by delivered #2756. Spec stage entered via work-entry conversion; plan/implementation
+    await developer gates. Store-hygiene discovery note: the ROOT repo''s .issues/
+    store (opencode-config namespace, not this store) surfaced 427 identity-divergence
+    findings on the #2769 validator sweep; repair routing recorded in the work that
+    discovered them.'
+  timestamp: '2026-11-25T04:44:43+00:00'
