@@ -2756,9 +2756,20 @@ def _add_url_parser(subparsers: argparse._SubParsersAction) -> None:
     )
 
 
+_INIT_SYNC_SCOPING_HELP = (
+    "Scope note: the reported pull_result (up_to_date) asserts only the "
+    "issues-data store branch's git currency (commit/pull-rebase/push of the "
+    "store worktree); record-to-tracker ticket-status parity is not verified "
+    "here - reconciliation belongs to the closure/ticket-state-hygiene flow"
+)
+
 def _add_init_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
-        "init", help="Initialize worktrees and pull remote issues-data for all repos"
+        "init",
+        help="Initialize worktrees and pull remote issues-data for all repos. "
+        + _INIT_SYNC_SCOPING_HELP,
+        description="Initialize worktrees and pull remote issues-data for all "
+        "repos. " + _INIT_SYNC_SCOPING_HELP,
     )
     p.add_argument(
         "--adopt",
@@ -2782,7 +2793,11 @@ def _add_sync_file_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def _add_sync_parser(subparsers: argparse._SubParsersAction) -> None:
     subparsers.add_parser(
-        "sync", help="Commit pending changes, pull-rebase, and push for all repos"
+        "sync",
+        help="Commit pending changes, pull-rebase, and push for all repos. "
+        + _INIT_SYNC_SCOPING_HELP,
+        description="Commit pending changes, pull-rebase, and push for all "
+        "repos. " + _INIT_SYNC_SCOPING_HELP,
     )
 
 
