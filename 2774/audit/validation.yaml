@@ -1,0 +1,22 @@
+spec:
+  entries:
+    - round: 1
+      date: "2026-11-24"
+      artifact: ".opencode/.issues/2774/spec.md"
+      verdict: "FAIL"
+      reviewer: "fresh-context dispatch (subagent ses_defcf7241ffeVtjxY8NZVUAldj)"
+      findings:
+        - class: "fabricated claims (analysis family)"
+          ground: "spec asserted the current tool's plain `create` path derives numbers by folder-walk from `.counter` as the path of least resistance; direct tool verification shows the live tool mints nothing (`create --number` required; no `_next_number`, no counter reads) — the derivation mechanism is attic-era, taught only by attic task cards and a stale docstring"
+        - class: "ambiguous criterion (defect class 4)"
+          ground: "R-4 named no edit site ('the cards SHALL state...') while SC-4's instrument grepped unspecified 'touched card blocks'; neither reading (rule 5 only, issues §2 only, or both) resolved by the spec"
+      remediation: "Root Cause rewritten to current verified tool state (minting absent; derivation attributed to attic era); Dependencies row 1 and Impact reworded to neutral cross-reference; R-4 re-pinned to both explicit sites (spec rule 5 filing block AND issues card §2 creation block, both cards carry the tracker-conditional) with SC-4's instrument pinning both blocks; Documentation Sources adds the stale-docstring/attic distinction row"
+      loop_state: "revised; re-validation dispatch (round 2) follows in same workflow"
+    - round: 2
+      date: "2026-11-24"
+      artifact: ".opencode/.issues/2774/spec.md"
+      verdict: "PASS"
+      reviewer: "fresh-context dispatch (subagent ses_defcabfacffebI2ixIiTOFDlgt)"
+      findings: []
+      remediation: "none required — round 1 remediations re-verified (attic-era attribution corrected; R-4/SC-4 sites pinned to both tracker-conditional blocks); load-bearing current-state claims independently re-verified (three card sites, tracker-conditionals, remote-first mandate, #2723 warn-only create, sibling 2769 open); proactive repo-boundary containment clean (single repo, home store coincides); layout conformance clean"
+      loop_state: "zero-finding round; loop exits clean"
