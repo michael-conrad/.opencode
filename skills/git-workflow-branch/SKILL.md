@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; scope-boundary provision, .opencode#2639; tagged-SHA pointer discipline, .opencode#2683; issue-number fallback, .opencode#2759 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; scope-boundary provision, .opencode#2639; tagged-SHA pointer discipline, .opencode#2683; issue-number fallback, .opencode#2759; PR-filed foreclosure (branch-side complete-at-filing), .opencode#2768 -->
 
 # git-workflow-branch
 
@@ -20,6 +20,20 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    decomposition of that directive. A later message that adds work while that
    scope is unfinished extends that scope: its commits land on the scope's
    open branch, and no new branch opens.
+   **PR-filed foreclosure.** A filed-but-unmerged pull request leaves its
+   authorization scope unfinished — "PR filed" is not scope closure, and the
+   complete-at-filing reading does not govern this rule's "unfinished"
+   predicate: merging is a human gate, so the scope stays open until the
+   scope's PR merges or the developer names a split. Until then, a later
+   work directive that adds work to that scope is scope-extension: its
+   commits land on the scope's open branch, no new branch opens, and the
+   scope's open PR is amended into the stacked-PR shape — one PR carrying
+   one squashed commit per issue in the scope, the body closing every
+   stacked issue — rather than a parallel PR. Read [the stacked-PR
+   definition in the git-workflow-pr card, rule 3](../git-workflow-pr/SKILL.md)
+   when resolving the extension: stacked-worded approval or stacked work
+   read on the branch side means that definition's shape — never a second
+   branch or PR.
 2. **Trunk freshness.** Before any work in the repo: (a) pull the parent
    repo's trunk to its remote tip; (b) sync each submodule's pointer to that
    submodule's remote trunk tip — the tracked-branch tip per `.gitmodules`,
