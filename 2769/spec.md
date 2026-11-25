@@ -45,7 +45,9 @@ every record carries a resolvable `remote_url`; the folder number matches the
 issue number the recorded identity names; the identity's repo slug matches the
 store's repo), computed from locally stored facts only — host maps, origin,
 record fields — never contacting a remote issues-system API, the §7 boundary
-held; `doctor` MAY surface a repo-level rollup marker. (2) card — the issues
+held; `doctor` MAY surface a repo-level rollup marker; and the CLI-mechanics
+reference's `validate-yaml` row and taxonomy enumeration are carried in the
+same change (the deck doc the card §1 routes tool mechanics through). (2) card — the issues
 card's §7 mirror-repair block carries the identity-anchor doctrine (the
 just-created correct record is never deleted in favor of a stored phantom
 folder; a stored pointer naming a different folder is the defect to repair,
@@ -170,7 +172,11 @@ each class in its own ticket.
   machine-greppable report form; the check SHALL use only locally stored facts
   (host maps, origin, record fields) and SHALL NOT contact any remote
   issues-system API; the scoped `--number` form and the exit-code semantics
-  SHALL follow the existing scan behavior (#2450).
+  SHALL follow the existing scan behavior (#2450); and the deck's CLI-mechanics
+  reference SHALL be carried in the same change —
+  `skills/issues/references/local-issues-cli.md`'s `validate-yaml` behavior
+  row and validation-taxonomy enumeration SHALL state the delivered
+  identity-divergence classes, consistent with the tool's report form.
 - **R-3** — The issues card's §7 mirror-repair block SHALL state the
   reconciling disposition for already-diverged stores: local folders and
   in-record pointers are renumbered to the tracker-assigned number via the
@@ -194,6 +200,7 @@ each class in its own ticket.
 | SC-2 | The validation sweep flags identity divergence and stays silent on consistent records: on a scratch store copy, a tracker-host record lacking `remote_url` and one carrying a `remote_url` naming a different issue number each produce a named error-class line, a mismatched repo slug produces one, and records whose stored identity agrees with their folder number produce none; the run needs no network | behavioral | seeded scratch-store run of `./.opencode/tools/local-issues validate-yaml` (executed offline), reading the emitted error-class lines and exit code |
 | SC-3 | The issues card §7 mirror-repair block carries the diverged-store reconciliation disposition of R-3 (renumber to the tracker-assigned number, same-workflow pointer corrections, no alias disposition, collision resolution from identities) | structural | read/grep of `skills/issues/SKILL.md` §7 mirror-repair block |
 | SC-4 | The issues card §7 mirror-repair block carries the identity-anchor doctrine of R-4 (the anchor statement, the anti-phantom-precedent prohibition, and the stored-pointer-is-the-defect rule) | structural | read/grep of `skills/issues/SKILL.md` §7 mirror-repair block |
+| SC-5 | The CLI-mechanics reference documents the identity-divergence sweep: `skills/issues/references/local-issues-cli.md`'s `validate-yaml` behavior row and taxonomy enumeration carry the three delivered identity-divergence classes consistent with the tool's report form, and its flag inventory stays unchanged | structural | read/grep of the reference's `validate-yaml` behavior row and taxonomy section against the delivered class names |
 
 ## 5. Dependencies
 
@@ -204,6 +211,7 @@ each class in its own ticket.
 | `.opencode#2450` (delivered) | scoped `validate-yaml` semantics the detection inherits (scan form, scoped mode, exit codes) | satisfied |
 | `.opencode#2755` (delivered) | the sweep's validator role and repair-flow contract the new error classes join | satisfied |
 | `.opencode/tools/local-issues` source | the change's edit surface (sweep checks); present at the trunk tip | satisfied |
+| `skills/issues/references/local-issues-cli.md` | the CLI-mechanics reference whose `validate-yaml` behavior row and taxonomy enumeration document the validator the R-2 classes extend; amended with R-2 in the same change | satisfied |
 | `local-issues-host-maps.conf` | tracker-host fact source for the presence predicate | satisfied |
 | `skills/issues/SKILL.md` §7 | the card block R-3/R-4 amend | satisfied |
 | `skills/spec/references/remote-body-format.md` | remote-body shape for the reconciled record | satisfied |
@@ -213,7 +221,7 @@ each class in its own ticket.
 | Requirement | Success criteria |
 |-------------|------------------|
 | R-1 | SC-1 |
-| R-2 | SC-2 |
+| R-2 | SC-2, SC-5 |
 | R-3 | SC-3 |
 | R-4 | SC-4 |
 
@@ -232,6 +240,7 @@ each class in its own ticket.
 | `renumber` primitive exists | tool CLI | parser inventory (`renumber` subcommand) | read, 2026-11-24 (this triage) |
 | Tracker-host fact source | store config | `local-issues-host-maps.conf` (committed host-maps) | file present in repo, 2026-11-24 |
 | Pull-only classification handling | tool source | `_doctor_repo_report` pull-only branch (`#2667`) | read, 2026-11-24 (this triage) |
+| CLI-mechanics reference documents the validator | deck reference | `skills/issues/references/local-issues-cli.md` (`validate-yaml` behavior row lines ~31; taxonomy enumeration line ~62) | read, 2026-11-24 (review round 1) |
 
 ## 8. Cost Frame
 
@@ -248,6 +257,11 @@ each class in its own ticket.
   block, seconds, offline. Skipping: the repair doctrine stays un-guarded and
   the next diverged-store discovery repeats the phantom-precedent behavior the
   incident recorded.
+- **SC-5 (structural, reference)** — acting: one read/grep pass over the
+  reference's `validate-yaml` row and taxonomy section, seconds, offline.
+  Skipping: the deck's routing reference goes stale in exactly the passages
+  the change invalidates — agents routed through it read the old taxonomy and
+  miss the delivered classes.
 
 ## 9. Edge Cases
 
@@ -264,7 +278,7 @@ each class in its own ticket.
 
 ## 10. Completion gate
 
-Every success criterion (SC-1 through SC-4) passes before the deliverable is
+Every success criterion (SC-1 through SC-5) passes before the deliverable is
 complete; partial implementation is not permitted.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

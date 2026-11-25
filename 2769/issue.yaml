@@ -47,8 +47,11 @@ body: '### Problem
   (c) carry a `remote_url` whose repo slug disagrees with the store''s repo — each
   a named error class in the existing machine-greppable report; locally decidable
   facts only (host maps, origin, record fields), never a remote issues-system API
-  contact; scoped `--number` form and exit semantics per `.opencode#2450`. `doctor`
-  may roll up a repo-level marker.
+  contact; scoped `--number` form and exit semantics per `.opencode#2450`; the deck''s
+  CLI-mechanics reference (`skills/issues/references/local-issues-cli.md`) — the doc
+  the issues card §1 routes tool mechanics through — is carried in the same change,
+  its `validate-yaml` behavior row and taxonomy enumeration stating the delivered
+  classes. `doctor` may roll up a repo-level marker.
 
   2. **Card — issues §7 doctrine (R-3, R-4):** the identity-anchor doctrine at the
   mirror-repair moment (the just-created correct record is never deleted in favor
@@ -75,7 +78,8 @@ body: '### Problem
 
   - **R-2** (tool) — `validate-yaml` detects record-identity divergence (missing `remote_url`,
   issue-number mismatch, repo-slug mismatch) as named error classes; local facts only;
-  no remote API contact; #2450 scan/exit semantics.
+  no remote API contact; #2450 scan/exit semantics; CLI-mechanics reference carried
+  in the same change.
 
   - **R-3** (card, §7) — diverged-store reconciliation disposition: renumber to the
   tracker-assigned number, same-workflow pointer corrections, no alias disposition,
@@ -104,6 +108,11 @@ body: '### Problem
 
   | SC-4 | Issues card §7 carries the anchor doctrine per R-4 | structural | read/grep
   of `skills/issues/SKILL.md` §7 |
+
+  | SC-5 | CLI-mechanics reference''s `validate-yaml` row and taxonomy carry the three
+  delivered identity-divergence classes; flag inventory unchanged | structural | read/grep
+  of `skills/issues/references/local-issues-cli.md` against the delivered classes
+  |
 
 
   ### Out of scope
@@ -134,9 +143,10 @@ body: '### Problem
 
   Consumers: every validating session (sweep exit codes gate record hygiene per `.opencode#2755`),
   §7-governed repair sessions, and stores carrying legacy counter-derived folders.
-  Blast radius: `.opencode/tools/local-issues` (sweep classes), `.opencode/skills/issues/SKILL.md`
-  §7 (doctrine), and this store''s artifacts — no root-repo source, no remote API
-  contract change, counter semantics untouched.
+  Blast radius: `.opencode/tools/local-issues` (sweep classes), `skills/issues/SKILL.md`
+  §7 (doctrine), `skills/issues/references/local-issues-cli.md` (`validate-yaml` behavior
+  row + taxonomy — carried with R-2''s delivery), and this store''s artifacts — no
+  root-repo source, no remote API contract change, counter semantics untouched.
 
 
   ### Provenance
@@ -157,4 +167,4 @@ body: '### Problem
 
   '
 created_at: '2026-11-25T00:51:01+00:00'
-updated_at: '2026-11-25T04:08:14+00:00'
+updated_at: '2026-11-25T04:13:31+00:00'
