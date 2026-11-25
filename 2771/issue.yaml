@@ -1,9 +1,83 @@
-title: '[BUG] local-issues sync reports up_to_date while local status diverges from
-  remote closure (closed/completed)'
+title: '[SPEC] local-issues sync''s up_to_date claim self-scopes — store-branch currency
+  only, record status workflow-local'
 status: open
 labels:
+- spec
 - needs-approval
-- triage
-body: ''
+body: "<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->\n<!-- SPDX-License-Identifier:\
+  \ MIT -->\n\n# [SPEC] local-issues sync's up_to_date claim self-scopes — store-branch\
+  \ currency only, record status workflow-local\n\n## Problem\n\n`local-issues sync`\
+  \ (pull path) reports per-repo `pull_result: up_to_date` on\nsuccess while a record's\
+  \ `status: open` can diverge from the linked tracker\nissue closed outside the local\
+  \ workflow (a PR merge resolving `Closes #N`,\n`state_reason: completed` — the report's\
+  \ reproducer:\nNewsRx/hermes-ingest-pubmed#318, reconciled only after an explicit\n\
+  `close --reason completed`). The claim describes only the `issues-data` store\n\
+  branch's git currency (`_sync_repo`'s fetch/rebase/push — verified at\n51e1be91a,\
+  \ lines 2331–2345), but no surface (`sync`/`init` help, the CLI\nreference's `sync`\
+  \ row, the reconciliation reference) says so: both read as\nrecord↔tracker parity\
+  \ claims. The reconciliation reference names only the\nopposite drift direction\
+  \ (local-closed/remote-OPEN, the `#2561` paragraph).\n\n## Scope\n\n`.opencode/tools/local-issues`\
+  \ — the `sync` and `init` subparsers' help text\n(one shared scoping statement feeding\
+  \ both; `_add_sync_parser`,\n`_add_init_parser`) — plus the two deck reference docs\
+  \ owning the semantics:\n`skills/issues/references/local-issues-cli.md` (the `sync`\
+  \ row) and\n`skills/issues/references/sync-mirroring.md` (§Remote-state reconciliation\n\
+  extended in place; the `#2561` guard sentences preserved untouched). Tool\nbehavior\
+  \ unchanged. Deck-governance surface: the two reference files go\nthrough the deck-governance\
+  \ card's admission gate in the deck repo's own PR.\n\n## Requirements\n\n- **R-1\
+  \ — Self-scoping help.** `sync --help` and `init --help` SHALL each\n  carry the\
+  \ shared scoping statement: `pull_result` (`up_to_date`) asserts\n  only the `issues-data`\
+  \ store branch's git currency; record↔tracker\n  ticket-status parity is not verified\
+  \ there — reconciliation belongs to the\n  closure/ticket-state-hygiene flow.\n\
+  - **R-2 — Workflow-local status documented.** The CLI reference's `sync` row\n \
+  \ SHALL state that a record's `status` is workflow-local — `sync`/`init` do\n  not\
+  \ read or map tracker ticket state — and SHALL name the hygiene flow as\n  the reconciliation\
+  \ owner.\n- **R-3 — Divergence direction named.** The reconciliation section SHALL\
+  \ gain\n  the tracker-closed/record-open direction (tracker-side closures, e.g.\
+  \ a\n  PR-merge `Closes #N`, are not mapped and reconcile through the hygiene\n\
+  \  flow), preserving the existing `#2561` sentences intact.\n- **R-4 — Unchanged\
+  \ behavior.** Store-branch mechanics, YAML output vocabulary\n  (`status: ok`, `pull_result:\
+  \ up_to_date`), and exit semantics SHALL remain\n  unchanged.\n\n## Success criteria\n\
+  \nClassified structural/behavioral; full instrument detail in the local spec\n(`.opencode/.issues/2771/spec.md`).\n\
+  \n- **SC-1 (structural → R-1):** `sync --help` and `init --help` each carry the\n\
+  \  shared scoping statement. *Instrument:* run both commands; match the\n  statement\
+  \ text.\n- **SC-2 (structural → R-2):** the CLI reference's `sync` row carries the\n\
+  \  workflow-locality + hygiene-flow clause. *Instrument:* read the row at the\n\
+  \  store HEAD.\n- **SC-3 (structural → R-3):** the reconciliation section names\
+  \ the\n  tracker-closed/record-open direction and its resolving path. *Instrument:*\n\
+  \  read the section at the store HEAD.\n- **SC-4 (structural → R-3):** the existing\
+  \ `#2561` guard sentences persist\n  intact after the edit. *Instrument:* grep for\
+  \ both sentences.\n- **SC-5 (behavioral → R-4):** executed `init` + `sync` on the\
+  \ composed\n  workspace exit 0 with per-repo `status: ok` and `pull_result` values\n\
+  \  unchanged; `sync --help` still renders. *Instrument:* the session-start\n  sequence\
+  \ + help run.\n\n## Success-criteria table\n\n| ID | Criterion | Class | Instrument\
+  \ |\n|---|---|---|---|\n| SC-1 | help outputs carry the scoping statement | structural\
+  \ | `sync --help` + `init --help` text match |\n| SC-2 | CLI reference row states\
+  \ workflow-locality + owner | structural | row read at store HEAD |\n| SC-3 | reconciliation\
+  \ section names the direction + path | structural | section read at store HEAD |\n\
+  | SC-4 | `#2561` guard sentences preserved | structural | grep both sentences after\
+  \ the edit |\n| SC-5 | init/sync behavior unchanged (exit 0, `status: ok`) | behavioral\
+  \ | executed session-start sequence + help render |\n\n## Out of scope\n\n- Mapping\
+  \ tracker state in `sync`/`init` (the report's option (a)) — violates\n  the tool's\
+  \ never-contact-remote-API boundary (issues card §7) and would\n  propagate a tracker-side\
+  \ closure past the deck's evidence-backed closure bar.\n- YAML output-schema changes\
+  \ (field additions, value renames) — the claim\n  self-describes on the help surface\
+  \ instead.\n- Tool store-branch mechanics, `close` semantics, issues-card (SKILL.md)\n\
+  \  edits, test-suite restructuring.\n\n## Impact\n\n- **Consumers:** session-start\
+  \ `init`/`sync` readers and YAML-output consumers\n  — the vocabulary stays byte-stable;\
+  \ the claim reads self-scoped on the help\n  surface and the store docs.\n- **Risk:**\
+  \ low — help text plus two doc edits; no behavior or schema change;\n  the `#2561`\
+  \ guard's preservation is a criterion (SC-4).\n- **Blast radius:** three files (tool\
+  \ + two reference docs); a deck-wide sweep\n  found the claim scoped nowhere else;\
+  \ no existing test asserts the touched\n  surfaces.\n- **Recovery:** single-file\
+  \ reverts; additive text only.\n\n## Approach\n\nOne shared scoping statement in\
+  \ the two subparsers' help text (`#2655`'s\nflag-level-truth delegation); one clause\
+  \ in the CLI reference's `sync` row;\nthe reconciliation section extended in place.\
+  \ The runtime signal field\n(`record_status_parity: unchecked`), the report's other\
+  \ candidate, is\ndiscarded: the tool cannot know parity without API contact, so\
+  \ a constant\nfield carries no per-run information and adds parse surface; see the\
+  \ local\nspec's Alternatives for the full record.\n\n> Full spec and plan artifacts:\
+  \ https://github.com/michael-conrad/.opencode/tree/issues-data/2771/\n\nAI-facing\
+  \ artifacts pointer: `.opencode/.issues/2771/`\n"
 created_at: '2026-11-25T03:22:52+00:00'
-updated_at: '2026-11-25T03:22:52+00:00'
+updated_at: '2026-11-25T03:33:29+00:00'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2771
