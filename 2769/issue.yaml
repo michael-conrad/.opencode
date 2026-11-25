@@ -3,6 +3,90 @@ title: 'local-issues: store-local .counter numbers diverge from remote tracker n
 status: open
 labels:
 - needs-approval
-body: ''
+body: '### Summary
+
+
+  The `local-issues` tool derives local issue-store folder numbers from a store-local
+  `.counter`, even when the repository has a live remote tracker that assigns its
+  own number via the API. The two number spaces diverge, so a ticket carries two non-matching
+  identities (e.g. GitBucket `issues/1` vs local `.issues/2440/`), and operations
+  literally targeting the remote number — read, audit dispatch, `create --number repo#N`
+  mirror-repair — either miss the existing local record or fabricate a duplicate record
+  for the ticket.
+
+
+  ### Expected behavior
+
+
+  Per the deck''s own rule (issues card §2 creation; sync-mirroring "Remote-first
+  number reservation"), when a host-mapped remote tracker exists the remote API should
+  be the authoritative source for the spec/ticket number: the local folder and all
+  local identities derive from the tracker''s API-assigned number. `.counter` sequence
+  numbering is reserved for remoteless stores.
+
+
+  ### Actual behavior (observed)
+
+
+  Repo `NewSRX-Tech-LLC/ClinicaltrialsStagingLoader`, store initialized 2026-09-18
+  (`issues-data` commit `f30a11a` "auto: create #ClinicaltrialsStagingLoader#2440"):
+
+
+  - The creation commit bumped `.counter` from `1` to `2442` and registered the ticket
+  as `.issues/2440/` — the remote tracker (GitBucket, host-mapped) had assigned, and
+  still carries, the same ticket as **issue #1** (`https://gitbucket.newsrx.com/gitbucket/NewSRX-Tech-LLC/ClinicaltrialsStagingLoader/issues/1`,
+  whose body correctly points to the local artifacts at `.issues/2440/`).
+
+  - Consequence observed in a session on 2026-11-23: reading "spec audit #1" resolved
+  against the tracker number, found no local record (#1 absent, "recent issue numbers:
+  #2440"), and a follow-up `create --number repo#1` produced a **spurious duplicate
+  local record** (deleted after reconciliation). The store''s own docs (`sync-mirroring.md`
+  remote-first reservation) are contradicted by the tool''s actual number-derivation
+  path when a tracker exists.
+
+
+  ### Impact
+
+
+  - Cross-identity confusion for any workflow keyed on the tracker number (audits,
+  dispatches, mirror repair).
+
+  - Potential duplicate local records / forked number space per the tool''s own local-only-registration
+  warning.
+
+  - Affects every store-host with a host-mapped tracker (GitBucket via `local-issues-host-maps.conf`,
+  github.com).
+
+
+  ### Suggested fix (deck-governance)
+
+
+  1. **Tool:** `.opencode/tools/local-issues` — when a live tracker exists for the
+  store host, folder numbers derive from the tracker''s API-assigned number (remote-first,
+  remote-authoritative); keep `.counter` only for remoteless stores.
+
+  2. **Cards:** amend issues card §2 and `sync-mirroring.md` to state remote-API number
+  authority explicitly.
+
+  3. **Migration:** define the reconciling disposition for already-diverged stores
+  — either renumber local folders to tracker numbers, or keep legacy folders and register
+  both numbers as cross-linked aliases (one open design choice).
+
+
+  ### Evidence
+
+
+  - `git -C .issues show f30a11a -- .counter` — counter bump 1→2442 at creation
+
+  - local store: `.issues/2440/issue.yaml` (closed); remote: `gb api repos/NewSRX-Tech-LLC/ClinicaltrialsStagingLoader/issues/1`
+  (same ticket, state closed)
+
+  - session transcript 2026-11-23: audit-target resolution miss + duplicate registration,
+  reconciled in-workflow
+
+
+  Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
 created_at: '2026-11-25T00:51:01+00:00'
-updated_at: '2026-11-25T00:51:01+00:00'
+updated_at: '2026-11-25T00:51:03+00:00'
