@@ -37,8 +37,8 @@ touched and re-verified after, with no code change authored by this item.
 ### Item 1 — SC-1 (preservation, write-side invariant baseline)
 
 - **Deliverable** — a recorded preservation verification of the R-1 invariant
-  against the tool before and after Item 2 touches it: `create`'s parser
-  requires `--number` and names it required in `create -h`; the #2723
+  against the tool as it stands before Item 2 touches the file: `create`'s
+  parser requires `--number` and names it required in `create -h`; the #2723
   creation-time divergence warning and its fork-consequence wording sit in the
   create path's emission site; a symbol sweep of the tool source finds no
   store-state number-derivation input (`.counter`, folder-enumeration, or any
@@ -48,16 +48,17 @@ touched and re-verified after, with no code change authored by this item.
   tool. This is the gap-analysis family's sanctioned preservation shape: the
   assertions currently pass, and any failure blocks the pipeline as a
   pre-existing violation rather than passing through. The recorded pass is the
-  baseline.
-- **GREEN** — the identical assertion set re-executed against the tool after
-  Item 2's change lands; every assertion still passing records the invariant
-  preserved. No code or test artifact is authored by this item.
+  baseline deliverable; no code or test artifact is authored by this item.
+- **GREEN** — the baseline assertion set is captured clean and stands as the
+  reference state for Item 2: Item 2 must not regress any element of this
+  set, and Item 2's own instrument re-executes the assertions after its
+  change lands (preservation proof rides Item 2's cycle, never a later item).
 - **Tier marks** — no authored test (the spec's instrument is a fact-check
   sweep; the preserved behavior's existing suite coverage stays untouched).
 - **Instrument** — executed: `./.opencode/tools/local-issues create -h`;
   emission-site read at the #2723 warning site in the tool source;
-  `git grep -n "counter\|_next_number\|derive" -- tools/local-issues`-class
-  symbol sweep scoped to the create path; captured outputs.
+  a symbol sweep over the tool source scoped to the create path; captured
+  outputs.
 
 ### Item 2 — SC-2 (tool: three identity-divergence classes)
 
@@ -97,9 +98,10 @@ touched and re-verified after, with no code change authored by this item.
   class lines and exit code — is cycle-time executed evidence, kept out of
   test files (scratch observation stays ephemeral/session-space).
 - **Instrument** — `uv run pytest tests/test_local_issues/test_validate_yaml_identity.py`
-  (RED first, GREEN after); the executed offline CLI run against a seeded
-  scratch store on the branch checkout for the spec's SC-2 instrument; then
-  `uv run pytest` (full default run) at cycle time.
+  (RED first, GREEN after); Item 1's SC-1 assertion set re-executed on the
+  changed tool (preservation proof); the executed offline CLI run against a
+  seeded scratch store on the branch checkout for the spec's SC-2 instrument;
+  then `uv run pytest` (full default run) at cycle time.
 
 ### Item 3 — SC-5 (CLI-mechanics reference carries the classes)
 
@@ -164,7 +166,9 @@ touched and re-verified after, with no code change authored by this item.
 
 1. **Item 1 first** — the preservation baseline must be captured before Item 2
    modifies the tool file; its RED is the only pass executed against the
-   untouched file. Its GREEN (re-verification) runs after Item 2.
+   untouched file. Item 1 itself has no forward dependency: its deliverable is
+   the clean baseline, and the post-change re-verification of its assertion
+   set rides Item 2's instrument.
 2. **Item 2 second** — the tool change is the only code-bearing item; Items 3
    and 2 share the `validate-yaml` surface and the class names Item 2 fixes.
 3. **Item 3 third** — the reference row must name exactly the classes the
