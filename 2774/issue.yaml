@@ -1,9 +1,9 @@
 title: '[SPEC] Card text: remote-first number-acquisition recipe; .counter/folder
   listing never inputs to a number; platform-agnostic pointer wording'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec
 body: ''
 created_at: '2026-11-25T00:51:25+00:00'
-updated_at: '2026-11-25T00:51:25+00:00'
+updated_at: '2026-11-25T03:21:35+00:00'
