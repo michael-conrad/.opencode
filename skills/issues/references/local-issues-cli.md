@@ -28,7 +28,7 @@ remains the flag-level source of truth. All numbers use the qualified
 | `renumber` | `--from repo#N`, `--to repo#M` | Rename the directory; rewrites matching links |
 | `url` | `--number repo#N`, `--artifacts` | Emit the platform-correct issue URL; `--artifacts` emits the branch-root artifacts URL (`tree/issues-data/N/`) |
 | `doctor` | — | Per-repo health markers (read-only): branch state, merge-base delta, worktree presence |
-| `validate-yaml` | `--number` (optional) | Validate YAML across issue directories; `**/*.yaml` subtree sweep; scoped mode on a remote-only issue prints `no-local-records` and exits 0. The findings this validator names are the evidence instrument of the issues card §7 artifact-content-defect trigger — they are repaired on discovery per that trigger, never reported to the developer and awaited |
+| `validate-yaml` | `--number` (optional) | Validate YAML across issue directories; `**/*.yaml` subtree sweep; scoped mode on a remote-only issue prints `no-local-records` and exits 0. On a tracker-host store (the repo's `origin` resolves to `github.com` or a host-mapped tracker base, .opencode#2769), each numeric record additionally carries one record-identity divergence class from its stored `remote_url`: `missing-remote-identity` (field absent, empty, or unparseable as a tracker issue URL), `remote-number-mismatch` (the URL names an issue number other than the folder number), `remote-repo-mismatch` (the URL names an owner/repo slug other than the origin's). Every identity predicate is a locally stored fact — origin, host-maps conf, record fields; no remote issues-system API is contacted, and non-tracker-host stores skip the identity classes. The findings this validator names are the evidence instrument of the issues card §7 artifact-content-defect trigger — they are repaired on discovery per that trigger, never reported to the developer and awaited |
 
 ### Host→browser-base mapping (`url`)
 
@@ -61,4 +61,9 @@ the file ships with the deck to every mount.
   `links.yaml`, `spec.md`, plus artifact subdirectories.
 - YAML validation taxonomy: `malformed-frontmatter`, `invalid-yaml`,
   `schema-violation` — canonical three files get schema checks, other YAML in
-  the directory tree is parse-validated.
+  the directory tree is parse-validated. On tracker-host stores the
+  record-identity classes join the report (.opencode#2769):
+  `missing-remote-identity`, `remote-number-mismatch`, `remote-repo-mismatch`
+  — one per numeric record, decided from locally stored facts only
+  (origin, host-maps conf, record `remote_url`); never a remote API contact,
+  never emitted on non-tracker-host stores.

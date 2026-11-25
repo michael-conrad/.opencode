@@ -188,7 +188,21 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    repo#N`, mirror the remote-tracked content into `{N}/`, and correct the
    remote body's pointer through the platform skill — Read
    [the gh-cli skill](../gh-cli/SKILL.md) or Read
-   [the gb-cli skill](../gb-cli/SKILL.md) — per §1. **Interrupted-sync
+   [the gb-cli skill](../gb-cli/SKILL.md) — per §1. **Identity anchor
+   (.opencode#2769):** the remote-tracker-assigned number is the record's
+   identity anchor; the just-created correct record is never deleted in
+   favor of a stored phantom folder (a legacy counter-derived or otherwise
+   misnumbered record), and a stored pointer naming a different folder is
+   the defect to repair, never the precedent to follow. **Reconciliation
+   disposition (.opencode#2769):** an already-diverged store (local folders
+   or in-record pointers disagreeing with the tracker-assigned numbers)
+   reconciles to the anchor: local folders and in-record pointers are
+   renumbered to the tracker-assigned number via the existing `renumber`
+   command, pointer corrections (remote body via the platform CLI; local
+   cross-references) are performed in the same reconciliation workflow,
+   alias-keeping is not the disposition, and a collision at the target
+   number is resolved from the records' identities — never silently
+   overwritten. **Interrupted-sync
    trigger (.opencode#2731):** the trigger list also names an `issues-data`
    worktree left mid-rebase or mid-merge by a failed `init`/`sync` — that
    state is repaired on discovery in the same workflow, never reported with
