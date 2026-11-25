@@ -85,3 +85,13 @@ fresh authorization is required, provided the local closure carries a
 recorded verdict or evidence (e.g. a CLOSE-MOOT sweep verdict). An
 unexplained status flip with no recorded verdict is not reconciliation
 material: it is store drift to investigate, not to propagate.
+
+The opposite direction exists and is un-mapped: a tracker-side closure made
+outside the local workflow — for example a PR merge resolving `Closes #N`
+(`state_reason: completed`) — does not change the local record's `status`;
+`sync`/`init` report store-branch currency only and never read or map tracker
+ticket state. A tracker-closed/record-open divergence reconciles through the
+ticket-state-hygiene flow (the issues card §6 remote-anchors-reality rule):
+the tracker anchors remote-side changes, and an explicit
+`close --number … --reason completed` records the completed merge locally
+(#2771).
