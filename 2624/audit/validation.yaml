@@ -46,9 +46,27 @@ spec:
     §7 git-history claim, service-doc facts, and #2315 constraint citations;
     judgment checks on structure, traceability, extraction, criterion
     testability, escape hatches, and repo-boundary containment all clean
+- cycle: 4
+  date: '2026-11-26'
+  artifact: >-
+    2624/spec.md (revision 4 — implementation-time findings-driven revision:
+    R-3/SC-3 two-run instrument and the enforcement-cadence bound — no kernel
+    rlimit bounds a process tree's threads; wrapper-level sampling terminates
+    at a breach with one cadence overshoot; deck default thread_cap 128 above
+    the measured realistic ~80-119, below the incident's 151)
+  reviewer: fresh-context dispatch #4 (read-only general sub-agent, no prior context)
+  findings: []
+  verdict: PASS — zero findings, no disclosed observation on any criterion
+  notes: >-
+    reviewer verified the two-run SC-3 instrument's decidability and
+    capability, the Linux rlimit per-UID accuracy claim, live re-commitment
+    of the extra="forbid"/registration/hardening-config/doc claims, dated
+    point-in-time claim accuracy, traceability both directions, root-cause
+    coverage, repo-boundary containment; no spin, no structural re-evaluation
+    trigger
 re_evaluations:
-- none to cycle 3 — three fresh-context cycles, all zero-finding; no spin, no
-  count trigger (2 directive/finding-driven revisions between cycles, 0
+- none to cycle 4 — four fresh-context cycles, all zero-finding; no spin, no
+  count trigger (3 directive/finding-driven revisions between cycles, 0
   validation-driven revisions)
 plan:
 - cycle: 1
