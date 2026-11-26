@@ -28,6 +28,48 @@ spec:
     review time, and the revision discipline (no superseded revision-1 text
     survives; artifact reads standalone); reactive structural re-evaluation
     not triggered
+- cycle: 3
+  date: '2026-11-26'
+  artifact: >-
+    2624/spec.md (revision 3 — plan-time findings-driven revision: SC-9's
+    second clause unimplementable against live upstream; hardening defaults
+    moved to the wrapper's co-located hardening config .opencode/ragsync-hardening.yaml;
+    R-8 updated to the same contract; upstream extra="forbid" evidence row
+    added to §7)
+  reviewer: fresh-context dispatch #3 (read-only general sub-agent, no prior context)
+  findings: []
+  verdict: PASS — zero findings, no disclosed observation on any criterion
+  notes: >-
+    reviewer independently re-fetched the upstream src/ragsync_mcp/config.py
+    (extra="forbid" on _Base and every model including AppConfig — grounds the
+    revision), verified the current registration, config (no hardening keys),
+    §7 git-history claim, service-doc facts, and #2315 constraint citations;
+    judgment checks on structure, traceability, extraction, criterion
+    testability, escape hatches, and repo-boundary containment all clean
 re_evaluations:
-- none — two fresh-context cycles, both zero-finding; no spin, no count trigger
-  (1 directive-driven concretization between cycles, 0 validation-driven revisions)
+- none to cycle 3 — three fresh-context cycles, all zero-finding; no spin, no
+  count trigger (2 directive/finding-driven revisions between cycles, 0
+  validation-driven revisions)
+plan:
+- cycle: 1
+  date: '2026-11-26'
+  artifact: 2624/plan.md (initial draft)
+  reviewer: fresh-context dispatch (read-only general sub-agent, no prior context)
+  findings:
+  - item 1 placed PDEATHSIG on the wrapper itself, contradicting spec §1.3(a)
+    (PDEATHSIG on the server process) and its own GREEN — client death killed
+    the wrapper before the poll loop could reap the child group (classes 5, 13)
+  - item 9 left SC-9's lock-path clause uncovered — lock path fixed in wrapper
+    code, not in the hardening config; instrument grepped only eight defaults
+    (classes 5, 1)
+  verdict: FAIL
+- cycle: 2
+  date: '2026-11-26'
+  artifact: >-
+    2624/plan.md (revision 2 — PDEATHSIG re-registered on the supervised child
+    via pre-exec composing with the wrapper PPID-poll killpg loop per spec
+    §1.3(a); lock_name and runtime_dir moved into ragsync-hardening.yaml;
+    item 9 GREEN/instrument enumerate the ten recorded defaults)
+  reviewer: fresh-context dispatch (read-only general sub-agent, no prior context)
+  findings: []
+  verdict: PASS — zero findings, no disclosed observation on any item
