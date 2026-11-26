@@ -1,0 +1,15 @@
+# Validation record — .opencode#2624 (one file per issue; one top-level section per artifact)
+spec:
+- cycle: 1
+  date: '2026-11-26'
+  artifact: 2624/spec.md (converted-in-place governing spec, initial validated revision)
+  reviewer: fresh-context dispatch #1 (read-only general sub-agent, no prior context)
+  findings: []
+  verdict: PASS — zero findings, no disclosed observation on any criterion
+  notes: reviewer verified all checkable current-state claims against live evidence
+    (registration command shape, git log on the three named files, the live
+    snea-phonetics instance process evidence, config and service-doc facts,
+    standing #2315 constraint citations); both repo-boundary prongs confirmed
+    (requirements touch only .opencode files; filed in the same repo's store)
+re_evaluations:
+- none — single fresh-context cycle; no spin, no count trigger (0 revisions)

@@ -1,54 +1,164 @@
-title: '[BUG] ragsync MCP: orphaned stdio servers escape client death and balloon
-  host memory (2026-10-15 incident)'
+title: '[SPEC] Harden the ragsync retrieval service launch path — client-death reaping,
+  resource ceilings, host-memory admission, same-host serialization'
 status: open
-labels: []
-body: "## Event summary (2026-10-15, ~09:13–12:18 EDT)\n\nTwo `ragsync` MCP stdio\
-  \ servers — the deck's default retrieval service (adopted in #2315) —\nlaunched\
-  \ via `uvx --with mcp<2 ragsync --config .opencode/ragsync-config.yaml` for host\
-  \ repos\n`CrossrefAbstracts` and `SEC-Filings-Scraper` on the shared 62 GiB family\
-  \ build host.\n\n- Their MCP clients died; the `uvx` wrappers and servers became\
-  \ orphans at PPID 1 and continued\n  ~3h of clientless work before diagnosis.\n\
-  - Chroma reindex/HNSW workloads ballooned RSS to **39.4 GB** and **21.7 GB** (151/154\
-  \ parallel\n  threads); combined demanded footprint ≈ 117 GB against 62 GiB physical.\n\
-  - Host thrashed for hours: `kswapd0` continuously in `D` state, **63 of 127 Gi swap\
-  \ consumed\n  (~57 Gi attributable to the two servers)**, load average 47–53, both\
-  \ processes parked in\n  `folio_wait_bit_common` page waits (memory-bound, not producing\
-  \ value for anyone).\n- I/O profile over 3h: cumulative reads **1.53 TiB + 1.19\
-  \ TiB ≈ 2.7 TiB**, writes negligible\n  (≤ 0.5 GB each), no sockets (stdio only)\
-  \ — orphaned, unwatched, unbounded.\n- Diagnosed 12:14–12:18; developer-ordered\
-  \ `SIGTERM` to both server trees; all four PIDs\n  (2× `uvx` wrappers, 2× `python\
-  \ ragsync`) exited within ~5 s.\n\n## Root-cause analysis — three interacting gaps\n\
-  \n1. **Client-death survival.** Stdio MCP servers have no parent-death detection.\
-  \ A clientless\n   server that is busy (writes nothing to stdout) never hits EPIPE;\
-  \ the `uvx` wrapper layer\n   enforces no lifecycle contract; nothing reaps it.\
-  \ Orphaned servers run unwatched until\n   something else fails.\n2. **Unbounded\
-  \ memory workload.** ragsync's chroma backend loads the full collection\n   (`chroma.sqlite3`\
-  \ + HNSW binaries `data_level0.bin`/`link_lists.bin`) into RAM with\n   fastembed\
-  \ (`Qwen3-Embedding-0.6B-Q`); no memory cap, no thread-pool cap, no host-aware\n\
-  \   admission. One server alone (39 GB) can exceed a safe share of the host; two\
-  \ concurrent\n   instances multiply it.\n3. **No cross-repo concurrency guard on\
-  \ one host.** Configs are per-repo\n   (`.opencode/ragsync-config.yaml`); nothing\
-  \ coordinates or serializes ragsync instances\n   across repos sharing a machine.\n\
-  \n## Downstream impact observed (incident context, cross-ref only)\n\nDuring the\
-  \ same window the doaj repo's NewsRxUI#64 triage recorded \"sustained load ≈ 50\"\
-  \nconditions; a release-gate-reproduction load run under that ambient pressure hit\n\
-  `Xvfb did not start virtual display :122 within 10s` (NewsRxUI/build.gradle:105)\
-  \ and exposed an\n`awaitConsoleIdle` premature-idle race. Ambient thrash plausibly\
-  \ inflated those conditions.\nThose defects are tracked in the doaj/NewsRxUI trackers;\
-  \ recorded here as incident context only.\n\n## Remediation taken\n\nSIGTERM (developer-ordered)\
-  \ at ~12:18: all four processes exited cleanly within ~5 s;\nRAM 61 Gi → 3.2 Gi\
-  \ used; swap 63 Gi → 5.8 Gi used; `kswapd0` idle; load avg falling.\nNo observable\
-  \ data loss: per-server writes were sub-GB and Chroma stores are regenerable\nfrom\
-  \ source.\n\n## Fix directions (triage input — not yet a spec)\n\n- **Parent-death\
-  \ watchdog in the MCP launch path** (`PR_SET_PDEATHSIG`, PPID polling, or a\n  uvx-level\
-  \ supervisor) so a dead client reaps busy servers regardless of stdout activity.\n\
-  - **ragsync resource ceilings** in deck config defaults: chroma collection memory\
-  \ cap or\n  mmap-bounded index load, thread-pool cap, and host-memory admission\
-  \ (e.g., refuse to start\n  or defer indexing when free memory is below a threshold).\n\
-  - **Instance serialization guard** when same-host ragsync instances would run concurrently.\n\
-  - Optional: an idle/heartbeat timeout for clientless stdio MCP servers.\n- Optional\
-  \ downstream: Xvfb provisioning resilience (longer startup budget or retry) in\n\
-  \  repos that gate tests on Xvfb.\n"
+labels:
+- spec
+- needs-approval
+body: '## Problem
+
+
+  The deck''s default retrieval service (`ragsync` MCP, `jsbroks/ragsync-mcp`, adopted
+  in `#2315`) launches with no lifecycle or resource governance. On 2026-10-15 two
+  clientless ragsync instances survived their MCP clients'' death for ~3 h on the
+  shared 62 GiB family build host, ballooned to **39.4 GB + 21.7 GB RSS** (≈ **117
+  GB** combined demand), drove **63 Gi swap** (`kswapd0` pinned in `D` state, load
+  47–53, 151/154 threads) and read **≈2.7 TiB** while orphaned and unbounded; diagnosis
+  and developer-ordered `SIGTERM` recovery took manual effort. No data was lost (sub-GB
+  writes; Chroma stores regenerable).
+
+
+  Three interacting gaps: (1) stdio MCP servers have no parent-death detection — a
+  busy clientless server never hits EPIPE and nothing reaps it; (2) the chroma backend
+  loads full collections into RAM (no memory cap, no thread cap, no host-aware admission);
+  (3) per-repo configs give no cross-repo concurrency guard on one host. The launch
+  path is **unchanged** since the incident (verified 2026-11-25 — registration is
+  still the raw `uvx --with "mcp<2" ragsync --config .opencode/ragsync-config.yaml`
+  shape), and an unhardened instance of exactly this shape is in live use on the same
+  host at authoring time.
+
+
+  ## Approach
+
+
+  Harden in place, entirely in the deck-owned layer — no fork, no vendored server,
+  no service replacement (`#2315` CON-1 stands; discard was weighed and rejected,
+  see Spec §1 Alternatives):
+
+
+  - **Lifecycle watchdog wrapper** on the registered launch path — terminates the
+  whole server tree on client death, no stdout/EPIPE dependence (optional clientless
+  idle-timeout reaper).
+
+  - **Resource ceilings** in the deck''s service config — peak-memory-demand ceiling
+  and thread-pool cap (upstream knobs where available; wrapper-level limits otherwise).
+
+  - **Host-memory admission gate** — below a configured free-memory threshold, heavyweight
+  work is not admitted.
+
+  - **Same-host serialization guard** — at most one instance per host performs heavyweight
+  reindex work (user-runtime-directory lock).
+
+
+  Default-on registration and the retrieval function itself are preserved.
+
+
+  ## Scope
+
+
+  Files touched live under the `.opencode` repo only: `opencode.jsonc` (`mcp.ragsync`
+  registration), co-located `ragsync-config.yaml` + wrapper, `docs/ragsync-service.md`.
+  Corpus designation and include/exclude policy (`#2315` §3.1/CON-8), model pinning
+  (CON-7), and all other registered MCP services are out of scope. Xvfb/`awaitConsoleIdle`
+  downstream defects stay in the doaj/NewsRxUI trackers (incident cross-ref only).
+
+
+  ## Requirements
+
+
+  - **R-1 (SHALL)** — launch path detects client death and terminates the entire server
+  tree without stdout/EPIPE dependence, within a bounded reap deadline (documented
+  wrapper parameter).
+
+  - **R-2 (SHALL)** — service config bounds single-instance peak memory demand to
+  a configured ceiling (default recorded with rationale at implementation time, sized
+  above the embedding-model resident baseline).
+
+  - **R-3 (SHALL)** — service config caps the server''s thread/worker count at a configured
+  maximum.
+
+  - **R-4 (SHALL)** — host-memory admission: below a configured free-memory threshold,
+  heavyweight work (the reindex/HNSW index-construction class) is not admitted, in
+  an observably-distinguishable state.
+
+  - **R-5 (SHALL)** — same-host serialization: at most one instance per host performs
+  heavyweight reindex work at any instant (runtime lock in a user-owned runtime directory).
+
+  - **R-6 (SHOULD)** — clientless idle/heartbeat self-reap after a configured idle
+  duration.
+
+  - **R-7 (SHALL)** — retrieval function preserved post-hardening (service starts
+  and answers queries inside the documented startup envelope); `#2315` CON-7 honest
+  best-effort unavailability semantics stand.
+
+  - **R-8 (SHALL)** — standing co-location contract preserved (`#2315` CON-5): registered
+  command keeps naming `--config .opencode/ragsync-config.yaml`.
+
+
+  ## Impact
+
+
+  Consumers: every deck deployment''s `ragsync` registration and config (edited in
+  place); the family build host''s co-tenants (protected by gates/ceilings); retrieval
+  users (function preserved per R-7); the upstream service (complementary fixes not
+  gated); deck docs naming the service (updated to the hardened path). Risk if unaddressed:
+  the incident shape repeats on any client death during heavy work — an unbounded,
+  multi-hour, host-thrashing workload on a shared machine.
+
+
+  ## Success criteria
+
+
+  | ID | Criterion (compressed) | Class | Instrument |
+
+  |----|--------------------------|-------|------------|
+
+  | SC-1 | SIGKILLed client → tree exits within the reap deadline, stdout-quiet/busy
+  case included | behavioral | lifecycle fixture (stub client, kill mid-run, poll
+  tree exit) |
+
+  | SC-2 | Reindex peak RSS ≤ configured ceiling on the fixture corpus | behavioral
+  | uncapped baseline vs capped rerun, RSS sampling |
+
+  | SC-3 | Thread count ≤ configured cap during the capped run | behavioral | thread
+  sampling during SC-2 run |
+
+  | SC-4 | Threshold above free memory → no heavyweight work admitted, observable
+  state | behavioral | inflated-threshold launch fixture, log/exit assertions |
+
+  | SC-5 | Zero overlap of heavy-work windows across two same-host instances | behavioral
+  | two-instance fixture with workload-window sampling |
+
+  | SC-6 | Clientless idle instance self-terminates after the configured idle duration
+  | behavioral | idle fixture past timeout (+ margin), assert self-exit |
+
+  | SC-7 | Client-connected instance survives the same window (no false reaping) |
+  behavioral | companion fixture, client alive past SC-6 window, query answered |
+
+  | SC-8 | Hardened service starts; `list_sources` returns exactly the fixture sources;
+  seeded `search` returns ≥1 hit | behavioral | MCP stdio client invocation inside
+  the connect envelope |
+
+  | SC-9 | Registered command names the co-located config; hardening defaults live
+  in it | structural | parse `opencode.jsonc` `mcp.ragsync` + grep the co-located
+  config |
+
+
+  ## Out of scope
+
+
+  Retiring/replacing ragsync; re-registering `srclight` (banned per `#2315` CON-9);
+  Xvfb/`awaitConsoleIdle` defects (doaj/NewsRxUI trackers); other MCP services'' lifecycle
+  hardening; ragsync source modification/forking/vendoring; corpus designation changes;
+  new model pinning; upstream-issue gating; per-deployment disable policy.
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2624/
+
+  >
+
+  > AI-facing local artifacts: `.opencode/.issues/2624/`
+
+  '
 created_at: '2026-11-26T02:34:58+00:00'
-updated_at: '2026-11-26T02:35:29+00:00'
+updated_at: '2026-11-26T02:44:11+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2624
