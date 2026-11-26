@@ -2,7 +2,54 @@ title: '[BUG] ragsync MCP: orphaned stdio servers escape client death and balloo
   host memory (2026-10-15 incident)'
 status: open
 labels:
-- needs-approval
-body: ''
+- none
+body: "## Event summary (2026-10-15, ~09:13–12:18 EDT)\n\nTwo `ragsync` MCP stdio\
+  \ servers — the deck's default retrieval service (adopted in #2315) —\nlaunched\
+  \ via `uvx --with mcp<2 ragsync --config .opencode/ragsync-config.yaml` for host\
+  \ repos\n`CrossrefAbstracts` and `SEC-Filings-Scraper` on the shared 62 GiB family\
+  \ build host.\n\n- Their MCP clients died; the `uvx` wrappers and servers became\
+  \ orphans at PPID 1 and continued\n  ~3h of clientless work before diagnosis.\n\
+  - Chroma reindex/HNSW workloads ballooned RSS to **39.4 GB** and **21.7 GB** (151/154\
+  \ parallel\n  threads); combined demanded footprint ≈ 117 GB against 62 GiB physical.\n\
+  - Host thrashed for hours: `kswapd0` continuously in `D` state, **63 of 127 Gi swap\
+  \ consumed\n  (~57 Gi attributable to the two servers)**, load average 47–53, both\
+  \ processes parked in\n  `folio_wait_bit_common` page waits (memory-bound, not producing\
+  \ value for anyone).\n- I/O profile over 3h: cumulative reads **1.53 TiB + 1.19\
+  \ TiB ≈ 2.7 TiB**, writes negligible\n  (≤ 0.5 GB each), no sockets (stdio only)\
+  \ — orphaned, unwatched, unbounded.\n- Diagnosed 12:14–12:18; developer-ordered\
+  \ `SIGTERM` to both server trees; all four PIDs\n  (2× `uvx` wrappers, 2× `python\
+  \ ragsync`) exited within ~5 s.\n\n## Root-cause analysis — three interacting gaps\n\
+  \n1. **Client-death survival.** Stdio MCP servers have no parent-death detection.\
+  \ A clientless\n   server that is busy (writes nothing to stdout) never hits EPIPE;\
+  \ the `uvx` wrapper layer\n   enforces no lifecycle contract; nothing reaps it.\
+  \ Orphaned servers run unwatched until\n   something else fails.\n2. **Unbounded\
+  \ memory workload.** ragsync's chroma backend loads the full collection\n   (`chroma.sqlite3`\
+  \ + HNSW binaries `data_level0.bin`/`link_lists.bin`) into RAM with\n   fastembed\
+  \ (`Qwen3-Embedding-0.6B-Q`); no memory cap, no thread-pool cap, no host-aware\n\
+  \   admission. One server alone (39 GB) can exceed a safe share of the host; two\
+  \ concurrent\n   instances multiply it.\n3. **No cross-repo concurrency guard on\
+  \ one host.** Configs are per-repo\n   (`.opencode/ragsync-config.yaml`); nothing\
+  \ coordinates or serializes ragsync instances\n   across repos sharing a machine.\n\
+  \n## Downstream impact observed (incident context, cross-ref only)\n\nDuring the\
+  \ same window the doaj repo's NewsRxUI#64 triage recorded \"sustained load ≈ 50\"\
+  \nconditions; a release-gate-reproduction load run under that ambient pressure hit\n\
+  `Xvfb did not start virtual display :122 within 10s` (NewsRxUI/build.gradle:105)\
+  \ and exposed an\n`awaitConsoleIdle` premature-idle race. Ambient thrash plausibly\
+  \ inflated those conditions.\nThose defects are tracked in the doaj/NewsRxUI trackers;\
+  \ recorded here as incident context only.\n\n## Remediation taken\n\nSIGTERM (developer-ordered)\
+  \ at ~12:18: all four processes exited cleanly within ~5 s;\nRAM 61 Gi → 3.2 Gi\
+  \ used; swap 63 Gi → 5.8 Gi used; `kswapd0` idle; load avg falling.\nNo observable\
+  \ data loss: per-server writes were sub-GB and Chroma stores are regenerable\nfrom\
+  \ source.\n\n## Fix directions (triage input — not yet a spec)\n\n- **Parent-death\
+  \ watchdog in the MCP launch path** (`PR_SET_PDEATHSIG`, PPID polling, or a\n  uvx-level\
+  \ supervisor) so a dead client reaps busy servers regardless of stdout activity.\n\
+  - **ragsync resource ceilings** in deck config defaults: chroma collection memory\
+  \ cap or\n  mmap-bounded index load, thread-pool cap, and host-memory admission\
+  \ (e.g., refuse to start\n  or defer indexing when free memory is below a threshold).\n\
+  - **Instance serialization guard** when same-host ragsync instances would run concurrently.\n\
+  - Optional: an idle/heartbeat timeout for clientless stdio MCP servers.\n- Optional\
+  \ downstream: Xvfb provisioning resilience (longer startup budget or retry) in\n\
+  \  repos that gate tests on Xvfb.\n"
 created_at: '2026-11-26T02:34:58+00:00'
-updated_at: '2026-11-26T02:34:58+00:00'
+updated_at: '2026-11-26T02:35:15+00:00'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2624
