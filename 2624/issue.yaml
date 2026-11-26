@@ -1,8 +1,7 @@
 title: '[BUG] ragsync MCP: orphaned stdio servers escape client death and balloon
   host memory (2026-10-15 incident)'
 status: open
-labels:
-- none
+labels: []
 body: "## Event summary (2026-10-15, ~09:13–12:18 EDT)\n\nTwo `ragsync` MCP stdio\
   \ servers — the deck's default retrieval service (adopted in #2315) —\nlaunched\
   \ via `uvx --with mcp<2 ragsync --config .opencode/ragsync-config.yaml` for host\
@@ -51,5 +50,5 @@ body: "## Event summary (2026-10-15, ~09:13–12:18 EDT)\n\nTwo `ragsync` MCP st
   \ downstream: Xvfb provisioning resilience (longer startup budget or retry) in\n\
   \  repos that gate tests on Xvfb.\n"
 created_at: '2026-11-26T02:34:58+00:00'
-updated_at: '2026-11-26T02:35:15+00:00'
+updated_at: '2026-11-26T02:35:29+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2624
