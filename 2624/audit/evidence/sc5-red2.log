@@ -1,0 +1,69 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________________ test_host_slot_serializes_heavyweight_work __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-muksihs/pytest-777/test_host_slot_serializes_heav0')
+
+    @pytest.mark.pr_validation
+    def test_host_slot_serializes_heavyweight_work(tmp_path: Path) -> None:
+        runtime_dir = tmp_path / "runtime"
+        journal = runtime_dir / "ragsync-heavyweight.journal"
+    
+        # Instance A — holds the slot (long wait budget; it acquires immediately).
+        a_config = fixture_ragsync_config(tmp_path / "instance-a")
+        client_a, stderr_a, _cmd_a = spawn_fixture_tree(
+            tmp_path,
+            a_config,
+            hardening_config=_hardening_for(tmp_path, 60),
+        )
+        # Instance B — launched concurrently, short wait budget → decline.
+        b_config = fixture_ragsync_config(tmp_path / "instance-b")
+        client_b, stderr_b, _cmd_b = spawn_fixture_tree(
+            tmp_path,
+            b_config,
+            hardening_config=_hardening_for(tmp_path, 5),
+        )
+        try:
+>           client_b.wait(timeout=45)
+
+tests/test_ragsync_launch/test_sc5_host_slot.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/subprocess.py:1264: in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Popen: returncode: None args: ['python3', '-c', 'import json, subprocess, s...>
+timeout = 45
+
+    def _wait(self, timeout):
+        """Internal implementation of wait() on POSIX."""
+        if self.returncode is not None:
+            return self.returncode
+    
+        if timeout is not None:
+            endtime = _time() + timeout
+            # Enter a busy loop if we have a timeout.  This busy loop was
+            # cribbed from Lib/threading.py in Thread.wait() at r71065.
+            delay = 0.0005 # 500 us -> initial delay of 1 ms
+            while True:
+                if self._waitpid_lock.acquire(False):
+                    try:
+                        if self.returncode is not None:
+                            break  # Another thread waited.
+                        (pid, sts) = self._try_wait(os.WNOHANG)
+                        assert pid == self.pid or pid == 0
+                        if pid == self.pid:
+                            self._handle_exitstatus(sts)
+                            break
+                    finally:
+                        self._waitpid_lock.release()
+                remaining = self._remaining_time(endtime)
+                if remaining <= 0:
+>                   raise TimeoutExpired(self.args, timeout)
+E                   subprocess.TimeoutExpired: Command '['python3', '-c', 'import json, subprocess, sys\ncmd = json.loads(open(sys.argv[1]).read())\nraise SystemExit(subprocess.run(cmd).returncode)\n', '/tmp/pytest-of-muksihs/pytest-777/test_host_slot_serializes_heav0/registered-command.json']' timed out after 45 seconds
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/subprocess.py:2045: TimeoutExpired
+=========================== short test summary info ============================
+FAILED tests/test_ragsync_launch/test_sc5_host_slot.py::test_host_slot_serializes_heavyweight_work
+1 failed in 45.07s

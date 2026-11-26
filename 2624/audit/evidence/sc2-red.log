@@ -1,0 +1,35 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________________ test_memory_ceiling_bounds_peak_demand ____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-muksihs/pytest-760/test_memory_ceiling_bounds_pea0')
+
+    @pytest.mark.pr_validation
+    def test_memory_ceiling_bounds_peak_demand(tmp_path: Path) -> None:
+        # NOTE: one uncapped baseline + one capped rerun each drive the full
+        # registered tree; total cycle wall-time is minutes (pr_validation class).
+        baseline_peak, _alive = sample_run(tmp_path / "baseline", fixture_ragsync_config(tmp_path / "baseline"))
+        assert baseline_peak > 0, "uncapped baseline recorded no tree RSS samples"
+    
+        ceiling = int(baseline_peak * CAP_FRACTION)
+        assert ceiling > 0
+    
+        capped_peak, alive = sample_run(
+            tmp_path / "capped",
+            fixture_ragsync_config(tmp_path / "capped"),
+            hardening_config=_hardening_with(tmp_path, ceiling),
+        )
+        # The demand bound is real: peak observed under the cap never exceeds the
+        # ceiling (pre-hardening this fails — the run behaves like the uncapped
+        # baseline and peaks around baseline_peak > ceiling).
+>       assert capped_peak <= ceiling, (
+            f"capped run's observed peak {capped_peak} exceeded the configured "
+            f"ceiling {ceiling} (uncapped baseline was {baseline_peak})"
+        )
+E       AssertionError: capped run's observed peak 527953920 exceeded the configured ceiling 263956480 (uncapped baseline was 527912960)
+E       assert 527953920 <= 263956480
+
+tests/test_ragsync_launch/test_sc2_memory_ceiling.py:50: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_ragsync_launch/test_sc2_memory_ceiling.py::test_memory_ceiling_bounds_peak_demand
+1 failed in 64.99s (0:01:04)

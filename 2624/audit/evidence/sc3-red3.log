@@ -1,0 +1,24 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____________________ test_thread_cap_bounds_and_enforces ______________________
+
+tmp_path = PosixPath('/tmp/pytest-of-muksihs/pytest-764/test_thread_cap_bounds_and_enf0')
+
+    @pytest.mark.pr_validation
+    def test_thread_cap_bounds_and_enforces(tmp_path: Path) -> None:
+        # Run A — the deck-default cap bounds the real workload.
+        peak_a, _alive_a, _log_a = _sample_threads(
+            tmp_path,
+            fixture_ragsync_config(tmp_path / "run-a"),
+            _hardening_with(tmp_path, DEFAULT_THREAD_CAP),
+        )
+>       assert peak_a <= DEFAULT_THREAD_CAP, (
+            f"tree reached {peak_a} threads under the deck-default cap {DEFAULT_THREAD_CAP}"
+        )
+E       AssertionError: tree reached 119 threads under the deck-default cap 32
+E       assert 119 <= 32
+
+tests/test_ragsync_launch/test_sc3_thread_cap.py:117: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_ragsync_launch/test_sc3_thread_cap.py::test_thread_cap_bounds_and_enforces
+1 failed in 91.54s (0:01:31)
