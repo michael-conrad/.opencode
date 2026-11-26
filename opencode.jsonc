@@ -38,7 +38,16 @@
       },
       "ragsync": {
         "type": "local",
-        "command": ["uvx", "--with", "mcp<2", "ragsync", "--config", ".opencode/ragsync-config.yaml"],
+        "command": [
+          ".opencode/tools/ragsync-launch.py",
+          "--",
+          "uvx",
+          "--with",
+          "mcp<2",
+          "ragsync",
+          "--config",
+          ".opencode/ragsync-config.yaml"
+        ],
         "disabled": false
       },
       "ollama-web-search": {
