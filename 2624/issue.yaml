@@ -21,8 +21,8 @@ body: '## Problem
   busy clientless server never hits EPIPE and nothing reaps it; (2) the chroma backend
   loads full collections into RAM (no memory cap, no thread cap, no host-aware admission);
   (3) per-repo configs give no cross-repo concurrency guard on one host. The launch
-  path is **unchanged** since the incident (verified 2026-11-25 — registration is
-  still the raw `uvx --with "mcp<2" ragsync --config .opencode/ragsync-config.yaml`
+  path is **unchanged** since the incident (verified 2026-11-25 — the registration
+  is still the raw `uvx --with "mcp<2" ragsync --config .opencode/ragsync-config.yaml`
   shape), and an unhardened instance of exactly this shape is in live use on the same
   host at authoring time.
 
@@ -30,26 +30,33 @@ body: '## Problem
   ## Approach
 
 
-  Harden in place, entirely in the deck-owned layer — no fork, no vendored server,
-  no service replacement (`#2315` CON-1 stands; discard was weighed and rejected,
-  see Spec §1 Alternatives):
+  Fix the ragsync setup in place, entirely in the deck-owned layer — no fork, no vendored
+  server, no service replacement (`#2315` CON-1 stands; discard was weighed and rejected,
+  see Spec §1 Alternatives). Four concrete setup changes, in implementation order:
 
 
-  - **Lifecycle watchdog wrapper** on the registered launch path — terminates the
-  whole server tree on client death, no stdout/EPIPE dependence (optional clientless
-  idle-timeout reaper).
+  - **Registered launch command → watchdog wrapper** — `opencode.jsonc`''s `mcp.ragsync.command`
+  swaps the raw `uvx …` line for a wrapper that starts it as a supervised child: parent-death
+  signal (PR_SET_PDEATHSIG-class) on the server process **plus** a PPID-poll loop
+  carrying the reap deadline — belt-and-suspenders, since PDEATHSIG alone misses the
+  parent-dies-before-prctl window and PPID poll alone can lag — so the full tree is
+  reaped on client death with no stdout/EPIPE dependence.
 
-  - **Resource ceilings** in the deck''s service config — peak-memory-demand ceiling
-  and thread-pool cap (upstream knobs where available; wrapper-level limits otherwise).
+  - **Co-located resource ceilings** — configured peak-memory-demand ceiling and thread-pool
+  cap applied to the supervised child: upstream knobs where plan-time live verification
+  confirms them, wrapper-level limit application otherwise and by default.
 
-  - **Host-memory admission gate** — below a configured free-memory threshold, heavyweight
-  work is not admitted.
+  - **Host-memory admission gate in the wrapper** — below a configured free-memory
+  threshold, heavyweight reindex/HNSW work is not admitted (observably-distinguishable
+  state).
 
-  - **Same-host serialization guard** — at most one instance per host performs heavyweight
-  reindex work (user-runtime-directory lock).
+  - **Same-host serialization** — a runtime lock in a user-owned runtime directory;
+  exactly one heavyweight reindex slot per host user, plus an optional clientless
+  idle/heartbeat self-reaper in the same wrapper.
 
 
-  Default-on registration and the retrieval function itself are preserved.
+  Default-on registration and the retrieval function itself are preserved — the fix
+  governs the setup''s workload, it does not retire the service.
 
 
   ## Scope
@@ -65,30 +72,34 @@ body: '## Problem
   ## Requirements
 
 
-  - **R-1 (SHALL)** — launch path detects client death and terminates the entire server
-  tree without stdout/EPIPE dependence, within a bounded reap deadline (documented
-  wrapper parameter).
+  - **R-1 (SHALL)** — registered launch command routes startup through a wrapper that
+  detects client death and terminates the entire server tree (wrapper + server) without
+  stdout/EPIPE dependence, within the wrapper''s bounded reap deadline (documented
+  parameter).
 
-  - **R-2 (SHALL)** — service config bounds single-instance peak memory demand to
-  a configured ceiling (default recorded with rationale at implementation time, sized
-  above the embedding-model resident baseline).
+  - **R-2 (SHALL)** — the service setup (co-located config + wrapper) bounds the supervised
+  instance''s peak memory demand to a configured ceiling (default recorded with rationale
+  at implementation time, sized above the embedding-model resident baseline); upstream
+  knob where plan-time verification confirms, wrapper-level limits otherwise — the
+  deck-owned path is the default and does not depend on upstream.
 
-  - **R-3 (SHALL)** — service config caps the server''s thread/worker count at a configured
-  maximum.
+  - **R-3 (SHALL)** — the service setup caps the supervised instance''s thread/worker
+  count at a configured maximum (same knob-or-wrapper contract as R-2).
 
-  - **R-4 (SHALL)** — host-memory admission: below a configured free-memory threshold,
-  heavyweight work (the reindex/HNSW index-construction class) is not admitted, in
-  an observably-distinguishable state.
+  - **R-4 (SHALL)** — the launch wrapper applies host-memory admission: below a configured
+  free-memory threshold, heavyweight work (the reindex/HNSW index-construction class)
+  is not admitted, in an observably-distinguishable state.
 
-  - **R-5 (SHALL)** — same-host serialization: at most one instance per host performs
-  heavyweight reindex work at any instant (runtime lock in a user-owned runtime directory).
+  - **R-5 (SHALL)** — the launch wrapper serializes heavyweight reindex work across
+  same-host instances (one heavyweight slot per host user; runtime lock in a user-owned
+  runtime directory, held only while the work runs).
 
-  - **R-6 (SHOULD)** — clientless idle/heartbeat self-reap after a configured idle
-  duration.
+  - **R-6 (SHOULD)** — the launch wrapper provides a clientless idle/heartbeat reaper:
+  a clientless, workless stdio server self-terminates after a configured idle duration.
 
-  - **R-7 (SHALL)** — retrieval function preserved post-hardening (service starts
-  and answers queries inside the documented startup envelope); `#2315` CON-7 honest
-  best-effort unavailability semantics stand.
+  - **R-7 (SHALL)** — retrieval function preserved post-fix (service starts and answers
+  queries inside the documented startup envelope); `#2315` CON-7 honest best-effort
+  unavailability semantics stand.
 
   - **R-8 (SHALL)** — standing co-location contract preserved (`#2315` CON-5): registered
   command keeps naming `--config .opencode/ragsync-config.yaml`.
@@ -160,5 +171,5 @@ body: '## Problem
 
   '
 created_at: '2026-11-26T02:34:58+00:00'
-updated_at: '2026-11-26T02:44:11+00:00'
+updated_at: '2026-11-26T02:59:38+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2624
