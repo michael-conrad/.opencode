@@ -1,6 +1,6 @@
 title: '[SPEC] Harden the ragsync retrieval service launch path — client-death reaping,
   resource ceilings, host-memory admission, same-host serialization'
-status: open
+status: closed
 labels:
 - spec
 - needs-approval
