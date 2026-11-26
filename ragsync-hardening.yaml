@@ -1,0 +1,66 @@
+# Hardening defaults for the ragsync launch wrapper (.opencode#2624).
+#
+# This file is owned by `.opencode/tools/ragsync-launch.py` — NOT by ragsync.
+# Upstream ragsync validates its own yaml (`--config .opencode/ragsync-config.yaml`)
+# with pydantic `extra="forbid"`; every hardening key lives here instead, per
+# the 2624 spec SC-9 co-location contract. Values each carry their rationale.
+
+# Item 1 (SC-1): full server-tree reap on client death must finish inside this
+# budget. 30 s sits inside the documented 30 s opencode MCP connect window, so
+# a dead client's replacement start is never wedged by zombie wrappers.
+reap_deadline_seconds: 30
+
+# Item 2 (SC-2): hard ceiling on the supervised tree's memory demand. The
+# kernel RLIMIT_AS set on the launched child bounds each tree PROCESS's
+# address space (inherited by every descendant); the wrapper's 1 s demand
+# sampler additionally terminates the whole tree when its SUMMED RSS exceeds
+# `memory_ceiling_bytes` — together the per-process bound and the sampled-sum
+# kill hold the incident shape: no tree process can balloon past the ceiling
+# unobserved. 16 GiB is ~5x above the observed warm embedding baseline
+# (~3.15 GB) with headroom for growth of the two deck corpora, and 2.4x below
+# the incident's smaller-instance observed peak (~39.4 GB), so the incident's
+# demand shape dies instead of thrashing.
+memory_ceiling_bytes: 17179869184
+
+# Item 3 (SC-3): cap on the supervised tree's summed thread count. Enforced by
+# the wrapper's per-tick /proc sampler (no kernel rlimit bounds a tree's
+# threads exactly; RLIMIT_NPROC would hit the whole user, far past the tree).
+# 128 sits ~1.6x above the measured realistic full-tree demand on this class
+# of host (a bge-small run reaches ~80 threads across uvx/python/chroma/ONNX
+# pools at default pool sizing on ~150 cores) and below the 151 threads the
+# incident's unbounded run reached — a thread explosion is the incident's
+# second leg, and a server that ignores a soft cap has no cap.
+thread_cap: 128
+
+# Item 4 (SC-4): host-memory admission gate, re-read live per launch (never
+# latched). 20 GiB sits below the healthy-host state observed at authoring
+# (~45 GiB available) and above the ceiling itself, so admitted heavy work
+# always has room for the 16 GiB cap plus the embedding baseline and normal
+# host load; a refusal is a non-zero exit before any child spawn (CON-7
+# honest-unavailability, observable per SC-4).
+admission_min_free_bytes: 21474836480
+
+# Item 5 (SC-5): one heavyweight reindex slot per host user. The wrapper holds
+# an flock on <runtime_dir>/<lock_name> from child spawn until the tree
+# settles (summed RSS growth < 5% across a 60 s window) or exits, hard-bounded
+# by heavy_window_seconds so a wedged holder cannot hold the slot forever.
+# Waiters exceeding lock_wait_seconds decline honestly (CON-7, never wedged
+# past the client's 30 s connect window). runtime_dir "" = $XDG_RUNTIME_DIR
+# with a per-user 0700 /tmp/runtime-<uid> fallback. Hold windows are journaled
+# to <runtime_dir>/ragsync-heavyweight.journal (SC-5's zero-overlap evidence).
+heavy_window_seconds: 1800
+lock_wait_seconds: 25
+lock_name: "ragsync-heavyweight.lock"
+runtime_dir: ""
+
+# Items 6-7 (SC-6/SC-7): clientless reap composition. A busy clientless tree
+# (the incident's expensive shape) is terminated immediately on client-death
+# detection; an idle one self-terminates at idle_timeout_seconds of
+# clientlessness, hard-bounded by reap_deadline_seconds (reap boundary =
+# clientless moment + min(reap_deadline, idle_timeout)). Deck defaults keep
+# the 30 s watchdog dominant (spec §5(d) tradeoff): 900 s idle comfort is
+# the SHOULD-level reaper's budget for deployments that extend the reap
+# deadline. idle_poll_seconds is the sampled idle-classification cadence.
+# A client-ATTACHED tree is never reaped by this arm (SC-7 guard).
+idle_timeout_seconds: 900
+idle_poll_seconds: 60

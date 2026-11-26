@@ -8,9 +8,24 @@ Default retrieval service for the agent's reference-corpus queries (spec CON-1 r
 
 ## Service configuration
 
-`ragsync` is registered in `.opencode/opencode.jsonc` `mcp` block: `type: "local"`, stdio transport via the uvx runner pattern (`uvx --with "mcp<2" ragsync --config <path>`), `enabled: true` (default-on; no per-session setup). The `mcp<2` pin keeps the mcp Python SDK at the 1.x API the server is built against.
+`ragsync` is registered in `.opencode/opencode.jsonc` `mcp` block: `type: "local"`, stdio transport through the hardened launch wrapper (`.opencode/tools/ragsync-launch.py -- uvx --with "mcp<2" ragsync --config <path>`, `.opencode#2624`), `enabled: true` (default-on; no per-session setup). The wrapper must be the MCP client's direct child — the PPID lineage is its only client-death signal — and is therefore stdlib-only under the host python; the `mcp<2` pin keeps the mcp Python SDK at the 1.x API the server is built against.
 
-The service is configured by `.opencode/ragsync-config.yaml` (co-located with the registration per CON-5 — config edits and registration edits land in the same change; see the [isolation review checklist](reference/ragsync-isolation-checklist.md) before touching either).
+The service is configured by `.opencode/ragsync-config.yaml` (co-located with the registration per CON-5 — config edits and registration edits land in the same change; see the [isolation review checklist](reference/ragsync-isolation-checklist.md) before touching either). The wrapper's hardening defaults are co-located but **separate**: `.opencode/ragsync-hardening.yaml` — NOT inside `ragsync-config.yaml`, which upstream ragsync validates with pydantic `extra="forbid"` (any added key crashes the server at startup).
+
+## Hardened launch path (`.opencode#2624`)
+
+The wrapper supervises the server tree and enforces the hardening contract:
+
+- **Client death → tree reap (SC-1/R-1).** A PPID-poll loop detects the client's death and terminates the whole tree; the supervised child additionally sets PR_SET_PDEATHSIG, so a wrapper death kills the server directly. No dependence on stdout activity or EPIPE.
+- **Busy/idle arms (SC-6/R-6).** At client death the tree is classified by sampled CPU rate (movement above ~20% of one core = busy): a busy clientless tree — the incident's expensive shape — is terminated immediately; an idle one self-terminates at `idle_timeout_seconds` of clientlessness, hard-bounded by `reap_deadline_seconds` (reap boundary = clientless moment + `min(reap_deadline, idle_timeout)`). A client-attached tree is never reaped by this arm (SC-7).
+- **Memory ceiling (SC-2/R-2).** `memory_ceiling_bytes` bounds memory demand two ways: a kernel RLIMIT_AS on the launched child (per-process, inherited by every descendant — no tree process can allocate beyond the ceiling) plus a sampled-demand kill that terminates the whole tree when its summed RSS exceeds the ceiling (the observable enforcement path; the sampled sum is the tree-level bound).
+- **Thread cap (SC-3/R-3).** `thread_cap` is enforced by the per-tick `/proc` sampler: a breach terminates the tree (no kernel rlimit bounds a tree's threads; one enforcement-cadence overshoot is inherent).
+- **Host-memory admission (SC-4/R-4).** `MemAvailable` below `admission_min_free_bytes` refuses the launch before any child spawn: non-zero exit + structured stderr line, live re-read per launch (never latched).
+- **Same-host heavyweight slot (SC-5/R-5).** One `flock` slot per host user (`$XDG_RUNTIME_DIR`, per-user 0700 `/tmp` fallback) is held from spawn until the tree settles (summed RSS growth < 5% across a 60 s window) or exits, hard-bounded by `heavy_window_seconds`; waiters exceeding `lock_wait_seconds` decline honestly (exit 6) rather than wedging the client's connect window. Hold windows are journaled (`ragsync-heavyweight.journal`) with a stale-holder record rule.
+
+All defaults with inline rationale: `reap_deadline_seconds: 30` (inside the documented 30 s connect window), `memory_ceiling_bytes: 16 GiB` (~5× the warm embedding baseline, 2.4× below the incident peak), `thread_cap: 128` (~1.6× measured full-tree demand, below the incident's 151 threads), `admission_min_free_bytes: 20 GiB` (above the ceiling itself), `idle_timeout_seconds: 900` (defaults keep the watchdog dominant, per spec §5(d)), `idle_poll_seconds: 60`, `heavy_window_seconds: 1800`, `lock_wait_seconds: 25`, `lock_name: "ragsync-heavyweight.lock"`, `runtime_dir: ""`.
+
+The refusal and decline states are the honest best-effort continuation (CON-7): a refused or declined launch is a non-zero process exit with a structured stderr line — the session continues without RAG.
 
 ## Per-source layout (spec §3.1)
 
