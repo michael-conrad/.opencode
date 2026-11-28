@@ -3,6 +3,75 @@ title: 'Admonishment needed: never modify already-applied schema migrations (che
 status: open
 labels:
 - needs-approval
-body: ''
+body: '## Summary
+
+
+  Requesting triage for an admonishment, toolkit-agnostic, about a failure class we
+  hit this week: **a database schema update that has already been applied must never
+  be modified afterward.** Editing (or re-running with edited content) a migration
+  that a persistent database has already recorded causes downstream validation failure
+  and divergence that content edits can no longer reconcile.
+
+
+  ## The incident (facts only)
+
+
+  A code family ships Flyway-style migration steps V1…V7 against two persistent databases
+  (one production-classified, one test). The databases record each applied step with
+  a checksum of the file''s content at apply time.
+
+
+  - 2026-11-24 13:12 — migrations V6/V7 were run against the **production** database
+  from an **uncommitted working tree** (pre-final content; 13 minutes before the first
+  commit).
+
+  - 2026-11-24 13:26 — V6/V7 were committed for the first time (final content).
+
+  - 2026-11-24 14:19 — the same V6/V7 ran against the **test** database from the committed
+  content.
+
+  - Result: the production DB''s recorded checksums correspond to content that **no
+  commit ever contained**. The final committed content applies cleanly everywhere
+  else, but validation against the production DB fails permanently (checksum mismatch),
+  and nothing in version history can ever satisfy it — the applied variant is unrecoverable.
+
+
+  Verified post-hoc: the production DB''s schema and data-level effects of V6/V7 (unique
+  constraints created, archive table populated, NULL-preserving backfill semantics,
+  output formats) are identical to the canonical committed content — so only the recorded
+  checksum history diverges, yet that alone leaves every production-classified connection
+  unable to validate, and any tooling validating against that DB (tests, release gates)
+  trips over a divergence the repo history never contained.
+
+
+  ## What we are asking upstream to add
+
+
+  A toolkit-agnostic admonishment in agent-facing guidance: **never modify a schema
+  update that has already been applied to a database** — and, to keep this class reachable,
+  the adjacent corollary: **never run schema updates against a persistent database
+  from uncommitted working-tree content.** Both halves caused this failure together,
+  and each half alone is enough to cause a version of it.
+
+
+  We leave the wording, placement (which guidelines/cards, and how strongly stated),
+  and enforcement mechanics to upstream triage. This report is limited to the incident
+  and the class it evidences; it does not prescribe deck structure.
+
+
+  ## Environment seen in
+
+
+  - Repo family: NewSRX-Tech-LLC `PM_Xml2Dbf_Feed` + registered submodules (`DaoOfficeCrossref`
+  carries the migrations; `CrossrefApi` test suite surfaced the mismatch).
+
+  - Tool: Flyway-community checksum validation in a Gradle multi-project build; failure
+  surfaced during a release-verification gate run.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+
+  '
 created_at: '2026-11-28T04:07:55+00:00'
-updated_at: '2026-11-28T04:07:55+00:00'
+updated_at: '2026-11-28T04:07:57+00:00'
