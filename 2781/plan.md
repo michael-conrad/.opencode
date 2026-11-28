@@ -105,37 +105,31 @@ their documented wrappers.
 - **Position reason:** the gate governs any edit under `skills/` or a
   guide; it cannot run after the edits it governs.
 
-**Item 4 (SC-6 — behavioral scenario, focused form per the 2026-11-28
-spec re-scope)**
+**Item 4 (SC-6 — tier-1 clean-room dispatch, per the 2026-11-28 spec
+re-scope after five tier-2 attempts)**
 
-- **Deliverable:** the behavioral scenario
-  `2781-sc6-shadowing-index-repair.sh` in its focused form: the workspace
-  carries the index defect and no issue store — the fixture injects only
-  the shadowing index (unmerged `.gitignore`; `.issues/` paths staged,
-  worktree-absent), the prompt's task is the repair and the disposition
-  record, and `repair-report.md` is the declared goal artifact; then one
-  clean-room evaluation over the recorded session evidence plus the
-  captured workspace end-state.
-- **RED:** at item start, no focused-form scenario exists — a listing of
-  `behaviors/` for the `2781-` scenario returning the pre-re-scope
-  (store-provisioning) form is the failing state; it fails now and at the
-  item's execution position.
-- **GREEN:** the focused scenario is run through the documented runner
-  against the amended deck and one clean-room evaluator returns a verdict
-  on the recorded evidence (repair through the card's mechanics: staged
-  `.issues/` entries untracked, `.gitignore` resolved, nothing under
-  `.issues/` deleted or overwritten; disposition record `repair-report.md`
-  present; no gate/wait).
-- **Tier marks:** the script is authored as a `behavioral`-tier scenario
-  (test-discipline mark-on-creation vocabulary, harness §3); it runs at
-  PR-check / verification time, never as default per-cycle smoke.
-- **Instrument:** documented runner (`with-test-home` + behavioral script,
-  ≥600s Bash timeout, monitored per §14); one clean-room evaluator
-  sub-agent over the session artifacts and end-state capture; PASS
-  requires: repair performed in-session (staged `.issues/` entries
-  untracked, `.gitignore` resolved, nothing under `.issues/` deleted or
-  overwritten), disposition record present, no gate-seeking or
-  report-and-wait halt.
+- **Deliverable:** the tier-1 instrument executed once: a defect workspace
+  built host-side (git repo; `.gitignore` tracked at HEAD; unmerged
+  `.gitignore` plus staged worktree-absent `.issues/` entries; no store),
+  one fresh-context sub-agent dispatched with the repair task per the
+  workspace guide, and the tier-1 verdict record — dispatch prompt, judged
+  criterion, verdict, end-state capture — persisted to the issue's audit
+  dir. The committed tier-2 scenario + fixture stay on the branch as the
+  harness instrument for future use.
+- **RED:** at item start, no tier-1 verdict record for this criterion
+  exists in the issue's audit dir.
+- **GREEN:** the dispatch runs, the recorded outcome shows the repair
+  performed in-session (staged `.issues/` entries untracked, `.gitignore`
+  resolved, nothing under `.issues/` deleted or overwritten), a disposition
+  record exists, no gate/wait occurred, and the tier-1 verdict record is
+  persisted.
+- **Tier marks:** tier-1 evidence class per the behavioral-testing card
+  rule 1 — a recorded clean-room dispatch persisted to the audit dir; no
+  harness run required for tier-1.
+- **Instrument:** the recorded dispatch (prompt + returned result), the
+  captured workspace end-state (`git status` clean of unmerged paths,
+  staged `.issues/` entries untracked, blob content byte-intact), and the
+  persisted audit-dir verdict record.
 
 **Item 5 (structural gates — closes the cycle)**
 
