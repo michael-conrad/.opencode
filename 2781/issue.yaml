@@ -3,6 +3,150 @@ title: '[SPEC] Auto-repair .issues issues-data worktree/branch state defects on 
 status: open
 labels:
 - needs-approval
-body: ''
+body: '## Problem
+
+
+  The deck''s store-hygiene doctrine leaves `.issues/` issues-data worktree and branch
+  **state** defects unowned: agents that detect them gate the repair behind developer
+  direction and report-and-wait, instead of repairing automatically. Observed regression
+  (2026-11-28): during a triage flow, the agent detected the root repo''s git index
+  shadowing the `.issues/` store mount (a failed stash-apply had left `UU .gitignore`
+  plus 8 `DU` unmerged `.issues/…` path entries — old-model store content re-tracked
+  in the parent repo against the worktree-only model), analyzed intent, and reported
+  "Repair awaits your direction" rather than repairing in the same workflow. The developer
+  had to direct the fix explicitly. The store-hygiene mandate authorizes free reading/writing/repair
+  of store workspace data and the issues card §7 already carries remediate-on-discovery
+  for interrupted syncs — but conflicted shadowing indexes, branch divergence, and
+  general store-mount state defects have no stated owner, so agents default to the
+  stricter (token-gated) reading of root-repo git state and the repair waits.
+
+
+  ## Scope
+
+
+  The deck repository (`michael-conrad/.opencode`) only: extend the `issues` card
+  §7 trigger/repair doctrine to enumerate the `.issues/` worktree and branch **state**
+  defect classes as agent-owned repair-on-discovery (same workflow, never report-and-wait),
+  with data-preserving repair mechanics and a repair-disposition record; extend the
+  store workspace guide''s hygiene-mandate section (state repairs alongside data-file
+  repairs). Behavioral verification through the tests-v2 harness. Sibling store-guide
+  amendments ride implementation as store maintenance. No tool-internal changes; no
+  deck file outside the card and the store guide.
+
+
+  ## Requirements
+
+
+  - **R-1 (SHALL):** The `issues` card §7 SHALL name the `.issues/` worktree and branch
+  state defect classes — conflicted indexes shadowing the store mount (parent-worktree
+  operations such as failed stash applies or merges touching `.issues/` paths), interrupted
+  mid-rebase/mid-merge worktree state, store-branch divergence, stale worktree state
+  — as agent-owned repair-on-discovery: repaired by the detecting agent in the same
+  workflow, without a developer gate and without reporting-and-waiting.
+
+  - **R-2 (SHALL):** The card''s repair doctrine for these classes SHALL carry data-preserving
+  mechanics: shadowing-index repairs untrack store paths (never delete or overwrite
+  store worktree files), corrections are history-additive, stash entries and store
+  records are preserved, and any removal of store content happens only through the
+  store''s own sanctioned tooling.
+
+  - **R-3 (SHALL):** The card SHALL carry the corollary: reporting-and-waiting on
+  a repairable defect of these classes is itself a defect; escalation keeps its existing
+  posture — a repair failing on evidenced tool error is a report-with-halt scoped
+  to that store alone.
+
+  - **R-4 (SHALL):** The store workspace guide''s hygiene mandate SHALL extend to
+  worktree/branch state repairs (state repairs alongside issue-data file repairs),
+  stated on the same surface agents already load for store operations.
+
+  - **R-5 (SHALL):** The repair disposition SHALL be recorded where the defect was
+  discovered: pre-repair state, the repair performed, and verification evidence (post-repair
+  git state plus store-integrity checks — data byte-intact, record count, branch state).
+
+
+  ## Success criteria
+
+
+  | ID | Criterion | Class | Instrument |
+
+  |----|-----------|-------|------------|
+
+  | SC-1 | `issues` card §7 names the four enumerated state-defect classes as agent-owned
+  repair-on-discovery (same workflow, no gate, no report-and-wait) | structural |
+  Locate the trigger/repair doctrine passage (e.g. `grep -n "shadowing\|mid-rebase\|divergence"
+  .opencode/skills/issues/SKILL.md`); pass only when the located text names all four
+  classes with the same-workflow ownership wording |
+
+  | SC-2 | The card carries R-2''s mechanics: untrack-not-delete for shadowing indexes,
+  history-additive corrections, stash/record preservation, sanctioned-tooling-only
+  store-content removal | structural | Read the located repair-mechanics passage;
+  pass only when all four mechanism elements read directly |
+
+  | SC-3 | The card carries the corollary (report-and-wait is itself a defect) and
+  the evidenced-tool-error escalation posture | structural | Read the located corollary
+  passage; pass only when both elements read directly |
+
+  | SC-4 | The store guide''s hygiene mandate covers worktree/branch state repairs
+  alongside data-file repairs | structural | Read `.opencode/.issues/AGENTS.md` hygiene-mandate
+  section for the state-repair extension |
+
+  | SC-5 | The disposition-recording requirement (pre/post state + integrity checks)
+  is stated in the card | structural | Read the located disposition passage |
+
+  | SC-6 | An agent under the amended deck, injected with a shadowing conflicted index
+  over the store mount, repairs it automatically within the same workflow and records
+  the disposition — no developer gate, no report-and-wait halt | behavioral | tests-v2
+  behavioral scenario per the `behavioral-testing` card (inject the defect class into
+  a harness workspace; evaluate recorded session evidence for same-workflow auto-repair
+  + disposition record) |
+
+
+  ## Impact
+
+
+  Every agent operating issue stores in a deck-mounted workspace: detected store worktree/branch
+  state defects stop converting into developer-blocking waits; the store stays un-defective
+  across sessions by construction. The observed regression (developer-forced direction
+  for a mechanical, byte-safe, history-additive repair) stops recurring. Blast radius:
+  `issues/SKILL.md` §7, `.opencode/.issues/AGENTS.md`, sibling store guides as store
+  maintenance; no tool code, no floors, no pipeline-stage changes. Risk in-scope and
+  bounded: agents must not over-reach into unrelated root git state — bounded by R-2''s
+  mechanics and the class enumeration.
+
+
+  ## Out of scope
+
+
+  Tool-internal auto-repair (the `local-issues` tool keeps its fail-fatal/report posture
+  per the #816 line of fixes — the tool reports loudly; the agent owns the repair);
+  store record-data content defects (existing #2755-class triggers); authorization
+  for stash drops or other destructive git operations (stays developer-gated); general
+  parent-repo git state unrelated to the store mount.
+
+
+  ## Approach
+
+
+  Generalize the existing interrupted-sync clause (the issues card §7 `.opencode#2731`
+  trigger — already remediate-on-discovery) to the enumerated state-defect classes,
+  reusing that clause''s repair-failure posture. State the mechanics as the demonstrated
+  repair pattern: untrack store paths from the shadowing index, resolve superseded
+  hunks by intent, verify by the git-state + store-integrity set. Extend the store
+  guide''s hygiene mandate in the same change, with sibling store guides as store
+  maintenance. Execute the demonstrated repair''s evidence (pre-state capture, sha-verified
+  storage integrity, post-repair clean state) as the mechanics'' worked example in
+  the issue record''s research area.
+
+
+  > Full spec and plan artifacts: (registered after local filing)
+
+  >
+
+  > Artifacts: `.opencode/.issues/{N}/`.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
 created_at: '2026-11-28T04:55:39+00:00'
-updated_at: '2026-11-28T04:55:39+00:00'
+updated_at: '2026-11-28T04:55:41+00:00'
