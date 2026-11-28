@@ -74,3 +74,71 @@ spec:
       mount ignored, no post-repair commit) — spec, research artifact, and
       record body figures agree with each other and with live git.
     loop_exit: clean PASS (zero findings, no caveats)
+
+plan:
+  artifact: .opencode/.issues/2781/plan.md
+  criteria_source: .opencode/skills/plan/references/plan-validation-standards.md
+  # Consolidated per the canonical one-record-per-issue rule (2026-11-28):
+  # the separate plan-validation.yaml content moves here; rounds 1-2 of the
+  # plan loop were previously recorded in audit/plan-validation.yaml.
+
+  rounds:
+  - round: 1
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent (ses_ddf6c076cffeWLp3sLbnEJHbtT)
+    verdict: FAIL
+    findings:
+    - item: "4"
+      class: untestable RED
+      defect: RED asserted pre-amendment state while the item executes after Items 1-3 commit.
+      remediating: RED restated as the absence of the scenario script and recorded behavioral evidence at item start.
+    - item: "5"
+      class: internal inconsistency + broken grain
+      defect: Item bundled the admission gate (pre-edit) and structural suite (post-Item-4) executing at opposite cycle ends.
+      remediating: Split into Item 0 (admission gate, first position) and Item 5 (structural suite, last position).
+    loop_note: previously recorded in audit/plan-validation.yaml; consolidated here.
+
+  - round: 2
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent (ses_ddf6a8656ffeINxsPnZMrwYYNG)
+    verdict: PASS
+    findings: none
+    loop_note: previously recorded in audit/plan-validation.yaml; loop reopened by the 2026-11-28 developer-directed spec re-scope (plan Item 4 revised; whole-artifact-on-touch).
+
+  spec_re_scope_round:
+  - round: 1 (post re-scope)
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent (ses_ddcad5123ffelkjbXCbtmcqmjC)
+    verdict: FAIL
+    findings:
+    - artifact: spec SC-6
+      class: internal contradiction + incapable instrument (shared root with plan finding 3 — SC-6 re-scope alignment)
+      defect: criterion named a store-holding workspace with store files while the fixture stages worktree-absent entries only; preservation element had no referent.
+      remediating: criterion narrowed to the no-store workspace; preservation element in observable form (nothing under .issues/ deleted or overwritten).
+    - artifact: spec R-1/R-4 + SC-1/SC-4
+      class: missing criterion (shared root — lean-contract non-propagation)
+      defect: lean mandate-statement contract stated as requirement text with no criterion able to fail on violation.
+      remediating: composition contract stated concretely in R-1 and R-4; SC-1/SC-4 pass conditions check it (posture referenced not restated; no fence prose).
+    - artifact: plan Item 4
+      class: internal inconsistency
+      defect: GREEN demanded store-files-preserved with no referent in the declared fixture.
+      remediating: GREEN aligned to the fixture's observable form.
+    - artifact: plan Item 2
+      class: scope discipline violation
+      defect: deliverable directed exclusion-fence prose the directive prohibits.
+      remediating: deliverable narrowed to inclusion-only boundary reconciliation; implemented guide boundary de-fenced (store sync f32717a64).
+
+  - round: 2 (post re-scope)
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent (ses_ddca587b8ffeiqxZGTraEtPJa3)
+    verdict: FAIL
+    findings:
+    - artifact: plan Item 4 (P-1)
+      class: no-referent PASS requirement
+      defect: Instrument PASS list still read store-files-preserved (contradicted remediated GREEN and SC-6).
+      remediating: Instrument PASS list restated in the fixture's observable form.
+    - artifact: plan traceability (P-2)
+      class: stale citations
+      defect: Item 0/5 cited spec §7, Item 3 cited §2/§4 — wrong anchors (governance at §5; sibling posture at §1).
+      remediating: anchors corrected to §5 / §1 / canonical-commands grounds.
+    loop_note: spec side zero findings this round; plan findings remediated; round 3 dispatch follows.

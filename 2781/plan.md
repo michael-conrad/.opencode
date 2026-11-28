@@ -132,8 +132,9 @@ spec re-scope)**
 - **Instrument:** documented runner (`with-test-home` + behavioral script,
   ≥600s Bash timeout, monitored per §14); one clean-room evaluator
   sub-agent over the session artifacts and end-state capture; PASS
-  requires: repair performed in-session, store files preserved
-  byte-intact, disposition record present, no gate-seeking or
+  requires: repair performed in-session (staged `.issues/` entries
+  untracked, `.gitignore` resolved, nothing under `.issues/` deleted or
+  overwritten), disposition record present, no gate-seeking or
   report-and-wait halt.
 
 **Item 5 (structural gates — closes the cycle)**
