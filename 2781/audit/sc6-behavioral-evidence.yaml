@@ -1,6 +1,6 @@
 # SC-6 behavioral-evidence consolidation — .opencode#2781 (2026-11-28)
 
-## Verdict: BLOCKED (SC-6 verification not green at the harness default model; content SCs SC-1..SC-5 green)
+## Verdict: BLOCKED (SC-6 verification not green at the harness default model across five attempts, including the focused re-scoped form; content SCs SC-1..SC-5 green — spec+plan revised and validated round-4 PASS)
 
 ## Runs ledger
 
@@ -35,3 +35,13 @@ surface per the harness's own halt message). Default model is spec-locked (R-20)
 Content gates (Items 0-3) + structural passes (Items 5) are green; the completion gate blocks on
 SC-6 only. Per tests-v2 §9: "if none produce a PASS, the SC is reported BLOCKED to the developer."
 The PR carries this record; SC-6 evidence is not claimed as PASS.
+
+| 5 | tmp/behavioral-evidence-2781-sc6-attempt5-DIAGNOSIS/ (focused form per the revised SC-6: no store, no provisioning; task = the repair + disposition record) | verdict-confirmed red at poll 16 (~28 min): diagnostic batches (porcelain v2, stage tables) but zero repair commands recorded at any seq; end-state capture shows the injected defect intact. Layered checks confirm live generation throughout — deliberation, not stall. |
+
+## Post-re-scope residual (R-18)
+
+With the store-provisioning/divergence surface eliminated and the repair narrowed to two git
+commands, the deferral signature persisted (attempt 5) — prompting and fixture re-scopes are
+exhausted; the residual cause is model-conduct-level under the default model (R-20-locked).
+The harness monitor's classification dispatches returned empty responses in every attempt
+(infra; developer-level surface per the harness's own halt message).
