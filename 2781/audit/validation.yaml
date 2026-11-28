@@ -183,5 +183,7 @@ plan:
       remediating: ground corrected to the dispatch-uses-amended-deck rationale (ordering unchanged).
   - round: 6 (tier-1 re-scope)
     date: "2026-11-28"
-    reviewer: fresh-context general sub-agent
-    verdict: PENDING
+    reviewer: fresh-context general sub-agent (ses_ddc65ff5fffefGGJHgCHValJ1I)
+    verdict: PASS
+    findings: none
+    loop_exit: clean PASS (zero findings; all four round-5 remediations verified landed; no superseded tier-2 text survives; record bookkeeping accurate)
