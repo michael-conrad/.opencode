@@ -1,0 +1,37 @@
+# SC-6 behavioral-evidence consolidation — .opencode#2781 (2026-11-28)
+
+## Verdict: BLOCKED (SC-6 verification not green at the harness default model; content SCs SC-1..SC-5 green)
+
+## Runs ledger
+
+| attempt | evidence dir | outcome |
+|---|---|---|
+| 1 | tmp/behavioral-evidence-2781-sc6-shadowing-index-repair-GREEN-ollama-qwen3.8-27b-128k-gguf4/ | supervisor §14 signal-4 abort (~7min of tool-internals archaeology post-bootstrap); harness monitor halted on classifier dispatch failures (infra); orchestrator decision continue-new-dispatch recorded; false-signal annotation documents the voided attempt-2 clean-room PASS |
+| 2 | tmp/behavioral-evidence-2781-sc6-shadowing-index-repair-GREEN-full/ (resume of attempt 1) | final report delivered; clean-room evaluation PASS **voided** by unexamined end-state evidence: injected conflicted index (UU .gitignore + re-tracked .issues/ paths) survived end-of-run (attempt2-end-state-observation.txt); SC-6 honestly FAIL on the run |
+| 3 | tmp/behavioral-evidence-2781-sc6-attempt3-DIAGNOSIS/ (re-scope: git-state trigger prompt) | verdict-confirmed red at poll 90 (~1h20m); clean-room evaluation FAIL — discovery/self-authorization/worktree-link repair/data-preservation verified; index repair never executed; no disposition composed |
+| 4 | tmp/behavioral-evidence-2781-sc6-attempt4-DIAGNOSIS/ (re-scope: minimal index-only fixture, action-anchored prompt, declared goal artifact) | discovery within 4 turns (faster), full defect picture + doctrine-path reading at poll 17; verdict-confirmed red at poll 26 (~45min) — still zero repair commands |
+
+## What the runs DID verify (partial-positive, content-relevant)
+
+- The amended doctrine text is discovered, cited, and applied: run agents explicitly named
+  `.opencode#2781` and the shadowing-index class (attempt 3 polls 11-14), self-authorized under
+  the hygiene mandate, repaired adjacent store-worktree state defects ungated (attempt 3, data-preserving:
+  gitdir pointers rewritten with backups, dry-run-first remediation), and honest attribution of
+  sandbox auth limits. The "no developer gate, no report-and-wait halt" half of the criterion held
+  in all attempts — no agent ever asked or waited.
+- The failure half is conduct: under the harness default model (qwen3.8:27b), repair sequences for
+  the target defect never execute — recursive read-only recon with repeated "before making any
+  repairs" deferrals, 40-89k-token reasoning turns, across four re-scoped attempts.
+
+## R-18 remediation surfaces exhausted
+
+prompt construction (×2), fixture state (×2: bootstrap side-effects removed; index-only fixture),
+goal-condition declaration (×1: BEHAVIOR_EXPECTED_ARTIFACT/GOAL_ACTIONS). Harness monitor
+classification dispatches failed with empty responses in attempts 1/3 (infra — developer-level
+surface per the harness's own halt message). Default model is spec-locked (R-20): never substituted.
+
+## Where the verdict sits
+
+Content gates (Items 0-3) + structural passes (Items 5) are green; the completion gate blocks on
+SC-6 only. Per tests-v2 §9: "if none produce a PASS, the SC is reported BLOCKED to the developer."
+The PR carries this record; SC-6 evidence is not claimed as PASS.
