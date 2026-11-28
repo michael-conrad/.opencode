@@ -29,3 +29,48 @@ spec:
       bounds, #816 and root #128 existence, #2755 trigger, tests-v2 listing,
       floor rules), repo-boundary containment both prongs, and the
       research-area claim check that produced the finding.
+
+  - round: 2
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent (ses_ddf7abd5fffek5ZZYSfdPQ0SJ2)
+    verdict: FAIL
+    findings:
+
+    - class: "fabricated claims (spec's own worked-example figures misstate fact)"
+      finding: >-
+        The spec stated the executed repair's pre-state as 8 DU unmerged
+        .issues paths / 9 unmerged entries, in the Problem Statement, User
+        Intent, and the Documentation Sources row — while the cited research
+        artifact and live git state pin the truth at 4 DU .issues paths
+        (5 conflicted paths total with the UU .gitignore; 11 stage-entries;
+        the executed git rm --cached ran on 4 paths). Stage-entry arithmetic
+        had been misread as a path count.
+      remediating: >-
+        All three spec locations and the research artifact corrected to the
+        path count (4) and stage-entry count (11, stated explicitly); the
+        local record body and remote body reconciled to the same correction
+        in the same workflow.
+
+    bounds: >-
+      Reviewer ran the full verdict contract, all analysis families, the
+      proactive repo-boundary containment check on both prongs (both held),
+      and current-state spot-checks of every named surface — including live
+      git forensics on the still-present stash pinning the true unmerged
+      universe at 5 paths / 11 stage-entries; the count figures produced the
+      finding.
+
+  - round: 3
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent (ses_ddf7486d3ffe5onDJuP3NIxQF8)
+    verdict: PASS
+    findings: none
+    bounds: >-
+      Reviewer re-ran the full verdict contract and all analysis families, the
+      repo-boundary containment check on both prongs (both held), layout
+      conformance, current-state spot-checks of every named surface, and
+      live-git verification of every worked-example figure (stash-to-base
+      delta exactly 5 files, stage-entry arithmetic 3+2x4=11, blob-hash
+      triple, sha256 pair match, 429 records, stash preserved, 0 unmerged,
+      mount ignored, no post-repair commit) — spec, research artifact, and
+      record body figures agree with each other and with live git.
+    loop_exit: clean PASS (zero findings, no caveats)

@@ -1,1 +1,14 @@
-comments: []
+comments:
+- type: internal
+  body: 'Fix spec filed 2026-11-28 per developer directive (regression: agent did
+    not automatically fix .issues issues-data worktree and branch after detecting
+    a defect). Grounds: freshness-gated store state; search-before-filing ran (no
+    prior spec covers the state-defect classes: closest are #2731 interrupted-sync
+    clause and #816 tool-posture line, both distinguished); worked-example repair
+    executed same-day and recorded in research/; validation per spec card rule 7 —
+    round 1 FAIL (research-area claim unresolved) remediated by creating the artifact;
+    round 2 FAIL (worked-example count figures misstated: stage-entry arithmetic written
+    as path counts) remediated across spec, artifact, and both record bodies; round
+    3 PASS zero findings (audit/validation.yaml). Awaiting developer approval gate
+    (spec card rule 8).'
+  timestamp: '2026-11-28T05:08:44+00:00'
