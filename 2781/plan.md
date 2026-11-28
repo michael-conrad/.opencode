@@ -122,9 +122,10 @@ spec re-scope)**
   item's execution position.
 - **GREEN:** the focused scenario is run through the documented runner
   against the amended deck and one clean-room evaluator returns a verdict
-  on the recorded evidence (repair through the card's mechanics: store
-  paths untracked, `.gitignore` resolved, store files preserved
-  byte-intact; disposition present; no gate/wait).
+  on the recorded evidence (repair through the card's mechanics: staged
+  `.issues/` entries untracked, `.gitignore` resolved, nothing under
+  `.issues/` deleted or overwritten; disposition record `repair-report.md`
+  present; no gate/wait).
 - **Tier marks:** the script is authored as a `behavioral`-tier scenario
   (test-discipline mark-on-creation vocabulary, harness §3); it runs at
   PR-check / verification time, never as default per-cycle smoke.

@@ -110,10 +110,12 @@ from HEAD).
   store-branch divergence, and stale worktree state — as agent-owned
   repair-on-discovery: repaired by the detecting agent on discovery, in the
   same workflow, with no developer gate and no report-and-wait. The clause
-  states the mandate minimally (developer directive 2026-11-28): the class
-  enumeration bounds the mandate's scope, the interrupted-sync trigger's
-  escalation posture is reused by reference, and no restated or defensive
-  fencing prose is added.
+  states the mandate minimally (developer directive 2026-11-28) in three
+  element-groups — the mandate sentence with the class enumeration bounding
+  the mandate's scope; the data-preservation mechanics sentence; the
+  disposition sentence — with the interrupted-sync trigger's escalation
+  posture referenced, not restated, and no added out-of-scope fencing prose
+  on the card or the guide.
 - **R-2 (SHALL):** The card's repair doctrine for these classes SHALL carry
   the data-preserving mechanics: shadowing-index repairs untrack store paths
   (never delete or overwrite store worktree files), corrections are
@@ -121,13 +123,18 @@ from HEAD).
   removal of store content happens only through the store's own sanctioned
   tooling.
 - **R-3 (SHALL):** The card SHALL carry the corollary — report-and-wait on a
-  repairable defect of these classes is itself a defect — and SHALL reuse the
-  interrupted-sync trigger's escalation posture (evidenced-tool-error
-  report-with-halt scoped to that store alone) by reference rather than
-  restating it.
+  repairable defect of these classes is itself a defect — and SHALL reference
+  the interrupted-sync trigger's escalation posture (evidenced-tool-error
+  report-with-halt scoped to that store alone) rather than restating it.
 - **R-4 (SHALL):** The store workspace guide's hygiene-mandate section SHALL
   extend to worktree/branch state repairs alongside issue-data file repairs,
-  on the same surface agents already load for store operations.
+  on the same surface agents already load for store operations — stated
+  minimally per the same directive: the extension names the agent repairing
+  on discovery in the same workflow, references the card clause for mechanics
+  and disposition rather than restating them, and reconciles the section's
+  pre-existing scope boundary by inclusion only, with no added
+  exclusion-fence prose (the pre-existing boundary text and the floor's
+  destructive-action rule carry those bounds).
 - **R-5 (SHALL):** The repair disposition SHALL be recorded where the defect
   was discovered: pre-repair state, the repair performed, and verification
   evidence (post-repair git state plus store-integrity checks — data
@@ -137,12 +144,12 @@ from HEAD).
 
 | ID | Criterion | Class | Instrument |
 |----|-----------|-------|------------|
-| SC-1 | `issues` card §7 names all four enumerated state-defect classes as agent-owned repair-on-discovery (same workflow, no developer gate, no report-and-wait) | structural | Locate the trigger/repair passage (e.g. `grep -n "shadowing\|mid-rebase\|divergence\|stale worktree" .opencode/skills/issues/SKILL.md`); pass only when the located text names all four classes with the same-workflow ownership wording |
+| SC-1 | `issues` card §7 names all four enumerated state-defect classes as agent-owned repair-on-discovery (same workflow, no developer gate, no report-and-wait), stated as the lean composition contract: three element-groups (mandate sentence with class enumeration; data-preservation mechanics; disposition), the interrupted-sync escalation posture referenced not restated, no added out-of-scope fencing prose | structural | Locate the trigger/repair passage (e.g. `grep -n "shadowing\|mid-rebase\|divergence\|stale worktree" .opencode/skills/issues/SKILL.md`); pass only when the located text names all four classes with the same-workflow ownership wording, carries the three element-groups within three sentences with the posture referenced rather than restated, and adds no out-of-scope fencing prose |
 | SC-2 | The card carries R-2's mechanics: untrack-not-delete for shadowing indexes, history-additive corrections, stash/record preservation, sanctioned-tooling-only store-content removals | structural | Read the located repair-mechanics passage; pass only when all four mechanism elements read directly in the text |
 | SC-3 | The card carries the corollary (report-and-wait on a repairable defect of these classes is itself a defect) and the evidenced-tool-error escalation posture | structural | Read the located corollary passage; pass only when both elements read directly |
-| SC-4 | The store guide's hygiene-mandate section covers worktree/branch state repairs alongside issue-data file repairs | structural | Read `.opencode/.issues/AGENTS.md` hygiene-mandate section; pass only when the state-repair extension reads directly |
+| SC-4 | The store guide's hygiene-mandate section covers worktree/branch state repairs alongside issue-data file repairs, stated minimally: the extension names the agent repairing on discovery, references the card clause for mechanics and disposition, and adds no exclusion-fence prose relative to the pre-change boundary | structural | Read `.opencode/.issues/AGENTS.md` hygiene-mandate section; pass only when the state-repair extension reads directly and the minimal-statement contract holds (card-clause reference, inclusion-only boundary reconciliation, no added fence prose) |
 | SC-5 | The disposition-recording requirement (pre-repair state, repair performed, post-repair git state plus store-integrity verification) is stated in the card | structural | Read the located disposition passage; pass only when all three recording elements read directly |
-| SC-6 | An agent under the amended deck, presented with a workspace whose store-holding repository's index shadows the `.issues/` store mount, repairs it on discovery within the same workflow — untracks the store paths, resolves the conflict, preserves store files — and records the disposition, with no developer gate and no report-and-wait halt | behavioral | tests-v2 behavioral scenario `2781-sc6-shadowing-index-repair.sh` (focused form per the 2026-11-28 re-scope: the workspace carries the index defect and no issue store — the scenario's task is the repair and the disposition record; declared goal artifact `repair-report.md`); verdict from clean-room evaluation of the recorded session evidence plus the captured workspace end-state: repair performed in-session through the card's mechanics (store paths untracked, `.gitignore` resolved, store files preserved byte-intact), disposition present, no gate/wait |
+| SC-6 | An agent under the amended deck, presented with a workspace whose store-holding repository's index is defective over the `.issues/` store mount — unmerged `.gitignore`, `.issues/` paths staged with worktree files absent, no issue store provisioned — repairs it on discovery within the same workflow: untracks the staged store paths, resolves the `.gitignore` conflict, destroys no `.issues/` data, and records the disposition, with no developer gate and no report-and-wait halt | behavioral | tests-v2 behavioral scenario `2781-sc6-shadowing-index-repair.sh` (focused form: the fixture injects the index defect only; declared goal artifact `repair-report.md`); verdict from clean-room evaluation of the recorded session evidence plus the captured workspace end-state — repair performed in-session (staged `.issues/` entries untracked, `.gitignore` resolved, nothing under `.issues/` deleted or overwritten), disposition record present, no gate/wait |
 
 ## 5. Dependencies
 
