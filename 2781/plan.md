@@ -9,8 +9,8 @@ data-preserving mechanics, a report-and-wait corollary, and a disposition-
 recording requirement; extend the store workspace guide's hygiene mandate to
 state repairs in the same change; mirror the amendment into sibling store
 guides as store maintenance. All content changes land in the deck
-repository (`michael-conrad/.opencode`); verification adds one behavioral
-scenario through the tests-v2 harness.
+repository (`michael-conrad/.opencode`); verification adds one tier-1
+clean-room behavioral dispatch per the behavioral-testing card.
 
 ## Execution surface
 
@@ -24,8 +24,8 @@ this issue's cleanup, never direct content edits. Issue-store artifacts
 store's own tooling. Behavioral scenario executes inside
 `.opencode/tests-v2/` per the harness's `AGENTS.md`; the canonical test
 toolchain is the parent repo's declared commands (`cd .opencode && uv sync`
-/ `uv run pytest`) plus the harness's own documented runner, invoked through
-their documented wrappers.
+/ `uv run pytest`); the tier-1 dispatch runs over a host-side fixture
+workspace with platform sub-agent tooling.
 
 ## Items — one item per success criterion
 
@@ -152,8 +152,7 @@ re-scope after five tier-2 attempts)**
 
 Items 1 and 2 are independent content edits but share one branch and the
 governance gate; Item 3 depends on Items 1–2 (it mirrors them).
-Item 4 depends on Items 1–3 (its RED depends on the amended deck being
-committed). Item 0 precedes Item 1 because the deck-governance admission
+Item 4 depends on Items 1–3 (its dispatch operates per the amended guide and card, so those must be committed first). Item 0 precedes Item 1 because the deck-governance admission
 gate governs any edit under `skills/` or a guide and cannot run after the
 edits it governs. Item 5's structural suite runs last so the baseline
 covers both the deck edits and the Item-4 harness artifact. Full order:
@@ -177,14 +176,17 @@ SC outside the spec.
 
 - Fact checks: Items 1–3 verify through the spec's own instruments
   (grep/read passages).
-- Behavioral: Item 4 verifies through the tests-v2 harness + clean-room
-  evaluator (behavioral tier; PR-check time).
+- Behavioral: Item 4 verifies through a recorded tier-1 clean-room dispatch
+  persisted to the audit dir (behavioral-testing card rule 1; PR-check
+  time).
 - Governance: Item 0 — the skill-creator card's admission gate over the
   planned deck edits.
 - Structural: Item 5 — the parent's canonical pytest suite (regression
   tier on the deck's tool unit suite).
-- Authored tests: one new behavioral scenario script (Item 4). No unit
-  tests authored; scratch observation stays ephemeral.
+- Authored tests: the tier-2 harness scenario + fixture are committed on
+  the branch (commits `821f9537a`–`c170eedd4`) as the harness instrument;
+  Item 4's deliverable is the recorded tier-1 dispatch and its verdict
+  record. No unit tests authored; scratch observation stays ephemeral.
 
 ## Status boundary
 

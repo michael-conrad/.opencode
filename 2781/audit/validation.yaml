@@ -158,3 +158,30 @@ plan:
     verdict: PASS
     findings: none
     loop_exit: clean PASS (zero findings; P-2 anchors verified resolving; bookkeeping accurate)
+    superseded_note: loop reopened by the 2026-11-28 developer-directed tier-1 re-scope (spec SC-6 + plan Item 4; structural re-evaluation after five tier-2 attempts).
+
+  - round: 5 (tier-1 re-scope)
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent (ses_ddc6a82e3ffeNkRNvZa0us21Eo)
+    verdict: FAIL
+    findings:
+    - artifact: spec SC-6 instrument
+      class: fabricated citation (current-state assertion vs. artifact)
+      defect: instrument said the eligibility judgment is recorded in validation.yaml; the judgment lives in sc6-behavioral-evidence.yaml.
+      remediating: instrument cites sc6-behavioral-evidence.yaml.
+    - artifact: spec body (4 sites)
+      class: self-containment (superseded tier-2 text survived)
+      defect: §1 approach, §5 dependency row, §8 cost frame, §10 gate still described the tier-2 harness as the instrument.
+      remediating: all four converted to the tier-1 reference with the scenario retained as committed harness instrument.
+    - artifact: plan (4 sites)
+      class: internal inconsistency + structure (stale tier-2 account)
+      defect: Goal/Execution-surface/Verification-summary/Adoption postures still described the harness scenario as Item 4's deliverable; verification summary lacked the recorded-dispatch class.
+      remediating: goal, execution surface, verification summary, and authored-tests account converted to the tier-1 recorded dispatch.
+    - artifact: plan dependency order
+      class: misstated ground
+      defect: Item 4's RED ground said it consults the deck-commit state; it consults the audit dir.
+      remediating: ground corrected to the dispatch-uses-amended-deck rationale (ordering unchanged).
+  - round: 6 (tier-1 re-scope)
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent
+    verdict: PENDING
