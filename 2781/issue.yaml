@@ -1,0 +1,8 @@
+title: '[SPEC] Auto-repair .issues issues-data worktree/branch state defects on discovery
+  — agent-owned hygiene, never report-and-wait'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-11-28T04:55:39+00:00'
+updated_at: '2026-11-28T04:55:39+00:00'
