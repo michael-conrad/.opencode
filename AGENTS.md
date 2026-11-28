@@ -107,7 +107,7 @@ Creating `feature/*` or `spec/*` branches for code changes still requires `for_i
 
 It is the agent's responsibility to repair, remediate, and revise as needed ALL issue-ticket data files in the issues-data branches to prevent problems. Issue-ticket data repairs (fixing malformed YAML, correcting stale metadata, reconciling drifted records) are **authorization-free agent hygiene** and do **NOT** require a spec.
 
-This mandate likewise covers the `.issues/` store mount's own worktree and branch **state** defects (`.opencode#2781`): they are repaired on discovery, in the same workflow, under the same authorization-free reading. Repair mechanics and the disposition record are governed by the `issues` skill card's store-mount state-defect trigger.
+This mandate likewise covers the `.issues/` store mount's own worktree and branch **state** defects (`.opencode#2781`): the agent repairs them on discovery, in the same workflow, under the same authorization-free reading. Repair mechanics and the disposition record are governed by the `issues` skill card's store-mount state-defect trigger.
 
 This extends the authorization-free reading/writing rule above: the agent does not merely *may* touch `.issues/` files — it is *responsible* for their correctness. An agent that encounters drift or defects in issues-data records and leaves them unrepaired (or halts awaiting authorization or a spec) has failed its hygiene duty.
 
