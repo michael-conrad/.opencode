@@ -85,8 +85,8 @@ their documented wrappers.
 - **GREEN:** a minimal mirrored sentence; no structural rewrites.
 - **Tier marks:** instrument class: fact check.
 - **Instrument:** read the sibling guide's hygiene section; amendment reads
-  directly. This item serves spec §4 (siblings maintenance), not an
-  enumerated SC.
+  directly. This item serves spec §1's Approach sentence (sibling store guides
+  mirrored as store maintenance), not an enumerated SC.
 
 **Item 0 (deck-governance admission gate — precedes all edits)**
 
@@ -169,12 +169,12 @@ covers both the deck edits and the Item-4 harness artifact. Full order:
 
 | Item | SC(s) |
 |------|-------|
-| Item 0 | — (deck-governance gate; spec §7 governance dependency) |
+| Item 0 | — (deck-governance gate; spec §5 Dependencies — skill-creator row) |
 | Item 1 | SC-1, SC-2, SC-3, SC-5 |
 | Item 2 | SC-4 |
-| Item 3 | — (sibling-store surface; spec §2/§4 maintenance posture) |
+| Item 3 | — (sibling-store surface; spec §1 Approach — sibling store guides mirrored as store maintenance) |
 | Item 4 | SC-6 |
-| Item 5 | — (structural gates; spec §7 governance dependency) |
+| Item 5 | — (structural gates; the parent repo's declared canonical build/test commands and the floor's build-tooling exclusivity rule) |
 
 Every enumerated SC (SC-1 through SC-6) is covered; no item implements an
 SC outside the spec.

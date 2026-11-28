@@ -141,4 +141,18 @@ plan:
       class: stale citations
       defect: Item 0/5 cited spec §7, Item 3 cited §2/§4 — wrong anchors (governance at §5; sibling posture at §1).
       remediating: anchors corrected to §5 / §1 / canonical-commands grounds.
-    loop_note: spec side zero findings this round; plan findings remediated; round 3 dispatch follows.
+    loop_note: spec side zero findings this round; P-1 remediated; P-2 initially NOT applied (remediation block aborted before its edits ran — the round-2 loop_note as first written overstated the state and was corrected); round 3 dispatch followed.
+
+  - round: 3 (post re-scope)
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent (ses_ddc9e43f6ffeOdngwWJdr0XKxd)
+    verdict: FAIL
+    findings:
+    - artifact: plan traceability (P-2 residual)
+      class: stale citations
+      defect: round-2 P-2 remediation never applied to the artifact (remediation block aborted early; record had overstated application).
+      remediating: anchors applied in round 3 (Item 0 -> spec §5 Dependencies skill-creator row; Item 3 -> spec §1 Approach sentence, table + body; Item 5 -> canonical-commands/floor grounds); record loop_note corrected in the same action.
+  - round: 4 (post re-scope)
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent
+    verdict: PENDING
