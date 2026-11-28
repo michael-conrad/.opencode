@@ -11,7 +11,7 @@ body: '## Problem
   direction and report-and-wait, instead of repairing automatically. Observed regression
   (2026-11-28): during a triage flow, the agent detected the root repo''s git index
   shadowing the `.issues/` store mount (a failed stash-apply had left `UU .gitignore`
-  plus 8 `DU` unmerged `.issues/…` path entries — old-model store content re-tracked
+  plus 4 `DU` unmerged `.issues/…` path entries — old-model store content re-tracked
   in the parent repo against the worktree-only model), analyzed intent, and reported
   "Repair awaits your direction" rather than repairing in the same workflow. The developer
   had to direct the fix explicitly. The store-hygiene mandate authorizes free reading/writing/repair
@@ -138,16 +138,16 @@ body: '## Problem
   the issue record''s research area.
 
 
-  > Full spec and plan artifacts: (registered after local filing)
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2781/
 
   >
 
-  > Artifacts: `.opencode/.issues/{N}/`.
+  > Artifacts: `.opencode/.issues/2781/`.
 
 
   🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
 
   '
 created_at: '2026-11-28T04:55:39+00:00'
-updated_at: '2026-11-28T04:55:45+00:00'
+updated_at: '2026-11-28T05:05:22+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2781

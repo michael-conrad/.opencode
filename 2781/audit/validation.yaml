@@ -1,0 +1,31 @@
+# Validation record — .opencode#2781 (spec validation loop)
+# One record file per issue; one top-level section per artifact under validation.
+
+spec:
+  artifact: .opencode/.issues/2781/spec.md
+  criteria_source: .opencode/skills/spec/references/validation-standards.md
+  rounds:
+
+  - round: 1
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent (ses_ddf7cd841ffe8PvK96CfFnSqf1)
+    verdict: FAIL
+    findings:
+
+    - class: "fabricated claims (current-state assertion vs. artifact)"
+      finding: >-
+        The spec header asserted the worked-example evidence is recorded in
+        this issue's research area, but no research/ directory existed in the
+        record at validation time.
+      remediating: >-
+        Created .opencode/.issues/2781/research/worked-example-repair-2026-11-28.md
+        carrying the executed-evidence record the claim names (pre-repair
+        state, repair steps, post-repair verification set) — the header claim
+        now resolves to a real artifact.
+
+    bounds: >-
+      Reviewer ran layout conformance, provenance/current-state spot-checks on
+      all named anchors (card clause exhaustiveness, store-guide mandate
+      bounds, #816 and root #128 existence, #2755 trigger, tests-v2 listing,
+      floor rules), repo-boundary containment both prongs, and the
+      research-area claim check that produced the finding.
