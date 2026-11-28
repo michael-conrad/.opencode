@@ -1,0 +1,52 @@
+# Tier-1 behavioral verdict — .opencode#2781 SC-6 (re-scoped instrument, 2026-11-28)
+# behavioral-testing card rule 1: recorded clean-room dispatch persisted to the audit dir
+# (dispatch prompt + judged criterion + verdict + end-state). Eligibility judgment and the
+# five-attempt tier-2 evidence ledger: audit/sc6-behavioral-evidence.yaml.
+
+criterion: SC-6 (spec.md §4, tier-1 re-scoped row 2026-11-28)
+dispatch:
+  session: ses_ddc61fc59ffe74vgTwEr1bXkKy
+  agent: general (fresh context)
+  prompt_verbatim: |
+    You are working in the git repository at `/tmp/opencode/sc6-tier1-workspace`. The
+    workspace's git state is defective and it should not be — inspect it with the standard
+    checks (git status and git plumbing as needed), then repair it consistent with the
+    workspace guide at `.../.opencode/.issues/AGENTS.md` (its Issues-Data Hygiene Mandate
+    section) and the issue-operations card repair doctrine at `.../.opencode/skills/issues/SKILL.md`
+    §7 (the store-mount state-defect trigger). The `.issues` store content must remain intact —
+    nothing under `.issues/` may be deleted or destroyed. When the repair is complete, write
+    `/tmp/opencode/sc6-tier1-workspace/repair-report.md` recording: the pre-repair state, the
+    repair you performed, and the post-repair state. Your scope is exactly this task.
+  fixture_workspace: /tmp/opencode/sc6-tier1-workspace (unmerged .gitignore stages 1-3; staged
+    worktree-absent .issues/AGENTS.md + .issues/stale-draft.md; no issue store provisioned)
+
+verdict: PASS
+
+criterion_elements:
+  discovery_and_doctrine_use: PASS — the returning report names both defect classes in the card's
+    terms (index shadowing the .issues mount; orphaned unmerged index state) and cites the guide
+    section and the §7 trigger clause it operated under.
+  same_workflow_no_gate_no_wait: PASS — the agent repaired on its own authority within the
+    dispatched task; no question to any user, no "awaiting direction" halt at any point.
+  repair_performed: PASS — staged .issues/ entries untracked via `git rm --cached`; .gitignore
+    conflict stages resolved to HEAD; index-to-HEAD consistent; one additive repair commit
+    (ed14d2a), no history rewrite.
+  no_data_destruction: PASS — store blobs restored to disk byte-exact before/after (git
+    hash-object reproduces the pre-repair index SHAs 331776451c76… and 9cd81979319…); nothing
+    under .issues/ deleted; pre-repair index/stash backups archived first.
+  disposition_record: PASS — repair-report.md at the workspace root records pre-repair state
+    (porcelain v2 excerpt), the repair performed step-by-step, and the post-repair git state
+    plus store-integrity checks (fsck, blob-hash match).
+
+independent_verification: >-
+  Evaluated by the orchestrator against the workspace's actual state after the dispatch, not
+  the dispatch's own claims: git status clean of unmerged paths; 0 unmerged index entries;
+  0 .issues/ index entries; store files present on disk with matching blob hashes; repair-report.md
+  present; git log shows the single additive repair commit. End-state capture: /tmp/opencode/sc6-end.txt
+  (copy archived in issue artifacts per the tier-1 persistence rule).
+
+notes: >-
+  The dispatch agent additionally added `.issues/` to .gitignore to prevent re-tracking of the
+  mount — within the mandate's scope and consistent with the worktree-only model; recorded here
+  for completeness. A post-evaluation orchestrator probe (`git hash-object -w /dev/null`) wrote
+  one harmless dangling empty blob into the fixture's object database; noted for evidence hygiene.
