@@ -37,7 +37,10 @@ workflow, never report-and-wait), with data-preserving repair mechanics and a
 disposition-recording requirement; extend the store workspace guide's
 hygiene-mandate section to state repairs in the same change; sibling store
 guides get the mirrored amendment as store maintenance. Verification through
-content checks plus one behavioral scenario through the tests-v2 harness.
+content checks plus one behavioral verification: a tier-1 clean-room dispatch
+per the behavioral-testing card (re-scoped 2026-11-28 from the tier-2 harness
+after five evidenced model-level attempts; the tier-2 scenario remains
+committed on the branch as the harness instrument).
 
 **Alternatives Considered & Why Discarded:**
 - *Tool-internal auto-repair (make `local-issues` fix the parent index):* 
@@ -149,7 +152,7 @@ from HEAD).
 | SC-3 | The card carries the corollary (report-and-wait on a repairable defect of these classes is itself a defect) and the evidenced-tool-error escalation posture | structural | Read the located corollary passage; pass only when both elements read directly |
 | SC-4 | The store guide's hygiene-mandate section covers worktree/branch state repairs alongside issue-data file repairs, stated minimally: the extension names the agent repairing on discovery, references the card clause for mechanics and disposition, and adds no exclusion-fence prose relative to the pre-change boundary | structural | Read `.opencode/.issues/AGENTS.md` hygiene-mandate section; pass only when the state-repair extension reads directly and the minimal-statement contract holds (card-clause reference, inclusion-only boundary reconciliation, no added fence prose) |
 | SC-5 | The disposition-recording requirement (pre-repair state, repair performed, post-repair git state plus store-integrity verification) is stated in the card | structural | Read the located disposition passage; pass only when all three recording elements read directly |
-| SC-6 | The amended doctrine produces the regression's fix at runtime: a detecting agent, presented with a workspace whose store-holding repository's index is defective over the `.issues/` store mount (unmerged `.gitignore`; `.issues/` paths staged with worktree files absent; no issue store provisioned), performs the repair on its own authority within the same workflow — untracks the staged store paths, resolves the `.gitignore` conflict, destroys no `.issues/` data — and records the disposition, with no developer gate and no report-and-wait halt | behavioral | tier-1 clean-room dispatch per the behavioral-testing card rule 1 (the eligibility judgment: five tier-2 harness attempts under the R-20-locked default model documented a model-level deliberation-execution gap outside this criterion's subject — the runs discovered the defect, self-authorized, planned the correct repair, and never executed; the change under test is a card-doctrine clause; the judgment is recorded in the validation record). The dispatch: a fresh-context sub-agent in a fixture workspace carrying the injected defect, tasked per the workspace guide; the verdict draws on the recorded dispatch — repair performed in-session (staged `.issues/` entries untracked, `.gitignore` resolved, nothing under `.issues/` deleted or overwritten), disposition record present, no gate/wait — persisting the dispatch prompt, the judged criterion, the verdict, and the workspace end-state capture to the audit dir |
+| SC-6 | The amended doctrine produces the regression's fix at runtime: a detecting agent, presented with a workspace whose store-holding repository's index is defective over the `.issues/` store mount (unmerged `.gitignore`; `.issues/` paths staged with worktree files absent; no issue store provisioned), performs the repair on its own authority within the same workflow — untracks the staged store paths, resolves the `.gitignore` conflict, destroys no `.issues/` data — and records the disposition, with no developer gate and no report-and-wait halt | behavioral | tier-1 clean-room dispatch per the behavioral-testing card rule 1 (the eligibility judgment: five tier-2 harness attempts under the R-20-locked default model documented a model-level deliberation-execution gap outside this criterion's subject — the runs discovered the defect, self-authorized, planned the correct repair, and never executed; the change under test is a card-doctrine clause; the judgment and the five-attempt evidence ledger are recorded in `.opencode/.issues/2781/audit/sc6-behavioral-evidence.yaml`). The dispatch: a fresh-context sub-agent in a fixture workspace carrying the injected defect, tasked per the workspace guide; the verdict draws on the recorded dispatch — repair performed in-session (staged `.issues/` entries untracked, `.gitignore` resolved, nothing under `.issues/` deleted or overwritten), disposition record present, no gate/wait — persisting the dispatch prompt, the judged criterion, the verdict, and the workspace end-state capture to the audit dir |
 
 ## 5. Dependencies
 
@@ -159,7 +162,7 @@ from HEAD).
 | issues card §7 interrupted-sync clause (`.opencode#2731`, shipped) | The existing remediate-on-discovery clause this spec generalizes; its repair-failure posture is reused. | satisfied — read 2026-11-28 |
 | `.opencode/.issues/AGENTS.md` hygiene mandate | The second target surface; currently bounds hygiene to issue-ticket data files. | satisfied — read 2026-11-28 |
 | `skill-creator` (deck governance) | The card and guide edits pass the admission gate at implementation. | pending — gates at implementation |
-| `behavioral-testing` card + `.opencode/tests-v2/` harness | SC-6's instrument runs through the deck's behavioral harness. | satisfied — harness machinery exists (verified 2026-11-28) |
+| `behavioral-testing` card, tier-1 evidence class | SC-6's instrument is a tier-1 clean-room dispatch (card rule 1); the tier-2 harness scenario stays committed as the fallback tier. | satisfied — card rule and scenario exist (verified 2026-11-28) |
 | floor safety rule (intent-decidable never scripted) | Bounds the doctrine: repairs stay agent-judgment-classified; no mechanical scripting. | satisfied — read 2026-11-28 |
 
 ## 6. Traceability
@@ -194,9 +197,9 @@ direction.
   the passages, run the greps. Skipping costs the scope-boundary gap stays
   closed only in the incident thread; the next store-mount state defect
   reproduces the same developer-forced detour.
-- **SC-6 (behavioral):** acting costs harness provisioning plus one
-  clean-room run and evaluation (tens of minutes per harness economics);
-  skipping costs that the conduct regression — the exact observed defect — is
+- **SC-6 (behavioral):** acting costs one tier-1 clean-room dispatch and
+  its verdict persistence (minutes per the tier-1 evidence class); skipping
+  costs that the conduct regression — the exact observed defect — is
   verified by nothing and recurs unobserved.
 
 ## 9. Edge Cases
@@ -212,8 +215,8 @@ direction.
 ## 10. Completion gate
 
 Every success criterion SC-1 through SC-6 passes before the deliverable is
-complete — the card doctrine, the store-guide extension, and the executed
-behavioral scenario stand or fall together; partial implementation is not
-permitted.
+complete — the card doctrine, the store-guide extension, and the recorded
+tier-1 behavioral dispatch stand or fall together; partial implementation is
+not permitted.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
