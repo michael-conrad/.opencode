@@ -1,1 +1,17 @@
-comments: []
+comments:
+- type: internal
+  body: 'Triage verdict: work-entry conversion (.opencode#2707 mechanics). Grounds
+    — freshness gate ran 2026-11-28: root opencode-config main == origin/main (385a8a70,
+    post-fetch); submodule .opencode checkout at its own remote trunk tip (4ae21ba1b
+    = origin/main); sanctioned pointer drift vs root''s recorded gitlink recorded,
+    not resolved during triage. Mirror-repair per issues card §7: local record absent,
+    remote #2780 exists (github) — record created at remote-assigned number, remote
+    body mirrored, remote_url set. Search-before-filing (#2756): local store (queries
+    migration/checksum/database/schema/flyway/uncommitted) and remote tracker (migration/checksum/schema/database):
+    no existing spec covering the requirement class — no match to route into. Conversion:
+    report converted in place into the governing spec (.opencode/.issues/2780/spec.md);
+    validation per spec card rule 7 — round 1 FAIL (2 findings: SC-4/R-4 misalignment;
+    fabricated construct-form claims) remediated in place; round 2 PASS zero findings
+    (validation record: audit/validation.yaml). Awaiting developer approval gate (spec
+    card rule 8).'
+  timestamp: '2026-11-28T04:16:19+00:00'
