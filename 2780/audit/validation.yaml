@@ -1,0 +1,64 @@
+# Validation record — .opencode#2780 (spec validation loop)
+# One record file per issue; one top-level section per artifact under validation.
+
+spec:
+  artifact: .opencode/.issues/2780/spec.md
+  criteria_source: .opencode/skills/spec/references/validation-standards.md
+  rounds:
+
+  - round: 1
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent (ses_ddfa70613ffeJ4EmbuZTQ2wP8H)
+    verdict: FAIL
+    findings:
+
+    - class: "defect class 4 — ambiguous criterion (ground: internal inconsistency)"
+      finding: >-
+        SC-4's instrument parenthetical quoted a consequence-chain element
+        ("content edits cannot reconcile the record") not present in R-4's
+        literal text; a document satisfying R-4 verbatim could fail the
+        instrument — the spec did not resolve which governs.
+      remediating: >-
+        R-4 extended to state the full consequence chain as three linked
+        elements (apply-time metadata bound to exact run-time content; no
+        version in history satisfies mismatched metadata; content edits
+        cannot reconcile the record) — matching the ticket's own wording
+        ("content edits can no longer reconcile"); SC-4's criterion and
+        instrument aligned to the extended R-4 elements.
+
+    - class: "fabricated claims (current-state construct form)"
+      finding: >-
+        Documentation Sources rows asserted both target cards' existing
+        deprecation-protocol references were Read-directive constructs; the
+        files carry prose relative-link references instead (implement
+        SKILL.md line 131, programming-principles SKILL.md line 62).
+      remediating: >-
+        Both source rows corrected to state the construct as the files
+        contain it (prose relative links, with the actual quoted forms and
+        line numbers); the R-5 pattern grounding now reads as prose-link
+        reference pattern.
+
+    bounds: >-
+      Reviewer ran layout conformance (structure standards §1-§10), provenance
+      traceability spot-checks against the mirrored ticket body, the proactive
+      repo-boundary containment check (both prongs — scope and home both
+      .opencode), and current-state claim spot-checks including a negation
+      sweep across floor, skills/, guidelines/, AGENTS.md and the
+      skill-deck-completeness registration question for the new guidelines
+      document (no registration needed — tests-v2 completeness test operates
+      on skills/ SKILL.md files only).
+
+  - round: 2
+    date: "2026-11-28"
+    reviewer: fresh-context general sub-agent (ses_ddfa435a8ffe83HcDC6t8acP4l)
+    verdict: PASS
+    findings: none
+    bounds: >-
+      Reviewer re-ran layout conformance, provenance traceability (quotes,
+      dates, per-SC roots in developer statements or the recorded incident),
+      repo-boundary containment both prongs, and current-state claim
+      spot-checks — including the corrected prose-link references at
+      implement SKILL.md line 131 and programming-principles SKILL.md line 62,
+      guidelines/ inventory, tests-v2 machinery, floor safety rule at line
+      246, the proposed document's absence, and the deck-wide negation sweep.
+    loop_exit: clean PASS (zero findings, no caveats)
