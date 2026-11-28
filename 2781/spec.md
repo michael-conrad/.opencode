@@ -104,23 +104,27 @@ from HEAD).
 ## 3. Requirements
 
 - **R-1 (SHALL):** The `issues` card §7 trigger/repair doctrine SHALL name the
-  `.issues/` worktree and branch state defect classes — conflicted indexes
-  shadowing the store mount (parent-worktree operations such as failed stash
-  applies or merges touching `.issues/` paths), interrupted mid-rebase/
-  mid-merge worktree state, store-branch divergence, and stale worktree state
-  — as agent-owned repair-on-discovery: repaired by the detecting agent in the
-  same workflow as detection, without a developer gate and without
-  reporting-and-waiting.
+  `.issues/` worktree and branch state defect classes — a store-holding
+  repository's index shadowing the `.issues/` mount (unmerged entries or
+  staged adds over `.issues/` paths), interrupted mid-rebase/mid-merge state,
+  store-branch divergence, and stale worktree state — as agent-owned
+  repair-on-discovery: repaired by the detecting agent on discovery, in the
+  same workflow, with no developer gate and no report-and-wait. The clause
+  states the mandate minimally (developer directive 2026-11-28): the class
+  enumeration bounds the mandate's scope, the interrupted-sync trigger's
+  escalation posture is reused by reference, and no restated or defensive
+  fencing prose is added.
 - **R-2 (SHALL):** The card's repair doctrine for these classes SHALL carry
   the data-preserving mechanics: shadowing-index repairs untrack store paths
   (never delete or overwrite store worktree files), corrections are
   history-additive, stash entries and store records are preserved, and any
   removal of store content happens only through the store's own sanctioned
   tooling.
-- **R-3 (SHALL):** The card SHALL carry the corollary: reporting-and-waiting
-  on a repairable defect of these classes is itself a defect; escalation keeps
-  the existing posture — a repair failing on evidenced tool error is a
-  report-with-halt scoped to that store alone.
+- **R-3 (SHALL):** The card SHALL carry the corollary — report-and-wait on a
+  repairable defect of these classes is itself a defect — and SHALL reuse the
+  interrupted-sync trigger's escalation posture (evidenced-tool-error
+  report-with-halt scoped to that store alone) by reference rather than
+  restating it.
 - **R-4 (SHALL):** The store workspace guide's hygiene-mandate section SHALL
   extend to worktree/branch state repairs alongside issue-data file repairs,
   on the same surface agents already load for store operations.
@@ -138,7 +142,7 @@ from HEAD).
 | SC-3 | The card carries the corollary (report-and-wait on a repairable defect of these classes is itself a defect) and the evidenced-tool-error escalation posture | structural | Read the located corollary passage; pass only when both elements read directly |
 | SC-4 | The store guide's hygiene-mandate section covers worktree/branch state repairs alongside issue-data file repairs | structural | Read `.opencode/.issues/AGENTS.md` hygiene-mandate section; pass only when the state-repair extension reads directly |
 | SC-5 | The disposition-recording requirement (pre-repair state, repair performed, post-repair git state plus store-integrity verification) is stated in the card | structural | Read the located disposition passage; pass only when all three recording elements read directly |
-| SC-6 | An agent under the amended deck, presented with a workspace carrying a shadowing conflicted index over the store mount, repairs it automatically within the same workflow (untrack store paths, preserve store files) and records the disposition — no developer gate, no report-and-wait halt | behavioral | tests-v2 behavioral scenario per the `behavioral-testing` card: inject the defect class into a harness workspace; verdict from the scenario's recorded session evidence (repaired state + disposition record present; no gate-seeking halt) evaluated through the harness's clean-room evaluation |
+| SC-6 | An agent under the amended deck, presented with a workspace whose store-holding repository's index shadows the `.issues/` store mount, repairs it on discovery within the same workflow — untracks the store paths, resolves the conflict, preserves store files — and records the disposition, with no developer gate and no report-and-wait halt | behavioral | tests-v2 behavioral scenario `2781-sc6-shadowing-index-repair.sh` (focused form per the 2026-11-28 re-scope: the workspace carries the index defect and no issue store — the scenario's task is the repair and the disposition record; declared goal artifact `repair-report.md`); verdict from clean-room evaluation of the recorded session evidence plus the captured workspace end-state: repair performed in-session through the card's mechanics (store paths untracked, `.gitignore` resolved, store files preserved byte-intact), disposition present, no gate/wait |
 
 ## 5. Dependencies
 
