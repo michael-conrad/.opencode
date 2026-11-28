@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382; recomposition protocol, .opencode#2661; self-triggering triage, .opencode#2699; self-firing evidence trigger + ticket-status semantics, .opencode#2702; work-entry conversion triage outcome, .opencode#2707; interrupted-sync remediate-on-discovery trigger (reported-with-commands-and-waited regression, 2026-11-12), .opencode#2731; search-before-filing mandate in work-entry conversion, .opencode#2756; pre-triage freshness gate, .opencode#2764 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382; recomposition protocol, .opencode#2661; self-triggering triage, .opencode#2699; self-firing evidence trigger + ticket-status semantics, .opencode#2702; work-entry conversion triage outcome, .opencode#2707; interrupted-sync remediate-on-discovery trigger (reported-with-commands-and-waited regression, 2026-11-12), .opencode#2731; search-before-filing mandate in work-entry conversion, .opencode#2756; pre-triage freshness gate, .opencode#2764; store-mount state-defect repair-on-discovery trigger, .opencode#2781 -->
 
 # issues — issue operations
 
@@ -217,7 +217,9 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    API on any platform; `update --remote-url` writes the local store's
    `remote_url` field only and is never the mechanism for a remote-body
    correction. The repair is fact work performed on discovery — never a
-   blocker or fail reason by itself. **Registration-on-demand:** pipeline
+   blocker or fail reason by itself. **Store-mount state-defect trigger (.opencode#2781):** defects in the `.issues/` worktree and branch state — a store-holding repository's index shadowing the `.issues/` mount (unmerged entries or staged adds over `.issues/` paths), interrupted mid-rebase/mid-merge state, store-branch divergence, stale worktree state — are repaired by the detecting agent on discovery, in the same workflow, with no developer gate; the interrupted-sync trigger's escalation posture governs, and report-and-wait on a repairable defect of these classes is itself a defect.
+   The repair preserves data: the detecting agent untracks shadowed paths — store files are never deleted or overwritten — keeps corrections history-additive, keeps stash entries and store records, and removes store content only through the store's own tooling (`local-issues`).
+   The disposition is recorded where the defect was found: pre-repair state, repair performed, post-repair git state plus store-integrity checks. **Registration-on-demand:**
    work targeting an issue — spec creation, plan, implementation, or an
    audit dispatch — whose local record is absent begins by registering the
    record at the remote-assigned number (`create --number repo#N`), before
