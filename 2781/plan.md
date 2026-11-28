@@ -88,6 +88,23 @@ their documented wrappers.
   directly. This item serves spec §4 (siblings maintenance), not an
   enumerated SC.
 
+**Item 0 (deck-governance admission gate — precedes all edits)**
+
+- **Deliverable:** the skill-creator admission-gate pass over the planned
+  card and guide edits (deck-governance check; the deck-governance card's
+  gate must be passed before the first deck edit of Item 1).
+- **RED:** no admission-gate verdict exists in the session for this
+  change's planned surfaces (`skills/issues/SKILL.md` §7 extension;
+  store-guide hygiene-mandate extension) — the gate has not yet run.
+- **GREEN:** run the `skill-creator` card's admission-gate check against
+  the planned content; the gate returns admissible (with its grounds).
+- **Tier marks:** instrument class: recorded evaluation (the gate's own
+  check procedure).
+- **Instrument:** the gate check's executed procedure and its stated
+  verdict, reported in the completion flow.
+- **Position reason:** the gate governs any edit under `skills/` or a
+  guide; it cannot run after the edits it governs.
+
 **Item 4 (SC-6 — behavioral scenario through the tests-v2 harness)**
 
 - **Deliverable:** a new behavioral scenario script in
@@ -99,14 +116,17 @@ their documented wrappers.
   the recorded session evidence (same-workflow repair: store paths
   untracked, store files preserved, disposition record present; no
   developer-gate halt, no report-and-wait halt).
-- **RED:** with the deck carrying no state-defect doctrine (Items 1–2
-  incomplete), the scenario agent does not repair automatically — the
-  recorded session shows a report-and-wait halt or absent disposition;
-  with Items 1–2 complete the scenario exercises the amended deck. The
-  scenario is authored and run after Items 1–3 commit.
-- **GREEN:** the scenario script itself (this item authors the instrument);
-  the deck is already amended by Items 1–3, so the behavioral evidence and
-  clean-room verdict are the item's verification.
+- **RED:** at item start, no scenario script for SC-6 exists in
+  `.opencode/tests-v2/behaviors/` and no recorded session evidence of the
+  repair conduct exists — a listing of `behaviors/` for a `2781-`
+  scenario returns nothing. That assertion fails now and fails at the
+  item's execution position (after Items 1–3 commit).
+- **GREEN:** the scenario script exists, is run through the documented
+  runner against the amended deck, and one clean-room evaluator returns a
+  verdict on the recorded session evidence (same-workflow repair: store
+  paths untracked, store files preserved, disposition record present; no
+  developer-gate halt, no report-and-wait halt — with Items 1–2's doctrine
+  in place the scenario agent repairs automatically).
 - **Tier marks:** the script is authored as a `behavioral`-tier scenario
   (per the test-discipline mark-on-creation vocabulary and the harness's
   §3); it runs at PR-check / verification time, never as default per-cycle
@@ -119,41 +139,44 @@ their documented wrappers.
   preserved byte-intact), disposition record present, no gate-seeking or
   report-and-wait halt.
 
-**Item 5 (governance + structural gates)**
+**Item 5 (structural gates — closes the cycle)**
 
-- **Deliverable:** the skill-creator admission-gate pass recorded for the
-  card and guide edits (deck-governance check run before the first deck
-  edit of Item 1, not a separate artifact) plus the structural tier run:
-  the parent-repo canonical test commands (`cd .opencode && uv sync`,
-  `cd .opencode && uv run pytest`) executed clean.
-- **RED:** admission-gate and unit-suite facts are absent (gate not yet
-  run; suite not yet run against the change).
-- **GREEN:** run the gate check; run the suite; remediate any failure.
-- **Tier marks:** the suite run is the regression tier on the changed area;
-  no new unit test authored.
-- **Instrument:** executed gate output and the pytest run's captured
-  summary line (real output, quoted in the completion report).
+- **Deliverable:** the structural tier run: the parent repo's canonical
+  test commands executed clean against the amended deck
+  (`cd .opencode && uv sync`, then `cd .opencode && uv run pytest`).
+- **RED:** the unit suite has not been run against the change (no
+  recorded run exists for Items 1–3's amended state).
+- **GREEN:** run the commands; remediate any failure (a failure whose
+  remedy lies outside this change's scope stops the cycle per the
+  implementation-workflow escalation rule).
+- **Tier marks:** the suite run is the regression tier on the deck's tool
+  unit suite; no new unit test authored.
+- **Instrument:** the pytest run's captured summary line (real output,
+  quoted in the completion flow).
+- **Position reason:** the structural baseline must cover both the deck
+  content edits and the Item-4 harness artifact, so it runs last.
 
 ## Dependency order
 
 Items 1 and 2 are independent content edits but share one branch and the
-Item-5 governance pass; Item 3 depends on Items 1–2 (it mirrors them).
+governance gate; Item 3 depends on Items 1–2 (it mirrors them).
 Item 4 depends on Items 1–3 (its RED depends on the amended deck being
-committed). Item 5's governance half precedes Item 1's first edit
-(execution order: governance → 1 → 2 → 3 → 4 → 5's structural half) — the
-structural suite run closes the cycle after Item 4 so the harness-driven
-behavioral artifact and the deck edits both stand on a green
-structural baseline.
+committed). Item 0 precedes Item 1 because the deck-governance admission
+gate governs any edit under `skills/` or a guide and cannot run after the
+edits it governs. Item 5's structural suite runs last so the baseline
+covers both the deck edits and the Item-4 harness artifact. Full order:
+0 → 1 → 2 → 3 → 4 → 5.
 
 ## Traceability
 
 | Item | SC(s) |
 |------|-------|
+| Item 0 | — (deck-governance gate; spec §7 governance dependency) |
 | Item 1 | SC-1, SC-2, SC-3, SC-5 |
 | Item 2 | SC-4 |
 | Item 3 | — (sibling-store surface; spec §2/§4 maintenance posture) |
 | Item 4 | SC-6 |
-| Item 5 | — (deck-governance + structural gates; spec §7 governance dependency) |
+| Item 5 | — (structural gates; spec §7 governance dependency) |
 
 Every enumerated SC (SC-1 through SC-6) is covered; no item implements an
 SC outside the spec.
@@ -164,8 +187,10 @@ SC outside the spec.
   (grep/read passages).
 - Behavioral: Item 4 verifies through the tests-v2 harness + clean-room
   evaluator (behavioral tier; PR-check time).
-- Structural: Item 5 — deck-governance admission gate + the parent's
-  canonical pytest suite (regression tier on the deck's tool unit suite).
+- Governance: Item 0 — the skill-creator card's admission gate over the
+  planned deck edits.
+- Structural: Item 5 — the parent's canonical pytest suite (regression
+  tier on the deck's tool unit suite).
 - Authored tests: one new behavioral scenario script (Item 4). No unit
   tests authored; scratch observation stays ephemeral.
 
